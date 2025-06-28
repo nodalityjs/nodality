@@ -1,0 +1,49 @@
+
+*** These modified files were found in JOE when it aborted on Fri Apr 23 19:35:23 2021
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+echoIt
+echoIt
+echoIt
+echoIt
+crontab
+r
+.bash_profile
+.bash_profile
+.bash_profile
+.bash_profile
+/Users/filipvabrousek/.sdkman/candidates/gradle/current/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/filipvabrousek/Flutter/flutter/bin/flutter:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:/Users/filipvabrousek/development/flutter/bin
+
+*** File '* Startup Log *'
+Processing '/usr/local/Cellar/joe/4.6/etc/joe/joerc'...
+Processing '/usr/local/Cellar/joe/4.6/etc/joe/ftyperc'...
+Finished processing /usr/local/Cellar/joe/4.6/etc/joe/ftyperc
+Finished processing /usr/local/Cellar/joe/4.6/etc/joe/joerc
+
+*** These modified files were found in JOE when it aborted on Thu May 20 16:39:05 2021
+*** JOE was aborted because the terminal closed
+
+*** File 're'
+
+echo $(date);
+
+
+*** File '(Unnamed)'
+echoIt
+echoIt
+echoIt
+crontab
+r
+.bash_profile
+.bash_profile
+.bash_profile
+.bash_profile
+/Users/filipvabrousek/.bash_profile
+re
+
+*** File '* Startup Log *'
+Processing '/usr/local/Cellar/joe/4.6/etc/joe/joerc'...
+Processing '/usr/local/Cellar/joe/4.6/etc/joe/ftyperc'...
+Finished processing /usr/local/Cellar/joe/4.6/etc/joe/ftyperc
+Finished processing /usr/local/Cellar/joe/4.6/etc/joe/joerc

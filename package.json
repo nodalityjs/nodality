@@ -1,0 +1,39 @@
+{
+  "name": "nodality",
+  "version": "1.0.0-beta.4",
+  "description": "A lightweight library for declarative UI elements.",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "files": [
+    "lib/",
+    "layout/",
+    "dist/"
+  ],
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.esm.js"
+    }
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js"
+  },
+  "dependencies": {},
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/filipvabrousek/nodality.git"
+  },
+  "author": {
+    "name": "Filip Vabrousek",
+    "email": "filipvabrousek1@gmail.com",
+    "url": "https://filipvabrousek.com"
+  },
+  "homepage": "https://filipvabrousek.com",
+  "keywords": [
+    "UI",
+    "library",
+    "declarative",
+    "nodality"
+  ]
+}
