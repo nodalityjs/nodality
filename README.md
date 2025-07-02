@@ -99,8 +99,7 @@ new Des()
 ---
 
 ## Result
-
-<img src="https://nodalityjs.github.io/assets/images/mygif-116a3601e7b320c9aaea39231733bc8d.gif">
+<img src="https://nodalityjs.github.io/assets/images/image-2601c982f747c8e3977a2d588f61e040.png">
 
 After running this code:
 
