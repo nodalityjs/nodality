@@ -63,7 +63,7 @@ Also define a `<div>` with `id="#mount"` that will serve as a root element to re
 
 ## Everything Together
 
-Here is the complete working code:
+Here is the complete working code which uses CDN for convenient testing.
 
 ```html
 
