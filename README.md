@@ -66,13 +66,13 @@ Also define a `<div>` with `id="#mount"` that will serve as a root element to re
 Here is the complete working code:
 
 ```html
-<!-- include library code -->
-<script src="cdn.library.js"></script>
 
 <!-- div for mounting the result -->
 <div id="#mount"></div>
 
-<script>
+<script type="module">
+import {Des} from "https://www.unpkg.com/nodality@1.0.0-beta.4/dist/index.esm.js";
+
 let elements = [
   {
     type: "h1",
