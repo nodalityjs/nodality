@@ -100,6 +100,8 @@ new Des()
 
 ## Result
 
+<img src="https://nodalityjs.github.io/assets/images/mygif-116a3601e7b320c9aaea39231733bc8d.gif">
+
 After running this code:
 
 - You will see an `<h1>` element on the screen.
