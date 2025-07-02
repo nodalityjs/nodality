@@ -12,12 +12,11 @@ npm create nodality@latest my-app
 ---
 
 ## Tutorial
-
-### Step 1: Array of Elements
+## Step 1
 
 Define an array of elements you want to display in your user interface:
 
-```javascript
+```js
 let elements = [
   {
     type: "h1",
@@ -26,18 +25,29 @@ let elements = [
 ];
 ```
 
-### Step 2: Array of Nodes
+---
 
-Define an array of nodes that will adjust the behavior of the element.  
-This node adds a stroked text effect:
+## Step 2
 
-```javascript
+Define an array of nodes that will adjust the behaviour of the element.  
+This particular node will add the **stroked text** effect:
+
+```js
 let nodes = [
   {
     op: "blast"
   }
 ];
+```
 
+---
+
+## Step 3
+
+Add the `nodes` array using the `.nodes()` modifier, and use the `.set()` method to mount the result of the code to the website.  
+Use the `code: true` option to also display the source code of the elements:
+
+```js
 new Des()
   .nodes(nodes)
   .add(elements)
@@ -47,32 +57,19 @@ new Des()
   });
 ```
 
-### Step 3: Result
-
-Mount the result of the code to the website and display it:
-
-```javascript
-new Text("Hello")
-  .set({
-    index: "0",
-    fluidc: "S1",
-    font: "Arial",
-    stroke: { 
-      op: {
-        name: "blast", 
-        color: "green",
-        width: "1px"
-      } 
-    },
-  })
-  .render("#mount");
-```
+Also define a `<div>` with `id="#mount"` that will serve as a root element to render the UI.
 
 ---
 
-## Use the Result
+## Everything Together
+
+Here is the complete working code:
 
 ```html
+<!-- include library code -->
+<script src="cdn.library.js"></script>
+
+<!-- div for mounting the result -->
 <div id="#mount"></div>
 
 <script>
@@ -98,3 +95,13 @@ new Des()
   });
 </script>
 ```
+
+---
+
+## Result
+
+After running this code:
+
+- You will see an `<h1>` element on the screen.
+- When the user resizes the window and hits the **400–600px** breakpoint, a **stroke effect** will appear on the text, thanks to the `blast` modifier.
+- The **resulting code** of the UI will also be displayed below the rendered element.
