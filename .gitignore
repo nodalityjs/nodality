@@ -1,3 +1,4 @@
 RUNNING_RELEASE_GUIDE.md
 node_modules/
 dist/
+release.sh
