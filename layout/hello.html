@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Right Overlay Side Navigation</title>
+
+<style>
+  /* Basic reset */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+
+
+  /* Sidebar container */
+  .sidenav {
+    height: 100vh;
+    width: 400px; /* Full width */
+    position: fixed;
+    top: 0;
+    right: 0; /* Position sidebar on the right */
+    background-color: rgba(51, 51, 51, 0.9); /* Dark background with slight transparency */
+    transform: translateX(100%); /* Initially hidden off the screen */
+    transition: transform 0.3s ease; /* Smooth transition for sliding effect */
+    padding-top: 20px;
+    z-index: 1000; /* Ensure the sidebar overlays the content */
+  }
+
+  /* Sidebar links */
+  .sidenav a {
+    padding: 15px 20px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #f1f1f1;
+    display: block;
+    transition: 0.3s;
+  }
+
+  /* Hover effect */
+  .sidenav a:hover {
+    background-color: #575757;
+    color: #fff;
+  }
+
+  /* Main content */
+  .main-content {
+    padding: 20px;
+  }
+
+  /* Button to open/close sidebar */
+  #toggleBtn {
+    font-size: 20px;
+    cursor: pointer;
+    position: fixed;
+    top: 10px;
+    right: 10px; /* Position button on the right */
+    background-color: #333;
+    color: #f1f1f1;
+    padding: 10px 15px;
+    border: none;
+    z-index: 1001; /* Ensure button stays above overlay */
+    transition: 0.3s;
+  }
+
+  /* Style the button on hover */
+  #toggleBtn:hover {
+    background-color: #575757;
+  }
+</style>
+</head>
+<body>
+
+<!-- Toggle button -->
+<button id="toggleBtn" onclick="toggleNav()">☰ Open Sidebar</button>
+
+<!-- Side navigation menu -->
+<div id="mySidenav" class="sidenav">
+  <a href="#home">Home</a>
+  <a href="#services">Services</a>
+  <a href="#clients">Clients</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<!-- Main content -->
+<div id="mainContent" class="main-content">
+  <h2>Right Overlay Side Navigation Example</h2>
+  <p>Click the button to toggle the sidebar. The sidebar will overlay the main content and slide in from the right.</p>
+</div>
+
+<script>
+  let isOpen = false;
+
+  // Toggle the sidebar open and closed
+  function toggleNav() {
+    const sidenav = document.getElementById("mySidenav");
+    const toggleBtn = document.getElementById("toggleBtn");
+
+    if (isOpen) {
+      // Close the sidebar using the animation API
+      sidenav.animate(
+        [{ transform: 'translateX(0)' }, { transform: 'translateX(100%)' }],
+        { duration: 300, fill: 'forwards' }
+      ).onfinish = function() {
+        // After the animation finishes, set the sidebar transform to off-screen
+       // sidenav.style.transform = 'translateX(100%)';
+        toggleBtn.innerHTML = "☰ Open Sidebar"; // Change button text
+        isOpen = false; // Set isOpen to false
+      };
+    } else {
+      // Open the sidebar immediately
+      sidenav.style.transform = 'translateX(0)';
+      sidenav.animate(
+        [{ transform: 'translateX(100%)' }, { transform: 'translateX(0)' }],
+        { duration: 300, fill: 'forwards' }
+      );
+      toggleBtn.innerHTML = "✖ Close Sidebar"; // Change button text
+      isOpen = true; // Set isOpen to true
+    }
+  }
+</script>
+
+</body>
+</html>
