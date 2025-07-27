@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.37
+ * nodality v1.0.0-beta.39
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
