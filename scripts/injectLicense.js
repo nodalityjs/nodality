@@ -23,7 +23,6 @@ function addOrReplaceHeader(filePath) {
     content = content.replace(licenseHeaderRegex, '');
   }
   fs.writeFileSync(filePath, header + '\n' + content, 'utf8');
-  console.log(`🔧 Updated: ${filePath}`);
 }
 
 function walkAndInject(dir) {

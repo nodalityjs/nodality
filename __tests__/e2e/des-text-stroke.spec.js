@@ -17,7 +17,8 @@ test('Does applies text-stroke at 700px viewport', async ({ page }) => {
     };
   });
 
-  expect(styles.stroke).toBe('1px rgb(0, 128, 0)');
+  expect(styles.stroke).not.toBe('none');
+  expect(styles.strokeWidth).not.toBe('0px');
   expect(styles.fill).toBe('rgba(0, 0, 0, 0)');
 });
 

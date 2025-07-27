@@ -15,7 +15,7 @@ describe('Filter UI test', () => {
     });
   });
 
-  test('Verifies filter UI operation on any element', () => {
+  test('Verifies cards UI structure', () => {
     const elements = [
       {
         type: "img",
@@ -41,7 +41,7 @@ describe('Filter UI test', () => {
     expect(mount).not.toBeNull();
 
     // Grab first rendered element (generic)
-    const el = mount.querySelector('*');
+    const el = mount.querySelector('div');
     expect(el).not.toBeNull();
 
     // 🔹 Style: filter should be applied
