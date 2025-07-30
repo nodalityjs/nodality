@@ -1,10 +1,8 @@
 const { test, expect } = require('@playwright/test');
 
-const baseURL = process.env.BASE_URL || 'http://localhost:3000/public/stroke.html';
-
-test('Does applies text-stroke at 700px viewport', async ({ page }) => {
+test('Does applies text-stroke at 700px viewport', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 700, height: 800 });
-  await page.goto(`${baseURL}`);
+  await page.goto(`${baseURL}/public/stroke.html`);
 
   const h1 = page.locator('h1');
   await expect(h1).toHaveText('Hello');

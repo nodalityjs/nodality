@@ -1,10 +1,10 @@
 const { test, expect } = require('@playwright/test');
+const { exec } = require('child_process');
+const path = require('path'); // <-- ADD THIS LINE
 
-const baseURL = process.env.BASE_URL || 'http://localhost:3000/public/grid.html';
-
-test('Grid test', async ({ page }) => {
+test('Grid test', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 700, height: 800 });
-  await page.goto(`${baseURL}`);
+  await page.goto(`${baseURL}/public/grid.html`);
 
   const container = page.locator('#mount');
   console.log(container);

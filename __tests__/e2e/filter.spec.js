@@ -1,11 +1,11 @@
 // tests/filter-ui.spec.js
 const { test, expect } = require('@playwright/test');
+const { exec } = require('child_process');
+const path = require('path'); // <-- ADD THIS LINE
 
-const baseURL = process.env.BASE_URL || 'http://localhost:3000/public/filter.html';
-
-test('Des applies filter to an <img> element', async ({ page }) => {
+test('Des applies filter to an <img> element', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 1024, height: 768 });
-  await page.goto(baseURL);
+  await page.goto(`${baseURL}/public/filter.html`);
 
   // Locate rendered image inside the mount point
   const img = page.locator('#mount img');

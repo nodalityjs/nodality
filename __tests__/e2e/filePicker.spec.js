@@ -1,11 +1,30 @@
 const { test, expect } = require('@playwright/test');
+const { exec } = require('child_process');
 const path = require('path'); // <-- ADD THIS LINE
 
-const baseURL = process.env.BASE_URL || 'http://localhost:3000/public/filePicker.html';
+test('Filepicker test', async ({ page, baseURL }) => {
+ console.log("VISITING");
+ // run with npx playwright test filePicker.spec.js
+  const screenshotPath = path.resolve(__dirname, 'screenshot.png');
 
-test('Filepicker test', async ({ page }) => {
+// resolves to http://localhost:3000/public/filePicker.html
+ // console.log(`${baseURL}/public/filePicker.html`)
    await page.setViewportSize({ width: 700, height: 800 });
-  await page.goto(baseURL);
+  await page.goto(`${baseURL}/public/filePicker.html`);
+
+   await page.screenshot({ path: screenshotPath });
+
+  let openCommand = `open ${screenshotPath}`;
+ exec(openCommand, (err) => {
+    if (err) {
+      console.error('❌ Failed to open screenshot:', err);
+    } else {
+      console.log('✅ Screenshot opened');
+    }
+  });
+
+
+   await page.screenshot({ path: screenshotPath });
 
   // Click the label associated with the hidden input
   const label = page.locator('label[for="A"]');

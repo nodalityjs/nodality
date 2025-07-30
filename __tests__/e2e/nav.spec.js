@@ -1,10 +1,10 @@
 const { test, expect } = require('@playwright/test');
+const { exec } = require('child_process');
+const path = require('path'); // <-- ADD THIS LINE
 
-const baseURL = process.env.BASE_URL || 'http://localhost:3000/public/nav.html';
-
-test('Mobile navbar layout on < 1200px viewport', async ({ page }) => {
+test('Mobile navbar layout on < 1200px viewport', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 768, height: 800 }); // Mobile size
-  await page.goto(baseURL);
+  await page.goto(`${baseURL}/public/nav.html`);
 
   
 

@@ -1,17 +1,14 @@
 const { test, expect } = require('@playwright/test');
+const { exec } = require('child_process');
+const path = require('path'); // <-- ADD THIS LINE
 
-const baseURL = process.env.BASE_URL || 'http://localhost:3000/public/multipleTextEffects.html';
-
-test('Does applies text-stroke at 700px viewport', async ({ page }) => {
+test('Does applies text-stroke at 700px viewport', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 600, height: 800 });
-  await page.goto(`${baseURL}`);
+  await page.goto(`${baseURL}/public/multipleTextEffects`);
 
   const h1 = page.locator('h1');
   await expect(h1).toHaveText('Hello');
-
-
-
-   await expect(h1).toHaveCSS('background-image', /gradient/);
+  await expect(h1).toHaveCSS('background-image', /gradient/);
 });
 
 
