@@ -1,6 +1,6 @@
 {
   "name": "nodality",
-  "version": "1.0.0-beta.42",
+  "version": "1.0.0-beta.43",
   "description": "A lightweight library for declarative UI elements.",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -19,7 +19,7 @@
     "build": "webpack --config webpack.config.js",
     "test:jest": "jest",
     "test:playwright": "playwright test",
-    "test": "node generatePlaywright.js && playwright test",
+    "test": "node scripts/generatePlaywright.js && playwright test",
     "postpublish": "git add . && git commit -m \"release: v$npm_package_version\" && git tag v$npm_package_version && git push --set-upstream origin main && git push origin v$npm_package_version",
     "inject-license": "node scripts/injectLicense.js"
   },
