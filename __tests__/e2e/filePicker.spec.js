@@ -5,14 +5,14 @@ const path = require('path'); // <-- ADD THIS LINE
 test('Filepicker test', async ({ page, baseURL }) => {
  console.log("VISITING");
  // run with npx playwright test filePicker.spec.js
-  const screenshotPath = path.resolve(__dirname, 'screenshot.png');
+ // const screenshotPath = path.resolve(__dirname, 'screenshot.png');
 
 // resolves to http://localhost:3000/public/filePicker.html
  // console.log(`${baseURL}/public/filePicker.html`)
    await page.setViewportSize({ width: 700, height: 800 });
   await page.goto(`${baseURL}/public/filePicker.html`);
 
-   await page.screenshot({ path: screenshotPath });
+  /* await page.screenshot({ path: screenshotPath });
 
   let openCommand = `open ${screenshotPath}`;
  exec(openCommand, (err) => {
@@ -21,10 +21,10 @@ test('Filepicker test', async ({ page, baseURL }) => {
     } else {
       console.log('✅ Screenshot opened');
     }
-  });
+  });*/
 
 
-   await page.screenshot({ path: screenshotPath });
+  // await page.screenshot({ path: screenshotPath });
 
   // Click the label associated with the hidden input
   const label = page.locator('label[for="A"]');
