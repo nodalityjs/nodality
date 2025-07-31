@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.45
+ * nodality v1.0.0-beta.46
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -472,7 +472,9 @@ console.log("DEL");
 			keep.push("transform");
 		}*/
 
-		console.log("ARA IS " + arr);
+		// console.log("ARA IS " + arr);
+		console.log("ARA IS ");
+		console.log(arr);
 
 			this.chainReact(arr, this.options.id, keep);
 		}
@@ -1279,10 +1281,12 @@ checkForAnimation(queries){
 		let el;
 		
 		if (obj){
-		//	alert(obj.type);
+			// alert(obj.type);
 			el = document.createElement(obj.type);
-el.setAttribute("id", obj.id);
+			el.setAttribute("id", obj.id);
 			if (obj.type === "span"){
+				
+				//el = document.createElement("span");
 				//el.style.display = "block";
 			}
 

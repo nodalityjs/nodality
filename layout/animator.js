@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.45
+ * nodality v1.0.0-beta.46
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -572,6 +572,7 @@ class Animator {
 
 
 		if (ops === "span"){
+			// alert("///")
 			if (this.options.span){
 				let noiseObject;
 	
@@ -1234,7 +1235,7 @@ checkQueries();
 		}
   }
 
-  /*if (operations.includes("spana") || operations.includes("span")){
+  if (operations.includes("spana") || operations.includes("span")){
 
 
 	this.res = this.resCopy;
@@ -1249,10 +1250,11 @@ if (this.options.span){
 	}
 
 	this.res.textContent = ""; // creating new element not helping
-
+//console.log("OPOOOOO");
+//console.log(new Text("A"));
 	for (var i = 0; i < noiseObject.op.parts.length; i++){
 		let opts = noiseObject.op.parts[i].style;
-		let span = new Text(noiseObject.op.parts[i].text).setup({type: "span"}).set(opts).render();
+		let span = new this.constructor(noiseObject.op.parts[i].text).setup({type: "span"}).set(opts).render();
 		this.res.appendChild(span);
 	}
 }
@@ -1265,9 +1267,9 @@ if (this.options.span){
 	while (this.res.firstChild) {
 		this.res.removeChild(this.res.firstChild);
 	}
-	let t = new Text(this.prevText).set({}).render();
+	let t = new this.constructor(this.prevText).set({}).render();
 	this.res.appendChild(t);
-  }*/
+  }
 
   
 

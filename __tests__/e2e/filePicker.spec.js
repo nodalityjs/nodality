@@ -3,7 +3,6 @@ const { exec } = require('child_process');
 const path = require('path'); // <-- ADD THIS LINE
 
 test('Filepicker test', async ({ page, baseURL }) => {
- console.log("VISITING");
  // run with npx playwright test filePicker.spec.js
  // const screenshotPath = path.resolve(__dirname, 'screenshot.png');
 

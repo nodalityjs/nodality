@@ -8,7 +8,7 @@ test('Des applies filter to an <img> element', async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/public/filter.html`);
 
   // Locate rendered image inside the mount point
-  const img = page.locator('#mount img');
+  const img = page.locator('#mount img').first();
 
   // Check that image is rendered and visible
   await expect(img).toBeVisible();
