@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Des Test Page</title>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+
+import { Base } from '../layout/base.js';
+import { Text } from '../layout/text.js';
+
+class MyApp extends Base { // Base is not defined, streamline creation, just import Des?
+    constructor(props) {
+        super();
+        this.props = props;
+    }
+
+    render(){
+        return new Text(this.props.year) // 114223 passed
+        .set({
+          size: "S1",
+            color: "#1abc9c"
+        });
+    }   
+}
+
+new MyApp({
+    year: "2025"
+})
+.mount("#mount");
+
+  </script>
+</body>
+</html>
