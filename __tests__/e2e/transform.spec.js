@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 test('Transform works', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 700, height: 800 });
   await page.goto(`${baseURL}/public/transform`);
-const image = page.locator('img').nth(1);
+  const image = page.locator('img').nth(1);
 
   // Wait for image to be visible and fully loaded
   await expect(image).toBeVisible();
@@ -30,9 +30,6 @@ const image = page.locator('img').nth(1);
   transform = await image.evaluate(el => getComputedStyle(el).transform);
   match = transform.match(/^matrix\(([^,]+),/);
   let finalScale = match ? parseFloat(match[1]) : 1;
-
-  console.log('Initial scale:', initialScale);
-  console.log('Final scale:', finalScale);
 
   expect(finalScale).toBeLessThan(1.6);
 });

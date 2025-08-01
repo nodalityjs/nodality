@@ -7,7 +7,6 @@ test('Grid test', async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/public/grid.html`);
 
   const container = page.locator('#mount');
-  console.log(container);
   
   await expect(container.locator(':scope > div')).toHaveCount(1);
 

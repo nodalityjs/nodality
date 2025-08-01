@@ -5,14 +5,9 @@ const path = require('path'); // <-- ADD THIS LINE
 test('Mobile navbar layout on < 1200px viewport', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 768, height: 800 }); // Mobile size
   await page.goto(`${baseURL}/public/nav.html`);
-
-  
-
-    const container = page.locator('#mount > div');
-  console.log(container);
   
   await page.screenshot({ path: 'debug.png', fullPage: true });
-
+  
   const nav = page.locator('#mount > div');
   await expect(nav).toBeVisible();
 

@@ -4,26 +4,19 @@ test('Anim works', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 700, height: 800 });
   await page.goto(`${baseURL}/public/animation`);
 
-  // Wait slightly longer than animation duration
-/*await page.waitForTimeout(300); 
-
-const panel = page.locator('h1');
-const transform = await panel.evaluate(el => getComputedStyle(el).transform);
-expect(transform).toContain('matrix(1, 0, 0, 1, 684, 0)'); // translateX(0%)
-*/
 
  const panel = page.locator('h1');
 
   // Get initial transform before animation ends
   const initialTransform = await panel.evaluate(el => getComputedStyle(el).transform);
-  console.log('Initial transform:', initialTransform);
+
 
   // Wait for animation to finish
   await page.waitForTimeout(9300);
 
   // Get final transform
   const finalTransform = await panel.evaluate(el => getComputedStyle(el).transform);
-  console.log('Final transform:', finalTransform);
+
 
   // Extract X translation from the final matrix
   const match = finalTransform.match(/matrix\([^,]+, [^,]+, [^,]+, [^,]+, ([^,]+),/);

@@ -10,16 +10,15 @@ test('Sidebar works', async ({ page, baseURL }) => {
   await expect(openButton).toBeVisible();
   await openButton.click();
 
-  await page.waitForTimeout(300); // allow for animation (adjust if needed)
+  await page.waitForTimeout(2000);
+  // 300 was not enough time
+   // allow for animation (adjust if needed)
 
   // Locate the paragraph with "Off canvas"
   const text = page.locator('p', { hasText: 'Off canvas' });
   await expect(text).toBeVisible();
   
     const panel = text.locator('../..');
-    console.log("A")
-    console.log(panel);
-
   let transform = await panel.evaluate(el => getComputedStyle(el).transform);
   let match = transform.match(/matrix\([^,]+, [^,]+, [^,]+, [^,]+, ([^,]+), [^)]+\)/);
   let tx = match ? parseFloat(match[1]) : NaN;
