@@ -12,7 +12,7 @@ test('Scroll video works', async ({ page, baseURL }) => {
    // Wait until video element is in the viewport and visible
   await expect(video).toBeVisible();
 
-  await page.screenshot({ path: 'after-scrolll.png', fullPage: true });
+ // await page.screenshot({ path: 'after-scrolll.png', fullPage: true });
 
 /*
   // Confirm video has not played yet

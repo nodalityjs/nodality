@@ -6,7 +6,7 @@ test('Mobile navbar layout on < 1200px viewport', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 768, height: 800 }); // Mobile size
   await page.goto(`${baseURL}/public/nav.html`);
   
-  await page.screenshot({ path: 'debug.png', fullPage: true });
+ // await page.screenshot({ path: 'debug.png', fullPage: true });
   
   const nav = page.locator('#mount > div');
   await expect(nav).toBeVisible();
