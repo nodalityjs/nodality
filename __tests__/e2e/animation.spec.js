@@ -1,30 +1,71 @@
 const { test, expect } = require('@playwright/test');
 
-test('Sidebar works', async ({ page, baseURL }) => {
+test('Anim works', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 700, height: 800 });
-  await page.goto(`${baseURL}/public/sideBar`);
+  await page.goto(`${baseURL}/public/animation`);
 
-  
- // Find the open button (☰) — it has opacity 0, but still clickable
-  const openButton = page.locator('button', { hasText: '☰' });
-  await expect(openButton).toBeVisible();
-  await openButton.click();
+  // Wait slightly longer than animation duration
+/*await page.waitForTimeout(300); 
 
-  await page.waitForTimeout(300); // allow for animation (adjust if needed)
+const panel = page.locator('h1');
+const transform = await panel.evaluate(el => getComputedStyle(el).transform);
+expect(transform).toContain('matrix(1, 0, 0, 1, 684, 0)'); // translateX(0%)
+*/
 
-  // Locate the paragraph with "Off canvas"
-  const text = page.locator('p', { hasText: 'Off canvas' });
-  await expect(text).toBeVisible();
-  
-    const panel = text.locator('../..');
-    console.log("A")
-    console.log(panel);
+ const panel = page.locator('h1');
 
-  let transform = await panel.evaluate(el => getComputedStyle(el).transform);
-  let match = transform.match(/matrix\([^,]+, [^,]+, [^,]+, [^,]+, ([^,]+), [^)]+\)/);
-  let tx = match ? parseFloat(match[1]) : NaN;
-  console.log(tx); // 377.7
+  // Get initial transform before animation ends
+  const initialTransform = await panel.evaluate(el => getComputedStyle(el).transform);
+  console.log('Initial transform:', initialTransform);
 
+  // Wait for animation to finish
+  await page.waitForTimeout(9300);
+
+  // Get final transform
+  const finalTransform = await panel.evaluate(el => getComputedStyle(el).transform);
+  console.log('Final transform:', finalTransform);
+
+  // Extract X translation from the final matrix
+  const match = finalTransform.match(/matrix\([^,]+, [^,]+, [^,]+, [^,]+, ([^,]+),/);
+  const tx = match ? parseFloat(match[1]) : NaN;
+
+  // Final translation should be 0
+  expect(tx).toBeCloseTo(0, 1); // allow ±1px error margin
+
+  // Optional: also assert that initial and final transform differ
+  expect(initialTransform).not.toBe(finalTransform);
+
+  // 132405 Nice in Vankovka 01/08/25
+
+
+
+
+
+
+// npx playwright test __tests__/e2e/animation.spec.js
+
+
+/*
+expect(tx).toBeCloseTo(0, 1); // optional tolerance
+
+  await page.waitForTimeout(1300);
+
+ // Locate and click the close button (×)
+  const closeButton = page.locator('button', { hasText: '×' });
+  await closeButton.click({ force: true });
+  // await closeButton.click();
+
+  // Wait a bit for the animation (if any)
+  await page.waitForTimeout(300);
+
+  // Recheck the transform
+  transform = await panel.evaluate(el => getComputedStyle(el).transform);
+  match = transform.match(/matrix\([^,]+, [^,]+, [^,]+, [^,]+, ([^,]+), [^)]+\)/);
+  tx = match ? parseFloat(match[1]) : NaN;
+
+  expect(tx).toBeGreaterThan(200); // Closed state (offscreen to the right)
+  */
+ 
   /*
 
 You write translateX(...) (or scale, rotate, etc.)
@@ -82,24 +123,6 @@ That’s a classic clockwise rotation.
 For each point (x, y) on the element, the browser calculates its new position (x', y') using this formula:
 */
 
-expect(tx).toBeCloseTo(0, 1); // optional tolerance
-
-  await page.waitForTimeout(1300);
-
- // Locate and click the close button (×)
-  const closeButton = page.locator('button', { hasText: '×' });
-  await closeButton.click({ force: true });
-  // await closeButton.click();
-
-  // Wait a bit for the animation (if any)
-  await page.waitForTimeout(300);
-
-  // Recheck the transform
-  transform = await panel.evaluate(el => getComputedStyle(el).transform);
-  match = transform.match(/matrix\([^,]+, [^,]+, [^,]+, [^,]+, ([^,]+), [^)]+\)/);
-  tx = match ? parseFloat(match[1]) : NaN;
-
-  expect(tx).toBeGreaterThan(200); // Closed state (offscreen to the right)
 /*
    // Parent div of the <p>, the off-canvas panel
   const panel = text.locator('../..');

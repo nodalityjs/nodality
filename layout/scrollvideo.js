@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.46
+ * nodality v1.0.0-beta.47
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -66,7 +66,8 @@ class ScrollVideo {
         const setHeight = document.createElement("div");
         setHeight.id = "set-height";
         setHeight.style.display = "block";
-        this.res.appendChild(setHeight);
+        this.sh = setHeight;
+      //  this.res.appendChild(setHeight);
     }
 
     sticky() {
@@ -79,7 +80,7 @@ class ScrollVideo {
         // Set up event listener for when the video metadata is loaded
         this.vid.addEventListener("loadedmetadata", () => {
             // Dynamically set the page height based on video duration
-            const setHeight = document.getElementById("set-height");
+            const setHeight = this.sh;//document.getElementById("set-height");
             if (setHeight) {
                 const scrollableHeight = this.maxScrollHeight - this.minScrollHeight;
                 setHeight.style.height = `${scrollableHeight}px`;
@@ -117,7 +118,10 @@ class ScrollVideo {
     toCode() {
         return [""];
     }
-    render() {
+    render(div) {
+        if (div){
+            document.querySelector(div).appendChild(this.res);
+        }
         // Return the container div with all elements
         return this.res;
     }
