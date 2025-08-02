@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.52
+ * nodality v1.0.0-beta.53
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -40,7 +40,7 @@ class Dropdown extends Animator {
         this.children = [];
         this.isExpanded = false;
 
-        this.toggleWrap.addEventListener("click", () => this.toggle());
+      //  this.toggleWrap.addEventListener("click", () => this.toggle());
 
        
     }
@@ -63,6 +63,44 @@ class Dropdown extends Animator {
         if (obj.background) {
             this.contentWrap.style.backgroundColor = obj.background;
         }
+
+               if (obj.behaviour) {
+  const ev = obj.behaviour;
+
+  if (ev === "mouseover" || ev === "mouseenter") {
+    let hoverTimeout;
+
+    const show = () => {
+      clearTimeout(hoverTimeout);
+      this.contentWrap.style.display = "block";
+    };
+
+    const hide = () => {
+      hoverTimeout = setTimeout(() => {
+        this.contentWrap.style.display = "none";
+      }, 200); // short delay to allow moving between toggle and content
+    };
+
+    this.toggleWrap.addEventListener("mouseenter", show);
+    this.toggleWrap.addEventListener("mouseleave", hide);
+    this.contentWrap.addEventListener("mouseenter", show);
+    this.contentWrap.addEventListener("mouseleave", hide);
+
+  } else if (ev === "click") {
+    this.res.addEventListener("click", () => this.toggle());
+
+  } else {
+    // fallback: use the custom event directly on the wrapper
+    this.res.addEventListener(ev, () => {
+      this.contentWrap.style.display = "block";
+    });
+  }
+
+} else {
+  // default to click
+  this.res.addEventListener("click", () => this.toggle());
+}
+      
 
         obj.mar && this.mar(obj.mar);//alert("/")
 
