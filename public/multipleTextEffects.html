@@ -12,16 +12,25 @@ import { Des } from '../lib/designer.js';
 
 const elements = [{ type: 'h1', text: 'Hello' }];
 const nodes = [
+   {
+    op: "gradient", //hard to test
+    range: [0, 800]
+  },
+
   {
     op: 'blast',
     range: [600, 800]
   },
+ 
   {
-    op: "gradient",
-    range: [500, 900]
+    op: "shadow",
+    range: [600, 900]
+
   }
 ];
 
+// Expect gradeint between 0 and 900px, text stroke and gradient between 600 and 800px
+// shadow and gradient between 600-800px but no text stroke
 new Des()
   .nodes(nodes)
   .add(elements)

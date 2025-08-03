@@ -5,6 +5,8 @@ test('Span is applied to text', async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/public/spanTest`);
 
   const h1 = await page.locator('h1');
+
+await expect(h1).toBeVisible(); 
   const text = await h1.innerText();
 
   expect(text).toContain('The first time');
