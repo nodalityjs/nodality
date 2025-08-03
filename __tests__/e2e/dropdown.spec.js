@@ -8,33 +8,21 @@ test('Dropdown test', async ({ page, baseURL }) => {
 
   // Locate the trigger element — the <div> that contains "Flower"
   const hoverTarget = page.locator('div:has(p:has-text("Flower"))').first();
-  console.log(hoverTarget);
-
 
   // Ensure the target is visible
   await expect(hoverTarget).toBeVisible();
 
   // Perform the hover
   await hoverTarget.click();
-
   await page.waitForTimeout(5000);
-
 
   await page.screenshot({ path: `${process.env.HOME}/popover.png`, fullPage: true });
 
   // Wait for the popover to appear — match by background or part of the inner text
   const popover = page.locator('div[style*="position: absolute"]');
-  console.log("POPO");
-  console.log(popover);
-
-  const html = await popover.evaluate(el => el.outerHTML);
-console.log('POPO HTML:\n', html);
  
-
   // Assert it becomes visible
   await expect(popover).toBeVisible();
-
- 
 });
 
 // npx playwright test

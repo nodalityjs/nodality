@@ -1,6 +1,22 @@
 const { test, expect } = require('@playwright/test');
+const os = require('os');
+const path = require('path');
 
-test('Transform works', async ({ page, baseURL }) => {
+test('Transform works', async ({browser, baseURL }) => {
+  
+  const videoDir = path.join(os.homedir(), 'playwright-videos');
+
+  const context = await browser.newContext({
+    recordVideo: {
+      dir: videoDir,
+      size: { width: 1280, height: 720 },
+    },
+  });
+  const page = await context.newPage();
+  
+  
+  
+  
   await page.setViewportSize({ width: 700, height: 800 });
   await page.goto(`${baseURL}/public/transform`);
   const image = page.locator('img').nth(1);
@@ -32,6 +48,8 @@ test('Transform works', async ({ page, baseURL }) => {
   let finalScale = match ? parseFloat(match[1]) : 1;
 
   expect(finalScale).toBeLessThan(1.6);
+
+   await context.close(); // Ensure the video is saved
 });
 
 

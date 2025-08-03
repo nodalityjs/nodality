@@ -6,20 +6,21 @@ test('Grid test', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 700, height: 800 });
   await page.goto(`${baseURL}/public/grid.html`);
 
-  const container = page.locator('#mount');
-  
-  await expect(container.locator(':scope > div')).toHaveCount(1);
+  const grid = page.locator('.grid-container');
+  await expect(grid).toHaveCSS('display', 'grid');
 
- const cards = container.locator(':scope > div > div');
- await expect(cards).toHaveCount(3);
+  const children = grid.locator('> div');
+  await expect(children).toHaveCount(5);
 
-  for (let i = 0; i < 3; i++) {
-    const card = cards.nth(i);
-    await expect(card.locator('img')).toHaveCount(1);
-    await expect(card.locator('h3')).toHaveText('Hello');
-    await expect(card.locator('a')).toHaveText('Hello');
+  const expectedAreas = ['a', 'b', 'c', 'd', 'e'];
+
+  for (let i = 0; i < expectedAreas.length; i++) {
+    const child = children.nth(i);
+    const gridArea = await child.evaluate(el => window.getComputedStyle(el).gridArea);
+    expect(gridArea).toBe(expectedAreas[i]);
   }
- 
+  
+ // 120908 wow!
 });
 
 // npx playwright test
