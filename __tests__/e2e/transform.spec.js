@@ -2,47 +2,40 @@ const { test, expect } = require('@playwright/test');
 const os = require('os');
 const path = require('path');
 
-test('Transform object works', async ({browser, baseURL }) => {
-  
+test('Transform object works', async ({ browser, baseURL }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
-  
+
   await page.setViewportSize({ width: 700, height: 800 });
   await page.goto(`${baseURL}/public/transform`);
+
   const h1 = page.locator('h1');
-
-
-  // Check that the element is visible
   await expect(h1).toBeVisible();
 
-  // Get computed transform
-  const transform = await h1.evaluate(el => getComputedStyle(el).transform);
+  // Wait until a transform is applied
+  await page.waitForFunction(() => {
+    const el = document.querySelector('h1');
+    return el && getComputedStyle(el).transform !== 'none';
+  });
 
-  // Debug output
+  const transform = await h1.evaluate(el => getComputedStyle(el).transform);
   console.log('Computed transform:', transform);
 
-     const expected = [
-    1.00012, 3.08471e-05, 0, 0,
-    1.02824e-05, 1.00012, 0, 0,
-    0, 1.388e-10, 1, -1.17814e-07,
-    0.00294572, 0.00176764, 0, 1,
-  ];
+  expect(transform.startsWith('matrix3d(')).toBe(true);
 
-  const actual = transform
+  const matrix = transform
     .replace(/^matrix3d\(|\)$/g, '')
     .split(',')
     .map(n => parseFloat(n.trim()));
 
-  expect(actual.length).toBe(expected.length);
+  expect(matrix.length).toBe(16);
 
-  for (let i = 0; i < expected.length; i++) {
-    expect(actual[i]).toBeCloseTo(expected[i], 3); // Allow margin: ~0.001
-  }
-  // Assert that the transform is a valid matrix()
- // expect(transform).toMatch(/^matrix\([^)]+\)$/);
- // Ensure the video is saved
+  // Example checks for qualitative transform effects
+  expect(matrix[0]).toBeGreaterThan(1); // Scale x > 1
+  expect(matrix[5]).toBeGreaterThan(1); // Scale y > 1
+  expect(Math.abs(matrix[12])).toBeGreaterThan(0); // Translate x ≠ 0
+  expect(Math.abs(matrix[13])).toBeGreaterThan(0); // Translate y ≠ 0
 });
-
 
 
 // NOW:

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Modal test</title>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+ import {Animator} from "../layout/animator.js";
+                import {Text} from "../layout/text.js";
+                import {Modal} from "../layout/modal2025.js";
+                import {Stack} from "../layout/stack.js";
+                import {Image} from "../layout/image.js";
+                import {FlexRow} from "../layout/flexrow.js";
+                import {Button} from "../layout/button.js";
+                import {Spacer} from "../layout/spacer.js";
+                import {Wrapper} from "../layout/container.js";
+                
+                
+                let firstLong = "Apple today announced that the company has surpassed a 60 percent reduction in its global greenhouse gas emissions compared to 2015 levels, as part of its Apple 2030 goal to become carbon neutral across its entire footprint in the next five years. The company achieved several other major environmental milestones, including the use of 99 percent recycled rare earth elements in all magnets and 99 percent recycled cobalt in all Apple-designed batteries.1 Apple shared this and other progress in its annual Environmental Progress Report, published today. We’re incredibly proud of the progress we’re making toward Apple 2030, which touches every part of our business,” said Lisa Jackson, Apple’s vice president of Environment, Policy, and Social Initiatives. “Today, we’re using more clean energy and recycled materials to make our products than ever before, we’re preserving water and preventing waste around the world, and we’re investing big in nature. As we get closer to 2030, the work gets even harder — and we’re meeting the challenge with innovation, collaboration, and urgency. Apple’s 2030 strategy prioritizes cutting greenhouse gas emissions by 75 percent compared with its 2015 baseline year, before applying high-quality carbon credits to balance the remaining emissions. Last year, Apple’s comprehensive efforts to reduce its carbon footprint — including the continued transition of its supply chain to renewable electricity and designing products with more recycled materials — avoided an estimated 41 million metric tons of greenhouse gas emissions.";
+                
+                    let elements = [
+                        new Stack()
+                        .setup({})
+                        .add([
+                            new Image("https://pbs.twimg.com/media/DwYvbCBVAAEKY_R.jpg").set({}),
+                          
+                            new FlexRow().set({aligns: "start"}).items([
+                          
+                            new Button("×")
+                          
+                                    .set({
+                                        fluidc: "S3",
+                                        onTap: () => modal.close(),
+                                        frame: { width: 80, height: 80 },
+                                        color: "white",
+                                        background: "none"
+                                    }),
+                
+                                    new Spacer(true),
+                            ])
+                        ]),
+                     
+                     
+                            new Text("Samuel Suresh")
+                            .set({
+                                color: "#00ae56",
+                                font: "SF Pro Display",
+                                fluidc: "S2",
+                                pad: [{"tl": 20}]
+                            }),
+                          
+                        
+                            new Text("Studying Science and Business, Western Sydney University, class of 2022")
+                              .set({
+                                font: "Arial",
+                                fluidc: "S6",
+                                pad: [{"l": 20}]
+                              }),
+                
+                
+                            new Text(firstLong)
+                              .set({
+                                font: "Arial",
+                                fluidc: "S6",
+                                pad: [{"l": 20}]
+                              }),  
+                    ];
+                
+                
+                    let wrapper = new Wrapper()
+                                .set({})
+                                .add(elements);
+                    
+                    
+                  let modal = new Modal();
+                        modal
+                        .set({
+                             width: "600px", 
+                             background: "#469d73cc",
+                             close: true
+                        })
+                        .add([wrapper])
+                        .render("#mount");    
+                
+                    
+                    new Button("Wow")
+                    .set({
+                        fluidc: "S3",
+                        onTap: () => modal.show()
+                    })
+                    .render("#mount");
+                
+                
+
+
+  </script>
+</body>
+</html>

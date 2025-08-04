@@ -49,35 +49,12 @@ for (const { width: [minWidth, maxWidth], expect: expected } of viewportRanges) 
 
       // Check stroke
       if (expected.stroke) {
-        console.log(`[${width}px] stroke: "${styles.stroke}"`);
         expect(styles.stroke).toMatch(/\d+px\s+rgb/i);
       } else {
         expect(
   styles.stroke.toLowerCase().startsWith('0px') || styles.stroke.toLowerCase() === 'none'
 ).toBe(true);
-    //   expect(styles.stroke).toMatch(/^(0(px)?|none)$/i);
-       // expect(styles.stroke).toMatch(/^0(px)?|none/i);
       }
-
-
-      /*
-      const shadow = styles.shadow.toLowerCase().trim();
-      // Check shadow
-      if (expected.shadow) {
-        expect(shadow).not.toBe('none');
-  expect(shadow).not.toBe('');
-  expect(shadow).not.toBe('0px 0px 0px 0px rgba(0, 0, 0, 0)');
-       // expect(styles.shadow.toLowerCase()).not.toBe('none');
-      } else {
-          const noShadow =
-    shadow === 'none' ||
-    shadow === '' ||
-    shadow === '0px 0px 0px 0px rgba(0, 0, 0, 0)';
-
-  expect(noShadow).toBe(true);
-      //  expect(styles.shadow.toLowerCase()).toBe('none');
-      }
-*/
 
 
 if (expected.shadow) {
