@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.55
+ * nodality v1.0.0-beta.56
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -108,11 +108,11 @@ console.log(attr.attract.slice(1));
    
         //  element.id = attr.attract.slice(1);
         element.style.gridRowStart = row;
-        element.style.gridRowEnd = row + 3; // Example height of 3 grid cells
+       // element.style.gridRowEnd = row + 3; // Example height of 3 grid cells
         element.style.gridColumnStart = col;
-        element.style.gridColumnEnd = col + 5; // Example width of 5 grid cells
+      //  element.style.gridColumnEnd = col + 5; // Example width of 5 grid cells
 
-        element.style.border = `3px solid #${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;//[]
+      //  element.style.border = `3px solid #${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;//[]
        
        /*if (element.toString() === "[HTMLParagaphElement]"){
         element.style.width = "fit-content";

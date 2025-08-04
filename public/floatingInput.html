@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Table Test Page</title>
+  <title>Floating layout</title>
 </head>
 <body>
   <div id="mount"></div>
@@ -10,26 +10,23 @@
 
 import { Des } from '../lib/designer.js';
 
-let nodes = [
+let elements = [
   {
-    op: "transform"
+    type: "labelInput"
   }
 ];
 
-let elements = [
-  {
-    type: "h1",
-    text: "Hello"
-  }
+let nodes = [
 ];
 
 new Des()
   .nodes(nodes)
   .add(elements)
   .set({
-    mount: '#mount',
-    code: false
+    mount: "#mount"
   });
+
+
   </script>
 </body>
 </html>

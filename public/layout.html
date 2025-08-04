@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Table Test Page</title>
+  <title>Weight layout</title>
 </head>
 <body>
   <div id="mount"></div>
@@ -10,16 +10,18 @@
 
 import { Des } from '../lib/designer.js';
 
-let nodes = [
+let elements = [
   {
-    op: "transform"
+    type: "free"
   }
 ];
 
-let elements = [
+let nodes = [
   {
-    type: "h1",
-    text: "Hello"
+    op: {
+      name: "layout",
+      value: "img-leftof-text"
+    }
   }
 ];
 
@@ -27,9 +29,10 @@ new Des()
   .nodes(nodes)
   .add(elements)
   .set({
-    mount: '#mount',
-    code: false
+    mount: "#mount"
   });
+
+
   </script>
 </body>
 </html>
