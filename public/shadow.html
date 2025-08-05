@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Des Test Page</title>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+
+import { Des } from '../lib/designer.js';
+
+const elements = [{ type: 'h1', text: 'Hello' }];
+const nodes = [
+  {
+    op: "shadow",
+    steps: 3
+  }
+];
+
+// Expect gradeint between 0 and 900px, text stroke and gradient between 600 and 800px
+// shadow and gradient between 600-800px but no text stroke
+new Des()
+  .nodes(nodes)
+  .add(elements)
+  .set({
+    mount: '#mount',
+    code: false
+  });
+  </script>
+</body>
+</html>
