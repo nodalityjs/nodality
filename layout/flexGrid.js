@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.57
+ * nodality v1.0.0-beta.58
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -39,6 +39,9 @@ class FlexGrid {
 		this.code.push(".set({");
 	//	this.code.push(JSON.stringify(options));
 	//	console.log("OPE");
+
+		options.gap && (this.code.push(`gap: ${options.gap}`));
+		options.gap && (this.res.style.gap = options.gap);
 		
 		options.width && this.code.push(`width: "${options.width}",`);
 		options.flex && (this.res.style.flex = options.flex);

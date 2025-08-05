@@ -18,8 +18,11 @@ test('Transform object works', async ({ browser, baseURL }) => {
     return el && getComputedStyle(el).transform !== 'none';
   });
 
+  await page.waitForTimeout(1300);
+
   const transform = await h1.evaluate(el => getComputedStyle(el).transform);
-  console.log('Computed transform:', transform);
+  //console.log('Computed transform:');
+  //console.log(transform);
 
   expect(transform.startsWith('matrix3d(')).toBe(true);
 
@@ -36,6 +39,30 @@ test('Transform object works', async ({ browser, baseURL }) => {
   expect(Math.abs(matrix[12])).toBeGreaterThan(0); // Translate x ≠ 0
   expect(Math.abs(matrix[13])).toBeGreaterThan(0); // Translate y ≠ 0
 });
+
+/*
+
+1) __tests__/e2e/transform.spec.js:5:1 › Transform object works ────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      22 |   console.log('Computed transform:', transform);
+      23 |
+    > 24 |   expect(transform.startsWith('matrix3d(')).toBe(true);
+         |                                             ^
+      25 |
+      26 |   const matrix = transform
+      27 |     .replace(/^matrix3d\(|\)$/g, '')
+        at /Users/filipvabrousek/Launch/__tests__/e2e/transform.spec.js:24:45
+
+    Error Context: test-results/transform-Transform-object-works/error-context.md
+
+  1 failed
+    __tests__/e2e/transform.spec.js:5:1 › Transform object works 
+*/
 
 
 // NOW:

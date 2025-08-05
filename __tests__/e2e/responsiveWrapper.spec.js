@@ -1,7 +1,6 @@
 const { test, expect } = require('@playwright/test');
-const { exec } = require('child_process');
-const path = require('path'); // <-- ADD THIS LINE
 // Breakpoint widths and expected directions
+
 const breakpoints = [
   { width: 600, expectedDirection: 'column' },
   { width: 700, expectedDirection: 'row' },

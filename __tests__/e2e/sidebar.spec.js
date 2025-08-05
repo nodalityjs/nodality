@@ -22,7 +22,7 @@ test('Sidebar works', async ({ page, baseURL }) => {
   let transform = await panel.evaluate(el => getComputedStyle(el).transform);
   let match = transform.match(/matrix\([^,]+, [^,]+, [^,]+, [^,]+, ([^,]+), [^)]+\)/);
   let tx = match ? parseFloat(match[1]) : NaN;
-  console.log(tx); // 377.7
+  // console.log(tx); // 377.7
 
   /*
 
