@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.59
+ * nodality v1.0.0-beta.60
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1680,7 +1680,10 @@ checkForAnimation(queries){
 			if (this.options && this.options.id){
 				this.res.setAttribute("id", this.options.id);
 			}
+			
+			
 			if (this.options && !this.options.span){
+			//	alert("P")
 			this.res.textContent = this.text;
 			}
 			document.querySelector(div).appendChild(this.res);

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.59
+ * nodality v1.0.0-beta.60
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1078,7 +1078,7 @@ checkQueries();
   }
 
   chainReact(queries, id, keep) { // we use this
-
+console.log("0P");
 	this.cssGen(queries, id, this.class, this.class !== undefined); // 02/04/2024 10:43:40 Nice!!!
 
 	this.ap = false;
@@ -1492,6 +1492,10 @@ let ass = this.options.animation.op;
 			this.res.style.transition = trans;
 		} else {
 			this.res.style.transition = "transform 3s ease-in-out, opacity 3s ease-in-out"; // Reset transition
+		}
+
+		if (obj.op.transform.static){
+			this.res.style.transition = "";
 		}
 
 		// 17:37:15 a comma was missing
