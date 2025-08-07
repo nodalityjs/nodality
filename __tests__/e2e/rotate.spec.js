@@ -7,7 +7,7 @@ test('Rotate test', async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/public/rotate.html`);
 
    const expectedAngles = [0, 30, 120];
-   const divs = page.locator('#mount > div > div');
+   const divs = page.locator('#mount > div > h1');
    await expect(divs.first()).toBeVisible();
 
   const count = await divs.count();

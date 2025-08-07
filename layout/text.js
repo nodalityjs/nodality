@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.62
+ * nodality v1.0.0-beta.63
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -305,6 +305,15 @@ console.log("DEL");
 		this.options = obj;
 		super.setPrevText(this.text);
 		let stra = "";
+
+		//alert(obj.top);
+		obj.top && (this.res.style.top = obj.top);
+		obj.left && (this.res.style.left = obj.left);
+
+		if (obj.left || obj.top){
+this.res.style.position = "absolute";
+		}
+		
 
 		obj.maxWidth && (this.res.style.maxWidth = obj.maxWidth);
 
