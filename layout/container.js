@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.63
+ * nodality v1.0.0-beta.64
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -60,8 +60,8 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 
 		let stra = ".set({";
 
-
-		
+		obj.scale && (this.res.style.scale=obj.scale);
+		obj.scale && (stra += `scale: ${obj.scale}`);
 
 		// ------
 		//obj.mc && (this.res.style.height = "minmax(400px, 1fr)");
@@ -215,7 +215,8 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		// console.log("ARA IS " + arr);
 		console.log("ARA IS ");
 		console.log(arr);
-			// this.chainReact(arr, "#e", keep);
+		this.options = obj;
+			 this.chainReact(arr, "#first", keep);
 		}
 
 		obj.transform && this.reactOnTransform(obj.transform); 

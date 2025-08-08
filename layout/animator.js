@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.63
+ * nodality v1.0.0-beta.64
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1099,7 +1099,7 @@ console.log("0P");
 	queries.sort((a, b) => parseInt(a.range[0]) - parseInt(b.range[0]));
   
 	// Function to check and log queries based on screen size
-	const checkQueries = () => {
+	const checkQueries = (qban) => {
 		//alert("/P")
 	  const screenSize = window.visualViewport.width;  // window.innerWidth window.screen.width window.visualViewport.width
 	  let ops = "";
@@ -1282,10 +1282,13 @@ if (this.options.span){
 
   } else {
 	
+if (!qban){
+
 
 	while (this.res.firstChild) {
 		this.res.removeChild(this.res.firstChild);
 	}
+}
 	let t = new this.constructor(this.prevText).set({}).render();
 	this.res.appendChild(t);
   }
@@ -1374,7 +1377,11 @@ let ass = this.options.animation.op;
 	}
   
 	// Add an event listener to check queries on window resize
-	window.addEventListener('resize', checkQueries);
+	
+	if (!this.options.animation){
+	
+	window.addEventListener('resize', () => checkQueries());
+	}
 	checkQueries();
   }
   
