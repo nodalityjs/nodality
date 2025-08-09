@@ -1,12 +1,10 @@
 /*!
- * nodality v1.0.0-beta.64
+ * nodality v1.0.0-beta.65
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
-
-
 
 class Wrapper extends Animator { // 12:10:02 found grep 06/03
 	constructor(obj) {
@@ -96,17 +94,7 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 			
 						
 						if (obj.stroke){
-			
-							// console.warn("OAP");
-							// console.log(obj.stroke.op.color);
-			
-						//super.setVar("1px yellow");
 						super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
-			
-						
-						//super.globalBlast = `1px solid yellow`;//`${obj.stroke.op.width} ${obj.stroke.op.color}`;
-						// console.warn("GBL")
-						// console.warn(super.globalBlast);
 						}
 			
 						// Filter just the elements with layout element
@@ -129,29 +117,9 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 							});
 						}
 			
-						// Maybe just fill-in dynamically
-						/*let queries = [
-							{
-							  range: obj.gradient[1].range, // This is BLAST
-							  log: "blast"
-							},
-							{
-							  range:  obj.gradient[2].range, // This is GRADIENT
-							  log: "gradient"
-							}
-						  ];*/
-			
-						   // console.log("-----RDA----");
-						   // console.log(arr);
-						   // console.log(obj.id);
-						  this.res.setAttribute("id", obj.id);
+						this.res.setAttribute("id", obj.id);
 						this.betaReact(arr, obj.id);
 					}
-
-
-
-
-
 
 
 
@@ -220,28 +188,20 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		}
 
 		obj.transform && this.reactOnTransform(obj.transform); 
-
 	
-
-
-
-		//-----
-	
-		if (obj.socenter ){
+		if (obj.socenter){
 			this.res.style.display = "flex";
 			this.res.style.flexDirection = "column";
 			this.res.style.alignItems = "center";
 
 			obj.socenter && (stra += `socenter: ${obj.socenter},`); // 2345 06/03
-	
-		//	alert("P")
 	   }
 
 	obj.mboth && (this.res.style.marginRight = "auto") && (this.res.style.marginLeft = "auto" );
 
 	obj.mar && this.mar(obj.mar); // has to be here
 
-	   obj.sticky && this.sticky();
+	obj.sticky && this.sticky();
 
 	obj.transition && (this.res.style.transition = obj.transition);
 
@@ -406,53 +366,21 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		return this;
 	}
 
-/*	after(obj){ DEAD CODE 08/01/2025
-	
-	const res = () => {
-		let id = document.querySelector(obj.move.id);
-			let to = document.querySelector(obj.move.to);
-
-		if (window.innerWidth >= 700){
-			to.appendChild(id);
-			//alert("O")
-		} else {
-			let parent = document.querySelector("#inner");
-			let subtitle = document.querySelector("#subtitle");
-			let title = document.querySelector("#title");
-			console.warn(parent);
-			
-		
-			parent.insertBefore(title, subtitle); // 21:13:39 23/03/24 Nice!!!
-		}
-	
-	}
-
-	window.addEventListener("resize", res);
-	res();
-	}*/ 
-	
-
 	rsp(obj){
 		
 		this.res.style.display = "flex";
 		
 		let split = obj.sequence.split("-"); // obj.split("-"); 
-		//console.log("Hello " + this.name);
-		//console.log(split);
+		
 
 		// They should switch colours
 		const react = () => { // 22/03/2024 21:34:11 Nice!!!
 		let queries = obj.ranges; //["0px", "700px", "1200px", "1400px"];
-		//this.res.style.alignItems = "";
-		//this.res.style.justifyContent = "";
+		
 
 		if (queries[0] !== "0px"){
 			queries.unshift("0px");
 		}
-	
-
-		//console.log("QAB");
-		//console.log(queries);
 
 			for (var i = 0; i < queries.length - 1; i++) { // this has two elements 
 				let mq = window.matchMedia(`(min-width: ${queries[i]}) and (max-width: ${queries[i + 1]})`).matches;
@@ -497,68 +425,6 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 	window.addEventListener("resize", react);
 	react();
 }
-// 08/01/2025 COMMENTED OUT
-	/* makeResponsiveBehaviour(obj){ // 16:20:05 21/03/24 it works!!! CHECK THIS !!!
-		console.log("LOOK");
-		console.warn(obj);
-		let split = obj.split("-"); 
-
-		console.log(split);
-
-
-		// Just call responsiveBehaviour and JSON.stringfy(obj) and add to code
-		const react = () => {
-
-			let queries = ["700px", "1200px", "1400px"];
-			for (var i = 0; i < queries.length; i++) { // this has two elements 
-				//console.log("SI: " + split[i]);
-
-				console.log("AFTER REFRESH")
-				let mq = window.matchMedia(`(max-width: ${queries[i]})`).matches;
-				// query = 700px;
-
-			//	for (var j = 0; j < split.length; j++) {
-
-				console.log("Working... " + queries[i] + " " + split[i] + " ms " + mq);
-		
-				
-					
-				// If we are under 700px use the first query
-				if (mq) {    
-					console.log("AFTER REFRESH MATCH")
-						if (split[i] === "row"){ // can be a row
-							//alert("PP");
-							console.warn("Going to row");
-							this.res.style.display = "flex";
-							this.res.style.flexDirection = "column";
-							this.res.style.border = "3px solid pink";
-							this.res.style.background = "pink";
-							this.res.style.alignItems = "flex-end";
-						} else { 				// or a column
-							console.warn("Going to column");
-							this.res.style.display = "flex";
-							this.res.style.flexDirection = "row";
-							this.res.style.background = "green";
-							this.res.style.border = "3px solid yellow";
-							this.res.style.justifyContent = "flex-end";
-							this.res.style.alignItems = "flex-start";
-						}
-					} else {
-						this.res.style.display = "flex";
-						this.res.style.flexDirection = "row";
-						this.res.style.background = "green";
-						this.res.style.border = "3px solid orange";
-						this.res.style.justifyContent = "flex-start";
-						this.res.style.alignItems = "flex-start";
-					}
-			}
-	}
-
-	window.addEventListener("resize", react);
-	react();
-
-		return this;
-	} */
 
 	sticky(){ // keep both!
 		this.res.style.position = "sticky";
@@ -607,15 +473,6 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		this.res.style.alignItems = "flex-start";
 		return this;
 	}
-
-/*
-	align(val){
-		alert("KK");
-		this.res.style.display = "flex";
-		this.res.style.flexDirection = "column";
-		this.res.style.alignItems = "center";
-		return this;
-	}*/
 
 	paddingo(el){
 		this.res.style.padding = el;
@@ -760,12 +617,6 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		this.items = els;
 		this.code.push(".add([ \n");
 
-		/*console.log("TOCODER")
-		console.log(els);
-		console.log(els.map(e => e.toCode));
-		console.log(els.filter(e => e.toCode != undefined));
-*/
-		// let finalCodea = els.filter(el => el.toCode != undefined);
 		let finalCode = els//finalCodea
    		 .map((el, i) => el
 				 .toCode()
@@ -857,22 +708,8 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
         this.res.style.height = `${w}`;
 		return this;
     }
-// 2 commas with 1 not here
-
-
-	/*toZStack(){
-this.res.style.display = "grid";
-		let st = this.res.style;
-
-		this.res.style.display = "flex";
-		st.justifyContent = "center";
-		st.alignItems = "center";
-	}*/
     
 	setup(options) {
-		// console.log("ILS");
-		// console.log(options);
-		
 
 		let container = options ? document.createElement(options.isLink ? "a" : "div") :document.createElement("div") ;
 		
@@ -1033,41 +870,12 @@ apply(arr) {
 	window.addEventListener("resize", goThroughStyles); 
 	return this;
 }
-	
-	
-    
-    
-    
-    
-    
-    
-     
-    /*intoJSXO(obj){
-        return <div ref={ref => {
-            ref && ref.appendChild(obj)
-        }} />;
-return this;
-    }*/
     
 	mount(el){
 		document.querySelector(el).appendChild(this.res);
 	}
     
 	render(el) {
-
-
-
-	/*	if (this.isLast){
-
-		
-		// this.code.push("]);\n");
-		this.code.push(`.render("#mount"); \n`);
-
-		} else {
-			 this.code.push(",\n");
-		}
-*/
-
 		if (el) {
 			let r = document.querySelector("#mount");
 	
