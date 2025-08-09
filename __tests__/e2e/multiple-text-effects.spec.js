@@ -40,12 +40,15 @@ for (const { width: [minWidth, maxWidth], expect: expected } of viewportRanges) 
       });
 
       // Screenshot once per test
-      const buffer = await h1.screenshot();
+     /* const buffer = await h1.screenshot();
       const homeDir = os.homedir();
       const now = new Date();
       const timestamp = now.toISOString().replace(/[:.]/g, '-');
       const filePath = path.join(homeDir, `h1-${width}px-${timestamp}.png`);
       fs.writeFileSync(filePath, buffer);
+      */
+
+      // mv h1-*px*.png ~/.Trash/
 
       // Check stroke
       if (expected.stroke) {
