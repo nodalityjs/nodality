@@ -1,3 +1,9 @@
+/*!
+ * nodality v1.0.0-beta.75
+ * (c) 2025 Filip Vabrousek
+ * License: MIT
+ */
+
 import {Animator} from "./animator.js";
 
 class Wrapper extends Animator { // 12:10:02 found grep 06/03
