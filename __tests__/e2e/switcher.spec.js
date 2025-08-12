@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { exec } = require('child_process');
 const path = require('path'); // <-- ADD THIS LINE
 
-test('Complex form test', async ({ page, baseURL }) => {
+test('Switcher test', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 600, height: 800 });
   await page.goto(`${baseURL}/public/switcher`);
    const selector = '#mount p';

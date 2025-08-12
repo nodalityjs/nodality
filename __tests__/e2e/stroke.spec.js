@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { exec } = require('child_process');
 const path = require('path'); // <-- ADD THIS LINE
 
-test('Simple GRAD applies text-stroke at 700px viewport', async ({ page, baseURL }) => {
+test('Blast op (text-stroke) at 700px viewport', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 600, height: 800 });
   await page.goto(`${baseURL}/public/stroke`);
 

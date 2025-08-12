@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.75
+ * nodality v1.0.0-beta.76
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -95,8 +95,6 @@ class Animator {
 			for(let i = 0; i < arr.length; i++) {
 				let point = arr[i].breakpoint;
 				if (window.matchMedia(`(min-width: ${this.getPX(point)}`).matches){
-					// console.clear();
-				//	console.log("MATCHING " + point);
 					this.pad(arr[i].values);
 				}
 			}
@@ -118,7 +116,6 @@ class Animator {
 				}
 			}
 		}
-
 
 		window.addEventListener("resize", react);
 		react();
@@ -383,7 +380,7 @@ class Animator {
 		return this;
 	}
     
-
+/*
  protoReact(queries, id) {
 	// Sort the queries based on the starting range value in ascending order
 	queries.sort((a, b) => parseInt(a.range[0]) - parseInt(b.range[0]));
@@ -478,38 +475,27 @@ class Animator {
 
 	this.res.textContent = this.text;
 
-
-	
-
 		if (ops === "") {
 			this.res.style['-webkit-text-fill-color'] = '';
 			this.res.style.color = defaultColor; //"green";
-			//this.resCopy = this.res;
 		}
 
 
 		if (ops === "blast") { // Chekc id here ???
-           // alert("O")
 		   for (var i = 0; i < queries.length; i++){
 			const off  = queries[i].op.offsets;
-			// console.log(off);
+
 			if (off && this.index !== undefined){
-				 // console.warn("READ INDEXO");
 				this.res.style.margin = off[Number(this.index)] + "px";
 			}
 		}
 
-		 //  alert(this.passedID.id);
-          //  this.res.style.border = "1px solid yellow";
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 			this.res.style['-webkit-text-stroke'] = this.globalBlast; //this.globalBlast; //`3px orange`;
-			//this.resCopy = this.res;
 	
 			for (var i = 0; i < queries.length; i++){
 				const off  = queries[i].op.offsets;
-				// console.log(off);
 				if (off && this.index !== undefined){
-					 // console.warn("READ INDEX");
 					this.res.style.margin = off[Number(this.index)] + "px";
 				}
 			}
@@ -521,20 +507,15 @@ class Animator {
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 		    this.res.style.background = this.globalGradient;// "linear-gradient(to left, #3498db, #1abc9c)";
 			this.res.style['-webkit-background-clip'] = 'text';
-	
-		     this.res.style.border = "1px solid orange"; // Something on Wrapper prevents border works on text
-			
+		    this.res.style.border = "1px solid orange"; // Something on Wrapper prevents border works on text
 		}
 	
 
 		if (ops === "background"){
-		
 			this.res.style.background = "orange";
 		}
 
-		
-
-
+	
 		if (ops === "gradientblast") { 
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 			this.res.style.background = this.globalGradient;//"linear-gradient(to left, #3498db, #1abc9c)";
@@ -542,16 +523,12 @@ class Animator {
 			this.res.style['-webkit-text-stroke'] = this.globalBlast; // `3px orange`;
 		}
 
-
-
-
 		if (ops === "gradientanimation") { // 12:33:14 Nice
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 			this.res.style.background = this.globalGradient; //"linear-gradient(to left, #3498db, #1abc9c)";
 			this.res.style['-webkit-background-clip'] = 'text';
 		}
 
-		// // // console.log("GL " + this.globalShadow);
 		if (ops === "gradientanimationshadow"){
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 			this.res.style.background = this.globalGradient; //"linear-gradient(to left, #3498db, #1abc9c)";
@@ -572,7 +549,6 @@ class Animator {
 
 
 		if (ops === "span"){
-			// alert("///")
 			if (this.options.span){
 				let noiseObject;
 	
@@ -594,9 +570,7 @@ class Animator {
 	  
 
 		if (ops === "filter"){
-
 			let filterName = this.options.filtera.op.filter;
-			// alert(filterName);
 			this.res.style.filter = filterName;
 			this.res.style.border = "8px solid orange";
 		}
@@ -608,28 +582,23 @@ class Animator {
 	// Initial check
 	checkQueries();
   }
-
+*/
 
 
 
 setPref(id){
 	this.preffersId = id;
-	//alert(id);
 }
 
 
 setClass(id){
 	this.class = id;
-	//alert(id);
 }
 
 
 
-
+/*
  betaReact(queries, id) {
-
-	// // console.log("PPP");
-	// // console.log(queries);
 
 	this.ap = false;
 	this.cta = 0;
@@ -872,22 +841,7 @@ setClass(id){
 
 
 
-	/*if (ops === "shadow"){
 
-		if (this.getType() === "FlexRowLayoutElement"){
-		} else {
-
-			this.res.children[0] && this.res.removeChild(this.res.children[0]);
-			//// console.warn(this.res.children[0]);
-			this.res.style['-webkit-text-fill-color'] = '';
-			this.res.style['-webkit-text-fill-color'] = '';
-			this.res.style.textShadow = "#1abc9cff -6px 6px , #1abc9c40 -12px 12px";
-			this.res.textContent = this.text; //"a"
-			//this.res.children[0] && this.res.removeChild(this.res.children[0]);
-		}
-		
-	//	this.res.style['-webkit-text-stroke'] = "orange";
-	}*/
 
 	  if (operations.includes("shadow")){
 			if (this.getType() === "FlexRowLayoutElement"){
@@ -915,7 +869,7 @@ setClass(id){
   
 	// Initial check
 	checkQueries();
-  }
+  }*/
 
 
   //--------- START OF INDEPENDENT
@@ -925,7 +879,7 @@ setClass(id){
 // loop through queries 
 // to make all CSS immediatelly...
 
-  cssGen(queries, id, classa, preffersClass){
+ /* cssGen(queries, id, classa, preffersClass){
 
 	this.css = [""];
 	return [""];
@@ -1075,11 +1029,11 @@ checkQueries();
 // console.log(this.css.map(r => r.rules));
 // console.log("::::::::::::::::::::::");
 
-  }
+  }*/
 
   chainReact(queries, id, keep) { // we use this
 console.log("0P");
-	this.cssGen(queries, id, this.class, this.class !== undefined); // 02/04/2024 10:43:40 Nice!!!
+	//this.cssGen(queries, id, this.class, this.class !== undefined); // 02/04/2024 10:43:40 Nice!!!
 
 	this.ap = false;
 	this.cta = 0;
@@ -1294,13 +1248,6 @@ if (!qban){
   }
 
   
-
-
-
-
-if (id === "#home"){
-	
-}
 	
   if (operations.includes("animation")) {	
 	
@@ -1645,7 +1592,7 @@ arrayMargin(arr, value) { // 224857 redefined earlier
 	
 	return this;
 }
-
+/*
 
     navBarExpand(){
         this.res.style.backgroundColor = "green";
@@ -1705,9 +1652,9 @@ arrayMargin(arr, value) { // 224857 redefined earlier
         
         // // // console.log("IS EXPANDED: " + this.state.isExpanded);
         return this;
-    }
+    }*/
     
-     
+     /*
     move(obj){
         
         if (obj.on === "click"){
@@ -1950,7 +1897,7 @@ this.finalOpacity = obj.finalOpacity;
 			} 
 		 });
 		return this;
-	}
+	}*/
 } // 2600-1870
 
 export { Animator };
