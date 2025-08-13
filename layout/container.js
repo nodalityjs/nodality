@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.77
+ * nodality v1.0.0-beta.78
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -21,9 +21,40 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		this.isLast = true;
 		return this;
 	}
+
+
 	
-	toCode(){
-		return this.code;
+	toCode(indent = 0){
+		this.code = [];
+
+	if (this.excludeFromCodeTrue) {
+        return [""];
+    }
+
+    const pad = " ".repeat(indent);
+
+    let code = `${pad}new Wrapper()`;
+
+    if (Object.keys(this.obj).length) {
+        const cleanedObj = Object.fromEntries(
+            Object.entries(this.obj).filter(([key, value]) => value !== null)
+        );
+
+        const objString = JSON
+            .stringify(cleanedObj, null, 2)
+            .replace(/"([^"]+)":/g, '$1:');
+
+        code += `\n${pad}  .set(${objString})`;
+    }
+
+    if (this.items.length) {
+        code += `\n${pad}  .add([\n` +
+            this.items.map(c => c.toCode(indent + 4)).join(",\n") +
+            `\n${pad}  ])`;
+    }
+
+    code += `\n${pad}`;
+    return [code];
 	}
 
 
@@ -55,11 +86,12 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 	  }
 
 	set(obj){
-
+		this.obj = obj;
 		let stra = ".set({";
 
 		obj.scale && (this.res.style.scale=obj.scale);
 		obj.scale && (stra += `scale: ${obj.scale}`);
+		obj.keySet && this.keySet(obj.keySet);
 
 		// ------
 		//obj.mc && (this.res.style.height = "minmax(400px, 1fr)");
@@ -67,7 +99,7 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		//obj.mc && (this.res.style.height = "max-content");
 		//obj.mc && (this.res.style.minHeight = "400px");
 		obj.pad && this.pad(obj.pad);
-			obj.mar && this.mar(obj.mar);
+		obj.mar && this.mar(obj.mar);
 			//	obj.mar && (stra += `mar: {sides: [${obj.mar.sides.map(x => `"${x}"`).join(", ")}], value: "${obj.arrpad.value}"}, `);
 		obj.arrpad && (stra += `pad: {sides: [${obj.arrpad.sides.map(x => `"${x}"`).join(", ")}], value: "${obj.arrpad.value}"}, `); // 2345 06/03
 

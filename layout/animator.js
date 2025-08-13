@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.77
+ * nodality v1.0.0-beta.78
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1143,8 +1143,11 @@ console.log("0P");
 		if (this.getType() === "FlexRowLayoutElement"){
 			this.res.style.border = `${w}px solid orange`;
 		} else {
+			if (this.text){
+
 			
 			this.res.textContent = this.text; //"a"
+			}
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 	
 			this.res.style['-webkit-text-stroke-color'] =  gl;//"orange";
@@ -1166,10 +1169,22 @@ console.log("0P");
 
 	  if (operations.includes("gradient")){
 
+		// Children are cleared when setting gradient to wrap and resizing
+
 	    // Set gradient to text
-		this.res.style['-webkit-text-fill-color'] = 'transparent';
+		if (this.getType() !== "LayoutWrapperElement"){
+			this.res.style['-webkit-text-fill-color'] = 'transparent';
+		}
+		// globalGradient is set in element "set" method
 		this.res.style.background = this.globalGradient;// "linear-gradient(to left, #3498db, #1abc9c)";
-		this.res.style['background-clip'] = 'text'; // 19:23:05 05/05/2024 -webkit was a problem here!
+		
+		
+	//	console.log("LGT");
+	//	console.log(this.getType());
+		if (this.getType() !== "LayoutWrapperElement"){
+			this.res.style['background-clip'] = 'text'; // 19:23:05 05/05/2024 -webkit was a problem here!
+		}
+	
 		
 
 		// In Safari background linear gradient sets background-clip to border-box; this ai automatically put after		
@@ -1178,8 +1193,8 @@ console.log("0P");
 
 	
 	  if (operations.includes("shadow")){
-			if (this.getType() === "FlexRowLayoutElement"){
-			} else {
+			//if (this.getType() === "FlexRowLayoutElement"){
+			//} else {
 		
 				let str = "";
 				let off = 0;
@@ -1190,8 +1205,10 @@ console.log("0P");
 
 
 				this.res.style.filter = str; 
+
 				
-		}
+				
+	//	}
 	  }
 
 	  if (operations.includes("margin")){
@@ -1235,16 +1252,22 @@ if (this.options.span){
 
 
   } else {
-	
+	/*
 if (!qban){
 
 
 	while (this.res.firstChild) {
 		this.res.removeChild(this.res.firstChild);
 	}
-}
-	let t = new this.constructor(this.prevText).set({}).render();
-	this.res.appendChild(t);
+
+	
+}*/
+
+let t = new this.constructor(this.prevText).set({}).render();
+	if (this.prevText && this.prevText.length > 0 && qban){
+this.res.appendChild(t);
+	}
+
   }
 
   
@@ -1325,7 +1348,7 @@ let ass = this.options.animation.op;
   
 	// Add an event listener to check queries on window resize
 	
-	if (!this.options.animation){
+	if (!this.options.animation && this.getType() !== "LayoutWrapperElement"){
 	
 	window.addEventListener('resize', () => checkQueries());
 	}
@@ -1335,7 +1358,11 @@ let ass = this.options.animation.op;
   //--------- END OF INDEPENDENT
   
   reactOnTransform = (obj) => {
+console.log("LOBJO IS");
 
+console.log(obj); // Why obj.op.transform not working for link
+//console.log(obj.op.transform); // I need obj.op.transform
+// 
 	if (obj.transform || obj.op && obj.op.transform){
 		
 

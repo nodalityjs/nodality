@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.77
+ * nodality v1.0.0-beta.78
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -372,6 +372,12 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 			(stra += `\n transform: ${stringified},`);
 		}
 
+		if (obj.blast) { // This does not fire for nasa link with id #swimoa
+			// alert("PPP" + obj.id);
+			let stringified = this.removeQuotesFromFirstWord(JSON.stringify(obj.blast));
+			(stra += `\n blast: ${stringified},`);
+		}
+
 		//if obj.keySet && this.keySet(obj.keySet); 
 		//obj.keySet && (stra += `\n keySet: ${stringified},`);
 
@@ -393,12 +399,14 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 
 	
 // 504-711 REACT ON TRANSFORM
-
+/*
 if (obj.transform && obj.transform.transform){
 	this.reactOnTransform(obj.transform);
 } else {
 	this.reactOnTransform(obj);
-}
+}*/
+
+obj.transform && this.reactOnTransform(obj.transform);
 
 
 
@@ -444,7 +452,7 @@ if (obj.transform && obj.transform.transform){
 
 	// alert("O")
 
-	let ft = [obj.border, obj.gradient, obj.animation, obj.span, obj.shadow, obj.backgroundOp, obj.animation]//obj.gradient.filter(el => el.op.name !== "layout");
+	let ft = [obj.border, obj.blast, obj.gradient, obj.animation, obj.span, obj.shadow, obj.backgroundOp, obj.animation, obj.transform]//obj.gradient.filter(el => el.op.name !== "layout");
 		// // // console.log(ft);
 
 		// // console.log("hawai");
@@ -455,6 +463,15 @@ if (obj.transform && obj.transform.transform){
 	
 if (ft.length > 0){
 
+
+		if (obj.gradient){
+				this.globalGradient = obj.gradient.op.gradient;
+			}
+
+		
+			if (obj.stroke){
+				super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
+			}
 
 
 	//	let arr = [];
