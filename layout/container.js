@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.78
+ * nodality v1.0.0-beta.79
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -107,7 +107,7 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 
 
 		//const obj = options;
-		if (obj && obj.id && obj.stroke || obj && obj.id &&  obj.gradient || obj && obj.id && obj.span || obj && obj.id && obj.layout ){
+	/*	if (obj && obj.id && obj.stroke || obj && obj.id &&  obj.gradient || obj && obj.id && obj.span || obj && obj.id && obj.layout ){
 
 
 			// use obj.range and obj.op
@@ -150,8 +150,8 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 						}
 			
 						this.res.setAttribute("id", obj.id);
-						this.betaReact(arr, obj.id);
-					}
+					//	this.betaReact(arr, obj.id);
+					}*/
 
 
 
@@ -212,11 +212,19 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 			keep.push("transform");
 		}
 
+		if (obj.gradient){
+			keep.push("gradient");
+		}
+
+		if (obj.blast){
+			//keep.push("blast");
+		}
+
 		// console.log("ARA IS " + arr);
-		console.log("ARA IS ");
+		console.log("CARA IS ");
 		console.log(arr);
 		this.options = obj;
-			 this.chainReact(arr, "#first", keep);
+			 this.chainReact(arr, this.options.id, keep);
 		}
 
 		obj.transform && this.reactOnTransform(obj.transform); 

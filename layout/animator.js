@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.78
+ * nodality v1.0.0-beta.79
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1140,8 +1140,12 @@ console.log("0P");
 		let w = globalQueries.filter(x => x.log === "blast")[0].op.width ?? "1px";
 	
 
-		if (this.getType() === "FlexRowLayoutElement"){
-			this.res.style.border = `${w}px solid orange`;
+		if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement"){
+			// alert("///")
+			// this.res.style.opacity = 0.3;
+			//alert(`${w}px solid orange`);
+			this.res.style.border = `${typeof w === 'number' ? w + 'px' : w} solid orange`;
+
 		} else {
 			if (this.text){
 
@@ -1168,6 +1172,8 @@ console.log("0P");
 	 }
 
 	  if (operations.includes("gradient")){
+		// alert(this.getType());
+		// not working with blast
 
 		// Children are cleared when setting gradient to wrap and resizing
 
@@ -1348,7 +1354,7 @@ let ass = this.options.animation.op;
   
 	// Add an event listener to check queries on window resize
 	
-	if (!this.options.animation && this.getType() !== "LayoutWrapperElement"){
+	if (!this.options.animation /*&& this.getType() !== "LayoutWrapperElement"*/){
 	
 	window.addEventListener('resize', () => checkQueries());
 	}
