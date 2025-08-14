@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.79
+ * nodality v1.0.0-beta.80
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1145,8 +1145,11 @@ console.log("0P");
 			// this.res.style.opacity = 0.3;
 			//alert(`${w}px solid orange`);
 			this.res.style.border = `${typeof w === 'number' ? w + 'px' : w} solid orange`;
-
-		} else {
+ this.res.style.display = "inline-block"; // or block
+    this.res.style.boxSizing = "border-box";
+    this.res.style.transformOrigin = "center"; // makes rotations/translations look correct
+	this.blastTarget = this.res;
+} else {
 			if (this.text){
 
 			
@@ -1156,7 +1159,8 @@ console.log("0P");
 	
 			this.res.style['-webkit-text-stroke-color'] =  gl;//"orange";
 			this.res.style['-webkit-text-stroke-width'] = `${w}`;
-		//alert("HIOH")
+		//this.res.style.display = "inline-block"; // important for transform
+			//alert("HIOH")
 		}
 	  }
 
@@ -1369,6 +1373,11 @@ console.log("LOBJO IS");
 console.log(obj); // Why obj.op.transform not working for link
 //console.log(obj.op.transform); // I need obj.op.transform
 // 
+
+
+
+
+
 	if (obj.transform || obj.op && obj.op.transform){
 		
 
@@ -1471,7 +1480,7 @@ console.log(obj); // Why obj.op.transform not working for link
 	if (matrix) transformValue += ` ${matrix}`;
 
 	if (transformValue) {
-		
+		// alert("/")
 
 		if (obj.op.transform.duration){ // transform 3s in and out takes 8 secs instead of 6....
 			let newStr = obj.op.transform.duration.replace(/^(\d+)(s)-/, (_, n, s) => n / 2 + s + " "); 
@@ -1486,8 +1495,11 @@ console.log(obj); // Why obj.op.transform not working for link
 		}
 
 		// 17:37:15 a comma was missing
-		this.res.style.transform = transformValue;
+		//this.res.style.transform = transformValue;
+		(this.blastTarget || this.res).style.transform = transformValue;
 		this.res.style.opacity = opacity;
+	} else {
+		alert("OPE")
 	}
 	}
 
@@ -1579,6 +1591,10 @@ if (transform.on){
 		this.res.style.transform = transform.hardCSS;
 	}
 	
+	} else {
+		alert("THIS FIRE WITH GRADIENT (invalid block");
+		console.log("INVALID BLOCKA");
+		console.log(obj);
 	}
 
 	}

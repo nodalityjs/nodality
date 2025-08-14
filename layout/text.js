@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.79
+ * nodality v1.0.0-beta.80
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -413,6 +413,11 @@ this.res.style.position = "absolute";
 
 		obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
 
+
+		if (obj.transform){
+			console.warn("ARE DIFFERENT OBJS HERE?");
+			console.warn(obj.transform)
+		}
 		obj.transform && this.reactOnTransform(obj.transform); // remove obj.op.duration
 		
 		/*if (obj.transform.op.values){

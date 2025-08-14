@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.79
+ * nodality v1.0.0-beta.80
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -227,7 +227,7 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 			 this.chainReact(arr, this.options.id, keep);
 		}
 
-		obj.transform && this.reactOnTransform(obj.transform); 
+		
 	
 		if (obj.socenter){
 			this.res.style.display = "flex";
@@ -347,6 +347,7 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 
 		obj.zIndex && (this.res.style.zIndex = obj.zIndex);
 	
+		obj.transform && this.reactOnTransform(obj.transform); 
 		// obj.makeResponsiveBehaviour && obj.makeResponsiveBehaviour !== "undefined" && this.makeResponsiveBehaviour(obj.makeResponsiveBehaviour);
 		obj.name && (this.name = obj.name)
 		obj.responsive && this.rsp(obj.responsive);
