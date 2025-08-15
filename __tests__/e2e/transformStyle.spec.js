@@ -21,8 +21,6 @@ test('Transform style (MEDIUM, FAST) works', async ({ browser, baseURL }) => {
   await page.waitForTimeout(1300);
 
   const transform = await h1.evaluate(el => getComputedStyle(el).transform);
-  console.log('Computed transform:');
-  console.log(transform);
 
   expect(transform.startsWith('matrix(')).toBe(true);
 
