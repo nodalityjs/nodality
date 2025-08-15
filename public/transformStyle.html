@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table Test Page</title>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+/*
+for file in *.html; do
+  sed -i '' '/<meta charset="UTF-8" \/>/a\        
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ' "$file"                                  
+done
+add meta tag
+*/
+import { Des } from '../lib/designer.js';
+
+let nodes = [
+  {
+    op: "transform",
+    style: "LASER-SWEEP",
+    duration: "FAST"
+  }
+];
+
+let elements = [
+  {
+    type: "h1",
+    text: "Hello"
+  }
+];
+
+new Des()
+  .nodes(nodes)
+  .add(elements)
+  .set({
+    mount: '#mount',
+    code: false
+  });
+  </script>
+</body>
+</html>
