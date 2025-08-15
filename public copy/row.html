@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Row Test Page</title>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+
+import { Des } from '../lib/designer.js';
+
+let elements = [
+  {
+    type: "row"
+  }
+];
+
+new Des()
+.add(elements)
+.nodes([])
+.set({
+  mount: "#mount",
+  code: true
+});
+
+
+
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.80
+ * nodality v1.0.0-beta.81
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -54,12 +54,16 @@ this.options = obj;
 		let btn = document.createElement("button");
 		btn.style.background = "transparent";
 
-		if (obj.url){
-			let node = document.createElement("img");
+		if (obj.img){
+			btn.append(obj.img.render());
+		}
+
+		if (obj.url && !obj.img){
+		/*	let node = document.createElement("img");
 			node.setAttribute("src", obj.url);
-			node.style.width = obj.frame.width;
-			node.style.height = obj.frame.height;
-			btn.appendChild(node);
+			node.style.width = 50;//obj.frame.width; // order?
+			node.style.height = 50;//obj.frame.height;
+			btn.appendChild(node);*/
 		} else {
 			let node = document.createTextNode(this.text.replace("$", this.val));
 			btn.appendChild(node);

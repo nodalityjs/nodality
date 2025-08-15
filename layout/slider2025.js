@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.80
+ * nodality v1.0.0-beta.81
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -17,20 +17,26 @@ class Slider {
   
       if (!this.buttons){
   
+      
+
   let buttons = { 
       leftButton: new Button("L").set({
-              url: "https://static-00.iconduck.com/assets.00/circle-arrow-left-icon-512x512-xp8okg5c.png",
+         frame: {width: 50, height: 50},
+              url: "../assets/arrow-left.png",
               color: "#1abc9c",
-              frame: {width: 50, height: 50},
+             image: new Image().set({ url: "../assets/arrow-left.png", width: "50px", height: "50px"}),
               radius: "100%",
               arrayMargin: {sides: ["all"], value: "1rem"}
               // 10/01/2025 18:12:55 margin does not add to page width, padding does
+
+              // Attr <a href="https://www.flaticon.com/free-icons/back" title="back icons">Back icons created by Lyolya - Flaticon</a>
           }),
   
           rightButton: new Button("R").set({
-              url: "https://static-00.iconduck.com/assets.00/arrow-right-circle-icon-2048x2048-m0qcnetg.png",
+             frame: {width: 50, height: 50},
+              url: "../assets/arrow-right.png",
               color: "#1abc9c",
-              frame: {width: 50, height: 50},
+             
               radius: "100%",
               arrayMargin: {sides: ["all"], value: "1rem"}
           })

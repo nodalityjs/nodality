@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wrap layout</title>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+
+import { Des } from '../lib/designer.js';
+
+let elements = [
+  {
+    type: "wrap"
+  }
+];
+
+let nodes = [
+];
+
+new Des()
+  .nodes(nodes)
+  .add(elements)
+  .set({
+    mount: "#mount"
+  });
+
+
+  </script>
+</body>
+</html>

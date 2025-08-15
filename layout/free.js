@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.80
+ * nodality v1.0.0-beta.81
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -126,7 +126,7 @@ console.log(attr.attract.slice(1));
         element.style.alignItems = "center";
         element.style.justifyContent = "center";
         element.style.fontWeight = "bold";
-        element.style.color = "white";
+      //  element.style.color = "white";
        // alert(element)
         this.res.appendChild(element);
 
