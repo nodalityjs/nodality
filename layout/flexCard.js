@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.83
+ * nodality v1.0.0-beta.84
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -29,7 +29,7 @@ class Card extends Animator {
 		card.style.backgroundColor = "#fff";
 		card.style.fontFamily = "Arial";
 		card.style.width = "100%";
-		card.style.boxShadow = "3px 3px 10px #111";
+		// card.style.boxShadow = "3px 3px 10px #111";
 		card.style.overflow = "hidden"
 		this.res = card;	
 		return this;	

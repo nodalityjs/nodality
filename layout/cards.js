@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.83
+ * nodality v1.0.0-beta.84
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -74,11 +74,12 @@ class Card {
 		let back = document.createElement("div");
 		back.style.backgroundColor = "#ecf0f1";
 		back.style.width = "100%";
-		back.style.height = "200";
+		alert("///")
+		/*back.style.height = "200";
 		
 		if (query.matches){
 			back.style.height = "500";
-		}
+		}*/
 		
 		back.style.backgroundImage = `url(${url})`;
 		back.style.backgroundPosition = "center center";

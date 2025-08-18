@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.83
+ * nodality v1.0.0-beta.84
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -658,7 +658,7 @@ return this;
 		back.style.viewTransitionName = vtn;
 		//back.style.backgroundColor = "#ecf0f1";
 		back.style.width = "100%";
-		back.style.height = "200";
+		back.style.height = this.options.height ? this.options.height : "400px";
 
 
 		if (gcs){
