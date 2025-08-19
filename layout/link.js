@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.84
+ * nodality v1.0.0-beta.85
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -29,6 +29,22 @@ class Link extends Animator {
 		this.stopEM = stopEM; // DEVELOPMENT
 		this.setup();
 		this.inlineBlock(); // auto set ??
+
+
+		 this.res.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const url = this.link;
+
+      if ("navigation" in window) {
+        // ✅ Modern Navigation API triggers view transitions
+        navigation.navigate(url);
+      } else {
+        // Fallback for browsers without Navigation API
+        history.pushState({}, "", url);
+        document.dispatchEvent(new PopStateEvent("popstate")); 
+      }
+    });
 	}
 
 	toCSS(){

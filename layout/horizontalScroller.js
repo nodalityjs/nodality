@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.84
+ * nodality v1.0.0-beta.85
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -18,6 +18,7 @@ class HScroller {
         this.e = obj.a;
 
         obj.speed && (this.divisor = obj.speed);
+        obj.height && (this.setH = obj.height); //(this.div.style.height = obj.height);
         return this;
     }
 
@@ -55,7 +56,7 @@ class HScroller {
 
         let wrap = document.createElement("div");
         wrap.style.width = "100%";
-        wrap.style.height = "100%";
+        wrap.style.height = this.setH ?? "100%";
 
         let div = document.createElement("div");//document.querySelector("div");
         div.style.display = "flex";
