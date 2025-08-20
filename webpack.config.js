@@ -76,6 +76,11 @@ module.exports = [
     createConfig('./layout/formComponents/dataList.js', 'datalist.esm.js', 'module', undefined, true),
     createConfig('./layout/formComponents/floatingInput.js', 'floatingInput.esm.js', 'module', undefined, true),
     createConfig('./layout/button.js', 'button.esm.js', 'module', undefined, true),
+       createConfig('./layout/circle.js', 'circle.esm.js', 'module', undefined, true),
+          createConfig('./layout/polygon.js', 'polygon.esm.js', 'module', undefined, true),
+
+
+
     createConfig('./lib/designer.js', 'designer.esm.js', 'module', undefined, true),
     //createConfig('./lib/storage.js', 'storage.esm.js', 'module', undefined, true),
       createConfig('./lib/linkGetter.js', 'linkGetter.esm.js', 'module', undefined, true),
@@ -137,6 +142,8 @@ createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, 
     createConfig('./lib/appleanim.js', 'appleanim.cjs.js', 'commonjs2'),
     createConfig('./lib/stacker.js', 'stacker.cjs.js', 'commonjs2'),
     createConfig('./lib/scrollvideo.js', 'scrollvideo.cjs.js', 'commonjs2'),
+        createConfig('./lib/circle.js', 'circle.cjs.js', 'commonjs2'),
+            createConfig('./lib/polygon.js', 'polygon.cjs.js', 'commonjs2'),
     //createConfig('./lib/storage.js', 'storage.cjs.js', 'commonjs2'),
 
    // createConfig('./layout/horizontalScroller.js', 'horizontalScroller.cjs.js', 'module', undefined, true),
