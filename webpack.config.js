@@ -134,6 +134,8 @@ createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, 
     createConfig('./layout/formComponents/dataList.js', 'datalist.cjs.js', 'commonjs2'),
     createConfig('./layout/formComponents/floatingInput.js', 'floatingInput.cjs.js', 'commonjs2'),
     createConfig('./layout/button.js', 'button.cjs.js', 'commonjs2'),
+    createConfig('./layout/circle.js', 'circle.cjs.js', 'commonjs2'),
+    createConfig('./layout/polygon.js', 'polygon.cjs.js', 'commonjs2'),
     createConfig('./lib/designer.js', 'designer.cjs.js', 'commonjs2'),
 
     createConfig('./lib/linkGetter.js', 'linkGetter.cjs.js', 'commonjs2'),
@@ -142,8 +144,7 @@ createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, 
     createConfig('./lib/appleanim.js', 'appleanim.cjs.js', 'commonjs2'),
     createConfig('./lib/stacker.js', 'stacker.cjs.js', 'commonjs2'),
     createConfig('./lib/scrollvideo.js', 'scrollvideo.cjs.js', 'commonjs2'),
-        createConfig('./lib/circle.js', 'circle.cjs.js', 'commonjs2'),
-            createConfig('./lib/polygon.js', 'polygon.cjs.js', 'commonjs2'),
+ 
     //createConfig('./lib/storage.js', 'storage.cjs.js', 'commonjs2'),
 
    // createConfig('./layout/horizontalScroller.js', 'horizontalScroller.cjs.js', 'module', undefined, true),

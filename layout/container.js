@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.87
+ * nodality v1.0.0-beta.88
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -13,6 +13,7 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		this.setup(obj); // 21:29:32 09/03/2024 Take on me!
 		this.code = [];
 		this.isLast = false;
+		this.constrObj = obj;
 
 		this.code.push("\n new Wrapper() \n");
 	}
@@ -33,7 +34,11 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 
     const pad = " ".repeat(indent);
 
-    let code = `${pad}new Wrapper()`;
+    let code = `${pad}new Wrapper("${this.constrObj}")`;
+
+	if (!this.constrObj){
+code = `${pad}new Wrapper()`;
+	}
 
     if (Object.keys(this.obj).length) {
         const cleanedObj = Object.fromEntries(
@@ -752,8 +757,47 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
     
 	setup(options) {
 
-		let container = options ? document.createElement(options.isLink ? "a" : "div") :document.createElement("div") ;
+		let container = null;
+
+		if (options){
+
+			if (options.isLink){
+				container = document.createElement("a") 
+			}
+
+			if (options === "aside"){
+				container = document.createElement("aside");
+			}
+
+			if (options === "article"){
+				container = document.createElement("article");
+			}
+
+			if (options === "main"){
+				container = document.createElement("main");
+			}
+
+			if (options === "section"){
+				container = document.createElement("section");
+			}
+
+			if (options === "header"){
+				container = document.createElement("header");
+			}
+
+			if (options === "footer"){
+				container = document.createElement("footer");
+			}
+
+
+		} else {
+				container = document.createElement("div");
+		}
+
+		// let container = options ? document.createElement(options.isLink ? "a" : "div") :document.createElement("div") ;
 		
+
+
 		
 		if (options && options.isLink){
 			 container.style.textDecoration = "none";

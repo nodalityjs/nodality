@@ -1,10 +1,10 @@
 /*!
- * nodality v1.0.0-beta.87
+ * nodality v1.0.0-beta.88
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
 
-import { Animator } from "../../layout/animator.js";
+import { Animator } from "./animator.js";
 
 class Polygon extends Animator {
   constructor(obj = {}) {

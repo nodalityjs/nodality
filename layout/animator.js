@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.87
+ * nodality v1.0.0-beta.88
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1136,7 +1136,7 @@ console.log("0P");
 	  } else {
 				//alert("/")
 				//console.log("///-Hello-///")
-		this.res.style.background = "black";
+		// this.res.style.background = "black"; always set backgrohnd to shapes dangerous affects divs
 	  }
 	 // }
 	  
