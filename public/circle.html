@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circle layout</title>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+
+import { Des } from '../lib/designer.js';
+
+let elements = [
+  {
+    type: "circle"
+  }
+];
+
+let nodes = [
+];
+
+new Des()
+  .nodes(nodes)
+  .add(elements)
+  .set({
+    mount: "#mount"
+  });
+
+
+  </script>
+</body>
+</html>

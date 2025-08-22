@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.88
+ * nodality v1.0.0-beta.89
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -54,6 +54,7 @@ class Polygon extends Animator {
     if (opts.border) this.border(opts.border);
     if (opts.margin) this.margin(opts.margin);
     if (opts.padding) this.padding(opts.padding);
+    if (opts.background) this.background(opts.background);
     if (opts.center) this.center();
 
     let obj = opts;
@@ -157,6 +158,11 @@ class Polygon extends Animator {
 
   padding(p) {
     this.res.style.padding = typeof p === "number" ? p + "px" : p;
+    return this;
+  }
+
+    background(p) {
+    this.res.style.background = p;
     return this;
   }
 
