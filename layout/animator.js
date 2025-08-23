@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.92
+ * nodality v1.0.0-beta.93
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1170,6 +1170,10 @@ if (operations.includes("gradient")){
 			//alert(`${w}px solid orange`);
 			this.res.style.border = `${typeof w === 'number' ? w + 'px' : w} solid orange`;
  this.res.style.display = "inline-block"; // or block
+		if (this.getType() === "FlexRowLayoutElement"){
+			this.res.style.display = "flex";
+		}
+
     this.res.style.boxSizing = "border-box";
     this.res.style.transformOrigin = "center"; // makes rotations/translations look correct
 	this.blastTarget = this.res;
@@ -1206,7 +1210,7 @@ if (operations.includes("gradient")){
 		// Children are cleared when setting gradient to wrap and resizing
 
 	    // Set gradient to text
-		if (this.getType() !== "LayoutWrapperElement"){
+		if (this.getType() !== "LayoutWrapperElement" && this.getType() !== "FlexRowLayoutElement"){
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 		}
 		// globalGradient is set in element "set" method
@@ -1215,7 +1219,9 @@ if (operations.includes("gradient")){
 		
 	//	console.log("LGT");
 	//	console.log(this.getType());
-		if (this.getType() !== "LayoutWrapperElement"){
+		if (this.getType() !== "LayoutWrapperElement" && this.getType() !== "FlexRowLayoutElement" ){
+		// alert("OJIOJIOIO")
+		//alert(this.getType());
 			this.res.style['background-clip'] = 'text'; // 19:23:05 05/05/2024 -webkit was a problem here!
 		}
 	
@@ -1234,11 +1240,15 @@ if (operations.includes("gradient")){
 				let off = 0;
 				for (var i = 0; i < this.options.shadow.op.steps; i++){
 					off += 3;
-					str += `drop-shadow(${off}px ${off}px ${off}px gray) `; 
+					str += `drop-shadow(${off}px ${off}px ${off}px ${this.options.shadow.color ?? "gray"}) `; 
 				}
 
-
-				this.res.style.filter = str; 
+if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement"){
+this.res.style.boxShadow = `${off}px ${off}px ${off}px ${this.options.shadow.color ?? "gray"}`; 
+} else {
+	this.res.style.filter = str; 
+}
+				
 
 				
 				

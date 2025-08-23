@@ -86,7 +86,7 @@ module.exports = [
       createConfig('./lib/linkGetter.js', 'linkGetter.esm.js', 'module', undefined, true),
         createConfig('./lib/cardGetter.js', 'cardGetter.esm.js', 'module', undefined, true),
         createConfig('./lib/transformanim.js', 'transformanim.esm.js', 'module', undefined, true),
-createConfig('./lib/appleanim.js', 'appleanim.esm.js', 'module', undefined, true),
+createConfig('./lib/KeyframeAnimation.js', 'KeyframeAnimation.esm.js', 'module', undefined, true),
 createConfig('./lib/stacker.js', 'stacker.esm.js', 'module', undefined, true),
 createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, true),
 // add CardGen, LinkStyler, Storage
@@ -141,7 +141,7 @@ createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, 
     createConfig('./lib/linkGetter.js', 'linkGetter.cjs.js', 'commonjs2'),
     createConfig('./lib/cardGetter.js', 'cardGetter.cjs.js', 'commonjs2'),
     createConfig('./lib/transformanim.js', 'transformanim.cjs.js', 'commonjs2'),
-    createConfig('./lib/appleanim.js', 'appleanim.cjs.js', 'commonjs2'),
+    createConfig('./lib/KeyframeAnimation.js', 'KeyframeAnimation.cjs.js', 'commonjs2'),
     createConfig('./lib/stacker.js', 'stacker.cjs.js', 'commonjs2'),
     createConfig('./lib/scrollvideo.js', 'scrollvideo.cjs.js', 'commonjs2'),
  

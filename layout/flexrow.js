@@ -1,12 +1,10 @@
 /*!
- * nodality v1.0.0-beta.92
+ * nodality v1.0.0-beta.93
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
-
-
 
 class FlexRow extends Animator {
 	constructor(frs, saveEl) {
@@ -28,7 +26,7 @@ class FlexRow extends Animator {
 
 	set(options){
 		//alert("OJ")
-this.options = options;
+		this.options = options;
 		// console.log("OPTIONS ARE");
 		// console.log(options);
 
@@ -52,39 +50,7 @@ this.options = options;
 
 		// console.log("WITH BOP");
 		// console.log(obj);
-		if (obj && obj.id && obj.stroke || obj && obj.id && obj.gradient || obj && obj.id && obj.span || obj && obj.id && obj.backgroundOp){
-			//alert("P")
-						if (obj.gradient){
-						this.globalGradient = obj.gradient.op.gradient;
-			
-						} // OK
-			
-						if (obj.stroke){
-						super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
-						}
-			
-						// Filter just the elements with layout element
-						let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp]//obj.gradient.filter(el => el.op.name !== "layout");			
-						ft = ft.filter(el => el != undefined);
-			
-						let arr = [];
-			
-						for (var i = 0; i < ft.length; i++){
-							arr.push({
-								range: ft[i].range,
-								log: ft[i].op.name,
-								target: ft[i].target
-							});
-						}
-			
-						  // console.log("-----RDAAA----");
-						  // console.log(arr);
-						  // console.log(obj.id);
-						  this.res.setAttribute("id", obj.id);
-						  this.betaReact(arr, obj.id);
-						 // this.protoReact(arr, obj.id);
-					} // 17:06:00 17/03/2024 Yes!!!
-
+		
 					//----------------
 
 
@@ -306,8 +272,117 @@ let stringified = JSON.stringify(options.borderObj);
 						  this.protoReact(arr, options.id);
 					}*/
 
+
+
+					/*
+					if (obj && obj.id && obj.stroke || obj && obj.id && obj.gradient || obj && obj.id && obj.span || obj && obj.id && obj.backgroundOp){
+			//alert("P")
+						if (obj.gradient){
+						this.globalGradient = obj.gradient.op.gradient;
+			
+						} // OK
+			
+						if (obj.stroke){
+						super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
+						}
+			
+						// Filter just the elements with layout element
+						let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp]//obj.gradient.filter(el => el.op.name !== "layout");			
+						ft = ft.filter(el => el != undefined);
+			
+						let arr = [];
+			
+						for (var i = 0; i < ft.length; i++){
+							arr.push({
+								range: ft[i].range,
+								log: ft[i].op.name,
+								target: ft[i].target
+							});
+						}
+			
+						  // console.log("-----RDAAA----");
+						  // console.log(arr);
+						  // console.log(obj.id);
+						  this.res.setAttribute("id", obj.id);
+						  this.betaReact(arr, obj.id);
+						 // this.protoReact(arr, obj.id);
+					} // 17:06:00 17/03/2024 Yes!!!
+
+					*/
+
+					 this.callReact(obj);
+
 		this.code.push(`\n })`);
 		return this;
+	}
+
+
+	callReact(obj){
+        this.options = obj;
+
+		let arr = [];
+
+		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || obj.transform){
+			if (obj.gradient){
+				this.globalGradient = obj.gradient.op.gradient;
+			}
+
+		
+			if (obj.stroke){
+				super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
+			}
+
+			if (obj.span){
+				obj.span.prevText = this.text;
+			}
+
+
+			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, obj.transform];
+			ft = ft.filter(el => el != undefined);
+
+		
+
+			for (var i = 0; i < ft.length; i++){
+				arr.push({
+					range: ft[i].range,
+					log: ft[i].op.name,
+					target: ft[i].target,
+					op: ft[i].op
+				});
+			}
+
+			let keep = [];
+
+		if (obj.borderObj){
+			keep.push("border");
+		}
+
+		if (obj.background){
+			keep.push("background");
+		}
+
+		if (obj.mar){
+			keep.push("margin");
+		}
+
+		if (obj.animation){
+			keep.push("animation");
+		}
+
+		if (obj.span){
+			keep.push("span");
+		}
+
+	/*	if (obj.transform){
+			keep.push("transform");
+		}*/
+
+		// console.log("ARA IS " + arr);
+		console.log("ARA IS ");
+		console.log(arr);
+
+			this.chainReact(arr, obj.id, keep);
+		}
 	}
 
 	
@@ -419,6 +494,35 @@ let stringified = JSON.stringify(options.borderObj);
 
 
 	toCode(){
+		// copy and clean options
+    const clean = {};
+    for (let [k, v] of Object.entries(this.options || {})) {
+        if (v !== undefined && v !== null && v !== "") {
+            clean[k] = v;
+        }
+    }
+
+    // stringify cleaned object
+    const objString = JSON.stringify(clean, null, 4)
+        .replace(/"([^"]+)":/g, '$1:')  // unquote keys
+        .replace(/"([^"]*)"/g, (m, p1) => {
+            // wrap multiline text/code in backticks
+            if (p1.includes("\n")) return "`" + p1.replace(/`/g, "\\`") + "`";
+            return `"${p1}"`;
+        });
+
+    // recurse into children that support toCode()
+    const itemsCode = (this.items || [])
+        .map(item => (item?.toCode ? item.toCode() : "/* element */"))
+        .join(",\n    ");
+
+		//return ["new Text('Hello')"];
+
+    return [
+        `new FlexRow().set(${objString})`,
+        itemsCode ? `.items([\n    ${itemsCode}\n])` : ""
+    ].join("");
+/*
 	 const objString = JSON
         .stringify(this.options, null, 4)
         .replace(/"([^"]+)":/g, '$1:');
@@ -430,7 +534,7 @@ let stringified = JSON.stringify(options.borderObj);
         `    ${itemsCode}`,
         `])`
     ].join("\n");
-		//return this.code; // 21:40:09
+		//return this.code; // 21:40:09*/
 	}
 
 	arrayPadding(arr, value) {

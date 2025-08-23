@@ -35,7 +35,7 @@ for (const { width: [minWidth, maxWidth], expect: expected } of viewportRanges) 
         const style = getComputedStyle(el);
         return {
           stroke: style.webkitTextStroke,
-          shadowFilter: style.filter,
+          shadowFilter: style.boxShadow,
         };
       });
 

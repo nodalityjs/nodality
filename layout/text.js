@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.92
+ * nodality v1.0.0-beta.93
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -428,7 +428,18 @@ this.res.style.position = "absolute";
 		console.log(obj);
 		
 		
-		
+		this.callReact(obj);
+
+
+		//this.code.push(str); // 14:04:10 06/03
+
+		return this;
+	} // 114522 you can hit tab 
+
+
+
+	callReact(obj){
+
 		let arr = [];
 
 		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || obj.transform){
@@ -492,15 +503,7 @@ this.res.style.position = "absolute";
 
 			this.chainReact(arr, this.options.id, keep);
 		}
-
-
-		//this.code.push(str); // 14:04:10 06/03
-
-		return this;
-	} // 114522 you can hit tab 
-
-
-
+	}
 
 
 // ------------------------------------------INDIVIDUAL METHODS-------------------------------
