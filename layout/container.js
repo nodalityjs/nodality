@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.91
+ * nodality v1.0.0-beta.92
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -234,12 +234,12 @@ code = `${pad}new Wrapper()`;
 
 		
 	
-		if (obj.socenter){
+		if (obj.centerColumn){ // was obj.socenter
 			this.res.style.display = "flex";
 			this.res.style.flexDirection = "column";
 			this.res.style.alignItems = "center";
 
-			obj.socenter && (stra += `socenter: ${obj.socenter},`); // 2345 06/03
+			obj.centerColumn && (stra += `centerColumn: ${obj.centerColumn},`); // 2345 06/03
 	   }
 
 	obj.mboth && (this.res.style.marginRight = "auto") && (this.res.style.marginLeft = "auto" );

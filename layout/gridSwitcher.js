@@ -1,10 +1,10 @@
 /*!
- * nodality v1.0.0-beta.91
+ * nodality v1.0.0-beta.92
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
 
-class Simple {
+class AreaSwitcher {
     constructor() {
       
       this.gridContainer = document.createElement("div");
@@ -57,10 +57,10 @@ console.log("FROM    " + from + "    TO  " + to);
      const outputString = withSpaceObj.map(row => `"${row}"`).join(" ");
      this.gridContainer.style.gridTemplateAreas = outputString;
  
-     this.gridContainer.style.border = `3px solid ${arr[i].color}`;
+    // this.gridContainer.style.border = `3px solid ${arr[i].color}`;
  
     } else if (window.innerWidth > to) {
-      this.gridContainer.style.border = `3px solid ${arr[arr.length - 1].color}`;
+    //  this.gridContainer.style.border = `3px solid ${arr[arr.length - 1].color}`;
       console.log("BIGGER THAN"  +  " "  + to);
       //alert("P")
       // This always fires
@@ -107,7 +107,7 @@ console.log("FROM    " + from + "    TO  " + to);
 
   for (let i = 0; i < items.length; i++) {
     let e = items[i].render();
-    e.style.border = "1px solid gray";
+   // e.style.border = "1px solid gray";
     e.style.gridArea = els[i].toLowerCase(); // e.g., 'a', 'b', 'aa', 'ab', ...
 
     const gridItem = document.createElement("div");
@@ -164,7 +164,7 @@ console.log("FROM    " + from + "    TO  " + to);
               if ((mq || val.at == "default") && mq !== this.lastMq){
                   const update = new Simple().set(val.template, this.dynamicItems).render();
                   this.el = update;
-                  this.el.style.border  = "1px solid black";
+                //  this.el.style.border  = "1px solid black";
                   this.render(this.domStr);
                   this.lastMq = mq;
               }
@@ -191,4 +191,4 @@ console.log("FROM    " + from + "    TO  " + to);
     }
   }
   
-  export {Simple};
+  export {AreaSwitcher};
