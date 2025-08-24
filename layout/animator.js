@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.93
+ * nodality v1.0.0-beta.94
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -121,8 +121,50 @@ class Animator {
 		react();
 	}
 
-
 	resprop(arr) {
+
+			console.log("RES STYLE");
+						console.log(arr);
+
+	// Save the original styles
+	this.prevStyles = {};
+	for (let i = 0; i < this.res.style.length; i++) {
+		let prop = this.res.style[i];
+		this.prevStyles[prop] = this.res.style[prop];
+		console.log("kio")
+	}
+
+	const react = () => {
+		// Reset to original styles
+		for (const key in this.prevStyles) {
+			this.res.style[key] = this.prevStyles[key];
+		}
+
+		console.log("mkio")
+
+		// Apply responsive overrides
+		for (let i = 0; i < arr.length; i++) {
+			let point = arr[i].breakpoint;
+let query = `(max-width: ${point})`;
+
+			console.log("testing media query:", query, window.matchMedia(query).matches);
+			if (window.matchMedia(query).matches) {
+				for (const key in arr[i]) {
+					if (key !== "breakpoint") {
+					console.log("ukio")
+						this.res.style[key] = arr[i][key];
+					}
+				}
+			}
+		}
+	};
+
+	window.addEventListener("resize", react);
+	react();
+}
+
+
+	/*resprop(arr) {
 
 		this.prevBackground = this.res.style.background;
 			this.prevWidth = this.res.style.width;
@@ -155,7 +197,7 @@ class Animator {
 
 		window.addEventListener("resize", react);
 		react();
-	}
+	}*/
 
 	isNumber(value) {
 		return typeof value === 'number' && !isNaN(value);

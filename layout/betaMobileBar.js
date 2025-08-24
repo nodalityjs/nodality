@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.93
+ * nodality v1.0.0-beta.94
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -62,7 +62,9 @@ let codeObj = `
 background: "${this.obj.background}",
 brand: ${this.obj.brand.toCode()},
 mar: ${JSON.stringify(this.obj.mar)},
-pad: ${JSON.stringify(this.obj.mar)},
+pad: ${JSON.stringify(this.obj.pad)},
+resmar: ${JSON.stringify(this.obj.resmar)},
+respad: ${JSON.stringify(this.obj.respad)},
 radius: ${JSON.stringify(this.obj.radius)},
 `;
 

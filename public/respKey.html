@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Des Test Page</title>
 </head>
 <body>
@@ -10,8 +11,20 @@
 
 import { Des } from '../lib/designer.js';
 
-const elements = [{ type: 'p', text: "Hello"}];
-const nodes = [];
+const elements = [
+  {
+    type: "h1",       // Support p
+    value: "Miami",     
+    id: "#first"      
+  }
+];
+
+let nodes = [
+  {
+    op: "animation",
+    target: ["#first"]
+  }
+];
 
 new Des()
   .nodes(nodes)

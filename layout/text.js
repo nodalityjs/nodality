@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.93
+ * nodality v1.0.0-beta.94
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -399,7 +399,7 @@ this.res.style.position = "absolute";
 		obj.background && (this.res.style.backgroundColor = obj.background);
 		obj.radius && (this.res.style.borderRadius = obj.radius);
 
-
+  		obj.resprop && this.resprop(obj.resprop);
 		obj.italic && this.italic();
 		// stra += 17:01:43 11/11/24
 

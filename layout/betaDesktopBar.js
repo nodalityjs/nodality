@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.93
+ * nodality v1.0.0-beta.94
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -35,6 +35,13 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         obj.mar && super.mar(obj.mar);
         obj.brand && this.setBrand(obj.brand);
         obj.radius && (this.res.style.borderRadius = obj.radius);
+
+        obj.pad && this.pad(obj.pad);
+		obj.respad && this.respad(obj.respad);
+		obj.resmar && this.resmar(obj.resmar);
+		obj.mar && this.mar(obj.mar);
+
+
         // THANK YOU 215756!!!
         obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
 

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.93
+ * nodality v1.0.0-beta.94
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -100,6 +100,8 @@ this.options = obj;
 
 		obj.mar && (this.mar(obj.mar));
 		obj.pad && (this.pad(obj.pad));
+		obj.respad && this.respad(obj.respad);
+		obj.resmar && this.resmar(obj.resmar);
 
 	//this.pad([{"b": "3rem"}]); // add)
 		

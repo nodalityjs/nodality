@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.93
+ * nodality v1.0.0-beta.94
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -15,7 +15,7 @@ class FlexRow extends Animator {
 		this.res = null;
 		this.setup();
 		this.responsive();
-		this.code.push(" new FlexRow()");
+	//	this.code.push(" new FlexRow()");
 	}
 
 	getType(){
@@ -56,7 +56,7 @@ class FlexRow extends Animator {
 
 		
 		options.id && this.res.setAttribute("id",  options.id);
-		this.code.push(`\n .set({`);
+		//this.code.push(`\n .set({`);
 		if (options.padding){
 			this.padding(options.padding);
 		}
@@ -84,12 +84,12 @@ class FlexRow extends Animator {
 
 		if (options.background){
 			this.res.style.backgroundColor = options.background;
-			this.code.push(`\n background: "${options.background}",`);
+			// this.code.push(`\n background: "${options.background}",`);
 		}
 
 		if (options.justify){
 			this.res.style.justifyContent = options.justify;
-			this.code.push(`\n justify: "${options.justify}",`);
+			//this.code.push(`\n justify: "${options.justify}",`);
 		}
 
 		if (options.border) {
@@ -106,7 +106,7 @@ class FlexRow extends Animator {
 
 		
 
-			this.code.push(`\n border: ["${options.border[0]}", "${options.border[1]}"],`);
+			// this.code.push(`\n border: ["${options.border[0]}", "${options.border[1]}"],`);
 		}
 
 
@@ -125,7 +125,7 @@ class FlexRow extends Animator {
 
 this.borderObj(options.borderObj);
 let stringified = JSON.stringify(options.borderObj);
-		this.code.push(`\n borderObj: ${stringified},`);
+		// this.code.push(`\n borderObj: ${stringified},`);
 			/*borderObj: {
 				side: "all",
 				width: "3px",
@@ -134,35 +134,35 @@ let stringified = JSON.stringify(options.borderObj);
 		}
 
 		options.width && (this.res.style.width = options.width);
-		options.width && this.code.push(`\n width: "${options.width}",`);
+	//	options.width && this.code.push(`\n width: "${options.width}",`);
 
 		options.height && (this.res.style.height = options.height);
-		options.height && this.code.push(`\n height: "${options.height}",`);
+	//	options.height && this.code.push(`\n height: "${options.height}",`);
 
 
 		if (options.align){
 			 let stringified = JSON.stringify(options.align);
 			 this.res.style.alignItems = "flex-start";
-			 this.code.push(`\n alignIts: "flex-start",`);
+		//	 this.code.push(`\n alignIts: "flex-start",`);
 			 this.res.style.alignItems = "flex-start";
 		}
 	
 		// options.align && alert("K")
 
 		options.wrap && this.wrap();
-		options.wrap && this.code.push(`\n wrap: true,`)
+	//	options.wrap && this.code.push(`\n wrap: true,`)
 
 		if (options.alignIts){
 			let stringified = JSON.stringify(options.alignIts);
 			 this.res.style.alignItems = "flex-start";
-			this.code.push(`\n alignIts: ${stringified},`);
+		//	this.code.push(`\n alignIts: ${stringified},`);
 		
 	}
 		// options.alignIts && alert("J");
 		//alignIts: "flex-start",
 
 		options.owrap && this.onlyWrap();
-		options.owrap && this.code.push(`\n owrap: true,`)
+		// options.owrap && this.code.push(`\n owrap: true,`)
 
 		if (options.owrap != undefined){
 
@@ -189,7 +189,7 @@ let stringified = JSON.stringify(options.borderObj);
 		if (options.colat){
 			
 			options.colat && this.toColumnAt(options.colat);
-			this.code.push(`\n colat: "${options.colat}",`);
+			//this.code.push(`\n colat: "${options.colat}",`);
 		}
 		 
 
@@ -199,7 +199,15 @@ let stringified = JSON.stringify(options.borderObj);
 
 		options.arrayMargin && this.arrayMargin(options.arrayMargin.sides, options.arrayMargin.value);
 		this.arrayMarginValue = options.arrayMargin;
-		options.arrayMargin && this.code.push(`\n arrayMargin: {sides: [${options.arrayMargin.sides.map(m => `"${m}"`).join(", ")}], value: "${options.arrayMargin.value}"},`); // 2345 06/03
+	//options.arrayMargin && this.code.push(`\n arrayMargin: {sides: [${options.arrayMargin.sides.map(m => `"${m}"`).join(", ")}], value: "${options.arrayMargin.value}"},`); // 2345 06/03
+
+
+ 
+
+		obj.pad && this.pad(obj.pad);
+		obj.respad && this.respad(obj.respad);
+		obj.resmar && this.resmar(obj.resmar);
+		obj.mar && this.mar(obj.mar);
 
 	//	alert(options.multipad);
 
@@ -312,7 +320,7 @@ let stringified = JSON.stringify(options.borderObj);
 
 					 this.callReact(obj);
 
-		this.code.push(`\n })`);
+	//	this.code.push(`\n })`);
 		return this;
 	}
 
@@ -785,7 +793,7 @@ let stringified = JSON.stringify(options.borderObj);
 
 		this.els = arr;
 		this.items = arr;
-		this.code.push(".items([");
+	//	this.code.push(".items([");
 
 /*
 		// console.log("FL ITEM---");
@@ -861,7 +869,7 @@ let stringified = JSON.stringify(options.borderObj);
 		}
 
 
-		this.code.push("])");
+		//this.code.push("])");
 
 
 		// this.code = this.code.flatMap(x => x);
