@@ -1,15 +1,19 @@
 /*!
- * nodality v1.0.0-beta.94
+ * nodality v1.0.0-beta.95
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
 
-import {Animator} from "./animator.js";
+import { Animator } from "./animator.js";
 
 class Table extends Animator {
   constructor() {
     super();
     this.res = document.createElement("table");
+    this.res.style.borderCollapse = "separate"; // needed for radius
+    this.res.style.borderSpacing = "0";         // remove gaps
+    this.res.style.overflow = "hidden";         // clip children
+   
   }
 
   add(data) {
@@ -21,10 +25,13 @@ class Table extends Animator {
     return this;
   }
 
-
   style(obj) {
-    this.res.style.fontFamily = obj.font;
+    if (obj.font) this.res.style.fontFamily = obj.font;
     return this;
+  }
+
+  getType() {
+    return "LayoutWrapperElement";
   }
 
   set(obj) {
@@ -35,47 +42,93 @@ class Table extends Animator {
     obj.border && this.border(obj.border);
     obj.center && this.center(obj.center);
     obj.borderRadius && this.borderRadius(obj.borderRadius);
+
+    // background + gradient
+    if (obj.gradient) {
+      this.res.style.background = obj.gradient.op.gradient;
+      this.res.style.backgroundClip = "padding-box";
+    }
+
     this.obj = obj;
+    this.options = obj;
+    this.callReact(obj); // 🔥 restored
     return this;
   }
 
+  callReact(obj) {
+    let arr = [];
+
+    if (
+      obj.stroke || obj.gradient || obj.span || obj.backgroundOp ||
+      obj.layout || obj.shadow || obj.animation || obj.filtera || obj.transform
+    ) {
+      if (obj.gradient) {
+        this.globalGradient = obj.gradient.op.gradient;
+      }
+
+      if (obj.stroke) {
+        super.setAny({ globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}` });
+      }
+
+      if (obj.span) {
+        obj.span.prevText = this.text;
+      }
+
+      let ft = [
+        obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp,
+        obj.layout, obj.marginOp, obj.shadow, obj.animation, obj.filtera, obj.transform
+      ];
+      ft = ft.filter(el => el != undefined);
+
+      for (let i = 0; i < ft.length; i++) {
+        arr.push({
+          range: ft[i].range,
+          log: ft[i].op.name,
+          target: ft[i].target,
+          op: ft[i].op
+        });
+      }
+
+      let keep = [];
+      if (obj.borderObj) keep.push("border");
+      if (obj.background) keep.push("background");
+      if (obj.mar) keep.push("margin");
+      if (obj.animation) keep.push("animation");
+      if (obj.span) keep.push("span");
+
+      keep.push("border");
+
+      console.log("ARA IS ", arr);
+
+      this.chainReact(arr, this.options.id, keep);
+
+        //  this.res.style.border = "1px solid green";
+    }
+  }
+
   toCode() {
-    let code = `new Table().add(${JSON.stringify(this.data)}).set(${JSON.stringify(this.obj)})`;
-    code = code.replace(/"(\w+)":/g, '$1:');
-    code = code.replace(/,/g, ',\n');
+    let prettyData = JSON.stringify(this.data, null, 2);
+    let prettyObj = JSON.stringify(this.obj, null, 2);
+
+    prettyData = prettyData.replace(/"(\w+)"\s*:/g, '$1:');
+    prettyObj  = prettyObj.replace(/"(\w+)"\s*:/g, '$1:');
+
+    let code = `new Table()
+      .add(${prettyData})
+      .set(${prettyObj})`;
+
     return [code];
+  }
+
+  borderRadius(num) {
+    this.res.style.borderRadius = `${num * 4}px`;
+    this.res.style.overflow = "hidden"; // clip inside
+    return this;
   }
 
   center() {
     this.res.style.marginLeft = "auto";
     this.res.style.marginRight = "auto";
-    return this;
-  }
-
-  borderRadius(num) {
-    this.res.style.borderCollapse = "separate";
-    this.res.style.borderSpacing = 0;
-    this.res.style.overflow = "hidden";
-
-    const table = this.res;
-    const cols = Object.keys(this.datas[0]).length;
-    const rows = this.datas.length + 1;
-
-    for (let i = 0; i < cols; i++) {
-      table.rows[0].cells[i].style.borderTop = `${num * 2}px solid black`;
-      table.rows[rows - 1].cells[i].style.borderBottom = `${num * 2}px solid black`;
-    }
-
-    for (let i = 0; i < rows; i++) {
-      table.rows[i].cells[0].style.borderLeft = `${num * 2}px solid black`;
-      table.rows[i].cells[cols - 1].style.borderRight = `${num * 2}px solid black`;
-    }
-
-    table.rows[0].cells[0].style.borderTopLeftRadius = "10px";
-    table.rows[0].cells[cols - 1].style.borderTopRightRadius = "10px";
-    table.rows[rows - 1].cells[0].style.borderBottomLeftRadius = "10px";
-    table.rows[rows - 1].cells[cols - 1].style.borderBottomRightRadius = "10px";
-
     return this;
   }
 
@@ -107,25 +160,55 @@ class Table extends Animator {
     }
     return this;
   }
-
+/*
   border(borderStyle) {
-    this.res.style.borderCollapse = "collapse";
+    this.res.style.border = borderStyle; // outer border
     for (let row of this.res.rows) {
-      row.style.border = borderStyle;
       for (let cell of row.cells) {
-        cell.style.border = borderStyle;
+        cell.style.border = "1px solid black"; // inner lines
       }
     }
     return this;
+  }*/
+
+    border(borderStyle) {
+  // Ensure separate borders so radius works
+  this.res.style.borderCollapse = "separate";
+  this.res.style.borderSpacing = "0";
+  this.res.style.border = borderStyle;
+  this.res.style.borderRadius = "12px"; // default radius, can be set via .borderRadius()
+
+  // Reset all cell borders
+  for (let row of this.res.rows) {
+    for (let cell of row.cells) {
+      cell.style.border = "none";
+    }
   }
+
+  // Add horizontal borders between rows
+  for (let r = 0; r < this.res.rows.length - 1; r++) {
+    for (let cell of this.res.rows[r].cells) {
+      cell.style.borderBottom = borderStyle;
+    }
+  }
+
+  // Add vertical borders between columns
+  const cols = this.res.rows[0]?.cells.length || 0;
+  for (let row of this.res.rows) {
+    for (let c = 0; c < cols - 1; c++) {
+      row.cells[c].style.borderRight = borderStyle;
+    }
+  }
+
+  return this;
+}
 
   generateTableHead(table, data) {
     const thead = table.createTHead();
     const row = thead.insertRow();
     for (let key of data) {
       const th = document.createElement("th");
-      const text = document.createTextNode(key);
-      th.appendChild(text);
+      th.textContent = key;
       row.appendChild(th);
     }
   }
@@ -135,27 +218,22 @@ class Table extends Animator {
       const row = table.insertRow();
       for (let key in element) {
         const cell = row.insertCell();
-        const text = document.createTextNode(element[key]);
-        cell.appendChild(text);
+        cell.textContent = element[key];
       }
     }
   }
 
   render(div) {
+    const wrapper = document.createElement("div");
+    wrapper.style.overflowX = "auto";
+
+    wrapper.appendChild(this.res);
     if (div) {
-      const wrapper = document.createElement("div");
-      wrapper.style.overflowX = "auto";
-      wrapper.appendChild(this.res);
       document.querySelector(div).appendChild(wrapper);
     } else {
-      const wrapper = document.createElement("div");
-      wrapper.style.overflowX = "auto";
-      wrapper.appendChild(this.res);
       return wrapper;
     }
   }
 }
-
-
 
 export { Table };
