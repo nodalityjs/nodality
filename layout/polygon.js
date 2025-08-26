@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.97
+ * nodality v1.0.0-beta.98
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -99,6 +99,10 @@ class Polygon extends Animator {
       if (obj.background) keep.push("background");
       if (obj.mar || obj.margin) keep.push("margin");
       if (obj.animation) keep.push("animation");
+
+      if (obj.gradient.op.direction === "radial") {
+					this.globalGradient = "radial-gradient(circle at center, orange, green)";
+				}
 
      
 

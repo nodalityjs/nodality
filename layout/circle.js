@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.97
+ * nodality v1.0.0-beta.98
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -109,6 +109,10 @@ if (
 ) {
     if (obj.gradient) this.globalGradient = obj.gradient.op.gradient;
 
+    if (obj.gradient.op.direction === "radial") {
+					this.globalGradient = "radial-gradient(circle at center, orange, green)";
+				}
+        
     if (obj.stroke)
         super.setAny?.({
             globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.97
+ * nodality v1.0.0-beta.98
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1255,6 +1255,8 @@ if (operations.includes("gradient")){
 		if (this.getType() !== "LayoutWrapperElement" && this.getType() !== "FlexRowLayoutElement"){
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 		}
+		//alert(this.globalGradient);
+
 		// globalGradient is set in element "set" method
 		this.res.style.background = this.globalGradient;// "linear-gradient(to left, #3498db, #1abc9c)";
 		
