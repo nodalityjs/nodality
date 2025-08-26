@@ -1,12 +1,10 @@
 /*!
- * nodality v1.0.0-beta.95
+ * nodality v1.0.0-beta.96
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
-
-
 
 class Card extends Animator {
 	constructor(text, url) {
@@ -17,7 +15,7 @@ class Card extends Animator {
 	}
 
 	getType(){
-		return "sCardElement";
+		return "LayoutWrapperElement";
 	}
 
 	setup() {
@@ -70,9 +68,62 @@ class Card extends Animator {
 
 		obj.width && (this.res.style.width = obj.width);
 
-
+this.options = obj;
+		this.callReact(obj);
 		return this;
 	}
+
+
+  callReact(obj) {
+    let arr = [];
+
+    if (
+      obj.stroke || obj.gradient || obj.span || obj.backgroundOp ||
+      obj.layout || obj.shadow || obj.animation || obj.filtera || obj.transform
+    ) {
+      if (obj.gradient) {
+        this.globalGradient = obj.gradient.op.gradient;
+      }
+
+      if (obj.stroke) {
+        super.setAny({ globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}` });
+      }
+
+      if (obj.span) {
+        obj.span.prevText = this.text;
+      }
+
+      let ft = [
+        obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp,
+        obj.layout, obj.marginOp, obj.shadow, obj.animation, obj.filtera, obj.transform
+      ];
+      ft = ft.filter(el => el != undefined);
+
+      for (let i = 0; i < ft.length; i++) {
+        arr.push({
+          range: ft[i].range,
+          log: ft[i].op.name,
+          target: ft[i].target,
+          op: ft[i].op
+        });
+      }
+
+      let keep = [];
+      if (obj.borderObj) keep.push("border");
+      if (obj.background) keep.push("background");
+      if (obj.mar) keep.push("margin");
+      if (obj.animation) keep.push("animation");
+      if (obj.span) keep.push("span");
+
+      keep.push("border");
+
+      console.log("ARA IS ", arr);
+
+      this.chainReact(arr, this.options.id, keep);
+
+        //  this.res.style.border = "1px solid green";
+    }
+  }
 
 	arrayPadding(arr, value) {
 

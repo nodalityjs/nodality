@@ -18,7 +18,7 @@ test('Polygon test', async ({ browser, baseURL }) => {
     return window.getComputedStyle(el).getPropertyValue('clip-path');
   });
 
-  console.log('clip-path:', clipPath);
+  // console.log('clip-path:', clipPath);
 
   // Check that it starts with polygon(
   expect(clipPath.startsWith('polygon(')).toBe(true);

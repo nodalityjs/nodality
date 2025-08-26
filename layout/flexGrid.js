@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.95
+ * nodality v1.0.0-beta.96
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -8,8 +8,9 @@ import {Animator} from "./animator.js";
 
 
 // Add code-gen after backup
-class FlexGrid {
+class FlexGrid extends Animator {
 	constructor(){
+		super();
 		this.code = [];
 		this.setup();
 	}
@@ -17,7 +18,6 @@ class FlexGrid {
 	toCode(){
 		return this.code;
 	}
-	
 	
 	setup(){
 		this.code.push("new FlexGrid()");
@@ -34,6 +34,10 @@ class FlexGrid {
 	}
 
 	// flex: 1, maxWidth: "400px", wrap: true
+
+	getType(){
+		return "FlexRowLayoutElement";
+	}
 
 	set(options){
 		this.code.push(".set({");
@@ -72,9 +76,85 @@ class FlexGrid {
 
 		this.code.push("}),");
 
+		let obj = options;
+
+		this.callReact(obj);
 		// console.log(this.code);
 		return this;
 	}
+
+
+
+	callReact(obj){
+        this.options = obj;
+
+		let arr = [];
+
+		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || obj.transform){
+			if (obj.gradient){
+				this.globalGradient = obj.gradient.op.gradient;
+			}
+
+		
+			if (obj.stroke){
+				super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
+			}
+
+			if (obj.span){
+				obj.span.prevText = this.text;
+			}
+
+
+			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, obj.transform];
+			ft = ft.filter(el => el != undefined);
+
+		
+
+			for (var i = 0; i < ft.length; i++){
+				arr.push({
+					range: ft[i].range,
+					log: ft[i].op.name,
+					target: ft[i].target,
+					op: ft[i].op
+				});
+			}
+
+			let keep = [];
+
+		if (obj.borderObj){
+			keep.push("border");
+		}
+
+		if (obj.background){
+			keep.push("background");
+		}
+
+		if (obj.mar){
+			keep.push("margin");
+		}
+
+		if (obj.animation){
+			keep.push("animation");
+		}
+
+		if (obj.span){
+			keep.push("span");
+		}
+
+	/*	if (obj.transform){
+			keep.push("transform");
+		}*/
+
+		// console.log("ARA IS " + arr);
+		console.log("ARA IS ");
+		console.log(arr);
+
+			this.chainReact(arr, obj.id, keep);
+		}
+	}
+
+	
+
 
 	toColumnAt(at){ // THIS IS THE ONE!!!
 

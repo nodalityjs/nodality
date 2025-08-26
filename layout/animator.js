@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.95
+ * nodality v1.0.0-beta.96
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1193,7 +1193,7 @@ if (operations.includes("gradient")){
 	  // NO CONITION, ALWAYS!!!!
 	  if (operations.includes("gradient") || operations.includes("shadow")){
 			this.res.style.position = "relative";
-			this.res.style.zIndex = -1;
+			//this.res.style.zIndex = -1;
 	  } // FIX 23:31:56 10/11/24
 
 	

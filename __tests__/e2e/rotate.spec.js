@@ -25,7 +25,7 @@ test('Rotate test', async ({ page, baseURL }) => {
     const angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
     const angleNormalized = (angle + 360) % 360;
 
-    console.log(`Div ${i}: transform = ${matrix}, angle ≈ ${angleNormalized}°`);
+   // console.log(`Div ${i}: transform = ${matrix}, angle ≈ ${angleNormalized}°`);
     expect(angleNormalized).toBe(expectedAngles[i]);
   }
 
