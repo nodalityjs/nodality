@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.98
+ * nodality v1.0.0-beta.99
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -13,6 +13,7 @@ class SideNav extends Animator {
 
     setup(obj) {
         this.obj = obj; // this.obj.animate || true LOL    this.obj.animate ? this.obj.animate : true
+       this.setTags(this.obj.tags);
         this.animate = this.obj.animate !== undefined ? this.obj.animate : true; // could be never false
         this.res = this.createSideNav(obj);
         this.res.style.position = "relative";
@@ -32,10 +33,16 @@ class SideNav extends Animator {
 
             if (this.animate) {
                 // Animate hiding with translateX
-                sideNavWrapper.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(100%)' }], {
+              this.ope =  sideNavWrapper.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(100%)' }], {
                     duration: duration,
                     fill: 'forwards'
                 });
+
+                this.ope.finished.then(() => {
+  const event = new CustomEvent(this.obj.tags.close);//("sidebar:closed");
+  window.dispatchEvent(event);
+   //alert(this.obj.tags.close);
+});
 
                 let idx = -1;
 
@@ -65,7 +72,7 @@ class SideNav extends Animator {
 
 
             sideNavWrapper.style.overflowX = "none";
-            sideNavWrapper.children[1].style.border = "1px solid orange";
+          //  sideNavWrapper.children[1].style.border = "1px solid orange";
 
 
             let idx = -1;
@@ -123,14 +130,70 @@ class SideNav extends Animator {
             button.style.opacity = 0;
             if (this.animate) {
                 sideNavWrapper.style.display = "flex"; // Ensure it's visible
-                sideNavWrapper.animate([{ transform: 'translateX(100%)' }, { transform: 'translateX(0)' }], {
+              this.opeClose =    sideNavWrapper.animate([{ transform: 'translateX(100%)' }, { transform: 'translateX(0)' }], {
                     duration: duration,
                     fill: 'forwards'
                 });
+
+                this.opeClose.finished.then(() => {
+            const event = new CustomEvent(this.obj.tags.open);
+            window.dispatchEvent(event);
+          //  alert(this.obj.tags.open);
+        });
             } else {
                 sideNavWrapper.style.display = "flex"; // Show navigation immediately
             }
         }
+
+      //  alert("/")
+
+      /*  this.res.children[0].addEventListener("animationend", () => {
+    const event = new CustomEvent("sidebar:opened");
+    window.dispatchEvent(event);
+    alert("//")
+});*/
+
+/*
+if (this.obj.tags && this.opeClose && this.ope){
+
+
+this.opeClose.finished.then(() => {
+  const event = new CustomEvent(this.obj.tags.open);//("sidebar:opened");
+  window.dispatchEvent(event);
+  //alert(this.obj.tags.open);
+});
+
+this.ope.finished.then(() => {
+  const event = new CustomEvent(this.obj.tags.close);//("sidebar:closed");
+  window.dispatchEvent(event);
+  // alert(this.obj.tags.open);
+});
+} else {
+  console.log("OWO");
+  console.log(this.opeClose);
+  console.log(this.ope);
+}*/
+
+/*
+if (this.obj.tags) {
+    if (this.opeClose) {
+        this.opeClose.finished.then(() => {
+            const event = new CustomEvent(this.obj.tags.open);
+            window.dispatchEvent(event);
+        });
+    }
+
+    if (this.ope) {
+        this.ope.finished.then(() => {
+            const event = new CustomEvent(this.obj.tags.close);
+            window.dispatchEvent(event);
+        });
+    }
+} else {
+    alert("PPP")
+}*/
+
+
     }
 
     createToggleButton(color) {
@@ -144,6 +207,10 @@ class SideNav extends Animator {
         button.style.cursor = "pointer";
         button.style.zIndex = 1;
         button.style.fontSize = "1.6rem";
+       if (this.obj.fixed){
+        button.style.position = "fixed";
+       }
+       
         return button;
     }
 

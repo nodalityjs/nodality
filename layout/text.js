@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.98
+ * nodality v1.0.0-beta.99
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -63,9 +63,7 @@ class Text extends Animator {
 	}
 
 	toCode(){
-
 		if (this.excludeFromCodeTrue){
-			// this.code = ["new Text('').set({})"];
 			return [""];
 		}
 
@@ -77,8 +75,6 @@ class Text extends Animator {
 			.stringify(cleanedObj, null, 4)
 			.replace(/"([^"]+)":/g, '$1:');
 
-			console.log("OCO")
-console.log(objString);
         return [`new Text("${this.text}").set(${objString})`];
 	}
 

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.98
+ * nodality v1.0.0-beta.99
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1072,6 +1072,14 @@ checkQueries();
 // console.log("::::::::::::::::::::::");
 
   }*/
+setTags(obj){
+	//alert("TAGS SET")
+	this.openTag = obj.open;
+	this.closeTag = obj.close;
+	console.log("TAGS SET");
+	console.log(obj);
+
+}
 
   chainReact(queries, id, keep) { // we use this
 console.log("0P");
@@ -1193,7 +1201,8 @@ if (operations.includes("gradient")){
 	  // NO CONITION, ALWAYS!!!!
 	  if (operations.includes("gradient") || operations.includes("shadow")){
 			this.res.style.position = "relative";
-			//this.res.style.zIndex = -1;
+			//this.res.style.zIndex = -1; 
+			// Navigation might go over it give nav higher zIndex
 	  } // FIX 23:31:56 10/11/24
 
 	
@@ -1361,14 +1370,27 @@ this.res.appendChild(t);
   
 	
   if (operations.includes("animation")) {	
+//	alert(this.openTag)
 	
 
 if (this.options.animation && !this.hasAnimated && !this.options.animation.op.fireAt){
 
-
-
+console.warn(this.openTag);
 this.hasAnimated = true;
 let ass = this.options.animation.op;
+//alert(this.openTag);
+
+ window.addEventListener(/*this.openTag*/"sidebar:open", () => {
+		
+    this.res.animate(ass.keyframesOpen, ass.openOptions);
+  });
+
+   window.addEventListener(/*this.closeTag*/ "sidebar:closed", () => {
+	
+    this.res.animate(ass.keyframesClose, ass.closeOptions);
+  });
+
+
 
 	this.res.animate(ass.keyframesClose, {
 		duration: 0,
@@ -1377,8 +1399,20 @@ let ass = this.options.animation.op;
 
 
 
+		//this.res.animate(ass.keyframesOpen, ass.openOptions);
+	   if (this.openTag && this.closeTag){
+		// alert("ONA" + this.openTag);
+		//alert(this.openTag);
+		
+window.addEventListener(this.openTag, () => {
 		this.res.animate(ass.keyframesOpen, ass.openOptions);
-	   
+	});
+// "sidebar:opened" "sidebar:closed"
+	window.addEventListener(this.closeTag, () => {
+		this.res.animate(ass.keyframesClose, ass.closeOptions);
+	});
+	   }
+	
 
 }
 

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.98
+ * nodality v1.0.0-beta.99
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -69,7 +69,20 @@ class Link extends Animator {
 	}
 
 	toCode(){
-		return this.code; // 120646 ovewrite 25/03
+		if (this.excludeFromCodeTrue){
+			return [""];
+		}
+
+		const cleanedObj = Object.fromEntries(
+   		 Object.entries(this.options).filter(([key, value]) => value !== null)
+		);
+
+		const objString = JSON
+			.stringify(cleanedObj, null, 4)
+			.replace(/"([^"]+)":/g, '$1:');
+
+        return [`new Link().set(${objString})`];
+		//return this.code; // 120646 ovewrite 25/03
 	}
 
 	setArea(area){
@@ -83,7 +96,7 @@ class Link extends Animator {
 		el.style.textDecoration = "none";
 		//el.style.fontWeight = "bold";
 		el.style.color = "black";
-		el.style.textAlign = "center";
+		//el.style.textAlign = "center";
 		el.style.fontFamily = "Arial";
 		
 		var text = document.createTextNode(this.text);
@@ -175,6 +188,9 @@ true && (this.elCSS.push(`text-decoration: none; \n`));
 this.options = obj;
 
 let stra = "";
+
+ obj.tags && super.setTags(obj.tags); // Has to be in both
+
 obj.id && this.res.setAttribute("id",  obj.id);
 
 obj.id && super.setID(obj.id);
