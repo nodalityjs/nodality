@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.99
+ * nodality v1.0.0-beta.100
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1474,6 +1474,7 @@ window.addEventListener(this.openTag, () => {
 	
 	window.addEventListener('resize', () => checkQueries());
 	}
+	
 	checkQueries();
   }
   
@@ -1592,13 +1593,18 @@ console.log(obj); // Why obj.op.transform not working for link
 	if (matrix) transformValue += ` ${matrix}`;
 
 	if (transformValue) {
-		// alert("/")
+		// alert("/") 
 
 		if (obj.op.transform.duration){ // transform 3s in and out takes 8 secs instead of 6....
 			let newStr = obj.op.transform.duration.replace(/^(\d+)(s)-/, (_, n, s) => n / 2 + s + " "); 
+//alert(newStr);
+
+			//newStr = "6s";
 			let trans = `transform ${newStr}, opacity  ${newStr}`; // Reset transition
 			this.res.style.transition = trans;
+			
 		} else {
+			
 			this.res.style.transition = "transform 3s ease-in-out, opacity 3s ease-in-out"; // Reset transition
 		}
 
