@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.102
+ * nodality v1.0.0-beta.103
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -20,6 +20,7 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         this.navContent = document.createElement('div');
         this.navContent.classList.add('navbar-content');
         this.navContent.style.width = "100%";
+        this.navContent.style.alignItems = "center";
 
         this.navbarHeader.appendChild(this.brand);
         this.navbarHeader.appendChild(this.navContent);
@@ -50,16 +51,17 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         }
         // {
        // [{"a": 21}]
-       this.setStyles();
+       this.setStyles(obj);
         return this;
     }
 
     setStyles() {
         this.navbar.style.display = 'flex';
         this.navbar.style.flexDirection = 'column';
+
         this.navbar.style.padding = '1rem';
-        this.navbar.style.backgroundColor = '#333';
-        this.navbar.style.color = 'white';
+        this.navbar.style.backgroundColor = this.obj.background ?? '#333';
+        //this.navbar.style.color = 'white';
 
         this.navbarHeader.style.display = 'flex';
         this.navbarHeader.style.alignItems = 'center';

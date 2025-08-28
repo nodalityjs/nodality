@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.102
+ * nodality v1.0.0-beta.103
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -232,7 +232,7 @@ if (obj.brand && typeof newTextInstance.render === "function") {
 
         this.toggleButton.style.background = 'none';
         this.toggleButton.style.border = 'none';
-        this.toggleButton.style.color = this.hamburgerColour ?? 'white';
+        this.toggleButton.style.color = this.hamburgerColour ?? '#34495e';
         this.toggleButton.style.fontSize = '1.5rem';
         this.toggleButton.style.cursor = 'pointer';
 

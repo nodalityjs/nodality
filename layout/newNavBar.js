@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.102
+ * nodality v1.0.0-beta.103
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -132,7 +132,7 @@ class UINavBar extends Animator {
       
 
         let back = document.createElement("div");
-        back.style.background = "green";
+       // back.style.background = "green";
         back.style.position = "absolute";
 
         el.style.margin = "20px";
