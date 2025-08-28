@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.0-beta.103
+ * nodality v1.0.0-beta.104
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -32,7 +32,7 @@ class Link extends Animator {
 
 
 		 this.res.addEventListener("click", (e) => {
-      e.preventDefault();
+    /*  e.preventDefault();
 
       const url = this.link;
 
@@ -43,7 +43,43 @@ class Link extends Animator {
         // Fallback for browsers without Navigation API
         history.pushState({}, "", url);
         document.dispatchEvent(new PopStateEvent("popstate")); 
-      }
+      }*/
+
+
+		const url = this.link || this.res.getAttribute("href");
+  if (!url) return;
+
+  const isExternal = /^https?:\/\//i.test(url);
+  const isAnchor = url.startsWith("#");
+
+  if (isExternal) {
+    // 🌍 External full URL → let browser handle it normally
+    return;
+  }
+
+  if (isAnchor) {
+    // 🔗 Anchor (#section) → let browser scroll to it
+    return;
+  }
+
+  // At this point it’s a relative or root path (e.g. "/about" or "about.html")
+  const isHTMLFile = url.endsWith(".html");
+
+  if (isHTMLFile) {
+    // 📄 Normal multipage HTML site → let browser load it
+    return;
+  }
+
+  // 🚫 Otherwise → treat as SPA route
+  e.preventDefault();
+
+  if ("navigation" in window) {
+    navigation.navigate(url);
+  } else {
+    history.pushState({}, "", url);
+    document.dispatchEvent(new PopStateEvent("popstate"));
+  }
+  
     });
 	}
 
