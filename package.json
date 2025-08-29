@@ -1,6 +1,6 @@
 {
   "name": "nodality",
-  "version": "1.0.0-beta.104",
+  "version": "1.0.0",
   "description": "A lightweight library for declarative UI elements.",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -32,19 +32,33 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/filipvabrousek/nodality.git"
+    "url": "https://github.com/nodalityjs/nodality"
   },
   "author": {
     "name": "Filip Vabrousek",
     "email": "filipvabrousek1@gmail.com",
     "url": "https://filipvabrousek.com"
   },
-  "homepage": "https://filipvabrousek.com",
+  "homepage": "https://nodalityjs.github.io/",
   "keywords": [
-    "UI",
-    "library",
+    "ui",
+    "ui-library",
+    "user-interface",
     "declarative",
-    "nodality"
+    "declarative-ui",
+    "web",
+    "frontend",
+    "javascript",
+    "html",
+    "dom",
+    "rendering",
+    "components",
+    "component-based",
+    "nodes",
+    "nodality",
+    "effects",
+    "style",
+    "open-source"
   ],
   "devDependencies": {
     "@babel/core": "^7.28.0",
