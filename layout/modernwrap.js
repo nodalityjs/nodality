@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.6
+ * nodality v1.0.7
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
