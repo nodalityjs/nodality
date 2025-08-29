@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.7
+ * nodality v1.0.8
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -79,7 +79,7 @@ class Link extends Animator {
     history.pushState({}, "", url);
     document.dispatchEvent(new PopStateEvent("popstate"));
   }
-  
+
     });
 	}
 
@@ -302,7 +302,7 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		this.options.id && (stra += `\n id: "${this.options.id}",`);
 
 
-		obj.align && this.leftAlign(); // 1145 WOW
+		obj.align && this.leftAlign(obj.align); // 1145 WOW
 		obj.align && (stra += `\n align: "${obj.align}",`);
 
 
@@ -650,8 +650,8 @@ if (ft.length > 0){
 		return this;
 	}
 
-	leftAlign(){
-		this.res.style.textAlign = "left";
+	leftAlign(alg){
+		this.res.style.textAlign = alg;
 		return this;
 	}
 	
