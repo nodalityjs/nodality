@@ -76,8 +76,9 @@ module.exports = [
     createConfig('./layout/formComponents/dataList.js', 'datalist.esm.js', 'module', undefined, true),
     createConfig('./layout/formComponents/floatingInput.js', 'floatingInput.esm.js', 'module', undefined, true),
     createConfig('./layout/button.js', 'button.esm.js', 'module', undefined, true),
-       createConfig('./layout/circle.js', 'circle.esm.js', 'module', undefined, true),
-          createConfig('./layout/polygon.js', 'polygon.esm.js', 'module', undefined, true),
+    createConfig('./layout/circle.js', 'circle.esm.js', 'module', undefined, true),
+    createConfig('./layout/polygon.js', 'polygon.esm.js', 'module', undefined, true),
+    createConfig('./layout/gridSwitcher.js', 'gridSwitcher.esm.js', 'module', undefined, true),
 
 
 
@@ -144,6 +145,7 @@ createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, 
     createConfig('./lib/KeyframeAnimation.js', 'KeyframeAnimation.cjs.js', 'commonjs2'),
     createConfig('./lib/stacker.js', 'stacker.cjs.js', 'commonjs2'),
     createConfig('./lib/scrollvideo.js', 'scrollvideo.cjs.js', 'commonjs2'),
+      createConfig('./lib/gridSwitcher.js', 'gridSwitcher.cjs.js', 'commonjs2'),
  
     //createConfig('./lib/storage.js', 'storage.cjs.js', 'commonjs2'),
 
