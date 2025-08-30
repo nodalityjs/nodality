@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.10
+ * nodality v1.0.11
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -12,20 +12,20 @@ class Spacer {
         
         
         
-		this.hide = hide;
+	//	this.hide = hide;
         
-        if (hide){
+      //  if (hide){
             
       
     var card = document.createElement("div");
     card.style.flex = "1";
     this.res = card;
-        }
+      //  }
         
         
-         if (hide){
+      //   if (hide){
             this.res.setAttribute("class", "innerHider");
-        }
+      //  }
         
 	return this;
         
@@ -38,10 +38,10 @@ class Spacer {
 	
 	render(){
 		
-        var one = document.createElement("h2");
-        one.style.display = "none !important";
+      /*  var one = document.createElement("h2");
+        one.style.display = "none !important";*/
 	
-	return this.res ?? one;
+	return this.res //this.res ?? one;
 	
 			
 			}

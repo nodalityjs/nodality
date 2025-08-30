@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.10
+ * nodality v1.0.11
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -30,7 +30,7 @@ class Video extends Animator {
 
 		set(obj){
 			this.options = obj;
-			obj.radius && (this.res.style.borderRadius = "1rem");
+			obj.radius && (this.res.style.borderRadius = obj.radius);
 			obj.width && (this.res.style.width = `${obj.width}`);
 			obj.opacity && (this.res.style.opacity = obj.opacity);
 			return this;
