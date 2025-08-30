@@ -76,20 +76,17 @@ module.exports = [
     createConfig('./layout/formComponents/dataList.js', 'datalist.esm.js', 'module', undefined, true),
     createConfig('./layout/formComponents/floatingInput.js', 'floatingInput.esm.js', 'module', undefined, true),
     createConfig('./layout/button.js', 'button.esm.js', 'module', undefined, true),
-    createConfig('./layout/circle.js', 'circle.esm.js', 'module', undefined, true),
-    createConfig('./layout/polygon.js', 'polygon.esm.js', 'module', undefined, true),
-    createConfig('./layout/gridSwitcher.js', 'gridSwitcher.esm.js', 'module', undefined, true),
-
-
-
     createConfig('./lib/designer.js', 'designer.esm.js', 'module', undefined, true),
     //createConfig('./lib/storage.js', 'storage.esm.js', 'module', undefined, true),
       createConfig('./lib/linkGetter.js', 'linkGetter.esm.js', 'module', undefined, true),
         createConfig('./lib/cardGetter.js', 'cardGetter.esm.js', 'module', undefined, true),
         createConfig('./lib/transformanim.js', 'transformanim.esm.js', 'module', undefined, true),
-createConfig('./lib/KeyframeAnimation.js', 'KeyframeAnimation.esm.js', 'module', undefined, true),
+createConfig('./lib/appleanim.js', 'appleanim.esm.js', 'module', undefined, true),
 createConfig('./lib/stacker.js', 'stacker.esm.js', 'module', undefined, true),
 createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, true),
+createConfig('./layout/spacer.js', 'video.esm.js', 'module', undefined, true),
+createConfig('./layout/video.js', 'video.esm.js', 'module', undefined, true),
+createConfig('./layout/slider2025.js', 'slider2025.esm.js', 'module', undefined, true),
 // add CardGen, LinkStyler, Storage
     
     // COMMONJS
@@ -135,18 +132,17 @@ createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, 
     createConfig('./layout/formComponents/dataList.js', 'datalist.cjs.js', 'commonjs2'),
     createConfig('./layout/formComponents/floatingInput.js', 'floatingInput.cjs.js', 'commonjs2'),
     createConfig('./layout/button.js', 'button.cjs.js', 'commonjs2'),
-    createConfig('./layout/circle.js', 'circle.cjs.js', 'commonjs2'),
-    createConfig('./layout/polygon.js', 'polygon.cjs.js', 'commonjs2'),
     createConfig('./lib/designer.js', 'designer.cjs.js', 'commonjs2'),
 
     createConfig('./lib/linkGetter.js', 'linkGetter.cjs.js', 'commonjs2'),
     createConfig('./lib/cardGetter.js', 'cardGetter.cjs.js', 'commonjs2'),
     createConfig('./lib/transformanim.js', 'transformanim.cjs.js', 'commonjs2'),
-    createConfig('./lib/KeyframeAnimation.js', 'KeyframeAnimation.cjs.js', 'commonjs2'),
+    createConfig('./lib/appleanim.js', 'appleanim.cjs.js', 'commonjs2'),
     createConfig('./lib/stacker.js', 'stacker.cjs.js', 'commonjs2'),
     createConfig('./lib/scrollvideo.js', 'scrollvideo.cjs.js', 'commonjs2'),
-      createConfig('./layout/gridSwitcher.js', 'gridSwitcher.cjs.js', 'commonjs2'),
- 
+    createConfig('./layout/spacer.js', 'spacer.cjs.js', 'commonjs2'),
+    createConfig('./layout/video.js', 'scrollvideo.cjs.js', 'commonjs2'),
+    createConfig('./layout/slider2025.js', 'slider2025.cjs.js', 'commonjs2'),
     //createConfig('./lib/storage.js', 'storage.cjs.js', 'commonjs2'),
 
    // createConfig('./layout/horizontalScroller.js', 'horizontalScroller.cjs.js', 'module', undefined, true),
