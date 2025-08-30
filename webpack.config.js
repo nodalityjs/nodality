@@ -145,7 +145,7 @@ createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, 
     createConfig('./lib/KeyframeAnimation.js', 'KeyframeAnimation.cjs.js', 'commonjs2'),
     createConfig('./lib/stacker.js', 'stacker.cjs.js', 'commonjs2'),
     createConfig('./lib/scrollvideo.js', 'scrollvideo.cjs.js', 'commonjs2'),
-      createConfig('./lib/gridSwitcher.js', 'gridSwitcher.cjs.js', 'commonjs2'),
+      createConfig('./layout/gridSwitcher.js', 'gridSwitcher.cjs.js', 'commonjs2'),
  
     //createConfig('./lib/storage.js', 'storage.cjs.js', 'commonjs2'),
 
