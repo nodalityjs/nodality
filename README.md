@@ -71,7 +71,7 @@ Here is the complete working code which uses CDN for convenient testing.
 <div id="#mount"></div>
 
 <script type="module">
-import {Des} from "https://www.unpkg.com/nodality@1.0.0-beta.4/dist/index.esm.js";
+import {Des} from "https://www.unpkg.com/nodality@1.0.7/dist/index.esm.js";
 
 let elements = [
   {
