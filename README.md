@@ -1,5 +1,10 @@
-# nodality
-Simple UI JS library using node-based approach.
+# Nodality
+
+This library works with elements represented as an array of HTML entities, and nodes that control the behavior of elements.
+*Elements* is an array of objects. This array produces the code of elements you can use in your website.
+*Nodes* is another array containing nodes that change the look and behavior of the generated elements.
+
+
 
 ## Installation
 
