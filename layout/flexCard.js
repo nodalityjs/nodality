@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.15
+ * nodality v1.0.16
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -36,6 +36,8 @@ class Card extends Animator {
 	set(obj){
 		let stra = "";
 		this.obj = obj;
+
+		obj.background && (this.res.style.background = obj.background);
 
 		if (obj.border){
 			this.res.style.border = obj.border;
@@ -113,7 +115,7 @@ this.options = obj;
 
       let keep = [];
       if (obj.borderObj) keep.push("border");
-      if (obj.background) keep.push("background");
+      if (obj.backgroundOp) keep.push("background");
       if (obj.mar) keep.push("margin");
       if (obj.animation) keep.push("animation");
       if (obj.span) keep.push("span");
