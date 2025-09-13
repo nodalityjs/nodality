@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.14
+ * nodality v1.0.15
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -306,6 +306,8 @@ console.log("DEL");
 		obj.top && (this.res.style.top = obj.top);
 		obj.left && (this.res.style.left = obj.left);
 
+		obj.flex && (this.res.style.display = "flex");
+		
 		if (obj.left || obj.top){
 this.res.style.position = "absolute";
 		}

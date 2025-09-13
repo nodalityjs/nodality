@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.14
+ * nodality v1.0.15
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -10,7 +10,7 @@ class Dropdown extends Animator {
     constructor() {
         super();
         this.res = document.createElement("div");
-
+      
         // Wrapper for the collapsed dropdown
         this.toggleWrap = document.createElement("div");
      //   this.toggleWrap.style.background = "olive";
