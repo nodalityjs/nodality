@@ -87,6 +87,7 @@ createConfig('./lib/scrollvideo.js', 'scrollvideo.esm.js', 'module', undefined, 
 createConfig('./layout/spacer.js', 'video.esm.js', 'module', undefined, true),
 createConfig('./layout/video.js', 'video.esm.js', 'module', undefined, true),
 createConfig('./layout/slider2025.js', 'slider2025.esm.js', 'module', undefined, true),
+createConfig('./layout/ulist.js', 'ulist.esm.js', 'module', undefined, true),
 // add CardGen, LinkStyler, Storage
     
     // COMMONJS
@@ -143,6 +144,7 @@ createConfig('./layout/slider2025.js', 'slider2025.esm.js', 'module', undefined,
     createConfig('./layout/spacer.js', 'spacer.cjs.js', 'commonjs2'),
     createConfig('./layout/video.js', 'scrollvideo.cjs.js', 'commonjs2'),
     createConfig('./layout/slider2025.js', 'slider2025.cjs.js', 'commonjs2'),
+    createConfig('./layout/ulist.js', 'ulist.cjs.js', 'commonjs2'),
     //createConfig('./lib/storage.js', 'storage.cjs.js', 'commonjs2'),
 
    // createConfig('./layout/horizontalScroller.js', 'horizontalScroller.cjs.js', 'module', undefined, true),
