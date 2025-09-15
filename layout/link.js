@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.19
+ * nodality v1.0.20
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -225,11 +225,15 @@ this.options = obj;
 
 let stra = "";
 
+
+
  obj.tags && super.setTags(obj.tags); // Has to be in both
 
 obj.id && this.res.setAttribute("id",  obj.id);
 
 obj.id && super.setID(obj.id);
+
+obj.flex && (this.res.style.display = "flex");
 
 obj.pad && this.pad(obj.pad);
 
