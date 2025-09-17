@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.20
+ * nodality v1.0.21
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -47,6 +47,7 @@ class DropdownOld extends Animator { // 232811
         el.appendChild(span);
     
         let content = document.createElement("div");
+        content.style.zIndex = 9999;
         content.style.width = "200px";
         content.style.marginTop = "30px"
         //content.style.right = "initial"; // was 0 to fit 175642

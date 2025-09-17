@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.20
+ * nodality v1.0.21
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -225,7 +225,7 @@ this.options = obj;
 
 let stra = "";
 
-
+		obj.exact && (this.res.style.fontSize = obj.exact);
 
  obj.tags && super.setTags(obj.tags); // Has to be in both
 
