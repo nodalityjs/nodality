@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.21
+ * nodality v1.0.22
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -33,7 +33,7 @@ class Dropdown extends Animator {
         this.contentWrap.style.marginTop = "10px"; // Visual separation
         this.contentWrap.style.width = "250px"; // Explicit width for dropdown content
         this.contentWrap.style.display = "none"; // Hidden by default
-
+        this.contentWrap.style.zIndex = 9999;
         this.res.appendChild(this.contentWrap);
 
         this.styles = {};
