@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.22
+ * nodality v1.0.23
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -173,6 +173,8 @@ document.body.appendChild(link);
 			img.style.width = options.options.size;
 			options.options.radius && (img.style.borderRadius = options.options.radius);
 			img.setAttribute("src", options.options.img);
+			options.options.pad && (this.res.style.padding = options.options.pad);
+			options.options.padRight && (this.res.style.paddingRight = options.options.padRight);
 			link.appendChild(img);
 		}
 
