@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.24
+ * nodality v1.0.25
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -643,10 +643,11 @@ if (ft.length > 0){
 	}
 
 	fixMobileTap(obj){
-			this.res.style.pointerEvents = "auto";
-			this.res.style.touchAction = "manipulation";
-			this.res.style.cursor = "pointer";
-			return this;
+		 this.res.style.pointerEvents = "auto";     // allow clicks/taps
+  		 this.res.style.touchAction = "manipulation"; // prevent Safari gesture quirks
+  		 this.res.style.cursor = "pointer";         // good for desktop UX
+  		 this.res.style.zIndex = "1";               // bring above clipping parent
+  		 this.res.style.position = "relative";      // create stacking context
 	}
 
 	color(e){
