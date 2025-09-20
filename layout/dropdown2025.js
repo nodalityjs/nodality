@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.23
+ * nodality v1.0.24
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -62,6 +62,10 @@ class Dropdown extends Animator {
 
         if (obj.background) {
             this.contentWrap.style.backgroundColor = obj.background;
+        }
+
+         if (obj.radius) {
+            this.contentWrap.style.borderRadius = obj.radius;
         }
 
                if (obj.behaviour) {
