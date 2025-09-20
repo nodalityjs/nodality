@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.25
+ * nodality v1.0.26
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -31,21 +31,31 @@ class Link extends Animator {
 		this.inlineBlock(); // auto set ??
 
 
-		 this.res.addEventListener("click", (e) => {
-    /*  e.preventDefault();
+		this.res.addEventListener("click", (e) => {
+  const url = this.link || this.res.getAttribute("href");
+  if (!url) return;
 
-      const url = this.link;
+  const isExternal = /^https?:\/\//i.test(url);
+  const isAnchor = url.startsWith("#");
 
-      if ("navigation" in window) {
-        // ✅ Modern Navigation API triggers view transitions
-        navigation.navigate(url);
-      } else {
-        // Fallback for browsers without Navigation API
-        history.pushState({}, "", url);
-        document.dispatchEvent(new PopStateEvent("popstate")); 
-      }*/
+  if (isExternal || isAnchor || url.endsWith(".html")) {
+    // Always let browser handle these
+    return;
+  }
+
+  // Otherwise SPA routing
+  e.preventDefault();
+  if ("navigation" in window) {
+    navigation.navigate(url);
+  } else {
+    history.pushState({}, "", url);
+    document.dispatchEvent(new PopStateEvent("popstate"));
+  }
+});
 
 
+		/* this.res.addEventListener("click", (e) => {
+    
 		const url = this.link || this.res.getAttribute("href");
   if (!url) return;
 
@@ -80,7 +90,9 @@ class Link extends Animator {
     document.dispatchEvent(new PopStateEvent("popstate"));
   }
 
-    });
+    });*/
+
+
 	}
 
 	toCSS(){
