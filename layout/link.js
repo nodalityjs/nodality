@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.26
+ * nodality v1.0.27
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -30,7 +30,7 @@ class Link extends Animator {
 		this.setup();
 		this.inlineBlock(); // auto set ??
 
-
+/*
 		this.res.addEventListener("click", (e) => {
   const url = this.link || this.res.getAttribute("href");
   if (!url) return;
@@ -51,7 +51,13 @@ class Link extends Animator {
     history.pushState({}, "", url);
     document.dispatchEvent(new PopStateEvent("popstate"));
   }
-});
+});*/
+
+
+
+
+
+
 
 
 		/* this.res.addEventListener("click", (e) => {
@@ -140,7 +146,7 @@ class Link extends Animator {
 	
 	setup(){
 		let el = document.createElement("a");
-		el.setAttribute("href", this.link);
+		//el.setAttribute("href", this.link);
 		el.style.textDecoration = "none";
 		//el.style.fontWeight = "bold";
 		el.style.color = "black";
@@ -238,6 +244,46 @@ true && (this.elCSS.push(`text-decoration: none; \n`));
 this.options = obj;
 
 let stra = "";
+
+// normalize URL if provided
+    if (obj.url) {
+      this.linkRaw = obj.url;
+      this.link = new URL(obj.url, window.location.href).href;
+    }
+
+    // create <a>
+    this.res = document.createElement("a");
+    if (this.link) {
+      this.res.setAttribute("href", this.link);
+    }
+
+
+
+	this.res.addEventListener("click", (e) => {
+			const raw = this.link || this.res.getAttribute("href");
+			if (!raw) return;
+
+			const url = new URL(raw, window.location.href).href;
+
+			const isExternal = /^https?:\/\//i.test(url);
+			const isAnchor = url.startsWith("#");
+
+			if (isExternal || isAnchor || url.endsWith(".html")) {
+				// Let browser handle it normally
+				return;
+			}
+
+			// Otherwise SPA routing
+			e.preventDefault();
+			if ("navigation" in window) {
+				navigation.navigate(url);
+			} else {
+				history.pushState({}, "", url);
+				document.dispatchEvent(new PopStateEvent("popstate"));
+			}
+		});
+
+
 
 obj.exact && (this.res.style.fontSize = obj.exact);
 
