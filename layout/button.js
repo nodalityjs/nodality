@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.31
+ * nodality v1.0.32
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -58,16 +58,40 @@ this.options = obj;
 			btn.append(obj.img.render());
 		}
 
-		if (obj.url && !obj.img){
-		/*	let node = document.createElement("img");
-			node.setAttribute("src", obj.url);
-			node.style.width = 50;//obj.frame.width; // order?
-			node.style.height = 50;//obj.frame.height;
-			btn.appendChild(node);*/
+		 else if (obj.svg){
+        // Support SVG element or raw SVG string
+        if (typeof obj.svg === "string") {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(obj.svg, "image/svg+xml");
+            let svgEl = doc.documentElement;
+            btn.appendChild(svgEl);
+        } else if (obj.svg instanceof SVGElement) {
+            btn.appendChild(obj.svg);
+        }
+    }
+    else if (obj.url && !obj.img){
+        // Legacy <img> support
+        let node = document.createElement("img");
+        node.setAttribute("src", obj.url);
+        node.style.width = obj.frame?.width || "50px";
+        node.style.height = obj.frame?.height || "50px";
+        btn.appendChild(node);
+    } 
+    else {
+        let node = document.createTextNode(this.text.replace("$", this.val));
+        btn.appendChild(node);
+    }
+
+	/*	if (obj.url && !obj.img){
+			//let node = document.createElement("img");
+			//node.setAttribute("src", obj.url);
+			//node.style.width = 50;//obj.frame.width; // order?
+			//node.style.height = 50;//obj.frame.height;
+			//btn.appendChild(node);
 		} else {
 			let node = document.createTextNode(this.text.replace("$", this.val));
 			btn.appendChild(node);
-		}
+		}*/
 
 		
 		this.res = btn;

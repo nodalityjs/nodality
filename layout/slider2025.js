@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.31
+ * nodality v1.0.32
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -22,17 +22,19 @@ class Slider {
     if (!this.buttons) {
       let buttons = {
         leftButton: new Button("L").set({
-          frame: { width: 50, height: 50 },
-          url: "../assets/arrow-left.png",
+        frame: { width: 50, height: 50 },
+        //  url: "../assets/arrow-left.png",
+        svg: this.createArrowSVG("left", 28),
           color: "#1abc9c",
-          image: new Image().set({ url: "../assets/arrow-left.png", width: "50px", height: "50px" }),
+         // image: new Image().set({ url: "../assets/arrow-left.png", width: "50px", height: "50px" }),
           radius: "100%",
           arrayMargin: { sides: ["all"], value: "1rem" },
         }),
 
         rightButton: new Button("R").set({
           frame: { width: 50, height: 50 },
-          url: "../assets/arrow-right.png",
+          svg: this.createArrowSVG("right", 28),
+         // url: "../assets/arrow-right.png",
           color: "#1abc9c",
           radius: "100%",
           arrayMargin: { sides: ["all"], value: "1rem" },
@@ -44,6 +46,31 @@ class Slider {
     this.createSlider();
     this.init();
   }
+
+   createArrowSVG(direction = 'left', size = 28) {
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("width", String(size));
+  svg.setAttribute("height", String(size));
+  svg.setAttribute("aria-hidden", "true");
+  svg.style.display = "block"; // avoid inline-gap issues
+  svg.style.pointerEvents = "none"; // prevent internal svg catching pointer
+
+  const path = document.createElementNS(svgNS, "path");
+  path.setAttribute("fill", "currentColor");
+
+  if (direction === "left") {
+    // chevron-left path
+    path.setAttribute("d", "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z");
+  } else {
+    // chevron-right path
+    path.setAttribute("d", "M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z");
+  }
+
+  svg.appendChild(path);
+  return svg;
+}
 
   toCode() {
     let code = `new Slider([${this.elements.map((el) => el.toCode())}], null)`;
@@ -110,7 +137,7 @@ class Slider {
     nav.style.position = "absolute";
     nav.style.bottom = "10%";
     nav.style.left = "50%";
-    nav.style.width = "200px";
+    //nav.style.width = "200px";
     nav.style.transform = "translateX(-50%)";
     nav.style.textAlign = "center";
 
@@ -130,7 +157,7 @@ class Slider {
     // ✅ Thumbnails section (fixed and robust)
     const thumbsContainer = document.createElement("div");
     thumbsContainer.style.display = "flex";
-    thumbsContainer.style.justifyContent = "center";
+    thumbsContainer.style.justifyContent = "flex-start";
     thumbsContainer.style.marginTop = "10px";
     thumbsContainer.style.gap = "10px";
     thumbsContainer.style.flexWrap = "nowrap";
@@ -261,3 +288,44 @@ class Slider {
 }
 
 export { Slider };
+
+
+
+/*
+
+new Slider(texts, /*{
+
+    leftButton: new Button("").set({
+        url: "true",
+        img: new Image().set({
+            url: "../assets/arrow-left.png",
+            width: "50px",
+            height: "50px"
+        }),
+        color: "#1abc9c",
+        radius: "100%",
+        mar: {
+            "a":40
+        }
+    }),
+
+    rightButton: new Button("").set({
+        url: "true",
+        img: new Image().set({
+            url: "../assets/arrow-right.png",
+            width: "50px",
+            height: "50px"
+        }),
+        color: "#1abc9c",
+        frame: {
+            width: 50,
+            height: 50
+        },
+        radius: "100%",
+        mar: {
+            "a":40
+        }
+    })
+
+}, null)
+*/
