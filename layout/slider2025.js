@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.30
+ * nodality v1.0.31
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -160,7 +160,7 @@ class Slider {
       preview.style.transformOrigin = "top left";
       // make width/height big enough so scale produces visible result
       preview.style.width = "300px";
-      preview.style.height = "200px";
+      preview.style.height = "auto";
       preview.style.pointerEvents = "none"; // prevent interactive elements inside preview catching clicks
 
       thumb.appendChild(preview);
