@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.28
+ * nodality v1.0.29
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -54,6 +54,7 @@ import {ScrollVideo} from "../lib/scrollvideo.js";
 import {AreaSwitcher} from "../layout/gridSwitcher.js";
 import {Video} from "../layout/video.js";
 import {UList} from "../layout/ulist.js";
+import {Slider} from "../layout/slider2025.js";
 
 // Expose modules as globals
 if (typeof window !== 'undefined') {
@@ -107,6 +108,7 @@ if (typeof window !== 'undefined') {
   window.AreaSwitcher = AreaSwitcher;
   window.Video = Video;
   window.UList = UList;
+  window.Slider = Slider;
 }
 
 if (typeof global !== 'undefined') {
@@ -160,6 +162,7 @@ if (typeof global !== 'undefined') {
   global.AreaSwitcher = AreaSwitcher;
   global.Video = Video;
   global.UList = UList;
+  global.Slider = Slider;
 }
 
 export {
@@ -212,5 +215,6 @@ export {
   ScrollVideo,
   AreaSwitcher,
   Video,
-  UList
+  UList,
+  Slider
 }; // 172112 Nice!!!! 17/04/25
