@@ -1,6 +1,6 @@
 {
   "name": "nodality",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "A lightweight library for declarative UI elements.",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

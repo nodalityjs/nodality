@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.34
+ * nodality v1.0.35
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -281,7 +281,7 @@ obj.pad && this.pad(obj.pad);
 
 obj.fixMobileTap && this.fixMobileTap(obj.fixMobileTap);
 
-
+obj.resprop && this.resprop(obj.resprop);
 
 /*
 
@@ -1102,7 +1102,7 @@ if (ft.length > 0){
 			}
 			
 		}*/
-
+  
 
 	
 		if (obj.animation) {
@@ -1223,6 +1223,7 @@ if (ft.length > 0){
 			this.res.setAttribute("id", this.options.id);
 
 		}*/
+		
 
 		if (div){
 			document.querySelector(div).appendChild(this.res);

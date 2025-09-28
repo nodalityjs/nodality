@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.34
+ * nodality v1.0.35
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -151,7 +151,7 @@ class Image extends Animator {
 
 		options.url && this.res.setAttribute("src", options.url);
 		
-
+		
 	//	alert("Thrice?");
 
 			if (type === "exact"){ // Has to be there
@@ -193,7 +193,8 @@ class Image extends Animator {
 			//alert("not written here");
 			stra += `\n index: "0",`;
 		}*/
-
+		options.resprop && this.resprop(options.resprop);
+		
 		if (options.centerSelf){
 			this.res.style.marginRight = "auto";
 			this.res.style.marginLeft = "auto";
