@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.35
+ * nodality v1.0.36
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -123,6 +123,16 @@ class Animator {
 
 	resprop(arr) {
 
+			const breakpoints = {
+	default: 0,
+    xs: 0,     // less than 576px
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200,
+    xxl: 1400
+  };
+
 			console.log("RES STYLE");
 						console.log(arr);
 
@@ -142,10 +152,12 @@ class Animator {
 
 		console.log("mkio")
 
+		arr.sort((a, b) => breakpoints[b.breakpoint] - breakpoints[a.breakpoint]);
 		// Apply responsive overrides
 		for (let i = 0; i < arr.length; i++) {
 			let point = arr[i].breakpoint;
-let query = `(max-width: ${point})`;
+			let value = breakpoints[point];
+let query = `(max-width: ${value}px)`;
 
 			console.log("testing media query:", query, window.matchMedia(query).matches);
 			if (window.matchMedia(query).matches) {
