@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.38
+ * nodality v1.0.39
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -295,12 +295,49 @@ console.log("DEL");
 		return modifiedJSON;
 	  }
 	  
+
+	   looksLikeMarkdown(str) {
+    return /(\*\*.*\*\*|\*.*\*|`[^`]+`|\[.*?\]\(.*?\)|^# )/m.test(str);
+  }
+
+  // Minimal Markdown parser
+  parseMarkdown(mdString) {
+    let html = mdString;
+
+    // Headers: # H1, ## H2, ### H3
+    html = html.replace(/^### (.*$)/gim, "<h3>$1</h3>");
+    html = html.replace(/^## (.*$)/gim, "<h2>$1</h2>");
+    html = html.replace(/^# (.*$)/gim, "<h1>$1</h1>");
+
+    // Bold: **text**
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    // Italic: *text*
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+    // Inline code: `code`
+    html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+    // Links: [text](url)
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+    // Line breaks
+    html = html.replace(/\n/g, "<br>");
+console.log("HTML");
+console.log(html);
+
+    return html;
+  }
 	
 	set(obj){ 
 		this.resCopy = this.res;
 		this.options = obj;
 		super.setPrevText(this.text);
 		let stra = "";
+
+
+
+
 
 		//alert(obj.top);
 		obj.top && (this.res.style.top = obj.top);
@@ -428,6 +465,7 @@ this.res.style.position = "absolute";
 		
 		this.callReact(obj);
 
+		   
 
 		//this.code.push(str); // 14:04:10 06/03
 
@@ -1704,6 +1742,14 @@ checkForAnimation(queries){
 			//	alert("P")
 			this.res.textContent = this.text;
 			}
+
+			if (this.looksLikeMarkdown(this.text)) {
+			console.log("See md"); // 224635 29/09/25
+			console.log(this.parseMarkdown(this.text));
+      this.res.innerHTML = this.parseMarkdown(this.text);
+    } 
+
+
 			document.querySelector(div).appendChild(this.res);
 		} else {
 			if (this.options && !this.options.span){
