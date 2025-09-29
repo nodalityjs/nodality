@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.36
+ * nodality v1.0.37
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -135,41 +135,55 @@ class Animator {
 
 			console.log("RES STYLE");
 						console.log(arr);
+ // Save the original styles
+  this.prevStyles = {};
+  for (let i = 0; i < this.res.style.length; i++) {
+    let prop = this.res.style[i];
+    this.prevStyles[prop] = this.res.style[prop];
+    console.log("kio");
+  }
 
-	// Save the original styles
-	this.prevStyles = {};
-	for (let i = 0; i < this.res.style.length; i++) {
-		let prop = this.res.style[i];
-		this.prevStyles[prop] = this.res.style[prop];
-		console.log("kio")
-	}
+  // ✅ Normalize breakpoints (string → numeric value)
+  arr.forEach(item => {
+    if (breakpoints[item.breakpoint] !== undefined) {
+      item._value = breakpoints[item.breakpoint];
+    } else {
+      item._value = parseInt(item.breakpoint, 10); // handles "1200px" or "768"
+    }
+  });
 
-	const react = () => {
-		// Reset to original styles
-		for (const key in this.prevStyles) {
-			this.res.style[key] = this.prevStyles[key];
-		}
+  // ✅ Sort by numeric value (small → large)
+  arr.sort((a, b) => a._value - b._value);
 
-		console.log("mkio")
+   console.log("Sorted breakpoints:", arr);
 
-		arr.sort((a, b) => breakpoints[b.breakpoint] - breakpoints[a.breakpoint]);
-		// Apply responsive overrides
-		for (let i = 0; i < arr.length; i++) {
-			let point = arr[i].breakpoint;
-			let value = breakpoints[point];
-let query = `(max-width: ${value}px)`;
+  const react = () => {
+    // Reset styles
+    for (const key in this.prevStyles) {
+      this.res.style[key] = this.prevStyles[key];
+    }
 
-			console.log("testing media query:", query, window.matchMedia(query).matches);
-			if (window.matchMedia(query).matches) {
-				for (const key in arr[i]) {
-					if (key !== "breakpoint") {
-					console.log("ukio")
-						this.res.style[key] = arr[i][key];
-					}
-				}
-			}
-		}
-	};
+    const width = window.innerWidth;
+
+    // Apply only the LAST matching breakpoint
+    let applied = null;
+    for (let i = 0; i < arr.length; i++) {
+      if (width <= arr[i]._value) {
+        applied = arr[i];
+        break; // stop at the first matching
+      }
+    }
+
+    if (applied) {
+      console.log("Applying styles for", applied.breakpoint);
+      for (const key in applied) {
+        if (key !== "breakpoint" && key !== "_value") {
+          this.res.style[key] = applied[key];
+        }
+      }
+    }
+  };
+
 
 	window.addEventListener("resize", react);
 	react();
