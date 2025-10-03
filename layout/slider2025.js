@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.42
+ * nodality v1.0.43
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -187,7 +187,8 @@ class Slider {
       preview.style.transform = "scale(0.2)";
       preview.style.transformOrigin = "top left";
       preview.style.width = "300px";
-      preview.style.height = "auto";
+      preview.style.height = "300px";
+      preview.style.backgroundSize = "contain";
       preview.style.pointerEvents = "none";
 
       thumb.appendChild(preview);
