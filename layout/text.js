@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.40
+ * nodality v1.0.41
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -338,6 +338,7 @@ console.log(html);
 
 
 
+		obj.isHidden && this.isHidden(obj.isHidden);
 
 		//alert(obj.top);
 		obj.top && (this.res.style.top = obj.top);

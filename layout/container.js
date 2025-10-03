@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.40
+ * nodality v1.0.41
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -94,6 +94,7 @@ code = `${pad}new Wrapper()`;
 		this.obj = obj;
 		let stra = ".set({";
 
+		obj.isHidden && this.isHidden(obj.isHidden);
 		obj.scale && (this.res.style.scale=obj.scale);
 		obj.scale && (stra += `scale: ${obj.scale}`);
 		obj.keySet && this.keySet(obj.keySet);
