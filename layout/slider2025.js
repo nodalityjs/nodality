@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.41
+ * nodality v1.0.42
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -21,6 +21,7 @@ class Slider {
     // 🎨 Tint options
     this.tintColor = options.tintColor || "green";
     this.inactiveColor = options.inactiveColor || "gray";
+    this.options = options;
 
     // 🔵 Default buttons adopt tintColor
     if (!this.buttons) {
@@ -81,7 +82,7 @@ class Slider {
     // Slider frame
     this.slider = document.createElement("div");
     this.slider.style.width = "100%";
-    this.slider.style.height = "400px";
+    this.slider.style.height = this.options.height ?? "400px";
     this.slider.style.borderRadius = "20px";
     this.slider.style.overflow = "hidden";
     this.slider.style.position = "relative";
@@ -105,8 +106,8 @@ class Slider {
       slide.style.flexShrink = "0";
       slide.style.width = "100%";
       slide.style.height = "400px";
-      slide.style.background =
-        index % 2 === 0 ? "rgb(250, 246, 212)" : "white";
+    //  slide.style.background =
+     //   index % 2 === 0 ? "rgb(250, 246, 212)" : "white";
       slide.style.transformOrigin = "center center";
       slide.style.transform = "scale(1)";
       slide.style.scrollSnapAlign = "center";
