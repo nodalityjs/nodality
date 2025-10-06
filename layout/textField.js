@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.49
+ * nodality v1.0.50
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -49,7 +49,7 @@ class TextField extends Animator {
         obj.mar && this.mar(obj.mar);
 		obj.maxWidth && (this.res.style.maxWidth = obj.maxWidth);
 		obj.exact && (this.res.style.fontSize = obj.exact);
-		obj.radius && this.radius(obj.radius);
+		obj.radius && this.round(obj.radius);
 		return this;
 	}
 
