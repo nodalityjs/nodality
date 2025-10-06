@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.46
+ * nodality v1.0.47
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -179,6 +179,15 @@ this.options = obj;
 		obj.arrayMargin && (stra += `\n arrayMargin: {sides: ["${obj.arrayMargin.sides}"], value: "${obj.arrayMargin.value}"},`); // 2345 06/03
 
 		obj.keySet && this.keySet(obj.keySet); // 165411 22/01/25 Nice!
+		
+		
+		// align weight, bold, width
+		obj.align && (this.res.style.textAlign = obj.align);
+		obj.weight && (this.res.style.fontWeight = obj.weight);
+		obj.bold && (this.res.style.fontWeight = "bold");
+		obj.width && (this.res.style.width = obj.width);
+
+		
 		// Before S25 Ultra redesign!
 
 		/*.background("#1abc9c")
