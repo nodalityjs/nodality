@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.47
+ * nodality v1.0.48
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -186,6 +186,7 @@ this.options = obj;
 		obj.weight && (this.res.style.fontWeight = obj.weight);
 		obj.bold && (this.res.style.fontWeight = "bold");
 		obj.width && (this.res.style.width = obj.width);
+		obj.exact && (this.res.style.fontSize = obj.exact);
 
 		
 		// Before S25 Ultra redesign!
