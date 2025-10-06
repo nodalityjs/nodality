@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.44
+ * nodality v1.0.45
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -100,6 +100,7 @@ code = `${pad}new Wrapper()`;
 		obj.keySet && this.keySet(obj.keySet);
 		obj.resprop && this.resprop(obj.resprop);
 		obj.position && (this.res.style.position = obj.position);
+		obj.top && (this.res.style.top = obj.top);
 		// ------
 		//obj.mc && (this.res.style.height = "minmax(400px, 1fr)");
 		//obj.mc && (this.res.style.height = "fit-content");
