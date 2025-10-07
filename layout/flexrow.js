@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.52
+ * nodality v1.0.53
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -34,8 +34,10 @@ class FlexRow extends Animator {
 		//------
 		
 		
-		obj.id = "#ABC";
-		
+		obj.id && this.res.setAttribute("id", obj.id); //"#ABC";
+		obj.position && (this.res.style.position = obj.position); 	
+		obj.top !== undefined && (this.res.style.top = obj.top); 
+
 
 		if (obj.gradient){
 			// console.log("STAFF");
