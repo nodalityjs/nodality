@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.53
+ * nodality v1.0.54
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1318,26 +1318,36 @@ if (operations.includes("gradient")){
 
 	
 	  if (operations.includes("shadow")){
+const { op } = this.options.shadow;
+console.log("OP IS");
+console.log(op);
 
-		if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement") {
-  // use box-shadow for layout containers
-  let shadowParts = [];
-  let off = 0;
-  for (let i = 0; i < this.options.shadow.op.steps; i++) {
-    off += 3;
-    shadowParts.push(`${off}px ${off}px ${off}px ${this.options.shadow.op.colors[i] ?? "gray"}`);
+  const steps = op.steps ?? 1;
+  const colors = op.colors ?? ["gray"];
+  const movements = op.movements ?? ["3px", "3px"]; // [offsetX, offsetY]
+  const radius = op.radius ?? "3px";
+
+  if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement") {
+    // use box-shadow for layout containers
+    const shadowParts = [];
+    for (let i = 0; i < steps; i++) {
+      const color = colors[i] ?? colors[0];
+      const offsetX = movements[0] ?? "3px";
+      const offsetY = movements[1] ?? "3px";
+      shadowParts.push(`${offsetX} ${offsetY} ${radius} ${color}`);
+    }
+    this.res.style.boxShadow = shadowParts.join(", ");
+  } else {
+    // use drop-shadow for other element types (e.g., text, images)
+    const filters = [];
+    for (let i = 0; i < steps; i++) {
+      const color = colors[i] ?? colors[0];
+      const offsetX = movements[0] ?? "3px";
+      const offsetY = movements[1] ?? "3px";
+      filters.push(`drop-shadow(${offsetX} ${offsetY} ${radius} ${color})`);
+    }
+    this.res.style.filter = filters.join(" ");
   }
-  this.res.style.boxShadow = shadowParts.join(", ");
-} else {
-  // use drop-shadow for other element types (e.g., images, text)
-  let filters = [];
-  let off = 0;
-  for (let i = 0; i < this.options.shadow.op.steps; i++) {
-    off += 3;
-    filters.push(`drop-shadow(${off}px ${off}px ${off}px ${this.options.shadow.op.colors[i] ?? "gray"})`);
-  }
-  this.res.style.filter = filters.join(" ");
-}
 
 
 
