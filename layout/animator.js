@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.51
+ * nodality v1.0.52
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1318,9 +1318,32 @@ if (operations.includes("gradient")){
 
 	
 	  if (operations.includes("shadow")){
+
+		if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement") {
+  // use box-shadow for layout containers
+  let shadowParts = [];
+  let off = 0;
+  for (let i = 0; i < this.options.shadow.op.steps; i++) {
+    off += 3;
+    shadowParts.push(`${off}px ${off}px ${off}px ${this.options.shadow.op.colors[i] ?? "gray"}`);
+  }
+  this.res.style.boxShadow = shadowParts.join(", ");
+} else {
+  // use drop-shadow for other element types (e.g., images, text)
+  let filters = [];
+  let off = 0;
+  for (let i = 0; i < this.options.shadow.op.steps; i++) {
+    off += 3;
+    filters.push(`drop-shadow(${off}px ${off}px ${off}px ${this.options.shadow.op.colors[i] ?? "gray"})`);
+  }
+  this.res.style.filter = filters.join(" ");
+}
+
+
+
 			//if (this.getType() === "FlexRowLayoutElement"){
 			//} else {
-		
+		/*
 				console.log("SOAA");
 				console.warn(this.options.shadow);
 
@@ -1332,12 +1355,22 @@ if (operations.includes("gradient")){
 				}
 
 if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement"){
-this.res.style.boxShadow = `${off}px ${off}px ${off}px ${this.options.shadow.color ?? "gray"}`; 
+
+	let finalFilter = ""
+	let offa = 0;
+				for (var i = 0; i < this.options.shadow.op.steps; i++){
+					offa += 3;
+					finalFilter += `${off}px ${off}px ${off}px ${this.options.shadow.op.colors[i] ?? "gray"} `; 
+				}
+this.res.style.boxShadow = finalFilter;
+alert(finalFilter);
+
+//this.res.style.boxShadow = `${off}px ${off}px ${off}px ${this.options.shadow.op.colors[i] ?? "gray"}`; //`${off}px ${off}px ${off}px ${this.options.shadow.op.colors[0] ?? "gray"}`; 
 } else {
 	this.res.style.filter = str; 
 }
 				
-
+*/
 				
 				
 	//	}
