@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.54
+ * nodality v1.0.55
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1319,35 +1319,40 @@ if (operations.includes("gradient")){
 	
 	  if (operations.includes("shadow")){
 const { op } = this.options.shadow;
-console.log("OP IS");
-console.log(op);
+console.log("OP IS", op);
 
-  const steps = op.steps ?? 1;
-  const colors = op.colors ?? ["gray"];
-  const movements = op.movements ?? ["3px", "3px"]; // [offsetX, offsetY]
-  const radius = op.radius ?? "3px";
+const steps = op.steps ?? 1;
+const colors = op.colors ?? ["gray"];
+let movements = op.movements ?? ["3px", "3px"];
+const radius = op.radius ?? "3px";
 
-  if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement") {
-    // use box-shadow for layout containers
-    const shadowParts = [];
-    for (let i = 0; i < steps; i++) {
-      const color = colors[i] ?? colors[0];
-      const offsetX = movements[0] ?? "3px";
-      const offsetY = movements[1] ?? "3px";
-      shadowParts.push(`${offsetX} ${offsetY} ${radius} ${color}`);
-    }
-    this.res.style.boxShadow = shadowParts.join(", ");
-  } else {
-    // use drop-shadow for other element types (e.g., text, images)
-    const filters = [];
-    for (let i = 0; i < steps; i++) {
-      const color = colors[i] ?? colors[0];
-      const offsetX = movements[0] ?? "3px";
-      const offsetY = movements[1] ?? "3px";
-      filters.push(`drop-shadow(${offsetX} ${offsetY} ${radius} ${color})`);
-    }
-    this.res.style.filter = filters.join(" ");
+// If movements only contains one value, duplicate it for x and y
+if (movements.length === 1) {
+  movements = [movements[0], movements[0]];
+}
+
+if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement") {
+  // use box-shadow for layout containers
+  const shadowParts = [];
+  for (let i = 0; i < steps; i++) {
+    const color = colors[i] ?? colors[0];
+    const offsetX = movements[0];
+    const offsetY = movements[1];
+    shadowParts.push(`${offsetX} ${offsetY} ${radius} ${color}`);
   }
+  this.res.style.boxShadow = shadowParts.join(", ");
+} else {
+  // use drop-shadow for other element types (e.g., text, images)
+  const filters = [];
+  for (let i = 0; i < steps; i++) {
+    const color = colors[i] ?? colors[0];
+    const offsetX = movements[0];
+    const offsetY = movements[1];
+    filters.push(`drop-shadow(${offsetX} ${offsetY} ${radius} ${color})`);
+  }
+  this.res.style.filter = filters.join(" ");
+}
+
 
 
 
