@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.50
+ * nodality v1.0.51
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1321,11 +1321,14 @@ if (operations.includes("gradient")){
 			//if (this.getType() === "FlexRowLayoutElement"){
 			//} else {
 		
+				console.log("SOAA");
+				console.warn(this.options.shadow);
+
 				let str = "";
 				let off = 0;
 				for (var i = 0; i < this.options.shadow.op.steps; i++){
 					off += 3;
-					str += `drop-shadow(${off}px ${off}px ${off}px ${this.options.shadow.color ?? "gray"}) `; 
+					str += `drop-shadow(${off}px ${off}px ${off}px ${this.options.shadow.op.colors[i] ?? "gray"}) `; 
 				}
 
 if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement"){

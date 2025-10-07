@@ -1,9 +1,3 @@
-/*!
- * nodality v1.0.0-beta.37
- * (c) 2025 Filip Vabrousek
- * License: MIT
- */
-
 import {Animator} from "../layout/animator.js";
 import {Text} from "../layout/text.js";
 import {Image} from "../layout/image.js";
@@ -41,13 +35,19 @@ import { Checkbox } from "../layout/checkbox.js";
 import { Stack } from "../layout/stack.js";
 import { LinkStyler } from "../lib/linkGetter.js";
 import { CardGen } from "../lib/cardGetter.js";
-import {Simple} from "../layout/gridSwitcher.js";
+import {AreaSwitcher} from "../layout/gridSwitcher.js";
+import {HScroller} from "../layout/horizontalScroller.js";
+import { UList } from "../layout/ulist.js";
+
+// SHAPES
+import { Polygon } from "../layout/polygon.js";
+import { Circle } from "../layout/circle.js";
 
 class ElementMapper { // 22:09:58 04/11/2024
    static mapType(obj) {
   // console.log("LOBJ");
    // console.log(obj);
-        let headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
+        let headings = ["h1", "h2", "h3", "h4", "h5", "h6", "p"];
         if (headings.includes(obj.el.type)) {
             return this.mapText(obj);
         } else if (obj.el.type === "img"){
@@ -64,17 +64,11 @@ class ElementMapper { // 22:09:58 04/11/2024
             return this.protoNav(obj);
         } else if (obj.el.type === "sideNav"){
             return this.sideNav(obj);
-        } /*else if (obj.el.type === "row"){
-            return this.row(obj);
-        } */ else if (obj.el.type === "dropdown"){
+        } else if (obj.el.type === "row"){
+            return this.mapRow(obj); // back
+        }  else if (obj.el.type === "dropdown"){
             return this.dropdown(obj);
-        } else if (obj.el.type === "modal"){
-            return this.modal(obj);
-        } else if (obj.el.type === "slider"){
-            return this.slider(obj);
-        } else if (obj.el.type === "table"){
-            return this.table(obj);
-        }  else if (obj.el.type === "radio"){ // FORM ELEMENTS
+        } else if (obj.el.type === "radio"){ // FORM ELEMENTS
            // alert("PP")
             return this.radio(obj);
         } else if (obj.el.type === "input"){
@@ -109,9 +103,296 @@ class ElementMapper { // 22:09:58 04/11/2024
             return this.stack(obj);
          } else if (obj.el.type === "simple"){
             return this.simple(obj);
-         } 
+         } else if (obj.el.type === "copy"){
+            return this.mapCopy(obj);
+         } else if (obj.el.type === "wrap"){
+            return this.mapWrap(obj);
+         } else if (obj.el.type === "circle"){
+            return this.mapCircle(obj);
+         } else if (obj.el.type === "polygon"){
+            return this.mapPolygon(obj);
+         } else if (obj.el.type === "code"){
+            return this.mapCode(obj);
+         } else if (obj.el.type === "table"){
+            return this.mapTable(obj);
+         } else if (obj.el.type === "ulist"){
+            return this.mapUList(obj);
+         }
     }
 
+    static mapTable(obj){
+
+
+         let el = obj.el;
+        console.log("///");
+        console.log(el);
+
+    return new Table()
+        .add([
+            { abbr: "AUIUI/AK9PT", name: "Pokročilé mobilní technologie", grade: "A", date: "09.01.2024" },
+            { abbr: "AUIUI/AK9PT", name: "Pokročilé mobilní technologie", grade: "A", date: "09.01.2024" },
+            { abbr: "AUIUI/AK9PT", name: "Pokročilé mobilní technologie", grade: "A", date: "09.01.2024" }
+          ])
+          .set({
+              cellPadding: "0.3em",
+              cellAlign: "center",
+              style: {
+                  font: "Arial"
+              },
+              headStyle: {
+                  color: "white",
+                  background: "#ff6d22"
+              },
+              border: "2px solid black",
+              center: true,
+              borderRadius: 2.2,
+              stroke: this.filtero("blast", el.id, obj.customOptions),
+              // Invalid token
+              gradient: this.filtero("gradient", el.id, obj.customOptions),
+              animation: this.filtero("animation", el.id, obj.customOptions),
+              shadow: this.filtero("shadow", el.id, obj.customOptions),
+              span: this.filtero("span", el.id, obj.customOptions),
+              backgroundOp: this.filtero("background", el.id, obj.customOptions),
+              marginOp: this.filtero("margin", el.id, obj.customOptions),
+              transform: this.filtero("transform", el.id, obj.customOptions),
+              filtera: this.filtero("filter", el.id, obj.customOptions),
+          });
+
+
+   // .render("#mount"); 
+ 
+    }
+
+
+
+    static mapRow(obj){
+
+        let el = obj.el;
+        console.log("///");
+        console.log(el);
+
+
+       // return new Text("Hello").set({size: "S3"});
+
+        return new FlexRow().set({
+                         stroke: this.filtero("blast", el.id, obj.customOptions),
+                         gradient: this.filtero("gradient", el.id, obj.customOptions),
+                         animation: this.filtero("animation", el.id, obj.customOptions),
+                         shadow: this.filtero("shadow", el.id, obj.customOptions),
+                         span: this.filtero("span", el.id, obj.customOptions),
+                         backgroundOp: this.filtero("background", el.id, obj.customOptions),
+                         marginOp: this.filtero("margin", el.id, obj.customOptions),
+                         transform: this.filtero("transform", el.id, obj.customOptions),
+                         filtera: this.filtero("filter", el.id, obj.customOptions),
+        }).items([
+
+new Text("This").set({
+    size: "S3"
+}), 
+
+new Text("is").set({
+    size: "S3",
+    text: "Hello"
+}), 
+
+new Text("row.").set({
+    size: "S3",
+    text: "Hello"
+})
+    
+])
+        
+
+    }
+
+
+    static mapCode(obj){
+
+        let el = obj.el;
+        
+        return new Code()
+                    .set({
+                         stroke: this.filtero("blast", el.id, obj.customOptions),
+                         gradient: this.filtero("gradient", el.id, obj.customOptions),
+                         animation: this.filtero("animation", el.id, obj.customOptions),
+                         shadow: this.filtero("shadow", el.id, obj.customOptions),
+                         span: this.filtero("span", el.id, obj.customOptions),
+                         backgroundOp: this.filtero("background", el.id, obj.customOptions),
+                         marginOp: this.filtero("margin", el.id, obj.customOptions),
+                         transform: this.filtero("transform", el.id, obj.customOptions),
+                         filtera: this.filtero("filter", el.id, obj.customOptions),
+                        pad: [
+                            { l: 30 },
+                        ], 
+                        mar: [
+                            { a: 30 },
+                        ], 
+                        class: "language-js",
+                        code: 'new Text("Modality").set({ font: "Arial" })'
+                    })
+        
+
+    }
+
+  static mapCopy(obj) {
+  const customOptions = obj.customOptions;
+  const ft = customOptions.filter(l => l.op === "copy")[0];
+  const count = ft?.count ?? 3;
+
+  const minSize = 300;           // size of whole wheel
+  const cardSize = 30;           // width/height of text wrapper
+  const padding = 30;            // empty ring inside wheel
+  const wheelRadius = minSize / 2 - padding;
+  const ringRadius = wheelRadius - cardSize / 2;
+
+  let animation = `
+animation: {
+        op: {
+            name: "animation",
+            color: "green",
+            width: "1px",
+            fireAt: "inview",
+            keyframesOpen: [
+                {
+                    transform: "rotate(360deg)",
+                    opacity: 0
+                },
+                {
+                    transform: "rotate(0deg)",
+                    opacity: 1
+                }
+            ],
+            keyframesClose: [
+                {
+                    transform: "rotate(0deg)",
+                    opacity: 1
+                },
+                {
+                    transform: "rotate(0deg)",
+                    opacity: 0
+                }
+            ],
+            openOptions: {
+                duration: 300,
+                fill: "forwards",
+                delay: 1000
+            },
+            closeOptions: {
+                duration: 1,
+                fill: "forwards",
+                delay: 1000
+            }
+        },
+        target: [
+            "#first"
+        ]
+    },
+  `;
+
+  return `new Wrapper()
+.set({
+  width: "${minSize}px",
+  height: "${minSize}px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  position: "absolute",
+  id: "#first",
+  scale: 0.3,
+  ${ft?.animation ? animation : ""}
+})
+.add(
+  Array.from({ length: ${count} }).map((_, i) => {
+
+    const bbox = {width: "${minSize}px", height: "${minSize}px"};
+
+      const elHeight = bbox.height;
+
+      const cx = ${minSize / 2};
+      const cy = ${minSize / 2};
+
+      const R = ${minSize/2};
+
+      const n = ${count};
+
+      // Evenly spaced angles, starting at top (-90°)
+      const angle = (i / n) * Math.PI * 2 - Math.PI/2;
+      const dist = R + parseFloat(elHeight)/2;
+
+      const x = cx + dist * Math.cos(angle);
+      const y = cy + dist * Math.sin(angle);
+
+      let rot = angle * 180 / Math.PI + 90;
+      rot = (rot % 360 + 360) % 360;
+      rot = (rot % 360 + 360) % 360;
+
+      return  new Text("Hello").set({
+              size: "S1",
+              color: "green",
+              font: "Arial",
+               left: \`\${x}px\`,
+                top: \`\${y}px\`,
+                transform: {
+          op: {
+            name: "transform",
+            transform: {
+              static: true,
+              keep: true,
+              values: [
+                "tx:-50%",
+                "ty:-50%",
+                \`rotate(\${rot}deg)\`
+              ]
+            }
+          }
+        }
+    })
+
+   
+  })
+)`;
+}
+
+
+    static mapCopya(){
+
+        
+          return `\n
+        new Wrapper()
+    .set({
+      width: "600px",
+      height: "300px",
+      justifyContent: "center",
+      alignItems: "center",
+      display: "flex",
+      position: "relative",
+    })
+    .add(
+      Array.from({ length: 3 }).map((_, i) => {
+        const angle = i * 120;
+        return new Text("Hello")
+          .set({
+            size: "S1",
+            color: "green",
+            position: "absolute",
+            transform: {
+              op: {
+                name: "transform",
+                transform: {
+                  static: true,
+                  keep: true,
+                  hardCSS: \`translate(-50%, -50%) rotate(\${angle}deg) translate(${radius}px) rotate(\${-angle}deg)\`
+                  values: [
+                    \`translate(-50%, -50%) rotate(\${angle}deg) translate(120px) rotate(\${-angle}deg)\`,
+                  ],
+                }
+              }
+            }
+          });
+      })
+    )
+          `;
+    }
 
     static button(){
        return new Button("Submit")
@@ -210,45 +491,8 @@ class ElementMapper { // 22:09:58 04/11/2024
           })
       }
 
-    static modal(obj){
+   
 
-     /*   return new Code()
-        .set({
-            pad: [
-                { l: 30 },
-            ], 
-            mar: [
-                { a: 30 },
-            ], 
-            class: "language-js",
-            code: 'new Text("Modality").set({ font: "Arial" })'
-        });*/
-        
-        
-        
-        /*new Text("Please refer here on how to create modal. http://localhost:8080/library/elements/modal.html").set({
-            font: "Arial",
-            color: "orangered",
-            weight: "bold",
-            breakWord: true,
-            arrpad: {sides: ["top", "left"], value: "1rem"}
-        });*/
-    }
-
-    static slider(obj){
-        let texts = [
-            new Wrapper().set({}).add([
-                new Text("One").set({ fluidc: "S1", color: "#1abc9c", font: "Arial" }),
-                new Text("First time").set({ font: "Arial" })
-            ]),
-
-            new Text("Two").set({ fluidc: "S1", color: "#1abc9c", font: "Arial" }),
-            new Text("Three").set({ fluidc: "S1", color: "#1abc9c", font: "Arial" }),
-            new Text("Four").set({ fluidc: "S1", color: "#1abc9c", font: "Arial" })
-        ];
-        
-          return new Slider(texts, null);//.render("#mount");
-    }
 
     static dropdown(obj){
         if (!obj.el.items){
@@ -273,7 +517,7 @@ class ElementMapper { // 22:09:58 04/11/2024
 
         return new Dropdown()
         .set({ 
-          behaviour: "mouseover", // click otherwise
+          behaviour: "click", // click otherwise
           //width: "120px",
         
          // socenter: true,
@@ -450,7 +694,7 @@ if (obj.el.dropdown){
      
     ,
      new Wrapper() 
-    .set({socenter: true,
+    .set({centerColumn: true,
      radius: "0.7rem",background: "#1abc9c",
      makeResponsiveBehaviour: "undefined",})
     .add([ 
@@ -521,18 +765,19 @@ if (obj.el.dropdown){
 
 
 
-       return  new Switcher()
+       return new Switcher()
            .set({
                breakpoints: [ // 172800 almost
                    {
                        at: "0px", view: new MobileBar().set({
-                           background: "green", 
+                           background: "#ecf0f1", 
                            mar: [{ "a": 21 }],
-                           brand: new Text("A").set({size: "S1"}),
+                           brand: new Text("Company").set({size: "S6", font: "Helvetica"}),
                           hamburgerColour: "#3498db",
                           radius: "1rem",
                        }).add([
-                       new Link("A").set({text: "A", url: "#a"}),//.render()
+
+                       new Link().set({text: "About", url: "#a"}),//.render()
                      
 
 
@@ -549,7 +794,7 @@ if (obj.el.dropdown){
                         height: "auto",
                    
                     }).add([
-                        new Text("First")
+                        new Text("More")
                             .set({
                                 cursor: "hand",
                                 icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
@@ -561,7 +806,7 @@ if (obj.el.dropdown){
 
                             }),
 
-                            new Text("Firsti")
+                            new Text("Our story")
                             .set({
                                 cursor: "hand",
                                // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
@@ -573,7 +818,7 @@ if (obj.el.dropdown){
 
                             }),
 
-                            new Text("Firstiuu")
+                            new Text("Team")
                             .set({
                                 cursor: "hand",
                                // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
@@ -589,14 +834,14 @@ if (obj.el.dropdown){
 
 
 
-                       new Link("B").set({text: "B", url: "#b"}),//.render()
-                       new Link("C").set({text: "C", url: "https://www.abcnews.com"})//.render()
+                       new Link("B").set({text: "About", url: "#b"}),//.render()
+                       new Link("C").set({text: "Contact", url: "https://www.abcnews.com"})//.render()
                        ])//.addNavItem(new Link("C").set({}).render())
                    },
    
                    {
                        at: "1200px", view: new DesktopBar().set({
-                           background: "green",
+                           background: "#ecf0f1",
                            mar: [{ "a": 21 }],
                            maxHeight: "100px",
                            radius: "1rem"
@@ -605,7 +850,7 @@ if (obj.el.dropdown){
                        })
                      //  .setBrand(new Text("A").set({}).render())
                        .add([
-                        new Text("A").set({size: "S1"}),
+                        new Text("Company").set({size: "S6", font: "Helvetica"}),
                         new Spacer(true),
 
                        // new Link("O").set({text: "O", url: "#a"}),
@@ -622,7 +867,7 @@ if (obj.el.dropdown){
                                radius: "30px",
                                 width: "130px"
                            }).add([
-                               new Text("First")
+                               new Text("More")
                                    .set({
                                        cursor: "hand",
                                        icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
@@ -637,7 +882,7 @@ if (obj.el.dropdown){
 
 new Wrapper().set({
     flexDir: "column", 
-    background: "orange", 
+   // background: "orange", 
     mar: [{"t": "10px"}],
     radius: ".3rem"}).add([
 
@@ -645,7 +890,7 @@ new Wrapper().set({
 
                                    new Link("")
                                    .set({
-                                    text: "A", // BEWARE
+                                    text: "Who we are", // BEWARE
                                     url: "jk",
                                        cursor: "hand",
                                       // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
@@ -658,7 +903,7 @@ new Wrapper().set({
 
                                    new Link("")
                                    .set({
-                                    text: "Kivi new TV", 
+                                    text: "Info", 
                                     url: "#u",
                                        cursor: "hand",
                                       // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
@@ -672,7 +917,7 @@ new Wrapper().set({
 
                                    new Link("")
                                    .set({
-                                    text: "Thanks GPT", 
+                                    text: "About", 
                                     url: "#u",
                                        cursor: "hand",
                                       // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
@@ -701,9 +946,9 @@ new Wrapper().set({
 
 
 
-                       new Link("Desktop bar").set({text: "Desktop bar", url: "#a"}),//.render()
-                       new Link("B").set({text: "B", url: "#a"}),//.render()
-                       new Link("C").set({text: "C", url: "#a"})//.render()
+                       new Link().set({ text: "About", url: "#a"}),//.render()
+                       new Link().set({ text: "Services", url: "#a"}),//.render()
+                       new Link().set({ text: "Contact", url: "#a"})//.render()
                     //   new Link("C").set({})//.render()
                        ])
                            /*.addNavItem(
@@ -766,82 +1011,91 @@ new Wrapper().set({
             font: "Arial",
             pad: [{a:20}], 
             bold: true,
-            align: "left" // 21:04:58
+             tags: {open: "sidebar:open", close: "sidebar:closed"},
+            align: "left", // 21:04:58
+             hover: { 
+	            color: "wheat", 
+	            animation: 0.3 
+            }
         }));
 
 
         const dropdown = new Dropdown().set({
             behaviour: "mouseover",
-      pad: [{"a":40}],
-      //socenter: true,
-      padding: "10px",
-      border: "1px solid black",
-      animation: { // also works without animation block
-        range: ["0px", "1900px"],
-        op: {
-            name: "animation",
-            color: "green", // 102410 19/11/24 staggered
-            width: "1px",
-            keyframesOpen: [ // staggered effect 
-                { transform: `translate(100%, ${1*10}%)`, opacity: 0 },
-                { transform: `translate(0%)`, opacity: 1  }
-            ], 
-            keyframesClose: [ // put where approprriate
-                { transform: 'translate(0%)', opacity: 1 },
-                { transform: `translate(100%, ${1*10}%)`, opacity: 0 }
-            ], 
-            openOptions: {
-                duration: 300,
-                fill: 'forwards',
-                delay: 1000 // 1000
+            pad: [{ "a": 40 }],
+            //socenter: true,
+            padding: "10px",
+          //  border: "1px solid black",
+            animation: { // also works without animation block
+                range: ["0px", "1900px"],
+                op: {
+                    name: "animation",
+                    color: "green", // 102410 19/11/24 staggered
+                    width: "1px",
+                    keyframesOpen: [ // staggered effect 
+                        { transform: `translate(100%, ${1 * 10}%)`, opacity: 0 },
+                        { transform: `translate(0%)`, opacity: 1 }
+                    ],
+                    keyframesClose: [ // put where approprriate
+                        { transform: 'translate(0%)', opacity: 1 },
+                        { transform: `translate(100%, ${1 * 10}%)`, opacity: 0 }
+                    ],
+                    openOptions: {
+                        duration: 300,
+                        fill: 'forwards',
+                        delay: 1000 // 1000
+                    },
+                    closeOptions: {
+                        duration: 1, // 1 should be acceptable here when I close
+                        fill: 'forwards',
+                        delay: 1000 // 1000 why does 3000 work during open but not during close??
+                    },
+                },
             },
-            closeOptions:{
-                duration: 1, // 1 should be acceptable here when I close
-                fill: 'forwards',
-                delay: 1000 // 1000 why does 3000 work during open but not during close??
-            },
-        },
-    },
-          }).add([
-     new Text("First")
-     .set({
-     cursor: "hand",
-     icon: {padding:30,url:"https://cdn-icons-png.flaticon.com/512/60/60995.png"},
-     fluidc: "S6",
-     pad: [{l:10,r:10}], 
-     font: "Arial",
-     align: "center",
-     weight: "bold", 
-     
-     })
-     
-    ,
-     new Wrapper() 
-    .set({socenter: true,
-     radius: "0.7rem",background: "#1abc9c",
-     makeResponsiveBehaviour: "undefined",})
-    .add([ 
-    
-     new Link()
-     .set({
-     pad: [{a:10}],
-     font: "Arial",
-     hover: {color:"wheat",animation:0.3},
-     bold: true,
-     link: "https://www.apple.com",
-     text: "Second",
-     icon: {padding:30,url:"https://cdn-icons-png.flaticon.com/512/32/32339.png"},}) 
-    ,
-     new Link()
-     .set({
-     pad: [{a:10}],
-     font: "Arial",
-     hover: {color:"wheat",animation:0.3},
-     bold: true,
-     link: "https://www.apple.com",
-     text: "Third",
-     icon: {padding:30,url:"https://cdn-icons-png.flaticon.com/512/32/32339.png"},}) 
-    ])]);
+        }).add([
+            new Text("More")
+                .set({
+                    cursor: "hand",
+                    icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
+                    fluidc: "S6",
+                    pad: [{ l: 10, r: 10 }],
+                    font: "Arial",
+                    align: "center",
+                    weight: "bold",
+
+                })
+
+            ,
+            new Wrapper()
+                .set({
+                    centerColumn: true,
+                    radius: "0.7rem", background: "#1abc9c",
+                    makeResponsiveBehaviour: "undefined",
+                })
+                .add([
+
+                    new Link()
+                        .set({
+                            pad: [{ a: 10 }],
+                            font: "Arial",
+                            hover: { color: "wheat", animation: 0.3 },
+                            bold: true,
+                            link: "https://www.apple.com",
+                            text: "Second",
+                            icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/32/32339.png" },
+                        })
+                    ,
+                    new Link()
+                        .set({
+                            pad: [{ a: 10 }],
+                            font: "Arial",
+                            hover: { color: "wheat", animation: 0.3 },
+                            bold: true,
+                            link: "https://www.apple.com",
+                            text: "Third",
+                            icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/32/32339.png" },
+                        })
+                ])]);
 
 
        
@@ -853,12 +1107,17 @@ new Wrapper().set({
             text: i.title,
             link: i.link,
             isNavA: true,
-            url: "#e",
+            url: "#myURL",
             id: "#" + i.title.toLowerCase(),
             font: "Arial",
             pad: [{a:20}], 
             bold: true,
+             tags: {open: "sidebar:open", close: "sidebar:closed"},
             align: "left", // 21:04:58
+            hover: { 
+	            color: "wheat", 
+	            animation: 0.3 
+            },
             animation: { // also works without animation block
                 range: ["0px", "1900px"],
                 op: {
@@ -897,14 +1156,14 @@ if (obj.el.dropdown){
 
         // Always require link wrapper
         const linkWrapper = new Wrapper().set({column: true}).add([
-            new Text("Ultra Reckoning")
+            new Text("Sidebar")
              .set({   
-                   fluidc: "S6",
+                   size: "S6",
                    font: "Arial",
                    id: "#olod",
                    italic: true,
                    animation: {range:["0px","1900px"],op:{name:"animation",color:"green",width:"1px"}},
-                   pad: [{l:40}, {t:20}], // Insert in the right plce
+                   pad: [{l:20}, {t:20}], // Insert in the right plce
                  //  pad: {sides: ["all"], value: "1rem"}
                 }),
 
@@ -913,7 +1172,7 @@ if (obj.el.dropdown){
             obj.el.animation ? animatedLinks[2] : links[2],
             (obj.el.animation && obj.el.dropdown) ? animatedLinks[3] : new Text("").set({}).excludeFromCode(),
 
-            new Text("Paramount, 2024")
+            new Text("Company, 2025")
             .set({ // no ID, no animation
                 pad: [{a: 20}],
                 animation: {range:["0px","1900px"],op:{name:"animation",color:"green",width:"1px"}},
@@ -950,6 +1209,8 @@ if (obj.el.dropdown){
             background: "#ecf0f1",
             hamColour: {opened: "#1abc9c", closed: "#e67e22"},
             mobileSize: "1.2em",
+            fixed: true,
+            tags: {open: "sidebar:open", close: "sidebar:closed"}
         }).items(obj.el.offcanvas ? offCanvas : linkWrapper );
 
 
@@ -978,7 +1239,7 @@ if (obj.el.dropdown){
                     templateCols = null;
                 }
 5
-                if (ft.op.value === "image-overlay-text"){ // 17:43:03
+                if (ft.op.value === "img-overlay-text"){ // 17:43:03
                     spanObjects = {
                         text: {row: "1 / span 2", col: "3 / span 2"},
                         image: {row: "2 / span 3", col: "3 / 3"}
@@ -986,7 +1247,7 @@ if (obj.el.dropdown){
                 }
 
                 // react on by value to control amount
-                if (ft.op.value === "image-leftof-text") { // no 3-6
+                if (ft.op.value === "img-leftof-text") { // no 3-6
                     spanObjects = {
                         text: {row: "1", col: "1 / 3"},
                         image: {row: "1", col: "3 / 4"}
@@ -1007,16 +1268,17 @@ if (obj.el.dropdown){
                     new Text("I am free")
                         .set({ 
                              border: "3px solid green",
-                             "font": "Arial", // 23:11:24 08/11/24 "font" works also?
-                             fluidc: "S1",
+                             font: "Arial", // 23:11:24 08/11/24 "font" works also?
+                             size: "S1",
                              color: "#1abc9c",
                              gpos: spanObjects != null ? (spanObjects.text) : null, // "span 2" can also work here as string 
                              zIndex: 1
                             }),
 
-                    new Image("https://www.cruisemapper.com/images/ships/2183-e9681865a61.jpg")
+                    new Image()
                       .set({
-                         url: "https://www.cruisemapper.com/images/ships/2183-e9681865a61.jpg", 
+                        url: "https://upload.wikimedia.org/wikipedia/commons/a/ac/MSC_World_Europa_-_Saint-Nazaire_-_June_2022.jpg",
+                        // url: "https://www.cruisemapper.com/images/ships/2183-e9681865a61.jpg", 
                          width: "400px",
                          height: "auto",
                          gpos:  spanObjects != null ? (spanObjects.image) : null,
@@ -1029,23 +1291,68 @@ if (obj.el.dropdown){
                // console.log(ela.toCode());
     }
 
+    static mapCircle(obj){
+
+  let el = obj.el;
+
+return new Circle()
+  .set({
+    diameter: 108,
+    background: "#1abc9c", 
+          stroke: this.filtero("blast", el.id, obj.customOptions),
+                gradient: this.filtero("gradient", el.id, obj.customOptions),
+                animation: this.filtero("animation", el.id, obj.customOptions),
+                shadow: this.filtero("shadow", el.id, obj.customOptions),
+                span: this.filtero("span", el.id, obj.customOptions),
+                backgroundOp: this.filtero("background", el.id, obj.customOptions),
+                marginOp: this.filtero("margin", el.id, obj.customOptions),
+                transform: this.filtero("transform", el.id, obj.customOptions),
+                filtera: this.filtero("filter", el.id, obj.customOptions),
+   })
+ }
+
+
+
+    static mapPolygon(obj){
+
+  let el = obj.el;
+
+   
+  const count = obj.el.sides ?? 7;
+
+let elo = new Polygon({ id: "hex" })
+  .set({
+    sides: count,
+    size: 300,
+    background: "#1abc9c",
+     //  blast: this.filtero("blast", el.id, obj.customOptions), not supported
+   gradient: this.filtero("gradient", el.id, obj.customOptions),
+                animation: this.filtero("animation", el.id, obj.customOptions),
+                shadow: this.filtero("shadow", el.id, obj.customOptions),
+                span: this.filtero("span", el.id, obj.customOptions),
+                backgroundOp: this.filtero("background", el.id, obj.customOptions),
+                marginOp: this.filtero("margin", el.id, obj.customOptions),
+                transform: this.filtero("transform", el.id, obj.customOptions),
+                filtera: this.filtero("filter", el.id, obj.customOptions),
+  })
+
+  console.log(elo.code);
+
+  console.log(elo.toCode);
+
+  return elo;
+ }
+
+
     static mapText(obj) {
       //  console.log(obj.el.type);
 
         let el = obj.el;
 
-      //  console.log("ANIMEA");
-       // console.log(this.filtero("animation", el.id, obj.customOptions));
-      //  console.log(obj.customOptions);
+    
 
-       // console.log("TRANSAX");
-       // console.log(this.filtero("transform", el.id, obj.customOptions));
-       // console.log(obj.customOptions);
-       // console.log("MATRAX");
-       // console.log(obj.customOptions[10].op.transform.values);
-//alert("/")
-
-
+console.warn("WHY DIFFER ATA TEXT (grad)");
+console.log(obj.customOptions);
 
 
         return new Text(el.text || el.value)
@@ -1066,6 +1373,11 @@ if (obj.el.dropdown){
                 marginOp: this.filtero("margin", el.id, obj.customOptions),
                 transform: this.filtero("transform", el.id, obj.customOptions),
                 filtera: this.filtero("filter", el.id, obj.customOptions),
+                resprop: el.resprop ? [
+	{ breakpoint: "1400px", background: "orange", width: "200px", height: "200px" },
+	{ breakpoint: "900px", background: "green", height: "100px", width: "100px" }
+] : null//this.filtero("resprop", el.id, obj.customOptions),
+             //   copy: this.filtero("copy", el.id, obj.customOptions),
             });
     }
 
@@ -1109,7 +1421,8 @@ if (obj.el.dropdown){
                 }
 
                
-                re["keySet"] = {key: "background", value: "shadow: 3px 3px solid green"};
+                // KEEP COMMENTED OUT
+               // re["keySet"] = {key: "background", value: "shadow: 3px 3px solid green"};
 
                 // 10:42:18 Nice!!! 24/11/24
                     re["animation"] = this.filtero("animation", obj.el.id, obj.customOptions),
@@ -1121,8 +1434,13 @@ if (obj.el.dropdown){
 
                     re["font"] = "Arial";
                     re["fluidc"] = obj.el.fluidc;
-                    re["index"] = obj.i + "", // add other options here
+                  //  re["index"] = obj.i + "", // add other options here
+
+                    //  transform: this.filtero("transform", el.id, obj.customOptions),
+                     re["transform"] = this.filtero("transform", obj.el.id, obj.customOptions),
                     re["shadow"] = this.filtero("shadow", obj.el.id, obj.customOptions),//customOptions.filter(l => l.op.name === "shadow")[0],
+                    re["gradient"] = this.filtero("gradient", obj.el.id, obj.customOptions),
+                      re["blast"] = this.filtero("blast", obj.el.id, obj.customOptions),
                     re["backgroundOp"] = this.filtero("background", obj.el.id, obj.customOptions),//customOptions.filter(l => l.op.name === "background")[0];
                     re["pad"] = [{ "a": 10 }];
 
@@ -1154,36 +1472,114 @@ if (obj.el.dropdown){
 
     static mapGrid(obj){
         console.log("OBJ IS");
-        console.log(obj.storage);
+    console.log(obj.storage);
+ let el = obj.el;
+     let cardOption = obj.customOptions.find(l => l.op.name === "card-style") ?? {};
 
-        
-        let childStrings = [];
-        let cardOption = obj.customOptions.filter(l => l.op.name === "card-style")[0] ?? {};
+       const gradient = this.filtero("gradient", el.id, obj.customOptions);
+const animation = this.filtero("animation", el.id, obj.customOptions);
+const shadow   = this.filtero("shadow", el.id, obj.customOptions);
+const marginOp = this.filtero("margin", el.id, obj.customOptions);
+const filtera  = this.filtero("filter", el.id, obj.customOptions);
+const blast    = this.filtero("blast", el.id, obj.customOptions);
 
-        childStrings = CardGen.cards(obj.el, cardOption, obj.storage);
 
-        let card = `new Card()
-        .set({
-             width: "300px", radius: "0.7rem",  mar: { sides: ["all"], value: "0.8rem" }})
-        .items([${childStrings.join(",")} \n                      ])`;
 
-       // console.log("STATS");
-       // console.log(childStrings[0]);
 
-        if (obj.el.backgroundCard) {
-            card = `new ZoomCard().set({url: "https://img.freepik.com/free-photo/seascape-texture-waves-water-generative-ai_169016-30500.jpg", font: "Arial", mar: { sides: ["all"], value: "0.8rem" }, inpad: "1rem", useBrightness: true})
-            .items([  
-                ${childStrings.join(",")},
-        ]), \n`;
-        }
+    // base card block (string template)
+    const baseCard = `
+        new Card()
+            .set({
+                width: "300px", 
+                height: "700px",
+                radius: "0.7rem",  
+                mar: { sides: ["all"], value: "0.8rem" }
+                 ${
+        gradient !== undefined ? `,\n      gradient: ${JSON.stringify(gradient)}` : ""
+      }${
+        animation !== undefined ? `,\n      animation: ${JSON.stringify(animation)}` : ""
+      }${
+        shadow !== undefined ? `,\n      shadow: ${JSON.stringify(shadow)}` : ""
+      }${
+        marginOp !== undefined ? `,\n      marginOp: ${JSON.stringify(marginOp)}` : ""
+      }${
+        filtera !== undefined ? `,\n      filtera: ${JSON.stringify(filtera)}` : ""
+      }${
+        blast !== undefined ? `,\n      blast: ${JSON.stringify(blast)}` : ""
+      }
+            })
+            .items([
+                new Image(item.img).set({isFull: true, url: item.img}),
+                new Text(item.title).set({ size: "S5", color: "orange" }),
+                new Link("Link").set({
+                    text: item.title, 
+                    url: item.link, 
+                    background: "#3498db", 
+                    pad: [{ lr: "0.5rem", tb: "1rem" }], 
+                    radius: "0.4rem", 
+                    color: "white",
+                    mar: [{"a": 21}]
+                })
+            ])`;
 
-        let cards = Array(3).fill(card);
+    // zoom card block (string template)
+    const zoomCard = `
+        new ZoomCard()
+            .set({
+                url: item.img, 
+                font: "Arial", 
+                mar: { sides: ["all"], value: "0.8rem" }, 
+                inpad: "1rem", 
+                useBrightness: true
+            })
+            .items([
+                new Text(item.title).set({ fluidc: "S6", color: "orange" }),
+                new Link("Link").set({
+                    text: item.title, 
+                    url: item.link, 
+                    background: "#3498db", 
+                    pad: [{ lr: "0.5rem", tb: "1rem" }], 
+                    radius: "0.4rem", 
+                    color: "white"
+                })
+            ])`;
 
-        return `\n  
-         new FlexGrid()
-        .set({colat: "700px", wrap: true, align: "center"}) 
-        .items([${cards}])
-        \n`;
+    // pick card type depending on obj.el.backgroundCard
+    const cardTemplate = obj.el.backgroundCard ? zoomCard : baseCard;
+
+  
+
+
+    return ` new FlexGrid()
+    .set({
+      colat: "700px",
+      wrap: true,
+      align: "center",
+      gap: "1rem"
+       ${
+        gradient !== undefined ? `,\n      gradient: ${JSON.stringify(gradient)}` : ""
+      }${
+        animation !== undefined ? `,\n      animation: ${JSON.stringify(animation)}` : ""
+      }${
+        shadow !== undefined ? `,\n      shadow: ${JSON.stringify(shadow)}` : ""
+      }${
+        marginOp !== undefined ? `,\n      marginOp: ${JSON.stringify(marginOp)}` : ""
+      }${
+        filtera !== undefined ? `,\n      filtera: ${JSON.stringify(filtera)}` : ""
+      }${
+        blast !== undefined ? `,\n      blast: ${JSON.stringify(blast)}` : ""
+      }
+    })
+    .items(
+      [
+        { img: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Starship_S20.jpg", title: "Starship", link: "#ship" },
+        { img: "https://upload.wikimedia.org/wikipedia/commons/1/16/Apollo_11_Launch_-_GPN-2000-000630.jpg", title: "Saturn V", link: "#saturn" },
+        { img: "https://upload.wikimedia.org/wikipedia/commons/d/d6/STS120LaunchHiRes-edit1.jpg", title: "Shuttle", link: "#shuttle" }
+      ].map(item => 
+        ${cardTemplate}
+      )
+    )
+    `;
     }
 
 
@@ -1326,7 +1722,7 @@ static form(obj){
 
 static simple(obj){
     // Chain the methods of the Simple class
-return `new Simple()
+return `new AreaSwitcher()
   .set({ gap: "10px", height: "700px" })
   .react([
     {
@@ -1371,6 +1767,76 @@ return `new Simple()
 
     // return new Simple().set({}).react([]);
 }
+
+
+
+    static mapWrap(obj) {
+        let el = obj.el;
+
+//console.log("GRQDOE"); // remove text flag from lin gradient when ding this on wrapper
+//console.log(obj.customOptions);
+
+        let kind = obj.el.kind ?? "";
+
+
+
+        return new Wrapper(kind)
+            .set({
+                id: el.id,
+                class: el.class,
+                color: el.color,
+                size: this.getElType(el.type), // update 23/07/2025
+                font: el.font ?? "Arial",
+                keySet: el.keySet,
+               // keySet: {key: "border", value: "3px solid green"},
+                stroke: this.filtero("blast", el.id, obj.customOptions),
+                gradient: this.filtero("gradient", el.id, obj.customOptions),
+                animation: this.filtero("animation", el.id, obj.customOptions),
+                shadow: this.filtero("shadow", el.id, obj.customOptions),
+                transform: this.filtero("transform", el.id, obj.customOptions),
+                filtera: this.filtero("filter", el.id, obj.customOptions),
+            }).add([
+                new Text("Hello").set({}),
+                 new Text("Hello").set({}),
+                  new Text("Hello").set({}),
+
+            ]);
+    }
+
+
+
+    static mapUList(obj) {
+        let el = obj.el;
+
+//console.log("GRQDOE"); // remove text flag from lin gradient when ding this on wrapper
+//console.log(obj.customOptions);
+
+        let kind = obj.el.kind ?? "";
+
+
+
+        return new UList(kind)
+            .set({
+                id: el.id,
+                class: el.class,
+                color: el.color,
+                size: this.getElType(el.type), // update 23/07/2025
+                font: el.font ?? "Arial",
+                keySet: el.keySet,
+               // keySet: {key: "border", value: "3px solid green"},
+                stroke: this.filtero("blast", el.id, obj.customOptions),
+                gradient: this.filtero("gradient", el.id, obj.customOptions),
+                animation: this.filtero("animation", el.id, obj.customOptions),
+                shadow: this.filtero("shadow", el.id, obj.customOptions),
+                transform: this.filtero("transform", el.id, obj.customOptions),
+                filtera: this.filtero("filter", el.id, obj.customOptions),
+            }).setItems([
+               new Text("First").set({}),
+               new Text("Second").set({}),
+               new Text("Third").set({})
+            ]);
+    }
+
 
 /*static base(){
     let res = class Appa extends Base {

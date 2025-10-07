@@ -1,9 +1,3 @@
-/*!
- * nodality v1.0.0-beta.37
- * (c) 2025 Filip Vabrousek
- * License: MIT
- */
-
 /* Classes:
 ElementMapper
 */
@@ -39,6 +33,7 @@ import { /*Beta*/MobileBar } from "../layout/betaMobileBar.js";
 import { /*Beta*/DesktopBar } from "../layout/betaDesktopBar.js";
 import { SideNav } from "../layout/sideNavBar.js";
 import { Spacer } from "../layout/spacer.js";
+import { UList } from "../layout/ulist.js";
 
 
 // FORM COMPONENTS
@@ -56,13 +51,21 @@ import { Video } from "../layout/video.js";
 import { Checkbox } from "../layout/checkbox.js";
 import { LinkStyler } from "../lib/linkGetter.js";
 import { CardGen } from "../lib/cardGetter.js";
-import {Simple} from "../layout/gridSwitcher.js";
+import {AreaSwitcher} from "../layout/gridSwitcher.js";
+import {HScroller} from "../layout/horizontalScroller.js";
 
 // ANIM
-import {KeyframeAnim} from "../lib/appleAnim.js";
+import {KeyframeAnim} from "../lib/KeyframeAnimation.js";
 import {TransformAnim} from "../lib/transformanim.js";
 import {Stacker} from "../lib/stacker.js";
 import {ScrollVideo} from "../lib/scrollvideo.js";
+
+// SHAPES
+import {Polygon} from "../layout/polygon.js";
+import {Circle} from "../layout/circle.js";
+
+
+
 
 // Audio, progress, TextField, import navFactor
 class Des {
@@ -163,7 +166,7 @@ class Des {
 
         link: {
             miami: {
-                code: `new Link("Link").set({text: "Hello", url: "#a", background: "", color: "orange", hover: {color: "white", background: "orange", animation: 0.6}, borderObj: {color: "orange", width: "3px", radius: "0.7rem"}, pad: { sides: ["all"], value: "0.6rem" }, arrayMargin: { sides: ["top", "bottom"], value: "0.8rem" }, radius: "0.4rem"})`,
+                code: `new Link("Link").set({text: "Hello", url: "#a", background: "", color: "orange", hover: {color: "white", background: "orange", animation: 0.6}, borderObj: {color: "orange", width: "3px", radius: "0.7rem"}, pad: { sides: ["all"], value: "0.6rem" }, mar: { "t": 0.8rem }, radius: "0.4rem"})`,
             },
             base: {
                 code: `new Link("Link").set({text: "Hello", url: "#ai", background: "#3498db", pad: [{lr: "0.5rem", tb: "1rem"}], radius: "0.4rem", color: "white"})`,
@@ -177,7 +180,7 @@ class Des {
         },
 
         grid: {
-            code: ` new Simple()
+            code: ` new AreaSwitcher()
     .set({
         gap: "1rem"
     })
@@ -393,13 +396,31 @@ new Text("row.").set({
         this.elHTML = [];
 
         let customOptions = this.options;
-        //console.log("COO");
-        //console.log(customOptions);
+        console.log("COO");
+        console.log(customOptions);
+
+customOptions.forEach(item => {
+    console.log("mid")
+    console.log(item);
+    console.log("checking:", item.direction);
+  if (item.direction === "radial" ) {
+  //  alert("//")
+    item.gradient = "radial-gradient(orange, green)";
+  }
+});
+
+
+
+//console.log(updated);
+
+//customOptions = updated;
+
+
         for (var i = 0; i < arr.length; i++) {
             let el = arr[i];
             let ela = null;
 
-            let ops = ["blast", "gradient", "shadow", "filter", "animationSimple", "transform"];
+            let ops = ["blast", "gradient", "shadow", "filter", "animation", "transform", "span"];
             let replacementObjects = [
                 {
                     // range: ["0px", "1900px"],
@@ -415,18 +436,27 @@ new Text("row.").set({
                     op: {
                         name: "gradient",
                         // gradient: "linear-gradient(#3498db,#1abc9c)"
-                        gradient: "linear-gradient(orange, green)"
+                        gradient: "linear-gradient(orange, green)",
+                     //   direction: "radial"
                     },
 
                 },
 
-                {
+             /*   {
 
                     op: {
                         name: "shadow",
                         color: "#1abc9c",
                         steps: 3
                     },
+                },*/
+            {
+                 op: {
+                        name: "shadow",
+                        color: "#1abc9c",
+                        steps: 3,
+                        colors: ["orange", "green", "yellow"]
+                    }
                 },
 
                 {
@@ -477,11 +507,42 @@ new Text("row.").set({
                         values: [ // This can be empty or have any order of values
                             "ty:-20px",
                             "scale(3)",
-                            "rotate(30deg)",
-                            "skew(40deg, 0deg)",
-                            "perspective(500px)",
+                            "rotate(3deg)",
+                            "skew(3deg, 0deg)",
+                            "perspective(100px)",
                             "matrix(1, 0, 0, 1, 50, 50)"
                         ],
+                    }
+                },
+
+                  {
+                    op: {
+                        name: "span",
+                        parts: [
+        {
+          text: "The first time",
+          style: {
+            italic: true,
+            arrpad: {
+              sides: ["left"],
+              value: "3rem"
+            },
+            stroke: {
+              range: ["950px", "1000px"],
+              op: {
+                name: "blast",
+                background: ["header", "button"],
+                color: "yellow",
+                width: "1px"
+              }
+            }
+          }
+        },
+        {
+          text: "We went to the Moon",
+          style: {}
+        }
+      ]
                     }
                 }
             ];
@@ -521,8 +582,10 @@ new Text("row.").set({
 
                         if (gradient != null) {
                             as.op.gradient = gradient;
+                          //  alert("PPP")
+                           // as.op.dir = "radial";
                         }
-                      
+
                         customOptions[index] = as;
                     }
                 }
@@ -691,15 +754,16 @@ new Text("row.").set({
 
                     else {
                         opts = [ // This can be empty or have any order of values
-                            "ty:-20px",
-                            "scale(3)",
-                            "rotate(30deg)",
+                            "ty:20px",
+                            "tx:30px",
+                         //   "scale(3)",
+                            "rotate(3deg)",
                             "skew(40deg, 0deg)",
-                            "perspective(500px)",
-                            "matrix(1, 0, 0, 1, 50, 50)"
+                           // "perspective(500px)",
+                       //     "matrix(1, 0, 0, 1, 50, 50)"
                         ];
                     }
-
+/*
 if (duration === "default"){
     duration = "MEDIUM";
 }
@@ -710,11 +774,12 @@ if (duration === "default"){
                         duration = "6s-ease-in-out";
                     } else if (duration === "SLOW"){
                         duration = "10s-ease-in-out";
-                    } 
+                    } */
 
 
-if (q == i){ // 23:07.20 Nice!!!! 23:04 bef
-
+if (/*q == i*/ true){ // 23:07.20 Nice!!!! 23:04 bef
+    // 193615 Nice!!!
+//alert("MESS UP");
 console.log("DURA");
 console.log(duration);
 
@@ -722,6 +787,7 @@ console.log(duration);
                         values: opts,
                         duration: duration
                     }
+                   
 
                     let key = "style"; // The key you want to remove
 
@@ -764,9 +830,69 @@ console.log(duration);
             console.log(`----------------------------LLL ${i} ${customOptions.length}`);
            
 
-            const matchEls = ["h1", "h2", "h3", "h4", "h5", "h6"].includes(el.type) || el.type === "img" || el.type === "a" || /*el.type == "modal" ||*/ el.type == "slider" /*|| el.type == "table"*/;
+
+            function replaceMedium(obj) {
+  /*for (let key in obj) {
+    if (typeof obj[key] === "object") {
+      replaceMedium(obj[key]); // dive deeper
+    } else if (obj[key] === "medium") {
+      obj[key] = "6s-ease-in-out";
+    } else if (obj[key] === "fast") {
+      obj[key] = "3s-ease-in-out";
+    }  else if (obj[key] === "slow") {
+      obj[key] = "9s-ease-in-out";
+    } else if (obj[key] === "default"){
+        alert("PP")
+       delete obj[key];
+    }
+  }*/
+
+   /*  for (let key of Object.keys(obj)) {
+    if (typeof obj[key] === "object" && obj[key] !== null) {
+      replaceMedium(obj[key]); // dive deeper
+    } else if (obj[key] && obj[key].toLowerCase() === "medium") {
+      obj[key] = "6s-ease-in-out";
+    } else if (obj[key] && obj[key].toLowerCase() === "fast") {
+      obj[key] = "3s-ease-in-out";
+    } else if (obj[key] && obj[key].toLowerCase() === "slow") {
+      obj[key] = "9s-ease-in-out";
+    } else if (obj[key] && obj[key].toLowerCase() === "default") {
+     // alert("PP");
+      delete obj[key]; // works now
+    }
+  }*/
+
+    for (let key of Object.keys(obj)) {
+  if (typeof obj[key] === "object" && obj[key] !== null) {
+    replaceMedium(obj[key]); // dive deeper
+  } else if (typeof obj[key] === "string") {
+    switch (obj[key].toLowerCase()) {
+      case "medium":
+        obj[key] = "6s-ease-in-out";
+        break;
+      case "fast":
+        obj[key] = "3s-ease-in-out";
+        break;
+      case "slow":
+        obj[key] = "9s-ease-in-out";
+        break;
+      case "default":
+        delete obj[key];
+        break;
+    }
+  }
+}
+}
+
+replaceMedium(customOptions);
+
+            console.log("SENDING CUSTOM OPTIONS");
            
-            if (matchEls) {
+ console.log(customOptions);
+
+            const matchEls = ["h1", "h2", "h3", "h4", "h5", "h6", "p"].includes(el.type) || el.type === "img" || el.type === "a";
+           
+            if (matchEls) { 
              
                 ela = ElementMapper.mapType({
                     el: el,
@@ -784,7 +910,7 @@ console.log(duration);
                 ela = ela.render();
 
             } else if (el.type === "table"){
- this.code.push(`
+ /*this.code.push(`
     new Table()
         .add([
             { abbr: "AUIUI/AK9PT", name: "Pokročilé mobilní technologie", grade: "A", date: "09.01.2024" },
@@ -805,7 +931,57 @@ console.log(duration);
               center: true,
               borderRadius: 2.2
           })
-    `);
+    `);*/
+
+       ela = ElementMapper.mapType({
+                    el: el,
+                    customOptions: customOptions,
+                    i: i,
+                    storage: this.stor
+                });
+                console.log("S///");
+                console.log(ela);
+                     console.log(ela.toCode());
+
+                this.code.push(ela.toCode());
+
+
+            } else if (el.type=== "slider"){
+                this.code.push(`  
+let texts = [
+
+new Text("One").set({size: "S1", color: "#1abc9c", font: "Arial"}),
+    /*new Image().set({
+    url: "https://image.datart.cz/foto/500/7/0/8/product_7766807.jpg",
+    width: "400px",
+    height: "auto"
+    }),*/
+
+    new Text("Two").set({size: "S1", color: "#1abc9c", font: "Arial"}),
+    
+    new Text("Three").set({size: "S1", color: "#1abc9c", font: "Arial"}),
+
+    new Text("Four").set({size: "S1", color: "#1abc9c", font: "Arial"}),
+];
+
+new Slider(texts, null, { tintColor: "#e74c3c", inactiveColor: "#ccc" })
+ 
+`);
+
+            } else if (el.type === "hslider") {
+                this.code.push(`
+             new HScroller()
+            .seto({
+            height: "300px",
+                speed: 1.0 // the bigger the slower
+            })
+            .add([
+                new Text("First").set({size: "S1", pad: [{"a": 40}] }),
+                new Text("Second").set({size: "S1", pad: [{"a": 40}] }),
+                new Text("Third").set({size: "S1", pad: [{"a": 40}] })
+            ])
+            `
+);
             } else if (el.type === "grid") {
                 this.code.push(
                     this.stor.grid.code
@@ -931,11 +1107,23 @@ console.log(duration);
 
             }*/ else if (el.type === "row") {
 
-                if (el.child === "img") {
+               /* if (el.child === "img") {
                     this.code.push(this.stor.flexRow(el.colat).image.code);
                 } else {
                     this.code.push(this.stor.flexRow(el.colat).text.code);
-                }
+                }*/
+
+                     ela = ElementMapper.mapType({
+                    el: el,
+                    customOptions: customOptions,
+                    i: i,
+                    storage: this.stor
+                });
+                console.log("S///");
+                console.log(ela);
+                     console.log(ela.toCode());
+
+                this.code.push(ela.toCode());
 
             } else if (el.type === "cards") {
                 console.log("STORO");
@@ -948,12 +1136,25 @@ console.log(duration);
                 });
 
                 this.code.push(ela);
-            } else if (el.type === "wrap") {
-                this.code.push(`new Wrapper().set({}).add([
+            } else if (el.type === "wrap") { // add blast and background here
+                /*
+  const ft = customOptions.filter(l => l.op === "gradient")[0];
+
+                this.code.push(`new Wrapper().set({gradient: ${ft} }).add([
                     new Text("Hello").set({}),
                     new Text("Hello").set({}),
                     new Text("Hello").set({})
-                ]) \n`);
+                ]) \n`);*/ // Go as alse objects
+
+                 ela = ElementMapper.mapType({
+                    el: el,
+                    customOptions: customOptions,
+                    i: i,
+                    storage: this.stor
+                });
+
+                this.code.push(ela.toCode()); //.join("") is important :)
+                this.ready2Render.push(ela);
 
             } else if (el.type === "responsive") { // cdiv
                 this.code.push(this.stor.complex.code);
@@ -1006,7 +1207,7 @@ console.log(duration);
                 this.code.push(ela.toCode()); //.join("") is important :)
                 this.ready2Render.push(ela);
                 ela = ela.render();
-            } else if (el.type == "code") {
+            } /*else if (el.type == "code") {
                 this.code.push(`new Code()
                     .set({
                         pad: [
@@ -1020,7 +1221,7 @@ console.log(duration);
                     })
                 `);
 
-            } else {
+            } */else {
 
                 // keep this simpel else will work for everytign 
                 ela = ElementMapper.mapType({
@@ -1089,10 +1290,14 @@ console.log(duration);
             }
         }
 
+        if (obj.code === false){
+             document.querySelector(".nonLayout").style.display = "none";
+        }
+
         const layout = {
   Text, Image, Link, FlexRow, UINavBar, Free, Audio, Progress, Center, Code,
   Stack, Wrapper, MetaAdder, Table, Dropdown, Modal, TextField, Card,
-  Wrap, FlexGrid, ZoomCard, Switcher, MobileBar, DesktopBar, SideNav, Spacer,
+  Wrap, FlexGrid, ZoomCard, Switcher, MobileBar, DesktopBar, SideNav, Spacer, HScroller, Polygon, Circle, UList
 };
 
 const formComponents = {
@@ -1101,7 +1306,7 @@ const formComponents = {
 };
 
 const libs = {
-  ElementMapper, Animator, LinkStyler, CardGen, Simple,
+  ElementMapper, Animator, LinkStyler, CardGen, AreaSwitcher,
 };
 
 

@@ -1,9 +1,3 @@
-/*!
- * nodality v1.0.0-beta.37
- * (c) 2025 Filip Vabrousek
- * License: MIT
- */
-
 
 
 
@@ -79,7 +73,7 @@ toCode(){
         img.style.gridArea = "1/1";
         img.style.display = "none";
         img.style.width = "50%";
-        img.setAttribute("src", "M2.jpeg");
+      //  img.setAttribute("src", "M2.jpeg");
         img.setAttribute("class", "m2");
        // img.setAttribute("id", this.data.identifiers.imageID);
       //  img.style.transform = `scale(1.5)`;

@@ -1,14 +1,14 @@
-/*!
- * nodality v1.0.0-beta.37
- * (c) 2025 Filip Vabrousek
- * License: MIT
- */
-
+import { Link } from "../layout/link.js";
 class LinkStyler {
     static style(obj){
         let bst = obj.bst;
         let el = obj.el;
         let re = obj.re;
+
+        console.log("OLESTE");
+        console.log(bst);
+        console.log(el);
+        console.log(re);
         let customOptions = obj.options;
         let links = [];
 
@@ -62,7 +62,11 @@ class LinkStyler {
                     }
                 }
 
+                console.log("OMESTE");
+                console.log(obj);
                 let split = bst[j].op.ops.split("-");
+
+              //   re["color"] = //bst.op.style.color;
 
                // alert(allow);
     
@@ -129,10 +133,13 @@ class LinkStyler {
     
                 if(allow && split.includes("full")){
                     re["background"] = "#3498db";
+
                     if (re["borderObj"] && re["borderObj"]["radius"]){
                         re["borderObj"]["radius"]  = "0.3rem"; // = {radius: "0.3rem"};
-                    } else
+                    } 
                     re["color"] = "white";
+                //    }
+                    
                 }
     
                 if(allow && split.includes("pill")){
