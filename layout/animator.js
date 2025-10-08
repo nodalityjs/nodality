@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.56
+ * nodality v1.0.57
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1404,7 +1404,7 @@ alert(finalFilter);
 			}
 		}
   }
-
+/*
   if (operations.includes("spana") || operations.includes("span")){
 
 
@@ -1432,23 +1432,65 @@ if (this.options.span){
 
 
   } else {
-	/*
-if (!qban){
-
-
-	while (this.res.firstChild) {
-		this.res.removeChild(this.res.firstChild);
-	}
-
-	
-}*/
 
 let t = new this.constructor(this.prevText).set({}).render();
 	if (this.prevText && this.prevText.length > 0 && qban){
 this.res.appendChild(t);
-	}
+	}*/
 
-  }
+
+	if (operations.includes("spana") || operations.includes("span")) {
+    this.res = this.resCopy;
+    this.res.textContent = ""; // clear current content
+
+    if (this.options.span) {
+        let spansArray = Array.isArray(this.options.span)
+            ? this.options.span
+            : [this.options.span]; // wrap single span in array
+
+        spansArray.forEach(spanObj => {
+            if (spanObj.op && spanObj.op.name === "span" && Array.isArray(spanObj.op.parts)) {
+                let cursor = 0;
+                const fullText = this.prevText || "";
+
+                spanObj.op.parts.forEach(part => {
+                    const partText = part.text;
+
+                    // 1️⃣ Append any text before this span
+                    if (cursor < fullText.length) {
+                        const index = fullText.indexOf(partText, cursor);
+                        if (index > cursor) {
+                            const plainText = fullText.substring(cursor, index);
+                            this.res.appendChild(new this.constructor(plainText).setup({type: "span"}).set({}).render());
+                        }
+                        cursor = index + partText.length;
+                    }
+
+                    // 2️⃣ Append the styled span part
+                    let opts = part.style || {};
+                    let spanEl = new this.constructor(partText).setup({type: "span"}).set(opts).render();
+                    this.res.appendChild(spanEl);
+                });
+
+                // 3️⃣ Append remaining text after the last span
+                if (cursor < fullText.length) {
+                    const remainingText = fullText.substring(cursor);
+                    this.res.appendChild(new this.constructor(remainingText).setup({type: "span"}).set({}).render());
+                }
+            }
+        });
+    }
+
+} else {
+    // fallback to full text
+    let t = new this.constructor(this.prevText).set({}).render();
+    if (this.prevText && this.prevText.length > 0 && qban) {
+        this.res.appendChild(t);
+    }
+}
+
+
+  
 
   
 	
