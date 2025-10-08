@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.61
+ * nodality v1.0.62
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1461,14 +1461,14 @@ this.res.appendChild(t);
                         const index = fullText.indexOf(partText, cursor);
                         if (index > cursor) {
                             const plainText = fullText.substring(cursor, index);
-                            this.res.appendChild(new this.constructor(plainText).setup({type: "span", id: "er", animation: opts.animation}).set({}).render());
+                            this.res.appendChild(new this.constructor(plainText).setup({type: "span", id: opts.id, animation: opts.animation}).set({}).render());
                         }
                         cursor = index + partText.length;
                     }
 
                     // 2️⃣ Append the styled span part
                    
-                    let spanEl = new this.constructor(partText).setup({type: "span", id: "er", animation: opts.animation}).set(opts).render();
+                    let spanEl = new this.constructor(partText).setup({type: "span", id: opts.id, animation: opts.animation}).set(opts).render();
                     this.res.appendChild(spanEl);
                 });
 
