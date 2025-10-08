@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.60
+ * nodality v1.0.61
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -336,7 +336,7 @@ console.log(html);
 		let stra = "";
 
 
-		obj.opacity && (this.res.style.opacity = obj.opacity);
+		(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
 
 		obj.isHidden && this.isHidden(obj.isHidden);
 
