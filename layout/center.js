@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.62
+ * nodality v1.0.63
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -7,17 +7,16 @@
 import {Animator} from "./animator.js";
 
 
-class Center {
- constructor(id){
+class Center extends Animator {
+ constructor(){
+	super();
     // alert("RENAME CONTAINER IN CENTER.js");
-	 this.setup(id);
+	 this.setup();
  }	 
-	setup(id){
+	setup(){
 		let el = document.createElement("div");
 		
-		if (id){
-		el.setAttribute("id", id);
-		}
+		
 		
 		el.style.display = "flex";
 		el.style.flexDirection = "column";
@@ -29,13 +28,42 @@ class Center {
 		el.style.padding = 0;
 		this.res = el;
 	}
+
+	set(obj){
+
+if (obj.id){
+		this.res.setAttribute("id", id);
+		}
+
+		// common methods should be defined in animator
+		// I can use pad in center, because animator class handles it
+		 
+		/*obj.pad && this.pad(obj.pad);
+		obj.respad && this.respad(obj.respad);
+		obj.resmar && this.resmar(obj.resmar);
+		obj.mar && this.mar(obj.mar);
+		obj.exact && (this.res.style.fontSize = obj.exact);
+		obj.zIndex && (this.res.style.zIndex = obj.zIndex);
+		obj.position && (this.res.style.position = position);
+		obj.top && (this.res.style.top = top);*/
+
+
+	}
 	
 	toCode(){
 		return [""]
 	}
 	
-	
-	items(els){
+	items(els){ // keep both for now (items and add methods)
+		for (var i = 0; i < els.length; i++){
+			let item = els[i].render();//.render();
+			this.res.appendChild(item);
+		}
+		
+		return this;
+	}
+
+	add(els){
 		for (var i = 0; i < els.length; i++){
 			let item = els[i].render();//.render();
 			this.res.appendChild(item);
