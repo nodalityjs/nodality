@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.65
+ * nodality v1.0.66
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -336,12 +336,17 @@ console.log(html);
 		let stra = "";
 
 
+		
+
+		this.commonMethods(obj);
+
+
 		(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
 
 		obj.isHidden && this.isHidden(obj.isHidden);
 
 		//alert(obj.top);
-		obj.top && (this.res.style.top = obj.top);
+		//obj.top && (this.res.style.top = obj.top);
 		obj.left && (this.res.style.left = obj.left);
 
 		obj.flex && (this.res.style.display = "flex");
@@ -383,6 +388,10 @@ this.res.style.position = "absolute";
 		obj.fluidc && this.fluidCopy(obj.fluidc);
 		//obj.fluidc && (stra += `\n fluidc: "${obj.fluidc}",`); // 233559, correct collon 23:35:35 06/03
 
+		// ID HAS TO BE HERE AFTER SIZE
+		this.options.id && this.res.setAttribute("id",  this.options.id);
+		super.setID(this.options.id);
+
 		obj.initLetter && this.initLetter(obj.initLetter);
 
 		obj.onTap && (this.onTap(obj.onTap)); //this.onTap(obj.onTap);
@@ -393,24 +402,23 @@ this.res.style.position = "absolute";
 			obj.fluidc && (this.elCSS.push(`font-size: calc(1.625rem + 5.075vw); \n`));
 		}
 		
-		this.options.id && this.res.setAttribute("id",  this.options.id);
-		super.setID(this.options.id);
+	
 		
 		this.options.class && this.res.setAttribute("class",  this.options.class);
 	
 		super.setClass(this.options.class);
 		obj.clampc && this.clampCopy(obj.clampc);
 		obj.arrpad && this.arrayPadding(obj.arrpad.sides, obj.arrpad.value);
-		obj.pad && this.pad(obj.pad);
-		obj.respad && this.respad(obj.respad);
-		obj.resmar && this.resmar(obj.resmar);
+		//obj.pad && this.pad(obj.pad);
+	//	obj.respad && this.respad(obj.respad);
+	//	obj.resmar && this.resmar(obj.resmar);
 
 // stra +=  // 2345 06/03
-		obj.mar && this.mar(obj.mar);
+	//	obj.mar && this.mar(obj.mar);
 	
  
-		obj.exact && (this.res.style.fontSize = obj.exact);
-		obj.zIndex && (this.res.style.zIndex = obj.zIndex);
+	//	obj.exact && (this.res.style.fontSize = obj.exact);
+	//	obj.zIndex && (this.res.style.zIndex = obj.zIndex);
 		obj.absolute && (this.res.style.position = "absolute");
 		
 

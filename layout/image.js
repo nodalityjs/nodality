@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.65
+ * nodality v1.0.66
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -133,6 +133,9 @@ class Image extends Animator {
 		this.options = options;
 let obj = options;
 		
+
+	  
+	
 		
 
 		
@@ -151,6 +154,10 @@ let obj = options;
 
 		options.url && this.res.setAttribute("src", options.url);
 		
+		  options.id && this.res.setAttribute("id",  options.id);
+		options.id && (stra += ` id: "${options.id}", \n`);
+		this.id = options.id;
+
 		
 	//	alert("Thrice?");
 
@@ -175,16 +182,16 @@ let obj = options;
 
 
 
-
+/*
 obj.pad && this.pad(obj.pad);
 // stra +=  // 2345 06/03 other file
 		obj.mar && this.mar(obj.mar);
 		obj.respad && this.respad(obj.respad);
 		obj.resmar && this.resmar(obj.resmar);
+*/
 
 
-
-
+	this.commonMethods(obj);
 
 		options.vtn && (this.res.style.viewTransitionName = options.vtn);
 		this.vtn = options.vtn;
@@ -282,12 +289,10 @@ obj.pad && this.pad(obj.pad);
 
 		options.isBackground && (this.isBackground = options.isBackground);
 
-		options.zIndex && (this.res.style.zIndex = options.zIndex);
+		//options.zIndex && (this.res.style.zIndex = options.zIndex);
 		options.zIndex && (stra += `\n zIndex: "${options.zIndex}", \n`);
 
-		options.id && this.res.setAttribute("id",  options.id);
-		options.id && (stra += ` id: "${options.id}", \n`);
-this.id = options.id;
+	
 			options.area && this.setArea(options.area);
 			options.area && (stra += `area: "${options.area}", \n`);
 		

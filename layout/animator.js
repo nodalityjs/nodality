@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.65
+ * nodality v1.0.66
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -30,6 +30,7 @@ class Animator {
 		return this;
 	}
 
+	// 08/10/2025
 		commonMethods(obj){ // define in anim
 			obj.pad && this.pad(obj.pad);
 			obj.respad && this.respad(obj.respad);
