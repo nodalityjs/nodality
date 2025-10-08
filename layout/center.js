@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.63
+ * nodality v1.0.64
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -37,7 +37,7 @@ if (obj.id){
 
 		// common methods should be defined in animator
 		// I can use pad in center, because animator class handles it
-		 
+
 		/*obj.pad && this.pad(obj.pad);
 		obj.respad && this.respad(obj.respad);
 		obj.resmar && this.resmar(obj.resmar);
@@ -47,7 +47,7 @@ if (obj.id){
 		obj.position && (this.res.style.position = position);
 		obj.top && (this.res.style.top = top);*/
 
-
+return this;
 	}
 	
 	toCode(){
