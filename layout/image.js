@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.57
+ * nodality v1.0.58
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -131,7 +131,7 @@ class Image extends Animator {
 		let stra = ""
 		
 		this.options = options;
-
+let obj = options;
 		
 		
 
@@ -175,6 +175,12 @@ class Image extends Animator {
 
 
 
+
+obj.pad && this.pad(obj.pad);
+// stra +=  // 2345 06/03 other file
+		obj.mar && this.mar(obj.mar);
+		obj.respad && this.respad(obj.respad);
+		obj.resmar && this.resmar(obj.resmar);
 
 
 
@@ -340,7 +346,7 @@ options.arrayMargin && this.arrayMargin(options.arrayMargin.sides, options.array
 	options.clipPath && (stra += `clipPath: "${options.clipPath}", \n`);
 
 
-let obj = options;
+
 // console.log("261");
 // console.warn(obj);
 	//----
