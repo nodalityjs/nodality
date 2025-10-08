@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.58
+ * nodality v1.0.59
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1455,20 +1455,20 @@ this.res.appendChild(t);
 
                 spanObj.op.parts.forEach(part => {
                     const partText = part.text;
-
+ let opts = part.style || {};
                     // 1️⃣ Append any text before this span
                     if (cursor < fullText.length) {
                         const index = fullText.indexOf(partText, cursor);
                         if (index > cursor) {
                             const plainText = fullText.substring(cursor, index);
-                            this.res.appendChild(new this.constructor(plainText).setup({type: "span"}).set({}).render());
+                            this.res.appendChild(new this.constructor(plainText).setup({type: "span", id: "er", animation: opts.animation}).set({}).render());
                         }
                         cursor = index + partText.length;
                     }
 
                     // 2️⃣ Append the styled span part
-                    let opts = part.style || {};
-                    let spanEl = new this.constructor(partText).setup({type: "span"}).set(opts).render();
+                   
+                    let spanEl = new this.constructor(partText).setup({type: "span", id: "er", animation: opts.animation}).set(opts).render();
                     this.res.appendChild(spanEl);
                 });
 

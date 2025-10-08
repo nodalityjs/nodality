@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.58
+ * nodality v1.0.59
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -1341,7 +1341,19 @@ checkForAnimation(queries){
 			// alert(obj.type);
 			el = document.createElement(obj.type);
 			el.setAttribute("id", obj.id);
+
+
+				console.log("ANIMAS");
+				console.log(obj);
+
 			if (obj.type === "span"){
+
+
+				if (obj.animation){
+			
+				el.style.position = "relative";
+				el.style.display = "block";
+				}
 				
 				//el = document.createElement("span");
 				//el.style.display = "block";
