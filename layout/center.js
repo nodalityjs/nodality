@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.64
+ * nodality v1.0.65
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -35,6 +35,7 @@ if (obj.id){
 		this.res.setAttribute("id", id);
 		}
 
+		this.commonMethods(obj);
 		// common methods should be defined in animator
 		// I can use pad in center, because animator class handles it
 
@@ -49,6 +50,8 @@ if (obj.id){
 
 return this;
 	}
+
+
 	
 	toCode(){
 		return [""]

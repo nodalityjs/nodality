@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.64
+ * nodality v1.0.65
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -28,6 +28,18 @@ class Animator {
 		this.temporaryVal = 1;
 		this.res.style[obj.key] = obj.value;
 		return this;
+	}
+
+		commonMethods(obj){ // define in anim
+			obj.pad && this.pad(obj.pad);
+			obj.respad && this.respad(obj.respad);
+			obj.resmar && this.resmar(obj.resmar);
+			obj.mar && this.mar(obj.mar);
+			obj.exact && (this.res.style.fontSize = obj.exact);
+			obj.zIndex && (this.res.style.zIndex = obj.zIndex);
+			obj.position && (this.res.style.position = position);
+			obj.top && (this.res.style.top = top);
+			return this;
 	}
 	
 	onScroll(data){
