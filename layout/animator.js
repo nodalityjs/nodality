@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.70
+ * nodality v1.0.71
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -39,7 +39,10 @@ class Animator {
 	resprop, hover
 	exact, zIndex,
 	position, top,
-	hover, size
+	hover, size,
+	width, maxWidth,
+	height, maxHeight,
+
 	*/
 		commonMethods(obj){ // define in anim
 			obj.pad && this.pad(obj.pad);
@@ -52,6 +55,35 @@ class Animator {
 			obj.top && (this.res.style.top = top);
 			obj.hover && this.hover(obj.hover);
 			obj.size && this.fluidCopy(obj.size);
+			obj.cursor && (this.res.style.cursor = obj.cursor);
+			// width xx, height xx, background xx, radius xx, resprop xx, keySet, maxHeight xx, maxWidth xx
+
+			obj.width && (this.res.style.width = obj.width);
+			obj.maxWidth && (this.res.style.maxWidth = obj.maxWidth);
+
+			obj.height && (this.res.style.height = obj.height);
+			obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
+
+			obj.radius && (this.res.style.radius = obj.radius);
+
+			obj.background && (this.res.style.background = obj.background);
+
+			obj.resprop && this.resprop(obj.resprop);
+
+			obj.keySet && this.keySet(obj.keySet);
+
+			// weight, bold, font, hide
+
+			obj.weight && (this.res.style.fontWeight = obj.weight);
+
+			obj.bold && (this.res.style.fontWeight = "bold");
+
+			obj.font && (this.res.style.font = obj.font);
+
+			obj.hide && this.isHidden(obj.hide);
+
+
+
 			return this;
 	}
 

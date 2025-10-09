@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.70
+ * nodality v1.0.71
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -267,7 +267,7 @@ this.options = obj;
 
 let stra = "";
 
-obj.isHidden && this.isHidden(obj.isHidden);
+//obj.isHidden && this.isHidden(obj.isHidden);
 
 //obj.exact && (this.res.style.fontSize = obj.exact);
 
@@ -347,7 +347,7 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 			obj.fluidc && (this.elCSS.push(`font-size: calc(1.625rem + 5.075vw); \n`));
 		}*/
 
-		
+
 		// obj.fluidc && (this.elCSS.push(`font-size: calc(1.625rem + 5.075vw); \n`));
 
 		obj.clampc && this.clampCopy(obj.clampc);
@@ -378,11 +378,11 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 
 		
 	
-		obj.weight && (this.res.style.fontWeight = obj.weight);
+	//	obj.weight && (this.res.style.fontWeight = obj.weight);
 
 		obj.blast && (this.blastData = obj.blast);
 
-		obj.bold && (this.res.style.fontWeight = "bold");
+		//obj.bold && (this.res.style.fontWeight = "bold");
 		// Wasn't there !!!
 		obj.bold && (stra += `\n bold: ${obj.bold},`);
 
@@ -391,10 +391,10 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 
 		//obj.border && this.border(obj);
 
-		obj.radius && this.radius(obj.radius);
+		//obj.radius && this.radius(obj.radius);
 		obj.radius && (stra += `\n radius: "${obj.radius}",`);
 
-		obj.width && this.width(obj.width);
+	//	obj.width && this.width(obj.width);
 		obj.width && (stra += `\n width: "${obj.width}",`);
 
 		if (obj.arrayPadding){

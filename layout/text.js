@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.70
+ * nodality v1.0.71
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -343,7 +343,7 @@ console.log(html);
 
 		(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
 
-		obj.isHidden && this.isHidden(obj.isHidden);
+		// obj.isHidden && this.isHidden(obj.isHidden);
 
 		//alert(obj.top);
 		//obj.top && (this.res.style.top = obj.top);
@@ -429,21 +429,21 @@ this.res.style.position = "absolute";
 			this.fluid(obj.fluid);
 		}
 
-		obj.font && this.font(obj.font);
+		//obj.font && this.font(obj.font);
 		obj.fluidc && (this.elCSS.push(`font-family: ${obj.font}; \n`));
 		obj.align && (this.res.style.textAlign = obj.align);
 		
-		obj.weight && (this.res.style.fontWeight = obj.weight);
+		// obj.weight && (this.res.style.fontWeight = obj.weight);
 		obj.padding && this.padding(obj.padding);
 		obj.breakWord && (this.res.style.wordWrap = "break-word");
 		obj.center && (this.res.style.marginRight = "auto");
 		obj.center && (this.res.style.marginLeft = "auto");
-		obj.width && (this.res.style.width = obj.width);
-		obj.height && (this.res.style.height = obj.height);
-		obj.background && (this.res.style.backgroundColor = obj.background);
-		obj.radius && (this.res.style.borderRadius = obj.radius);
-
-  		obj.resprop && this.resprop(obj.resprop);
+		//obj.width && (this.res.style.width = obj.width);
+	//	obj.height && (this.res.style.height = obj.height);
+		//obj.background && (this.res.style.backgroundColor = obj.background);
+		//obj.radius && (this.res.style.borderRadius = obj.radius);
+// width, height, background, radius, resprop, keySet, maxHeight
+  	//	obj.resprop && this.resprop(obj.resprop);
 		obj.italic && this.italic();
 		// stra += 17:01:43 11/11/24
 
@@ -453,9 +453,9 @@ this.res.style.position = "absolute";
 
 		obj.onScroll && this.onScroll(obj.onScroll);
 
-		obj.keySet && this.keySet(obj.keySet);
+		//obj.keySet && this.keySet(obj.keySet);
 
-		obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
+		//obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
 
 
 		if (obj.transform){
