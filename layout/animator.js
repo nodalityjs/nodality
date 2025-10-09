@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.69
+ * nodality v1.0.70
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -48,7 +48,7 @@ class Animator {
 			obj.resmar && this.resmar(obj.resmar);
 			obj.exact && (this.res.style.fontSize = obj.exact);
 			obj.zIndex && (this.res.style.zIndex = obj.zIndex);
-			obj.position && (this.res.style.position = position);
+			obj.position && (this.res.style.position = obj.position);
 			obj.top && (this.res.style.top = top);
 			obj.hover && this.hover(obj.hover);
 			obj.size && this.fluidCopy(obj.size);
