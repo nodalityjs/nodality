@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.73
+ * nodality v1.0.74
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -102,6 +102,7 @@ class Animator {
         lineHeight: "lineHeight",
         background: "background",
         font: "fontFamily",
+		opacity: "opacity"
     };
 
     // Apply styles safely
