@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.67
+ * nodality v1.0.68
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -269,21 +269,22 @@ let stra = "";
 
 obj.isHidden && this.isHidden(obj.isHidden);
 
-obj.exact && (this.res.style.fontSize = obj.exact);
+//obj.exact && (this.res.style.fontSize = obj.exact);
 
 obj.tags && super.setTags(obj.tags); // Has to be in both
 
 obj.id && this.res.setAttribute("id",  obj.id);
-
 obj.id && super.setID(obj.id);
+
+this.commonMethods(obj);
 
 obj.flex && (this.res.style.display = "flex");
 
-obj.pad && this.pad(obj.pad);
+//obj.pad && this.pad(obj.pad);
 
 obj.fixMobileTap && this.fixMobileTap(obj.fixMobileTap);
 
-obj.resprop && this.resprop(obj.resprop);
+//obj.resprop && this.resprop(obj.resprop);
 
 /*
 
@@ -337,14 +338,16 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 	   obj.fluidc && this.fluidCopy(obj.fluidc);
 		obj.fluidc && (stra += `\n fluidc: "${obj.fluidc}",`);
 
-		obj.size && this.fluidCopy(obj.size);
-		obj.size && (stra += `\n size: "${obj.size}",`);
+	//	obj.size && this.fluidCopy(obj.size);
+	//	obj.size && (stra += `\n size: "${obj.size}",`);
 
-		if (obj.fluidc === "S6") {
+		/*if (obj.fluidc === "S6") {
 			obj.fluidc && (this.elCSS.push(`font-size: calc(1rem + 1.075vw); \n`));
 		} else {
 			obj.fluidc && (this.elCSS.push(`font-size: calc(1.625rem + 5.075vw); \n`));
-		}
+		}*/
+
+		
 		// obj.fluidc && (this.elCSS.push(`font-size: calc(1.625rem + 5.075vw); \n`));
 
 		obj.clampc && this.clampCopy(obj.clampc);
@@ -677,7 +680,7 @@ if (ft.length > 0){
 
 
 		// 211518 you know howf
-	obj.mar && this.mar(obj.mar); // has to be here
+	// obj.mar && this.mar(obj.mar); // has to be here
 	
 	//---
 
@@ -1061,115 +1064,7 @@ if (ft.length > 0){
 		return this;
 	} */
     
-    hover(obj){
-		
-
-
-		if (obj.border){
-			//alert("IHO")
-			// // console.log("BORDERA IS ");
-			// // console.log(obj.border);
-
-			let w = obj.border.width;
-			this.res.style.border = w ? `${w}px solid transparent` : "1px solid transparent";
-
-			//this.res.style.border = "1px solid transparent";
-		}
-
-
-		let bops = this.options.borderObj;
-
-		if (bops){
-			//alert("PP")
-			this.res.style.border = `${bops.width}px solid ${bops.color}`;
-		}
-		
-        this.prevColor = this.res.style.backgroundColor;
-		this.foreColor = this.res.style.color;
-		this.prevBorder = this.res.style.border;
-
-
-	/*	if (obj.border){
-			//this.res.style.border = `1px solid transparent`;
-			if (obj.borderObj && obj.borderObj.width){ // fix here
-
-				let w = this.options.borderObj.width ?? 3;
-				this.res.style.border = `${w}px solid transparent`;
-				
-			} else {
-				// 14:53:15 this was stupid
-				//this.res.style.border = `1px solid transparent`;
-			
-			
-			}
-			
-		}*/
-  
-
-	
-		if (obj.animation) {
-		
-			this.res.style.transition = `${obj.animation}`; //`${obj.animation}s ease-in-out`; // stop resize ???
-			this.res.style.transionProperty = `background, color`;
-			//  this.transition(obj.animation);
-		}
-      
-        this.res.onmouseout = () => {
-		//	alert("OJHOIH")
-			this.res.style.backgroundColor = `${this.prevColor}`;
-			this.res.style.color = `${this.foreColor}`;
-		    this.res.style.border = this.prevBorder;
-
-
-		/*	if (obj.borderObj && obj.borderObj.width){
-
-				let w = this.options.borderObj.width ?? 3;
-				this.res.style.border = `${w}px solid transparent`;
-				
-			} else {
-				//this.res.style.border = `1px solid transparent`;
-			}*/
-
-
-			/*if (obj.border){
-				this.res.style.border = "1px solid transparent";
-			}*/
-			
-			
-			
-			// // // console.log(`OUT: ${this.res.style.backgroundColor}`);
-		}
-        
-        this.res.onmouseover = () => {
-			//this.res.style.backgroundColor = "#ffffff"; //obj.background; //`#ffffff`;
-			//alert("OJHOIH")
-		//	alert(obj.background);
-			this.res.style.color = obj.color;
-			this.res.style.backgroundColor = obj.background;
-
-			if (obj.border){
-				//alert("IHO")
-				
-				let w = obj.border.width;
-				let color = obj.border.color ?? "#2ECC71";
-				//console.log("WO", w, color);
-				//alert(obj.border.color);
-				this.res.style.border = w ? `${w}px solid ${color}` : "1px solid #2ECC71";
-			}
-
-			//if (this.options && this.options.borderObj){ was here
-				
-				//let o = this.options.borderObj;
-				//this.res.style.border = `${o.width}px solid ${o.color}`;
-				//this.res.style.borderRadius = `${o.radius}`;
-			//}
-
-			// // // console.log(`OVER: ${obj.background}`);
-		}
-        
-        return this;
-    }
-    
+   
     
     
     

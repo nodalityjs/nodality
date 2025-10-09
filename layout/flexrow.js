@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.67
+ * nodality v1.0.68
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -39,15 +39,17 @@ class FlexRow extends Animator {
 		obj.top !== undefined && (this.res.style.top = obj.top); 
 
 
-		if (obj.gradient){
+		//if (obj.gradient){
 			// console.log("STAFF");
 			// console.log(obj.id);
-		}
+	//	}
 //alert(obj.mar);
 //// console.log("MARA");
 //// console.log(obj.mar);
-		obj.pad && this.pad(obj.pad);
-		obj.mar && this.mar(obj.mar);
+		
+//obj.pad && this.pad(obj.pad);
+	//	obj.mar && this.mar(obj.mar);
+	
 		
 
 		// console.log("WITH BOP");
@@ -58,6 +60,8 @@ class FlexRow extends Animator {
 
 		
 		options.id && this.res.setAttribute("id",  options.id);
+		this.commonMethods(obj);
+
 		//this.code.push(`\n .set({`);
 		if (options.padding){
 			this.padding(options.padding);
@@ -206,10 +210,10 @@ let stringified = JSON.stringify(options.borderObj);
 
  
 
-		obj.pad && this.pad(obj.pad);
-		obj.respad && this.respad(obj.respad);
-		obj.resmar && this.resmar(obj.resmar);
-		obj.mar && this.mar(obj.mar);
+		//obj.pad && this.pad(obj.pad);
+		//obj.respad && this.respad(obj.respad);
+		//obj.resmar && this.resmar(obj.resmar);
+		//obj.mar && this.mar(obj.mar);
 
 	//	alert(options.multipad);
 

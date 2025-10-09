@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.67
+ * nodality v1.0.68
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -31,17 +31,139 @@ class Animator {
 	}
 
 	// 08/10/2025
+
+	/*
+	id (in super class)
+	pad, mar
+	respad, resmar
+	resprop, hover
+	exact, zIndex,
+	position, top,
+	hover, size
+	*/
 		commonMethods(obj){ // define in anim
 			obj.pad && this.pad(obj.pad);
+			obj.mar && this.mar(obj.mar);
 			obj.respad && this.respad(obj.respad);
 			obj.resmar && this.resmar(obj.resmar);
-			obj.mar && this.mar(obj.mar);
 			obj.exact && (this.res.style.fontSize = obj.exact);
 			obj.zIndex && (this.res.style.zIndex = obj.zIndex);
 			obj.position && (this.res.style.position = position);
 			obj.top && (this.res.style.top = top);
+			obj.hover && this.hover(obj.hover);
+			obj.size && this.fluidCopy(obj.size);
 			return this;
 	}
+
+	 hover(obj){
+		
+
+
+		if (obj.border){
+			//alert("IHO")
+			// // console.log("BORDERA IS ");
+			// // console.log(obj.border);
+
+			let w = obj.border.width;
+			this.res.style.border = w ? `${w}px solid transparent` : "1px solid transparent";
+
+			//this.res.style.border = "1px solid transparent";
+		}
+
+
+		let bops = this.options.borderObj;
+
+		if (bops){
+			//alert("PP")
+			this.res.style.border = `${bops.width}px solid ${bops.color}`;
+		}
+		
+        this.prevColor = this.res.style.backgroundColor;
+		this.foreColor = this.res.style.color;
+		this.prevBorder = this.res.style.border;
+
+
+	/*	if (obj.border){
+			//this.res.style.border = `1px solid transparent`;
+			if (obj.borderObj && obj.borderObj.width){ // fix here
+
+				let w = this.options.borderObj.width ?? 3;
+				this.res.style.border = `${w}px solid transparent`;
+				
+			} else {
+				// 14:53:15 this was stupid
+				//this.res.style.border = `1px solid transparent`;
+			
+			
+			}
+			
+		}*/
+  
+
+	
+		if (obj.animation) {
+		
+			this.res.style.transition = `${obj.animation}`; //`${obj.animation}s ease-in-out`; // stop resize ???
+			this.res.style.transionProperty = `background, color`;
+			//  this.transition(obj.animation);
+		}
+      
+        this.res.onmouseout = () => {
+		//	alert("OJHOIH")
+			this.res.style.backgroundColor = `${this.prevColor}`;
+			this.res.style.color = `${this.foreColor}`;
+		    this.res.style.border = this.prevBorder;
+
+
+		/*	if (obj.borderObj && obj.borderObj.width){
+
+				let w = this.options.borderObj.width ?? 3;
+				this.res.style.border = `${w}px solid transparent`;
+				
+			} else {
+				//this.res.style.border = `1px solid transparent`;
+			}*/
+
+
+			/*if (obj.border){
+				this.res.style.border = "1px solid transparent";
+			}*/
+			
+			
+			
+			// // // console.log(`OUT: ${this.res.style.backgroundColor}`);
+		}
+        
+        this.res.onmouseover = () => {
+			//this.res.style.backgroundColor = "#ffffff"; //obj.background; //`#ffffff`;
+			//alert("OJHOIH")
+		//	alert(obj.background);
+			this.res.style.color = obj.color;
+			this.res.style.backgroundColor = obj.background;
+
+			if (obj.border){
+				//alert("IHO")
+				
+				let w = obj.border.width;
+				let color = obj.border.color ?? "#2ECC71";
+				//console.log("WO", w, color);
+				//alert(obj.border.color);
+				this.res.style.border = w ? `${w}px solid ${color}` : "1px solid #2ECC71";
+			}
+
+			//if (this.options && this.options.borderObj){ was here
+				
+				//let o = this.options.borderObj;
+				//this.res.style.border = `${o.width}px solid ${o.color}`;
+				//this.res.style.borderRadius = `${o.radius}`;
+			//}
+
+			// // // console.log(`OVER: ${obj.background}`);
+		}
+        
+        return this;
+    } // hover from Link central
+    
 	
 	onScroll(data){
 

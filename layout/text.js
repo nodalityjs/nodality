@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.67
+ * nodality v1.0.68
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -993,7 +993,7 @@ checkForAnimation(queries){
 		return this;
 	}
 
-	fluidCopy(name){
+	/*fluidCopy(name){
 
 
 		if (name instanceof Object){
@@ -1019,11 +1019,7 @@ checkForAnimation(queries){
 			this.res.appendChild(node);
              this.res.style.fontSize = display1;
 
-			/* if (this.options.preffersId === false){
-				this.html.push(`<h1 class="${this.options.class}">${this.text}</h1> \n \n`);
-			 } else if (this.options.id) {
-				this.html.push(`<h1 id="${this.options.id.substr(1)}">${this.text}</h1> \n \n`);
-			 }*/
+			
 		
         }
          
@@ -1086,7 +1082,7 @@ checkForAnimation(queries){
         }
         
               return this;
-    }
+    }*/
     
     
     toReactComponent(){
@@ -1398,10 +1394,10 @@ checkForAnimation(queries){
 		return this;
 	}
 
-	size(s) {
+	/*size(s) {
 		this.res.style.fontSize = s;
 		return this;
-	}
+	}*/
 
 	em(e) {
 		this.res.style.fontSize = `${e}em`;
