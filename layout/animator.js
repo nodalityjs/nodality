@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.72
+ * nodality v1.0.73
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -45,14 +45,14 @@ class Animator {
 
 	*/
 		commonMethods(obj){ // define in anim
-			obj.pad && this.pad(obj.pad);
+		/*	obj.pad && this.pad(obj.pad);
 			obj.mar && this.mar(obj.mar);
 			obj.respad && this.respad(obj.respad);
 			obj.resmar && this.resmar(obj.resmar);
 			obj.exact && (this.res.style.fontSize = obj.exact);
 			obj.zIndex && (this.res.style.zIndex = obj.zIndex);
 			obj.position && (this.res.style.position = obj.position);
-			obj.top && (this.res.style.top = top);
+			obj.top && (this.res.style.top = obj.top);
 			obj.hover && this.hover(obj.hover);
 			obj.size && this.fluidCopy(obj.size);
 			obj.cursor && (this.res.style.cursor = obj.cursor);
@@ -64,7 +64,7 @@ class Animator {
 			obj.height && (this.res.style.height = obj.height);
 			obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
 
-			obj.radius && (this.res.style.radius = obj.radius);
+			
 
 			obj.background && (this.res.style.background = obj.background);
 
@@ -72,7 +72,7 @@ class Animator {
 
 			obj.keySet && this.keySet(obj.keySet);
 
-			// weight, bold, font, hide
+			// weight, bold, font, hide, radus, lineHeight
 
 			obj.weight && (this.res.style.fontWeight = obj.weight);
 
@@ -82,7 +82,52 @@ class Animator {
 
 			obj.hide && this.isHidden(obj.hide);
 
+			obj.radius && (this.res.style.borderRadius = obj.radius);
 
+			obj.lineHeight && (this.res.style.lineHeight = obj.lineHeight);
+*/
+
+  // Map of obj keys → style properties
+    const styleMap = {
+        exact: "fontSize",
+        zIndex: "zIndex",
+        position: "position",
+        top: "top",
+        cursor: "cursor",
+        width: "width",
+        maxWidth: "maxWidth",
+        height: "height",
+        maxHeight: "maxHeight",
+        radius: "borderRadius",
+        lineHeight: "lineHeight",
+        background: "background",
+        font: "fontFamily",
+    };
+
+    // Apply styles safely
+    for (const key in styleMap) {
+        if (obj[key] != null) {
+            this.res.style[styleMap[key]] = obj[key];
+        }
+    }
+
+    // Special methods
+    obj.pad && this.pad(obj.pad);
+    obj.mar && this.mar(obj.mar);
+    obj.respad && this.respad(obj.respad);
+    obj.resmar && this.resmar(obj.resmar);
+    obj.hover && this.hover(obj.hover);
+    obj.size && this.fluidCopy(obj.size);
+    obj.resprop && this.resprop(obj.resprop);
+    obj.keySet && this.keySet(obj.keySet);
+    obj.hide && this.isHidden(obj.hide);
+
+    // Font weight handling
+    if (obj.bold) {
+        this.res.style.fontWeight = "bold";
+    } else if (obj.weight != null) {
+        this.res.style.fontWeight = obj.weight;
+    }
 
 			return this;
 	}
