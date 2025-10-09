@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.71
+ * nodality v1.0.72
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -78,7 +78,7 @@ class Animator {
 
 			obj.bold && (this.res.style.fontWeight = "bold");
 
-			obj.font && (this.res.style.font = obj.font);
+			obj.font && (this.res.style.fontFamily = obj.font);
 
 			obj.hide && this.isHidden(obj.hide);
 
