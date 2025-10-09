@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.68
+ * nodality v1.0.69
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -21,7 +21,7 @@ class Button extends Animator {
 
 	
 
-
+/*
 	hover(obj){
         this.prevColor = this.res.style.backgroundColor;
 		this.foreColor = this.res.style.color;
@@ -46,13 +46,14 @@ class Button extends Animator {
         
         return this;
     }
-
+*/
 	
 
 	set(obj){
 this.options = obj;
 		let btn = document.createElement("button");
 		btn.style.background = "transparent";
+		btn.style.border = "none";
 
 		if (obj.img){
 			btn.append(obj.img.render());
@@ -82,7 +83,12 @@ this.options = obj;
         btn.appendChild(node);
     }
 
-	obj.hover && this.hover(obj.hover);
+
+			this.res = btn;
+
+	this.commonMethods(obj);
+
+	// obj.hover && this.hover(obj.hover);
 
 	/*	if (obj.url && !obj.img){
 			//let node = document.createElement("img");
@@ -96,7 +102,7 @@ this.options = obj;
 		}*/
 
 		
-		this.res = btn;
+
         
 		if (obj){
 
@@ -124,10 +130,12 @@ this.options = obj;
 			 this.margin(obj.margin);
 		}
 
-		obj.mar && (this.mar(obj.mar));
+		/*obj.mar && (this.mar(obj.mar));
 		obj.pad && (this.pad(obj.pad));
 		obj.respad && this.respad(obj.respad);
-		obj.resmar && this.resmar(obj.resmar);
+		obj.resmar && this.resmar(obj.resmar);*/
+
+
 
 	//this.pad([{"b": "3rem"}]); // add)
 		
