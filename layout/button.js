@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.66
+ * nodality v1.0.67
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -81,6 +81,8 @@ this.options = obj;
         let node = document.createTextNode(this.text.replace("$", this.val));
         btn.appendChild(node);
     }
+
+	obj.hover && this.hover(obj.hover);
 
 	/*	if (obj.url && !obj.img){
 			//let node = document.createElement("img");
