@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.76
+ * nodality v1.0.77
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -323,49 +323,11 @@ class Animator {
 		window.addEventListener("resize", react);
 		react();
 	}*/
-
-	respad(arr) {
-  const breakpoints = {
-    default: 0,
-    xs: 0,     // less than 576px
-    sm: 576,
-    md: 768,
-    lg: 992,
-    xl: 1200,
-    xxl: 1400
-  };
-
-  // ✅ Normalize breakpoints (string → numeric)
-  arr.forEach(item => {
-    if (breakpoints[item.breakpoint] !== undefined) {
-      item._value = breakpoints[item.breakpoint];
-    } else {
-      item._value = parseInt(item.breakpoint, 10); // handles "1200px" or "768"
-    }
+respad(arr) {
+  this._applyResponsive(arr, (applied) => {
+    console.log("Applying padding for", applied.breakpoint);
+    this.pad(applied.values);
   });
-
-  // ✅ Sort by numeric value (small → large)
-  arr.sort((a, b) => a._value - b._value);
-
-  const react = () => {
-    const width = window.innerWidth;
-    let applied = null;
-
-    // ✅ Find the LAST matching breakpoint (≤ width)
-    for (let i = 0; i < arr.length; i++) {
-      if (width >= arr[i]._value) {
-        applied = arr[i];
-      }
-    }
-
-    if (applied) {
-      console.log("Applying padding for", applied.breakpoint);
-      this.pad(applied.values);
-    }
-  };
-
-  window.addEventListener("resize", react);
-  react();
 }
 
 
@@ -385,10 +347,10 @@ class Animator {
 		react();
 	}*/
 
-	resmar(arr) {
+	_applyResponsive(arr, applyFn) {
   const breakpoints = {
     default: 0,
-    xs: 0,     // less than 576px
+    xs: 0,
     sm: 576,
     md: 768,
     lg: 992,
@@ -396,106 +358,78 @@ class Animator {
     xxl: 1400
   };
 
-  // ✅ Normalize breakpoints (string → numeric)
+  // ✅ Normalize breakpoints
   arr.forEach(item => {
     if (breakpoints[item.breakpoint] !== undefined) {
       item._value = breakpoints[item.breakpoint];
     } else {
-      item._value = parseInt(item.breakpoint, 10); // handles "1200px" or "768"
+      item._value = parseInt(item.breakpoint, 10); // e.g. "700px" → 700
     }
   });
 
-  // ✅ Sort breakpoints (small → large)
+  // ✅ Sort by numeric value ascending
   arr.sort((a, b) => a._value - b._value);
+
+  const defaultItem = arr.find(item => item.breakpoint === "default");
 
   const react = () => {
     const width = window.innerWidth;
-    let applied = null;
+    let applied = defaultItem || null;
 
-    // ✅ Find the LAST matching breakpoint (≤ width)
+    // ✅ Apply the FIRST breakpoint whose max-width matches
     for (let i = 0; i < arr.length; i++) {
-      if (width >= arr[i]._value) {
-        applied = arr[i];
+      const bp = arr[i];
+      if (bp.breakpoint !== "default" && width <= bp._value) {
+        applied = bp;
+        break;
       }
     }
 
     if (applied) {
-      console.log("Applying margin for", applied.breakpoint);
-      this.mar(applied.values);
+      applyFn(applied);
     }
   };
+
+  // Prevent duplicate listeners
+  if (this._responsiveHandler) window.removeEventListener("resize", this._responsiveHandler);
+  this._responsiveHandler = react;
 
   window.addEventListener("resize", react);
   react();
 }
 
-	resprop(arr) {
+resmar(arr) {
+  this._applyResponsive(arr, (applied) => {
+    console.log("Applying margin for", applied.breakpoint);
+    this.mar(applied.values);
+  });
+}
 
-			const breakpoints = {
-	default: 0,
-    xs: 0,     // less than 576px
-    sm: 576,
-    md: 768,
-    lg: 992,
-    xl: 1200,
-    xxl: 1400
-  };
 
-			console.log("RES STYLE");
-						console.log(arr);
- // Save the original styles
+resprop(arr) {
   this.prevStyles = {};
   for (let i = 0; i < this.res.style.length; i++) {
-    let prop = this.res.style[i];
+    const prop = this.res.style[i];
     this.prevStyles[prop] = this.res.style[prop];
-    console.log("kio");
   }
 
-  // ✅ Normalize breakpoints (string → numeric value)
-  arr.forEach(item => {
-    if (breakpoints[item.breakpoint] !== undefined) {
-      item._value = breakpoints[item.breakpoint];
-    } else {
-      item._value = parseInt(item.breakpoint, 10); // handles "1200px" or "768"
-    }
-  });
+  this._applyResponsive(arr, (applied) => {
+    console.log("Applying styles for", applied.breakpoint);
 
-  // ✅ Sort by numeric value (small → large)
-  arr.sort((a, b) => a._value - b._value);
-
-   console.log("Sorted breakpoints:", arr);
-
-  const react = () => {
-    // Reset styles
+    // Reset to previous styles
     for (const key in this.prevStyles) {
       this.res.style[key] = this.prevStyles[key];
     }
 
-    const width = window.innerWidth;
-
-    // Apply only the LAST matching breakpoint
-    let applied = null;
-    for (let i = 0; i < arr.length; i++) {
-      if (width <= arr[i]._value) {
-        applied = arr[i];
-        break; // stop at the first matching
+    // Apply responsive props
+    for (const key in applied) {
+      if (key !== "breakpoint" && key !== "_value" && key !== "values") {
+        this.res.style[key] = applied[key];
       }
     }
-
-    if (applied) {
-      console.log("Applying styles for", applied.breakpoint);
-      for (const key in applied) {
-        if (key !== "breakpoint" && key !== "_value") {
-          this.res.style[key] = applied[key];
-        }
-      }
-    }
-  };
-
-
-	window.addEventListener("resize", react);
-	react();
+  });
 }
+
 
 
 	/*resprop(arr) {
