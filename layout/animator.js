@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.75
+ * nodality v1.0.76
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -307,7 +307,7 @@ class Animator {
 	}
 
 	// [{ breakpoint: "sm" , values: [...]}]
-	respad(arr){
+	/*respad(arr){
 		const react = () => { // 00:49:12 22/03/2025
 			this.pad(arr[0].values);
 
@@ -322,9 +322,54 @@ class Animator {
 
 		window.addEventListener("resize", react);
 		react();
-	}
+	}*/
 
-	resmar(arr){
+	respad(arr) {
+  const breakpoints = {
+    default: 0,
+    xs: 0,     // less than 576px
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200,
+    xxl: 1400
+  };
+
+  // ✅ Normalize breakpoints (string → numeric)
+  arr.forEach(item => {
+    if (breakpoints[item.breakpoint] !== undefined) {
+      item._value = breakpoints[item.breakpoint];
+    } else {
+      item._value = parseInt(item.breakpoint, 10); // handles "1200px" or "768"
+    }
+  });
+
+  // ✅ Sort by numeric value (small → large)
+  arr.sort((a, b) => a._value - b._value);
+
+  const react = () => {
+    const width = window.innerWidth;
+    let applied = null;
+
+    // ✅ Find the LAST matching breakpoint (≤ width)
+    for (let i = 0; i < arr.length; i++) {
+      if (width >= arr[i]._value) {
+        applied = arr[i];
+      }
+    }
+
+    if (applied) {
+      console.log("Applying padding for", applied.breakpoint);
+      this.pad(applied.values);
+    }
+  };
+
+  window.addEventListener("resize", react);
+  react();
+}
+
+
+	/*resmar(arr){
 		const react = () => { // 00:49:12 22/03/2025
 			this.mar(arr[0].values);
 
@@ -338,7 +383,51 @@ class Animator {
 
 		window.addEventListener("resize", react);
 		react();
-	}
+	}*/
+
+	resmar(arr) {
+  const breakpoints = {
+    default: 0,
+    xs: 0,     // less than 576px
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200,
+    xxl: 1400
+  };
+
+  // ✅ Normalize breakpoints (string → numeric)
+  arr.forEach(item => {
+    if (breakpoints[item.breakpoint] !== undefined) {
+      item._value = breakpoints[item.breakpoint];
+    } else {
+      item._value = parseInt(item.breakpoint, 10); // handles "1200px" or "768"
+    }
+  });
+
+  // ✅ Sort breakpoints (small → large)
+  arr.sort((a, b) => a._value - b._value);
+
+  const react = () => {
+    const width = window.innerWidth;
+    let applied = null;
+
+    // ✅ Find the LAST matching breakpoint (≤ width)
+    for (let i = 0; i < arr.length; i++) {
+      if (width >= arr[i]._value) {
+        applied = arr[i];
+      }
+    }
+
+    if (applied) {
+      console.log("Applying margin for", applied.breakpoint);
+      this.mar(applied.values);
+    }
+  };
+
+  window.addEventListener("resize", react);
+  react();
+}
 
 	resprop(arr) {
 
