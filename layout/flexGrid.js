@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.74
+ * nodality v1.0.75
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -40,6 +40,9 @@ class FlexGrid extends Animator {
 	}
 
 	set(options){
+		options.id && this.res.setAttribute("id", options.id);
+		this.commonMethods(options);
+		
 		this.code.push(".set({");
 	//	this.code.push(JSON.stringify(options));
 	//	console.log("OPE");
@@ -47,19 +50,19 @@ class FlexGrid extends Animator {
 		options.gap && (this.code.push(`gap: ${options.gap}`));
 		options.gap && (this.res.style.gap = options.gap);
 		
-		options.width && this.code.push(`width: "${options.width}",`);
+	//	options.width && this.code.push(`width: "${options.width}",`);
 		options.flex && (this.res.style.flex = options.flex);
 		options.flex && this.code.push(`flex: ${options.flex},`);
 
-		options.maxWidth && (this.res.style.maxWidth = options.maxWidth);
-		options.maxWidth && this.code.push(`maxWidth: "${options.maxWidth}",`);
-
-		options.maxWidth && (this.res.style.minWidth = "400px");
-		options.maxWidth && (this.res.style.marginLeft = "auto");
-		options.maxWidth && (this.res.style.marginRight = "auto");
+		// options.maxWidth && (this.res.style.maxWidth = options.maxWidth);
+		// options.maxWidth && this.code.push(`maxWidth: "${options.maxWidth}",`);
+// 
+		// options.maxWidth && (this.res.style.minWidth = "400px");
+		// options.maxWidth && (this.res.style.marginLeft = "auto");
+		// options.maxWidth && (this.res.style.marginRight = "auto");
 
 	//	this.res.style.width = "400px"
-		options.width && (this.res.style.width = `${options.width}`);
+		//options.width && (this.res.style.width = `${options.width}`);
 		options.wrap && (this.res.style.flexWrap = `wrap`); // ok
 
 		options.wrap && this.code.push(`wrap: ${options.wrap},`);
