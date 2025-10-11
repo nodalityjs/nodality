@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.78
+ * nodality v1.0.79
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -536,10 +536,11 @@ let stringified = JSON.stringify(options.borderObj);
 
 		//return ["new Text('Hello')"];
 
-    return [
+    return [[
         `new FlexRow().set(${objString})`,
         itemsCode ? `.items([\n    ${itemsCode}\n])` : ""
-    ].join("");
+    ].join("")]; //commented out
+
 /*
 	 const objString = JSON
         .stringify(this.options, null, 4)
