@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.77
+ * nodality v1.0.78
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -16,6 +16,8 @@ class Animator {
              isMovedUp: false,
               isMovedDown: false
         }
+
+		this.openedElements = new WeakMap();
     }
 
 	isHidden(hide){
@@ -1500,7 +1502,7 @@ if (operations.includes("gradient")){
 			if (this.text){
 
 			
-			this.res.textContent = this.text; //"a"
+			//this.res.textContent = this.text; //"a"
 			}
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 	
@@ -1675,7 +1677,32 @@ this.res.appendChild(t);
 	}*/
 
 
+
 	if (operations.includes("spana") || operations.includes("span")) {
+
+	const overlay = document.createElement("div");
+	overlay.setAttribute("id", "oroa");
+Object.assign(overlay.style, {
+  position: "absolute",
+  inset: "0",
+  background: "linear-gradient(90deg, rgb(52,152,219), rgb(26,188,156))",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  pointerEvents: "none",
+});
+
+/*
+if (!this.res.querySelector("#oroa") && operations.includes("gradient")){
+// Set text content
+overlay.textContent = "SWIM FREE";
+overlay.style.position = "relative";
+this.res.appendChild(overlay);
+}*/
+
+		// 🛑 prevent re-creating spans on resize
+  if (this.res && this.res.querySelector('span')) return;
+
+  
     this.res = this.resCopy;
     this.res.textContent = ""; // clear current content
 
@@ -1799,6 +1826,51 @@ window.addEventListener(this.openTag, () => {
 
 	  } 
 
+	  if (this.options.animation && this.options.animation.op.fireAt === "inview") {
+  let ass = this.options.animation.op;
+  this.res.animate(ass.keyframesClose, { duration: 0, fill: "forwards" });
+
+  let hasOpened = false;
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !hasOpened) {
+        hasOpened = true;
+        this.res.animate(ass.keyframesOpen, ass.openOptions);
+        observer.disconnect();
+      }
+    });
+  });
+
+  observer.observe(this.res);
+}
+/*
+if (!this.openedElements.get(this.res)) {
+  const ass = this.options.animation.op;
+
+this.res.querySelectorAll('span').forEach(span => {
+  if (!span._hasOpened) {
+    span.animate(ass.keyframesClose, { duration: 0, fill: "forwards" });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !span._hasOpened) {
+          span._hasOpened = true;
+          span.animate(ass.keyframesOpen, ass.openOptions);
+          observer.disconnect();
+        }
+      });
+    });
+
+    observer.observe(span);
+  }
+});
+}*/
+
+
+
+
+/*
 	  if (this.options.animation && this.options.animation.op.fireAt && this.options.animation.op.fireAt === "inview") {
 
 		let ass = this.options.animation.op;
@@ -1822,7 +1894,7 @@ window.addEventListener(this.openTag, () => {
 
 		// Start observing the element
 		observer.observe(this.res);
-}
+}*/
 	
 		
 	}
