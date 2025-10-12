@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.80
+ * nodality v1.0.81
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -127,6 +127,8 @@ class Slider {
     this.arrowPrev.style.display = "flex";
     this.arrowPrev.style.alignItems = "center";
     this.arrowPrev.style.justifyContent = "center";
+    this.arrowPrev.style.backgroundColor = "white";
+    this.arrowPrev.style.padding = ".4rem";
 
     this.arrowNext = this.buttons.rightButton.render();
     this.arrowNext.style.position = "absolute";
@@ -137,6 +139,8 @@ class Slider {
     this.arrowNext.style.display = "flex";
     this.arrowNext.style.alignItems = "center";
     this.arrowNext.style.justifyContent = "center";
+    this.arrowPrev.style.backgroundColor = "white";
+    this.arrowPrev.style.padding = ".4rem";
 
     // Navigation dots
     const nav = document.createElement("div");
@@ -145,6 +149,10 @@ class Slider {
     nav.style.left = "50%";
     nav.style.transform = "translateX(-50%)";
     nav.style.textAlign = "center";
+    nav.style.background = "#ffffff";
+    nav.style.borderRadius = "1rem";
+    nav.style.padding = ".2rem";
+    nav.style.boxShadow = "3px 3px 10px #000";
 
     this.elements.forEach((_, index) => {
       const navLink = document.createElement("a");
@@ -163,7 +171,7 @@ class Slider {
     const thumbsContainer = document.createElement("div");
     thumbsContainer.style.display = "flex";
     thumbsContainer.style.justifyContent = "flex-start";
-    thumbsContainer.style.marginTop = "10px";
+    thumbsContainer.style.margin = "1rem";
     thumbsContainer.style.gap = "10px";
     thumbsContainer.style.flexWrap = "nowrap";
     thumbsContainer.style.overflowX = "auto";
@@ -181,6 +189,7 @@ class Slider {
       thumb.style.cursor = "pointer";
       thumb.style.flexShrink = "0";
       thumb.style.position = "relative";
+    
 
       const sourceContent = slide.firstElementChild || slide.cloneNode(true);
       const preview = sourceContent.cloneNode(true);
