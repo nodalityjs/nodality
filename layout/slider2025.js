@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.81
+ * nodality v1.0.82
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -29,7 +29,7 @@ class Slider {
         leftButton: new Button("L").set({
           frame: { width: 50, height: 50 },
           svg: this.createArrowSVG("left", 28, this.tintColor),
-          color: this.tintColor, // adopt tintColor
+          color: this.tintColor,
           radius: "100%",
           arrayMargin: { sides: ["all"], value: "1rem" },
         }),
@@ -37,7 +37,7 @@ class Slider {
         rightButton: new Button("R").set({
           frame: { width: 50, height: 50 },
           svg: this.createArrowSVG("right", 28, this.tintColor),
-          color: this.tintColor, // adopt tintColor
+          color: this.tintColor,
           radius: "100%",
           arrayMargin: { sides: ["all"], value: "1rem" },
         }),
@@ -106,14 +106,19 @@ class Slider {
       slide.style.flexShrink = "0";
       slide.style.width = "100%";
       slide.style.height = "400px";
-    //  slide.style.background =
-     //   index % 2 === 0 ? "rgb(250, 246, 212)" : "white";
       slide.style.transformOrigin = "center center";
       slide.style.transform = "scale(1)";
       slide.style.scrollSnapAlign = "center";
 
       const rendered = text.render();
       slide.appendChild(rendered);
+
+      // === Click to open overlay lightbox
+      rendered.style.cursor = "pointer";
+      rendered.addEventListener("click", () => {
+        this.showLightbox(index);
+      });
+
       slidesWrapper.appendChild(slide);
     });
 
@@ -139,8 +144,8 @@ class Slider {
     this.arrowNext.style.display = "flex";
     this.arrowNext.style.alignItems = "center";
     this.arrowNext.style.justifyContent = "center";
-    this.arrowPrev.style.backgroundColor = "white";
-    this.arrowPrev.style.padding = ".4rem";
+    this.arrowNext.style.backgroundColor = "white";
+    this.arrowNext.style.padding = ".4rem";
 
     // Navigation dots
     const nav = document.createElement("div");
@@ -153,6 +158,10 @@ class Slider {
     nav.style.borderRadius = "1rem";
     nav.style.padding = ".2rem";
     nav.style.boxShadow = "3px 3px 10px #000";
+
+    if (this.options.hideSelector){
+      nav.style.display = "none";
+    }
 
     this.elements.forEach((_, index) => {
       const navLink = document.createElement("a");
@@ -176,6 +185,10 @@ class Slider {
     thumbsContainer.style.flexWrap = "nowrap";
     thumbsContainer.style.overflowX = "auto";
 
+    if (this.options.hideThumbnails){
+      thumbsContainer.style.display = "none";
+    }
+
     const slides = slidesWrapper.querySelectorAll(".slide");
     slides.forEach((slide, index) => {
       const thumb = document.createElement("div");
@@ -189,7 +202,6 @@ class Slider {
       thumb.style.cursor = "pointer";
       thumb.style.flexShrink = "0";
       thumb.style.position = "relative";
-    
 
       const sourceContent = slide.firstElementChild || slide.cloneNode(true);
       const preview = sourceContent.cloneNode(true);
@@ -300,6 +312,119 @@ class Slider {
       left: this.currentSlideIndex * slideWidth,
       behavior: "smooth",
     });
+  }
+
+  // ===== Lightbox / Overlay feature =====
+  showLightbox(startIndex) {
+    let currentIndex = startIndex;
+
+    const overlay = document.createElement("div");
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100vw";
+    overlay.style.height = "100vh";
+    overlay.style.backgroundColor = "rgba(0,0,0,0.9)";
+    overlay.style.display = "flex";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.zIndex = "9999";
+    overlay.style.cursor = "default";
+
+    const lightboxContainer = document.createElement("div");
+    lightboxContainer.style.position = "relative";
+    lightboxContainer.style.display = "flex";
+    lightboxContainer.style.alignItems = "center";
+    lightboxContainer.style.justifyContent = "center";
+    lightboxContainer.style.maxWidth = "90%";
+    lightboxContainer.style.maxHeight = "90%";
+
+    overlay.appendChild(lightboxContainer);
+const renderSlide = (index) => {
+  lightboxContainer.innerHTML = "";
+
+  const original = this.elements[index].render();
+
+  // Check if the element contains an <img>
+  const img = original.querySelector("img");
+  if (img) {
+    const largeImg = document.createElement("img");
+    largeImg.src = img.src;
+
+    // Use the image's natural size scaled to fit viewport
+    largeImg.style.width = "auto";
+    largeImg.style.height = "auto";
+    largeImg.style.maxWidth = "90vw";   // fit viewport width
+    largeImg.style.maxHeight = "90vh";  // fit viewport height
+    largeImg.style.objectFit = "contain";
+    largeImg.style.pointerEvents = "none";
+    largeImg.style.display = "block";
+
+    lightboxContainer.appendChild(largeImg);
+  } else {
+    // fallback: clone original element
+    const content = original.cloneNode(true);
+    content.style.width = "90vw";
+    content.style.height = "90vw";
+    content.style.maxWidth = "90vw";
+    content.style.maxHeight = "90vh";
+    content.style.objectFit = "contain";
+    content.style.pointerEvents = "none";
+    lightboxContainer.appendChild(content);
+  }
+};
+
+
+    renderSlide(currentIndex);
+
+    const createNavButton = (dir) => {
+      const btn = document.createElement("div");
+      btn.innerHTML = dir === "prev" ? "◀" : "▶";
+      btn.style.position = "absolute";
+      btn.style.top = "50%";
+      btn.style[dir === "prev" ? "left" : "right"] = "10px";
+      btn.style.transform = "translateY(-50%)";
+      btn.style.fontSize = "2rem";
+      btn.style.color = "white";
+      btn.style.cursor = "pointer";
+      btn.style.userSelect = "none";
+      btn.style.zIndex = "10000";
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (dir === "prev") {
+          currentIndex =
+            currentIndex - 1 < 0 ? this.elements.length - 1 : currentIndex - 1;
+        } else {
+          currentIndex = (currentIndex + 1) % this.elements.length;
+        }
+        renderSlide(currentIndex);
+      });
+      overlay.appendChild(btn);
+    };
+
+    createNavButton("prev");
+    createNavButton("next");
+
+    overlay.addEventListener("click", () => {
+      document.body.removeChild(overlay);
+    });
+
+    const keyHandler = (e) => {
+      if (e.key === "Escape") {
+        document.body.removeChild(overlay);
+        document.removeEventListener("keydown", keyHandler);
+      } else if (e.key === "ArrowLeft") {
+        currentIndex =
+          currentIndex - 1 < 0 ? this.elements.length - 1 : currentIndex - 1;
+        renderSlide(currentIndex);
+      } else if (e.key === "ArrowRight") {
+        currentIndex = (currentIndex + 1) % this.elements.length;
+        renderSlide(currentIndex);
+      }
+    };
+    document.addEventListener("keydown", keyHandler);
+
+    document.body.appendChild(overlay);
   }
 
   render(div) {

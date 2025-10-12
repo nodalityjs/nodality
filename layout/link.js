@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.81
+ * nodality v1.0.82
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -520,6 +520,10 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 
 		obj.rounded && this.round();
 
+		if (obj.new){
+			this.res.setAttribute("target", "_blank");
+   			this.res.setAttribute("rel", "noopener noreferrer"); // security best practice
+		}
 		
 	//---
 
