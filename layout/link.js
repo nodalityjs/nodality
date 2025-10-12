@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.79
+ * nodality v1.0.80
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -60,13 +60,21 @@ this.res.addEventListener("click", (e) => {
       // ✅ normalize again just in case
       const url = new URL(raw, window.location.href).href;
 
-      const isExternal = /^https?:\/\//i.test(url);
+    /*  const isExternal = /^https?:\/\//i.test(url);
       const isAnchor = url.startsWith("#");
 
       if (isExternal || isAnchor || url.endsWith(".html")) {
         // ✅ Let browser do a full navigation
         return;
-      }
+      }*/
+
+const isExternal = /^https?:\/\//i.test(url);
+const isAnchor = url.startsWith("#");
+const isScheme = /^[a-zA-Z]+:/.test(url); // matches mailto:, tel:, etc.
+
+if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
+  return; // Let browser handle
+}
 
       // ✅ Otherwise SPA route
       e.preventDefault();
