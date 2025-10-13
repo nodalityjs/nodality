@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.82
+ * nodality v1.0.83
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -313,119 +313,158 @@ class Slider {
       behavior: "smooth",
     });
   }
+showLightbox(startIndex) {
+  let currentIndex = startIndex;
 
-  // ===== Lightbox / Overlay feature =====
-  showLightbox(startIndex) {
-    let currentIndex = startIndex;
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100vw";
+  overlay.style.height = "100vh";
+  overlay.style.backgroundColor = "rgba(0,0,0,0.9)";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.zIndex = "9999";
+  overlay.style.cursor = "default";
 
-    const overlay = document.createElement("div");
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100vw";
-    overlay.style.height = "100vh";
-    overlay.style.backgroundColor = "rgba(0,0,0,0.9)";
-    overlay.style.display = "flex";
-    overlay.style.alignItems = "center";
-    overlay.style.justifyContent = "center";
-    overlay.style.zIndex = "9999";
-    overlay.style.cursor = "default";
-
-    const lightboxContainer = document.createElement("div");
-    lightboxContainer.style.position = "relative";
-    lightboxContainer.style.display = "flex";
-    lightboxContainer.style.alignItems = "center";
-    lightboxContainer.style.justifyContent = "center";
-    lightboxContainer.style.maxWidth = "90%";
-    lightboxContainer.style.maxHeight = "90%";
-
-    overlay.appendChild(lightboxContainer);
+  const lightboxContainer = document.createElement("div");
+  lightboxContainer.style.position = "relative";
+  lightboxContainer.style.display = "flex";
+  lightboxContainer.style.alignItems = "center";
+  lightboxContainer.style.justifyContent = "center";
+  lightboxContainer.style.maxWidth = "90%";
+  lightboxContainer.style.maxHeight = "90%";
+  overlay.appendChild(lightboxContainer);
 const renderSlide = (index) => {
   lightboxContainer.innerHTML = "";
 
   const original = this.elements[index].render();
 
-  // Check if the element contains an <img>
-  const img = original.querySelector("img");
+  let img;
+  if (original.tagName === "IMG") {
+    img = original;
+  } else {
+    img = original.querySelector("img");
+  }
+
   if (img) {
     const largeImg = document.createElement("img");
     largeImg.src = img.src;
-
-    // Use the image's natural size scaled to fit viewport
-    largeImg.style.width = "auto";
-    largeImg.style.height = "auto";
-    largeImg.style.maxWidth = "90vw";   // fit viewport width
-    largeImg.style.maxHeight = "90vh";  // fit viewport height
+    largeImg.style.maxWidth = "90vw";
+    largeImg.style.maxHeight = "90vh";
     largeImg.style.objectFit = "contain";
     largeImg.style.pointerEvents = "none";
     largeImg.style.display = "block";
-
     lightboxContainer.appendChild(largeImg);
   } else {
-    // fallback: clone original element
     const content = original.cloneNode(true);
     content.style.width = "90vw";
-    content.style.height = "90vw";
+    content.style.height = "90vh";
     content.style.maxWidth = "90vw";
     content.style.maxHeight = "90vh";
-    content.style.objectFit = "contain";
     content.style.pointerEvents = "none";
     lightboxContainer.appendChild(content);
   }
 };
 
 
+  renderSlide(currentIndex);
+
+  // === Use existing slider buttons ===
+  const prevBtn = this.buttons.leftButton.render().cloneNode(true);
+  const nextBtn = this.buttons.rightButton.render().cloneNode(true);
+
+  // Common styles for both nav buttons
+  const baseBtnStyle = {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    background: "white",
+    border: "none",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "50px",
+    height: "50px",
+    margin: "1rem",
+    padding: "0",
+    zIndex: "10000",
+    cursor: "pointer",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+  };
+
+  Object.assign(prevBtn.style, baseBtnStyle, { left: "10px" });
+  Object.assign(nextBtn.style, baseBtnStyle, { right: "10px" });
+
+  prevBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    currentIndex =
+      currentIndex - 1 < 0 ? this.elements.length - 1 : currentIndex - 1;
     renderSlide(currentIndex);
+  });
 
-    const createNavButton = (dir) => {
-      const btn = document.createElement("div");
-      btn.innerHTML = dir === "prev" ? "◀" : "▶";
-      btn.style.position = "absolute";
-      btn.style.top = "50%";
-      btn.style[dir === "prev" ? "left" : "right"] = "10px";
-      btn.style.transform = "translateY(-50%)";
-      btn.style.fontSize = "2rem";
-      btn.style.color = "white";
-      btn.style.cursor = "pointer";
-      btn.style.userSelect = "none";
-      btn.style.zIndex = "10000";
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (dir === "prev") {
-          currentIndex =
-            currentIndex - 1 < 0 ? this.elements.length - 1 : currentIndex - 1;
-        } else {
-          currentIndex = (currentIndex + 1) % this.elements.length;
-        }
-        renderSlide(currentIndex);
-      });
-      overlay.appendChild(btn);
-    };
+  nextBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    currentIndex = (currentIndex + 1) % this.elements.length;
+    renderSlide(currentIndex);
+  });
 
-    createNavButton("prev");
-    createNavButton("next");
+  overlay.appendChild(prevBtn);
+  overlay.appendChild(nextBtn);
 
-    overlay.addEventListener("click", () => {
+  // === Close button ===
+  const closeBtn = document.createElement("div");
+  closeBtn.innerHTML = "✕";
+  closeBtn.style.position = "absolute";
+  closeBtn.style.top = "15px";
+  closeBtn.style.right = "20px";
+  closeBtn.style.fontSize = "2rem";
+  closeBtn.style.color = "white";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.style.zIndex = "10000";
+  closeBtn.style.userSelect = "none";
+  closeBtn.style.transition = "transform 0.2s ease";
+  closeBtn.addEventListener("mouseenter", () => {
+    closeBtn.style.transform = "scale(1.2)";
+  });
+  closeBtn.addEventListener("mouseleave", () => {
+    closeBtn.style.transform = "scale(1)";
+  });
+  closeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.body.removeChild(overlay);
+    document.removeEventListener("keydown", keyHandler);
+  });
+  overlay.appendChild(closeBtn);
+
+  overlay.addEventListener("click", () => {
+    document.body.removeChild(overlay);
+    document.removeEventListener("keydown", keyHandler);
+  });
+
+  const keyHandler = (e) => {
+    if (e.key === "Escape") {
       document.body.removeChild(overlay);
-    });
+      document.removeEventListener("keydown", keyHandler);
+    } else if (e.key === "ArrowLeft") {
+      currentIndex =
+        currentIndex - 1 < 0 ? this.elements.length - 1 : currentIndex - 1;
+      renderSlide(currentIndex);
+    } else if (e.key === "ArrowRight") {
+      currentIndex = (currentIndex + 1) % this.elements.length;
+      renderSlide(currentIndex);
+    }
+  };
+  document.addEventListener("keydown", keyHandler);
 
-    const keyHandler = (e) => {
-      if (e.key === "Escape") {
-        document.body.removeChild(overlay);
-        document.removeEventListener("keydown", keyHandler);
-      } else if (e.key === "ArrowLeft") {
-        currentIndex =
-          currentIndex - 1 < 0 ? this.elements.length - 1 : currentIndex - 1;
-        renderSlide(currentIndex);
-      } else if (e.key === "ArrowRight") {
-        currentIndex = (currentIndex + 1) % this.elements.length;
-        renderSlide(currentIndex);
-      }
-    };
-    document.addEventListener("keydown", keyHandler);
+  document.body.appendChild(overlay);
+}
 
-    document.body.appendChild(overlay);
-  }
+
+
 
   render(div) {
     if (div) {
