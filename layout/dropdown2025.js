@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.84
+ * nodality v1.0.85
  * (c) 2025 Filip Vabrousek
  * License: MIT
  */
@@ -108,6 +108,11 @@ class Dropdown extends Animator {
 
         obj.mar && this.mar(obj.mar);//alert("/")
 
+         obj.pad && this.pad(obj.pad);
+   
+    obj.respad && this.respad(obj.respad);
+    obj.resmar && this.resmar(obj.resmar);
+       // this.commonMethods(obj); not yet
 
         const adjust = () => {
           //  alert("OBJA");
