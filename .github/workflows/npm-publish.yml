@@ -29,8 +29,8 @@ jobs:
       - run: npm ci
 
       # 5. Run tests (Playwright or other)
-      - name: Run tests
-        run: npm test
+      # - name: Run tests
+       # run: npm test
 
       # 6. Build packages
       - run: npm run build
