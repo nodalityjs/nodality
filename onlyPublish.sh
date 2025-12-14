@@ -22,7 +22,8 @@ echo "✅ All tests passed."
 # ----------------------------
 # Commit, tag, and push
 # ----------------------------
-VERSION="1.0.104"
+# only change in package.json
+VERSION=$(node -p "require('./package.json').version")
 
 git add .
 git commit -m "release: v$VERSION"
