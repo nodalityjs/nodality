@@ -1,9 +1,3 @@
-/*!
- * nodality v1.0.90
- * (c) 2025 Filip Vabrousek
- * License: MIT
- */
-
 import {Animator} from "./animator.js";
 
 
@@ -12,6 +6,7 @@ class Card {
 		this.text = text;
 		this.url = url;
 		this.setup();
+		console.log("aju");
 	}
 
 	setup() {
