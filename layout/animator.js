@@ -401,7 +401,7 @@ resmar(arr) {
   });
 }
 
-
+/*
 resprop(arr) {
   this.prevStyles = {};
   for (let i = 0; i < this.res.style.length; i++) {
@@ -412,7 +412,80 @@ resprop(arr) {
   this._applyResponsive(arr, (applied) => {
     console.log("Applying styles for", applied.breakpoint);
 
-    // Reset to previous styles
+    // Reset to previous styles (Important for cascading/overwriting)
+    for (const key in this.prevStyles) {
+      // NOTE: If this.res.style[key] was set to null/undefined before, 
+      // you might want to consider deleting the property here instead of setting it.
+      // For simplicity, I'm sticking to your original reset structure.
+      this.res.style[key] = this.prevStyles[key];
+    }
+
+    // 3. Apply new responsive properties with custom logic check.
+    for (const key in applied) {
+      if (key !== "breakpoint" && key !== "_value" && key !== "values") {
+        const value = applied[key];
+
+        // --- Custom Logic: Detect Non-Standard Property ---
+        if (typeof this[key] === 'function') {
+          // If a method with the property name exists on 'this', 
+          // call it with the value. (e.g., if key is "mar", calls this.mar(value))
+          this[key](value); 
+        } else {
+          // Standard CSS property: set the style directly.
+          this.res.style[key] = value;
+        }
+        // --------------------------------------------------
+      }
+    }
+  });
+
+}*/
+
+resprop(arr) {
+
+	// 1. Find or create the 'default' breakpoint object in the array
+  let defaultItem = arr.find(item => item.breakpoint === "default");
+  if (!defaultItem) {
+    defaultItem = { breakpoint: "default" };
+    arr.unshift(defaultItem); // Add it to the start of the array
+  }
+  
+  // 2. Identify base properties from the initial set() call (this.options)
+  const baseProperties = Object.keys(this.options);
+  
+  // Define properties that should NOT be injected into the default reset, 
+  // or properties that are only for control flow.
+  const excludedKeys = ['resprop', 'breakpoint', '_value', 'values'];
+  
+  // 3. Inject missing reset values into the default item
+  baseProperties.forEach(key => {
+    // Check if the property is a valid style/prop and not already set in the default item
+    if (!excludedKeys.includes(key) && defaultItem[key] !== undefined) {
+      
+      // Use "initial" as a general CSS reset for styles, or null/undefined 
+      // if the property is custom or needs an explicit clear.
+      // Since the property comes from this.options, using "initial" is a safe general CSS reset.
+      defaultItem[key] = "initial"; 
+
+	  alert(key);
+    }
+  });
+
+
+  this.prevStyles = {};
+  
+  // 1. Store the initial styles (using for...in loop for object properties)
+  // Assuming this.res.style is an object containing current styles.
+  for (const prop in this.res.style) {
+   if (this.res.style.hasOwnProperty(prop) && isNaN(parseInt(prop))) {
+      this.prevStyles[prop] = this.res.style[prop];
+    }
+  }
+
+  this._applyResponsive(arr, (applied) => {
+    console.log("Applying styles for", applied.breakpoint);
+
+    // Reset to initial styles (from before resprop was called)
     for (const key in this.prevStyles) {
       this.res.style[key] = this.prevStyles[key];
     }
@@ -420,7 +493,20 @@ resprop(arr) {
     // Apply responsive props
     for (const key in applied) {
       if (key !== "breakpoint" && key !== "_value" && key !== "values") {
-        this.res.style[key] = applied[key];
+        const value = applied[key];
+
+        // --- Modified Custom Logic: Detect and Call Custom Method ---
+        if (typeof this[key] === 'function') {
+          // If a method exists, call it. 
+          // NOTE: The custom method (e.g., this.pad) is responsible 
+          // for CLEARING its own associated CSS styles if 'value' implies a reset 
+          // or before applying the new derived styles.
+          this[key](value); 
+        } else {
+          // Standard CSS property: set the style directly.
+          this.res.style[key] = value;
+        }
+        // --------------------------------------------------
       }
     }
   });

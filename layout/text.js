@@ -16,7 +16,7 @@ class Text extends Animator {
 		this.html = [];
 		this.react = [];
 		this.code.push(`new Text("${this.text}")`);
-		console.log("14/12/25 orrr");
+		console.log("15/12/25 cool");
 	}
 
 
