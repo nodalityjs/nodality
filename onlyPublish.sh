@@ -22,7 +22,7 @@ echo "✅ All tests passed."
 # ----------------------------
 # Commit, tag, and push
 # ----------------------------
-VERSION="1.0.103"
+VERSION="1.0.104"
 
 git add .
 git commit -m "release: v$VERSION"
