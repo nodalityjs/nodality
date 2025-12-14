@@ -28,10 +28,6 @@ jobs:
       # 3. Install dependencies
       - run: npm ci
 
-      # 5. Run tests (Playwright or other)
-      # - name: Run tests
-       # run: npm test
-
       # 6. Build packages
       - run: npm run build
       - run: npm run inject-license || true
