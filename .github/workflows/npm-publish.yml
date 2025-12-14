@@ -13,28 +13,33 @@ jobs:
       id-token: write
 
     steps:
+      # 1. Checkout code
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: npm/action-setup@v4
-        with:
-          version: 9.0.0
-
+      # 2. Setup Node.js (includes npm)
       - uses: actions/setup-node@v4
         with:
           node-version: '18.20.0'
           registry-url: 'https://registry.npmjs.org'
-          cache: npm
+          cache: 'npm'
 
-       # 5. Run tests (Playwright or other)
+      # 3. Install dependencies
+      - run: npm ci
+
+      # 4. Run typecheck
+      - run: npm run typecheck
+
+      # 5. Run tests (Playwright or other)
       - name: Run tests
         run: npm test
 
-      - run: npm install --frozen-lockfile
-      - run: npm run typecheck
+      # 6. Build packages
       - run: npm run build
+      - run: npm run inject-license || true
 
+      # 7. Verify version matches tag
       - name: Verify version matches tag
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
@@ -45,6 +50,7 @@ jobs:
             exit 1
           fi
 
+      # 8. Publish to npm
       - name: Publish to NPM
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
