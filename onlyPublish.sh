@@ -33,12 +33,12 @@ if git push --set-upstream origin main; then
   echo "🚀 Commits pushed to GitHub successfully."
 else
   echo "⚠️ Push failed, attempting pull with rebase..."
-  if git pull --rebase origin main && git push origin main; then
-    echo "🚀 Commits pushed after rebase."
-  else
-    echo "❌ Push failed after rebase. Aborting."
-    exit 1
-  fi
+  #if git pull --rebase origin main && git push origin main; then
+    #echo "🚀 Commits pushed after rebase."
+  #else
+    #echo "❌ Push failed after rebase. Aborting."
+    #exit 1
+  #fi
 fi
 
 # Push tag
