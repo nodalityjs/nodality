@@ -443,9 +443,9 @@ resprop(arr) {
         // --- Apply Styles ---
         
         // A. Full Reset: Restore all non-responsive styles.
-        for (const key in this.prevStyles) {
+       /* for (const key in this.prevStyles) {
             this.res.style[key] = this.prevStyles[key];
-        }
+        }*/
 
         // B. Clear Responsive Props: Apply the 'default' item's base values.
         responsiveProps.forEach(key => {
