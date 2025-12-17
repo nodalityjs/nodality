@@ -86,6 +86,9 @@ code = `${pad}new Wrapper()`;
 
 	set(obj){
 		this.obj = obj;
+
+				this.commonMethods(obj);
+				
 		let stra = ".set({";
 
 		obj.isHidden && this.isHidden(obj.isHidden);

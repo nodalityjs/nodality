@@ -9,6 +9,12 @@ else
   exit 1
 fi
 
+
+# Copy layout folders
+cp -R /Users/filipvabrousek/Desktop/layout/layout /Users/filipvabrousek/launch/
+cp -R /Users/filipvabrousek/Desktop/layout/lib /Users/filipvabrousek/launch/
+cp -R /Users/filipvabrousek/Desktop/layout/assets /Users/filipvabrousek/launch/
+
 # ----------------------------
 # Run tests locally first
 # ----------------------------

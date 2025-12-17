@@ -107,7 +107,7 @@ class Animator {
             this.res.style[styleMap[key]] = obj[key];
         }
     }
-
+//alert(obj.respad);
     // Special methods
     obj.pad && this.pad(obj.pad);
     obj.mar && this.mar(obj.mar);
@@ -479,6 +479,7 @@ resprop(arr) {
 
 
 respad(arr) {
+
     // --- 1. CONFIGURATION & NORMALIZATION ---
     const breakpoints = {
         default: [0, 100000], xs: [0, 575], sm: [576, 767], md: [768, 991],
@@ -537,6 +538,7 @@ respad(arr) {
         
         // Determine the final padding value: use applied.values if it exists, otherwise defaultItem.values
         const finalPadValue = applied.values !== undefined ? applied.values : defaultItem.values;
+
 
         
         if (finalPadValue !== undefined && finalPadValue !== null) {
@@ -1037,12 +1039,91 @@ resprop(arr) {
     }, 0);
 }*/
 
-
+/*
 resmar(arr) {
   this._applyResponsive(arr, (applied) => {
     console.log("Applying margin for", applied.breakpoint);
     this.mar(applied.values);
   });
+}*/
+
+
+resmar(arr) {
+
+    // --- 1. CONFIGURATION & NORMALIZATION ---
+    const breakpoints = {
+        default: [0, 100000], xs: [0, 575], sm: [576, 767], md: [768, 991],
+        lg: [992, 1199], xl: [1200, 1399], xxl: [1400, 100000]
+    };
+    // Note: 'values' is handled specifically here, so it is not excluded globally.
+    
+    // A. Normalize breakpoints and assign range (handles named, [min, max], and "px" inputs)
+    arr.forEach(item => {
+        if (breakpoints[item.breakpoint] !== undefined) {
+            item.range = breakpoints[item.breakpoint];
+        } else if (Array.isArray(item.breakpoint) && item.breakpoint.length === 2) {
+            item.range = [parseInt(item.breakpoint[0], 10), parseInt(item.breakpoint[1], 10)];
+        } else {
+            item.range = [parseInt(item.breakpoint, 10), 100000]; 
+        }
+    });
+
+    // B. Sort by the minimum value of the range
+    arr.sort((a, b) => a.range[0] - b.range[0]);
+
+    // C. Find/Ensure the base style object
+    let defaultItem = arr.find(item => item.breakpoint === "default");
+    if (!defaultItem) {
+        defaultItem = { breakpoint: "default", range: breakpoints.default };
+        arr.unshift(defaultItem);
+    }
+    
+    // --- 2. STATE CAPTURE & RESET PREPARATION ---
+
+    // D. Ensure 'defaultItem' has a 'values' property, falling back to the base 'pad' option.
+    if (defaultItem.values === undefined) {
+         defaultItem.values = this.options.pad || null;
+    }
+
+
+    // --- 3. CORE LOGIC: The Responsive Task Function ---
+    const resmarTask = () => {
+        const width = window.innerWidth;
+        let applied = defaultItem; 
+
+        // 1. RANGE LOGIC: Find the exact breakpoint whose range matches the current width.
+        for (let i = 0; i < arr.length; i++) {
+            const bp = arr[i];
+            const [min, max] = bp.range;
+
+            if (bp.breakpoint === "default") continue;
+
+            if (width >= min && width <= max) {
+                applied = bp;
+                break;
+            }
+        }
+        
+        // --- Apply Pad Style ---
+        
+        // Determine the final padding value: use applied.values if it exists, otherwise defaultItem.values
+        const finalPadValue = applied.values !== undefined ? applied.values : defaultItem.values;
+
+
+        
+        if (finalPadValue !== undefined && finalPadValue !== null) {
+            // Note: We trust this.pad handles the style application and clearing
+            this.mar(finalPadValue);
+        }
+    };
+
+
+    // --- 4. REGISTRATION ---
+    this._responsiveTasks = this._responsiveTasks || [];
+    this._responsiveTasks.push(resmarTask);
+    
+    // Ensure the unified handler is set up and starts listening
+    this._setupResponsiveManager(); 
 }
 
 
