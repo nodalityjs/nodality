@@ -9,6 +9,7 @@ class UList extends Animator {
     }
 
     set(obj) {
+        this.options = obj;
         obj.pad && this.pad(obj.pad);
         obj.mar && this.mar(obj.mar);
         this.callReact(obj);
