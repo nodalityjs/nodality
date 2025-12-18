@@ -12,6 +12,10 @@ class UList extends Animator {
         this.options = obj;
         obj.pad && this.pad(obj.pad);
         obj.mar && this.mar(obj.mar);
+       
+        // CRITICAL
+		// obj.transform && this.reactOnTransform(obj.transform); // remove obj.op.duration
+		this.commonMethods(obj);
         this.callReact(obj);
         return this;
     }

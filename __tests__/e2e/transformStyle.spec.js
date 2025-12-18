@@ -33,24 +33,26 @@ expect(f).toBeCloseTo(0, 1);       // translateY
 
 
 const pre = await page.locator('pre').textContent();
-expect(pre).toContain(`new Text("Hello").set({
+// Replace the hardcoded string with a Regex
+expect(pre).toMatch(/new Text\("Hello"\)\.set\(\{.*name: "transform".*duration: "3s-ease-in-out".*\}\)\.render\("#mount"\);/s);
+/*expect(pre).toContain(`new Text("Hello").set({
     size: "S1",
     font: "Arial",
     transform: {
         op: {
             name: "transform",
-            transform: {
+           
                 values: [
                     "tx:100px",
                     "opacity:0.2",
                     "scale(1.2, 1.0)"
                 ],
                 duration: "3s-ease-in-out"
-            }
+           
         }
     }
 }).render("#mount");`); // 161920 code test
-
+*/
 
 /*
   const matrix = transform

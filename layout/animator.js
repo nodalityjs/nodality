@@ -118,7 +118,7 @@ class Animator {
     obj.resprop && this.resprop(obj.resprop);
     obj.keySet && this.keySet(obj.keySet);
     obj.hide && this.isHidden(obj.hide);
-
+obj.transform && this.reactOnTransform(obj.transform); 
     // Font weight handling
     if (obj.bold) {
         this.res.style.fontWeight = "bold";
@@ -2609,6 +2609,9 @@ this.res.querySelectorAll('span').forEach(span => {
   
   reactOnTransform = (obj) => {
 console.log("LOBJO IS");
+//alert("///"); // UL DOES NOT REACH THIS DESPITE SAME SYNTAX
+console.log("REPO");
+console.log(this.res);
 
 console.log(obj); // Why obj.op.transform not working for link
 //console.log(obj.op.transform); // I need obj.op.transform
@@ -2618,20 +2621,39 @@ console.log(obj); // Why obj.op.transform not working for link
 
 
 
-	if (obj.transform || obj.op && obj.op.transform){
+	if (obj.transform || (obj.op /*&& obj.op.transform*/)){
 		
+		console.log("SIMPLIFIED");
 
-		let transform = obj.transform; 
+	console.log(obj.transform);
+	console.log(obj.op);
+
+
+
+
+
+
+		let transform = obj.op;//transform; 
 
 		if (!obj.transform ){ // 21:48:05 Nice!!! 30/03/25
-			transform = obj.op.transform;
+			transform = obj.op;
 		}
 
 		if (!transform.duration){
 			transform.duration = "3s-ease-in-out";
 		}
 
+
+		console.log("ENTERING");
+		console.log(transform);
 	
+		//  {static: true, keep: true, values: Array(4), duration: '3s-ease-in-out'
+		// SIMPLE
+		
+		// COMPLEX
+		// {static: true, keep: true, values: Array(4), duration: '3s-ease-in-out'}
+		
+		
 		this.setDefault = (value, defaultValue = "0px") => {
 			return value.length === 0 ? defaultValue + " " : value;
 		}
@@ -2655,6 +2677,7 @@ console.log(obj); // Why obj.op.transform not working for link
 		
 	
 	const perform = () => {
+		
 	let translateX = '';
 	let translateY = '';
 	let translateZ = '';
@@ -2665,10 +2688,16 @@ console.log(obj); // Why obj.op.transform not working for link
 	let matrix = '';
 	let opacity = '';
 
+	console.log("ERRA - still nested");
+	// There is still nested transform object
+	console.log(transform);
+
 	// Check if the transform values array is empty
 	if (transform.values.length === 0) { 
 		return; // If the array is empty, exit the function
 	}
+
+	console.warn(transform);
 
 	// Loop through the transform values and extract the needed ones
 	transform.values.forEach(value => {
@@ -2722,20 +2751,20 @@ console.log(obj); // Why obj.op.transform not working for link
 	if (transformValue) {
 		// alert("/") 
 
-		if (obj.op.transform.duration){ // transform 3s in and out takes 8 secs instead of 6....
-			let newStr = obj.op.transform.duration.replace(/^(\d+)(s)-/, (_, n, s) => n / 2 + s + " "); 
+		if (obj.op.duration){ // transform 3s in and out takes 8 secs instead of 6....
+			let newStr = obj.op.duration.replace(/^(\d+)(s)-/, (_, n, s) => n / 2 + s + " "); 
 //alert(newStr);
 
 			//newStr = "6s";
 			let trans = `transform ${newStr}, opacity  ${newStr}`; // Reset transition
 			this.res.style.transition = trans;
-			
+		
 		} else {
 			
 			this.res.style.transition = "transform 3s ease-in-out, opacity 3s ease-in-out"; // Reset transition
 		}
 
-		if (obj.op.transform.static){
+		if (obj.op.static){
 			this.res.style.transition = "";
 		}
 
@@ -2762,6 +2791,7 @@ console.log(obj); // Why obj.op.transform not working for link
 		});
 		
 	} else {
+		
 		window.addEventListener("load", () => {
 			if (transform.delay) {
 
@@ -2779,6 +2809,8 @@ console.log(obj); // Why obj.op.transform not working for link
 
 	const reset = () => {
 		let resetTransformValue = '';
+console.log("RESET");
+console.log(transform);
 
 		transform.values.forEach(value => {
 			if (value.startsWith('tx:')) {
