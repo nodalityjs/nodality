@@ -335,7 +335,7 @@ console.log(html);
 		this.commonMethods(obj);
 
 
-		(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
+	//	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
 
 		// obj.isHidden && this.isHidden(obj.isHidden);
 

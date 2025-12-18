@@ -119,6 +119,9 @@ class Animator {
     obj.keySet && this.keySet(obj.keySet);
     obj.hide && this.isHidden(obj.hide);
 obj.transform && this.reactOnTransform(obj.transform); 
+
+	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
+	
     // Font weight handling
     if (obj.bold) {
         this.res.style.fontWeight = "bold";
