@@ -11,8 +11,88 @@ class UList extends Animator {
     set(obj) {
         obj.pad && this.pad(obj.pad);
         obj.mar && this.mar(obj.mar);
+        this.callReact(obj);
         return this;
     }
+
+
+	callReact(obj){
+
+		let arr = [];
+
+		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || obj.transform){
+			if (obj.gradient){
+				this.globalGradient = obj.gradient.op.gradient;
+				if (obj.gradient.op.direction === "radial") {
+					this.globalGradient = "radial-gradient(circle at center, orange, green)";
+				}
+			}
+
+		
+			if (obj.stroke){
+				super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
+			}
+
+			if (obj.span){
+				obj.span.prevText = this.text;
+			}
+
+
+			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, obj.transform];
+			ft = ft.filter(el => el != undefined);
+
+		
+
+			for (var i = 0; i < ft.length; i++){
+				arr.push({
+					range: ft[i].range,
+					log: ft[i].op.name,
+					target: ft[i].target,
+					op: ft[i].op
+				});
+			}
+
+			let keep = [];
+
+		if (obj.borderObj){
+			keep.push("border");
+		}
+
+		if (obj.background){
+			keep.push("background");
+		}
+
+		if (obj.mar){
+			keep.push("margin");
+		}
+
+		if (obj.animation){
+			keep.push("animation");
+		}
+
+		if (obj.span){
+			keep.push("span");
+		}
+
+	/*	if (obj.transform){
+			keep.push("transform");
+		}*/
+
+		// console.log("ARA IS " + arr);
+		console.log("ARA IS ");
+		console.log(arr);
+
+			this.chainReact(arr, this.options.id, keep);
+		}
+	}
+
+
+
+
+
+
+
+
 
     setup() {
         let el = document.createElement("ul");
