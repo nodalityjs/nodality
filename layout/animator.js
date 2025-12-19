@@ -118,7 +118,7 @@ class Animator {
     obj.resprop && this.resprop(obj.resprop);
     obj.keySet && this.keySet(obj.keySet);
     obj.hide && this.isHidden(obj.hide);
-obj.transform && this.reactOnTransform(obj.transform); 
+	obj.transform && this.reactOnTransform(obj.transform); 
 
 	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
 
@@ -128,6 +128,8 @@ obj.transform && this.reactOnTransform(obj.transform);
     } else if (obj.weight != null) {
         this.res.style.fontWeight = obj.weight;
     }
+
+	
 
 			return this;
 	}
@@ -456,11 +458,26 @@ resprop(arr) {
                 if (ks && ks.key) this.res.style[ks.key] = ks.value;
             } else {
                 this.res.style[key] = defaultItem[key];
+
+				
             }
         });
+
+		
         
         // C. Overrides: Apply matching breakpoint values
         for (const key in applied) {
+		
+			if (key === "exact"){
+//alert(key);
+console.log("APPL");
+console.log(applied);
+console.log(this.set);
+this.set(applied);
+//this.set({key: })
+			}
+
+
             if (!excludedKeys.includes(key) && key !== 'range') {
                 const value = applied[key];
 
@@ -476,6 +493,9 @@ resprop(arr) {
                 else {
                     this.res.style[key] = value;
                 }
+
+
+				
             }
         }
     };
