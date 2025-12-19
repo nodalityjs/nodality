@@ -121,7 +121,7 @@ class Animator {
 obj.transform && this.reactOnTransform(obj.transform); 
 
 	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
-	
+
     // Font weight handling
     if (obj.bold) {
         this.res.style.fontWeight = "bold";
@@ -368,6 +368,7 @@ _setupResponsiveManager() {
     }, 0);
 }
 
+
 resprop(arr) {
     // --- 1. CONFIGURATION & NORMALIZATION ---
     const breakpoints = {
@@ -376,30 +377,34 @@ resprop(arr) {
     };
     const excludedKeys = ['resprop', 'breakpoint', 'value', 'values', 'range']; 
     
-    // A. Normalize breakpoints and assign range (handles named, [min, max], and "px" inputs)
+    // A. Normalize ranges: Treat "800px" as [0, 800] (Max-Width logic)
     arr.forEach(item => {
         if (breakpoints[item.breakpoint] !== undefined) {
             item.range = breakpoints[item.breakpoint];
         } else if (Array.isArray(item.breakpoint) && item.breakpoint.length === 2) {
-            item.range = [parseInt(item.breakpoint[0], 10), parseInt(item.breakpoint[1], 10)];
+            item.range = [
+                parseInt(item.breakpoint[0], 10), 
+                parseInt(item.breakpoint[1], 10)
+            ];
         } else {
-            item.range = [parseInt(item.breakpoint, 10), 100000]; 
+            // "800px" now becomes [0, 800]
+            item.range = [0, parseInt(item.breakpoint, 10)];
         }
     });
 
-    // B. Sort by the minimum value of the range
-    arr.sort((a, b) => a.range[0] - b.range[0]);
+    // B. SORTING: Sort by MAX value ascending. 
+    // This ensures that if width is 500px, "800px" is checked before "1060px".
+    arr.sort((a, b) => a.range[1] - b.range[1]);
 
-    // C. Find/Ensure the base style object
+    // C. Ensure the default/fallback is present
     let defaultItem = arr.find(item => item.breakpoint === "default");
     if (!defaultItem) {
         defaultItem = { breakpoint: "default", range: breakpoints.default };
         arr.unshift(defaultItem);
     }
     
-    // --- 2. STATE CAPTURE & RESET PREPARATION ---
+    // --- 2. STATE CAPTURE ---
 
-    // D. Capture initial non-responsive styles (for global reset)
     this.prevStyles = {};
     for (const prop in this.res.style) {
        if (this.res.style.hasOwnProperty(prop) && isNaN(parseInt(prop))) {
@@ -407,7 +412,6 @@ resprop(arr) {
         }
     }
 
-    // E. Identify all properties that are responsive (e.g., 'color', 'size')
     const responsiveProps = new Set();
     arr.forEach(bp => {
         Object.keys(bp).forEach(key => {
@@ -417,24 +421,23 @@ resprop(arr) {
         });
     });
 
-    // F. Ensure 'defaultItem' holds the base/reset value for every responsive property.
+    // Fill defaultItem with fallback values
     responsiveProps.forEach(key => {
         if (defaultItem[key] === undefined) {
              defaultItem[key] = this.options[key] || "initial";
         }
     });
 
-
-    // --- 3. CORE LOGIC: The Responsive Task Function ---
+    // --- 3. CORE LOGIC ---
     const respropTask = () => {
         const width = window.innerWidth;
         let applied = defaultItem; 
 
-        // 1. RANGE LOGIC: Find the exact breakpoint whose range matches the current width.
+        // 1. Find the first matching range. 
+        // Because we sorted ascending, the smallest matching "max-width" wins.
         for (let i = 0; i < arr.length; i++) {
             const bp = arr[i];
             const [min, max] = bp.range;
-
             if (bp.breakpoint === "default") continue;
 
             if (width >= min && width <= max) {
@@ -445,38 +448,41 @@ resprop(arr) {
         
         // --- Apply Styles ---
         
-        // A. Full Reset: Restore all non-responsive styles.
-       /* for (const key in this.prevStyles) {
-            this.res.style[key] = this.prevStyles[key];
-        }*/
-
-        // B. Clear Responsive Props: Apply the 'default' item's base values.
+        // B. Reset: Apply base values first
         responsiveProps.forEach(key => {
-            this.res.style[key] = defaultItem[key];
+            // Special handling for keySet during reset
+            if (key === 'keySet') {
+                const ks = defaultItem[key];
+                if (ks && ks.key) this.res.style[ks.key] = ks.value;
+            } else {
+                this.res.style[key] = defaultItem[key];
+            }
         });
         
-        // C. Apply Overrides: Apply the properties of the currently matching breakpoint
+        // C. Overrides: Apply matching breakpoint values
         for (const key in applied) {
             if (!excludedKeys.includes(key) && key !== 'range') {
                 const value = applied[key];
 
-                if (typeof this[key] === 'function') {
-                    // Custom property (e.g., this.size(value)): call the internal method
+                // NEW: Handle your keySet object {key: "...", value: "..."}
+                if (key === 'keySet' && value && value.key) {
+                    this.res.style[value.key] = value.value;
+                } 
+                // Handle internal methods (e.g., this.width("300px"))
+                else if (typeof this[key] === 'function') {
                     this[key](value); 
-                } else {
-                    // Standard CSS property: set the style directly.
+                } 
+                // Handle direct CSS property assignment
+                else {
                     this.res.style[key] = value;
                 }
             }
         }
     };
 
-
     // --- 4. REGISTRATION ---
     this._responsiveTasks = this._responsiveTasks || [];
     this._responsiveTasks.push(respropTask);
-    
-    // Ensure the unified handler is set up and starts listening
     this._setupResponsiveManager(); 
 }
 
