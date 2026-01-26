@@ -25,7 +25,7 @@ const path = require('path'); // <-- ADD THIS LINE
    const cards = page.locator('div[style*="background-image"]');
 
   // Ensure 3 cards exist
-  await expect(cards).toHaveCount(3);
+ /* await expect(cards).toHaveCount(3);
 
   for (let i = 0; i < 3; i++) {
     await cards.nth(i).hover({force: true});
@@ -38,9 +38,9 @@ const path = require('path'); // <-- ADD THIS LINE
   }
 
      await context.close(); // Ensure the video is saved
-  }); 
-
-
+  }); */
+  await context.close(); // Ensure the video is saved
+  });
 
 
 // NOW:

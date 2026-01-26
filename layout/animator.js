@@ -372,6 +372,10 @@ _setupResponsiveManager() {
 
 
 resprop(arr) {
+
+	//alert(this.obj);
+	this.options = this.obj;
+	
     // --- 1. CONFIGURATION & NORMALIZATION ---
     const breakpoints = {
         default: [0, 100000], xs: [0, 575], sm: [576, 767], md: [768, 991],
