@@ -12,7 +12,7 @@ class Animator {
         }
 
 		this.openedElements = new WeakMap();
-		console.log("26-01-26 11:09:00")
+		
     }
 
 	isHidden(hide){
@@ -374,7 +374,7 @@ _setupResponsiveManager() {
 
 resprop(arr, op) {
 
-	alert(op);
+	// alert(op);
 	this.options = op;
 
     // --- 1. CONFIGURATION & NORMALIZATION ---
