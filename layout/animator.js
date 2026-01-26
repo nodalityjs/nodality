@@ -115,7 +115,7 @@ class Animator {
     obj.resmar && this.resmar(obj.resmar);
     obj.hover && this.hover(obj.hover);
     obj.size && this.fluidCopy(obj.size);
-    obj.resprop && this.resprop(obj.resprop);
+    obj.resprop && this.resprop(obj.resprop, obj);
     obj.keySet && this.keySet(obj.keySet);
     obj.hide && this.isHidden(obj.hide);
 	obj.transform && this.reactOnTransform(obj.transform); 
@@ -371,11 +371,11 @@ _setupResponsiveManager() {
 }
 
 
-resprop(arr) {
+resprop(arr, op) {
 
-	//alert(this.obj);
-	this.options = this.obj;
-	
+	alert(op);
+	this.options = op;
+
     // --- 1. CONFIGURATION & NORMALIZATION ---
     const breakpoints = {
         default: [0, 100000], xs: [0, 575], sm: [576, 767], md: [768, 991],
