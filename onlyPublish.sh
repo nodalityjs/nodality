@@ -18,12 +18,12 @@ cp -R /Users/filipvabrousek/Desktop/layout/assets /Users/filipvabrousek/launch/
 # ----------------------------
 # Run tests locally first
 # ----------------------------
-# echo "🧪 Running local tests..."
-# if ! npm run test; then
-#   echo "❌ Tests failed. Aborting release."
-#   exit 1
-# fi
-# echo "✅ All tests passed."
+echo "🧪 Running local tests..."
+if ! npm run test; then
+  echo "❌ Tests failed. Aborting release."
+  exit 1
+fi
+echo "✅ All tests passed."
 
 # ----------------------------
 # Commit, tag, and push
