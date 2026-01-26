@@ -12,6 +12,7 @@ class Animator {
         }
 
 		this.openedElements = new WeakMap();
+		console.log("26-01-26 11:09:00")
     }
 
 	isHidden(hide){
