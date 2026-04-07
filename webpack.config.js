@@ -101,6 +101,7 @@ const entries = [
   'lib/keyframe-animation',
   'lib/stacker',
   'lib/scroll-video',
+  'lib/theme',
 ];
 
 /* =========================

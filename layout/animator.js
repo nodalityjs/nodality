@@ -1,5 +1,6 @@
 
 
+import { Theme } from "../lib/theme.js";
 
 // 22/08/2020 - 16:30
 class Animator {
@@ -12,12 +13,77 @@ class Animator {
         }
 
 		this.openedElements = new WeakMap();
-		
+
+		// Auto-subscribe every component to Theme so dark-mode "just works"
+		// even when the user never declared a per-component theme map.
+		// Subclasses set this.res later in their own constructor; we re-apply
+		// in a microtask, by which time the synchronous chain has finished.
+		if (typeof document !== "undefined") {
+			this._themeUnsub = Theme.subscribe((mode) => this._applyTheme(mode));
+			Promise.resolve().then(() => this._applyTheme(Theme.mode));
+		}
     }
 
 	isHidden(hide){
 		if (hide){
 			this.res.style.display = "none";
+		}
+	}
+
+	// Nodality dark-mode hook.
+	// Usage: .theme({ light: {color: "#111", background: "#fff"},
+	//                 dark:  {color: "#eee", background: "#111"} })
+	// Or:    .set({ theme: {...same shape...} })
+	// Listens for "nodality:theme" events on document and re-applies inline styles.
+	theme(map){
+		if (!map || typeof map !== "object") return this;
+		this._themeMap = map;
+		this._applyTheme(Theme.mode);
+		if (!this._themeUnsub) {
+			this._themeUnsub = Theme.subscribe((mode) => this._applyTheme(mode));
+		}
+		return this;
+	}
+
+	// Tear down theme subscription. Call this when removing a component from
+	// the DOM in long-lived apps to prevent listener accumulation on document.
+	destroy(){
+		if (typeof this._themeUnsub === "function") {
+			this._themeUnsub();
+			this._themeUnsub = null;
+		}
+		if (this.res && this.res.parentNode) {
+			this.res.parentNode.removeChild(this.res);
+		}
+		return this;
+	}
+
+	_applyTheme(mode){
+		if (this._noTheme || !this.res) return;
+
+		// Explicit per-component map wins outright.
+		if (this._themeMap) {
+			const styles = this._themeMap[mode];
+			if (!styles) return;
+			for (const k in styles) {
+				this.res.style[k] = styles[k];
+			}
+			return;
+		}
+
+		// Fallback: Theme.defaults. Only fill in properties the user hasn't
+		// already set inline, so user styles always win. Snapshot once.
+		const defaults = Theme.defaults && Theme.defaults[mode];
+		if (!defaults) return;
+		if (!this._themeOriginal) {
+			this._themeOriginal = {};
+			for (const k in defaults) {
+				this._themeOriginal[k] = this.res.style[k] || "";
+			}
+		}
+		for (const k in defaults) {
+			if (this._themeOriginal[k]) continue;
+			this.res.style[k] = defaults[k];
 		}
 	}
 
@@ -126,8 +192,10 @@ class Animator {
     obj.size && this.fluidCopy(obj.size);
     obj.resprop && this.resprop(obj.resprop, obj);
     obj.keySet && this.keySet(obj.keySet);
+    obj.noTheme && (this._noTheme = true);
+    obj.theme && this.theme(obj.theme);
     obj.hide && this.isHidden(obj.hide);
-	obj.transform && this.reactOnTransform(obj.transform); 
+	obj.transform && this.reactOnTransform(obj.transform);
 
 	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
 

@@ -56,6 +56,7 @@ import { KeyframeAnim } from "../lib/keyframe-animation.js";
 import { TransformAnim } from "../lib/transform-anim.js";
 import { Stacker } from "../lib/stacker.js";
 import { ScrollVideo } from "../lib/scroll-video.js";
+import { Theme } from "../lib/theme.js";
 
 // SHAPES / MISC
 import { AreaSwitcher } from "../layout/grid-switcher.js";
@@ -111,6 +112,7 @@ if (typeof window !== 'undefined') {
   window.TransformAnim = TransformAnim;
   window.Stacker = Stacker;
   window.ScrollVideo = ScrollVideo;
+  window.Theme = Theme;
   window.AreaSwitcher = AreaSwitcher;
   window.Video = Video;
   window.UList = UList;
@@ -165,6 +167,7 @@ if (typeof global !== 'undefined') {
   global.TransformAnim = TransformAnim;
   global.Stacker = Stacker;
   global.ScrollVideo = ScrollVideo;
+  global.Theme = Theme;
   global.AreaSwitcher = AreaSwitcher;
   global.Video = Video;
   global.UList = UList;
@@ -219,6 +222,7 @@ export {
   TransformAnim,
   Stacker,
   ScrollVideo,
+  Theme,
   AreaSwitcher,
   Video,
   UList,
