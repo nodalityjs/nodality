@@ -11,8 +11,8 @@ import { UINavBar } from "../layout/new-nav-bar.js";
 import { SideBar } from "../layout/side-bar.js";
 import { SideNav } from "../layout/side-nav-bar.js";
 import { Free } from "../layout/free.js";
-import { Audio } from "../layout/audio.js";
-import { Audionew } from "../layout/audionew.js";
+//import { Audio } from "../layout/audio.js";
+import { NAudio } from "../layout/audionew.js";
 import { Progress } from "../layout/progress.js";
 import { Center } from "../layout/center.js";
 import { Code } from "../layout/code.js";
@@ -73,7 +73,7 @@ if (typeof window !== 'undefined') {
   window.FlexRow = FlexRow;
   window.UINavBar = UINavBar;
   window.Free = Free;
-  window.Audio = Audio;
+  window.NAudio = NAudio;
   window.Progress = Progress;
   window.Center = Center;
   window.Code = Code;
@@ -128,7 +128,7 @@ if (typeof global !== 'undefined') {
   global.FlexRow = FlexRow;
   global.UINavBar = UINavBar;
   global.Free = Free;
-  global.Audio = Audio;
+  global.NAudio = NAudio;
   global.Progress = Progress;
   global.Center = Center;
   global.Code = Code;
@@ -183,7 +183,7 @@ export {
   FlexRow,
   UINavBar,
   Free,
-  Audio,
+  NAudio,
   Progress,
   Center,
   Code,

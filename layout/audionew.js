@@ -4,7 +4,7 @@ import {Animator} from "./animator.js";
 	
 	// NExt
 	
-	class Audio extends Animator {
+	class NAudio extends Animator {
 		constructor(url) {
 			super();
 			this.url = url;
@@ -42,7 +42,7 @@ import {Animator} from "./animator.js";
 
 		toCode() {
 			const objString = JSON.stringify(this.options, null, 4);
-			return [`new Audio("${this.url}")`];
+			return [`new NAudio("${this.url}")`];
 		}
 
 
@@ -67,4 +67,4 @@ import {Animator} from "./animator.js";
 //var _oldAudio = Audio;
 //Audio = function(...args) { return new _oldAudio(...args) };
 
-export { Audio };
+export { NAudio };
