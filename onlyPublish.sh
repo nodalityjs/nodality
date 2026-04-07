@@ -28,7 +28,18 @@ echo "✅ All tests passed."
 # ----------------------------
 # Commit, tag, and push
 # ----------------------------
-# only change in package.json
+# Bump patch version in package.json (e.g. 1.0.121 -> 1.0.122)
+node -e "
+const fs = require('fs');
+const path = './package.json';
+const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
+const parts = pkg.version.split('.').map(Number);
+parts[2] += 1;
+pkg.version = parts.join('.');
+fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
+console.log('🔖 Version bumped to ' + pkg.version);
+"
+
 VERSION=$(node -p "require('./package.json').version")
 
 git add .

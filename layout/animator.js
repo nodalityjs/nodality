@@ -23,6 +23,14 @@ class Animator {
 
 	keySet(obj){
 		this.temporaryVal = 1;
+		if (Array.isArray(obj)) {
+			for (let i = 0; i < obj.length; i++) {
+				if (obj[i] && obj[i].key != null) {
+					this.res.style[obj[i].key] = obj[i].value;
+				}
+			}
+			return this;
+		}
 		this.res.style[obj.key] = obj.value;
 		return this;
 	}
@@ -246,32 +254,73 @@ class Animator {
     
 	
 	onScroll(data){
+		const parseUnit = (val) => {
+			if (val == null) return { num: 0, unit: "px" };
+			const m = String(val).match(/^(-?[\d.]+)(.*)$/);
+			return m ? { num: parseFloat(m[1]), unit: m[2] || "px" } : { num: 0, unit: "px" };
+		};
 
-		if (data.value === "opacity"){
-		this.res.style.opacity = data.valMin;
+		const applyTrn = (valObj) => {
+			const tx = valObj && valObj.tx != null ? valObj.tx : "0px";
+			const ty = valObj && valObj.ty != null ? valObj.ty : "0px";
+			this.res.style.transform = `translate3d(${tx}, ${ty}, 0)`;
+		};
+
+		// Set the element valMin offset on page load
+		if (data.value === "opacity") {
+			this.res.style.opacity = data.valMin;
 		} else if (data.value === "scale") {
-			this.res.style.transform = `scale(${data.valMax})`;
+			this.res.style.transform = `scale(${data.valMin})`;
+		} else if (data.value === "trn") {
+			applyTrn(data.valMin);
 		}
 
-
-			window.addEventListener("scroll", () => {
-				let resa = this.smartRange(window.scrollY, {
-					min: data.from,
-					max: data.to // has to be switched
-				}, {
-					min: data.valMin,
-					max: data.valMax
-				});
-
-				if (data.value === "opacity"){
-					this.res.style.opacity = resa;
-
-				} else if (data.value === "scale") {
-					this.res.style.transform = `scale(${resa})`;
+		const compute = () => {
+			if (data.value === "trn") {
+				const result = {};
+				const axes = ["tx", "ty"];
+				for (let i = 0; i < axes.length; i++) {
+					const k = axes[i];
+					const hasMin = data.valMin && data.valMin[k] != null;
+					const hasMax = data.valMax && data.valMax[k] != null;
+					if (hasMin || hasMax) {
+						const a = parseUnit(hasMin ? data.valMin[k] : (hasMax ? data.valMax[k] : "0px"));
+						const b = parseUnit(hasMax ? data.valMax[k] : (hasMin ? data.valMin[k] : "0px"));
+						const num = this.smartRange(window.scrollY, {
+							min: data.from,
+							max: data.to
+						}, {
+							min: a.num,
+							max: b.num
+						});
+						result[k] = `${num}${a.unit}`;
+					}
 				}
-				
+				applyTrn(result);
+				return;
+			}
+
+			let resa = this.smartRange(window.scrollY, {
+				min: data.from,
+				max: data.to
+			}, {
+				min: data.valMin,
+				max: data.valMax
 			});
-		
+
+			if (data.value === "opacity") {
+				this.res.style.opacity = resa;
+			} else if (data.value === "scale") {
+				this.res.style.transform = `scale(${resa})`;
+			}
+		};
+
+		window.addEventListener("scroll", compute);
+
+		// Fire at the beginning if user sets "from" value to 0
+		if (data.from === 0) {
+			compute();
+		}
 	}
 
 

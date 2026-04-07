@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp -R /Users/filipvabrousek/Desktop/layout/layout /Users/filipvabrousek/launch/)",
+      "Bash(cp -R /Users/filipvabrousek/Desktop/layout/lib /Users/filipvabrousek/launch/)",
+      "Bash(cp -R /Users/filipvabrousek/Desktop/layout/assets /Users/filipvabrousek/launch/)",
+      "Read(//Users/filipvabrousek/Launch/**)",
+      "Bash(npm run:*)",
+      "Read(//usr/local/bin/**)",
+      "Bash(echo \"PATH=$PATH\")",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(npx playwright:*)"
+    ]
+  }
+}

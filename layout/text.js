@@ -448,7 +448,7 @@ this.res.style.position = "absolute";
 
 		obj.onScroll && this.onScroll(obj.onScroll);
 
-		//obj.keySet && this.keySet(obj.keySet);
+		obj.keySet && this.keySet(obj.keySet);
 
 		//obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
 
