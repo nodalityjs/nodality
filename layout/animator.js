@@ -72,17 +72,21 @@ class Animator {
 		}
 
 		// Fallback: Theme.defaults. Only fill in properties the user hasn't
-		// already set inline, so user styles always win. Snapshot once.
+		// already set inline, so user styles always win.
+		//
+		// Snapshot is taken lazily, per-key, the first time each key shows up
+		// in Theme.defaults. This matters because Theme.setDefaults() can be
+		// called AFTER components are constructed; when a new key appears we
+		// capture the current inline style (which still reflects what the
+		// user set in .set({...})) before applying any default.
 		const defaults = Theme.defaults && Theme.defaults[mode];
 		if (!defaults) return;
-		if (!this._themeOriginal) {
-			this._themeOriginal = {};
-			for (const k in defaults) {
+		if (!this._themeOriginal) this._themeOriginal = {};
+		for (const k in defaults) {
+			if (!(k in this._themeOriginal)) {
 				this._themeOriginal[k] = this.res.style[k] || "";
 			}
-		}
-		for (const k in defaults) {
-			if (this._themeOriginal[k]) continue;
+			if (this._themeOriginal[k]) continue; // user set this — never touch
 			this.res.style[k] = defaults[k];
 		}
 	}
