@@ -308,9 +308,9 @@ code = `${pad}new Wrapper()`;
 	
 
 		if (obj.borderObj){
-			this.res.style.borderRight = `${obj.borderObj.width} solid ${obj.borderObj.color}`
-			this.res.style.borderRadius = obj.borderObj.radius; 
-			
+			this.res.style.border = `${obj.borderObj.width} solid ${obj.borderObj.color}`
+			this.res.style.borderRadius = obj.borderObj.radius;
+
 			/*borderObj: {
 				side: "all",
 				width: "3px",
@@ -318,9 +318,10 @@ code = `${pad}new Wrapper()`;
 			},*/
 		}
 
+		// borderObja kept as alias for backwards compatibility
 		if (obj.borderObja){
 			this.res.style.border = `${obj.borderObja.width} solid ${obj.borderObja.color}`
-			this.res.style.borderRadius = obj.borderObja.radius; 
+			this.res.style.borderRadius = obj.borderObja.radius;
 		}
 
 		obj.font && this.font(obj.font);

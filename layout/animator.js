@@ -177,7 +177,9 @@ class Animator {
         lineHeight: "lineHeight",
         background: "background",
         font: "fontFamily",
-		opacity: "opacity"
+		opacity: "opacity",
+		gap: "gap",
+		minHeight: "minHeight"
     };
 
     // Apply styles safely

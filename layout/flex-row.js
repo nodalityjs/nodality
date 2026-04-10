@@ -139,6 +139,8 @@ let stringified = JSON.stringify(options.borderObj);
 		options.height && (this.res.style.height = options.height);
 	//	options.height && this.code.push(`\n height: "${options.height}",`);
 
+		options.gap && (this.res.style.gap = options.gap);
+
 
 		if (options.align){
 			 let stringified = JSON.stringify(options.align);
@@ -679,7 +681,6 @@ let stringified = JSON.stringify(options.borderObj);
 		flex.style.display = "flex";
 		flex.style.justifyContent = "space-around";
         flex.style.alignItems = "center";
-		flex.style.margin = 0;
 		// flex.style.width = "100%";
 		this.res = flex;
 
