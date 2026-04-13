@@ -4,39 +4,38 @@ class Dropdown extends Animator {
     constructor() {
         super();
         this.res = document.createElement("div");
-      
+        this.res.style.position = "relative";
+
         // Wrapper for the collapsed dropdown
         this.toggleWrap = document.createElement("div");
-     //   this.toggleWrap.style.background = "olive";
         this.toggleWrap.style.zIndex = 9999;
         this.toggleWrap.style.borderRadius = "0.3rem";
-       //this.toggleWrap.style.width = "200px"; // Explicit width for collapsed dropdown
-       // this.toggleWrap.style.height = "40px"; // Fixed height for collapsed dropdown
         this.toggleWrap.style.cursor = "pointer";
         this.toggleWrap.style.display = "flex";
         this.toggleWrap.style.alignItems = "center";
         this.toggleWrap.style.justifyContent = "center";
         this.res.appendChild(this.toggleWrap);
 
-        // Container for dropdown content
+        // Container for dropdown content — appended to body to escape overflow clipping
         this.contentWrap = document.createElement("div");
-        this.contentWrap.style.position = "absolute";
+        this.contentWrap.style.position = "fixed";
         this.contentWrap.style.background = "#ecf0f1";
         this.contentWrap.style.borderRadius = "0.3rem";
         this.contentWrap.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.15)";
-        this.contentWrap.style.marginTop = "10px"; // Visual separation
-        this.contentWrap.style.width = "250px"; // Explicit width for dropdown content
-        this.contentWrap.style.display = "none"; // Hidden by default
-        this.contentWrap.style.zIndex = 9999;
-        this.res.appendChild(this.contentWrap);
+        this.contentWrap.style.width = "250px";
+        this.contentWrap.style.display = "none";
+        this.contentWrap.style.zIndex = 99999;
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.appendChild(this.contentWrap);
+        });
+        // Fallback if DOM is already loaded
+        if (document.body) {
+            document.body.appendChild(this.contentWrap);
+        }
 
         this.styles = {};
         this.children = [];
         this.isExpanded = false;
-
-      //  this.toggleWrap.addEventListener("click", () => this.toggle());
-
-       
     }
 
     set(obj) {
@@ -62,21 +61,28 @@ class Dropdown extends Animator {
             this.contentWrap.style.borderRadius = obj.radius;
         }
 
-               if (obj.behaviour) {
+        if (obj.behaviour) {
   const ev = obj.behaviour;
+
+  const positionContent = () => {
+    const rect = this.toggleWrap.getBoundingClientRect();
+    this.contentWrap.style.top = (rect.bottom + 4) + "px";
+    this.contentWrap.style.left = rect.left + "px";
+  };
 
   if (ev === "mouseover" || ev === "mouseenter") {
     let hoverTimeout;
 
     const show = () => {
       clearTimeout(hoverTimeout);
+      positionContent();
       this.contentWrap.style.display = "block";
     };
 
     const hide = () => {
       hoverTimeout = setTimeout(() => {
         this.contentWrap.style.display = "none";
-      }, 200); // short delay to allow moving between toggle and content
+      }, 200);
     };
 
     this.toggleWrap.addEventListener("mouseenter", show);
@@ -85,18 +91,28 @@ class Dropdown extends Animator {
     this.contentWrap.addEventListener("mouseleave", hide);
 
   } else if (ev === "click") {
-    this.res.addEventListener("click", () => this.toggle());
+    this.res.addEventListener("click", () => {
+      positionContent();
+      this.toggle();
+    });
 
   } else {
-    // fallback: use the custom event directly on the wrapper
     this.res.addEventListener(ev, () => {
+      positionContent();
       this.contentWrap.style.display = "block";
     });
   }
 
 } else {
-  // default to click
-  this.res.addEventListener("click", () => this.toggle());
+  const positionContent = () => {
+    const rect = this.toggleWrap.getBoundingClientRect();
+    this.contentWrap.style.top = (rect.bottom + 4) + "px";
+    this.contentWrap.style.left = rect.left + "px";
+  };
+  this.res.addEventListener("click", () => {
+    positionContent();
+    this.toggle();
+  });
 }
       
 
@@ -108,21 +124,7 @@ class Dropdown extends Animator {
     obj.resmar && this.resmar(obj.resmar);
        // this.commonMethods(obj); not yet
 
-        const adjust = () => {
-          //  alert("OBJA");
-          //  alert(obj.breakpoint);
-            let media2 = window.matchMedia(`(max-device-width: 415px)`);
-            let smallScreen = window.matchMedia(`(max-width: ${obj.breakpoint ?? "600px"})`); // was 600px
-
-            if (media2.matches || smallScreen.matches) {
-                this.contentWrap.style.position = "relative";
-            } else {
-                this.contentWrap.style.position = "absolute";
-            }
-        };
-
-        window.addEventListener("resize", adjust);
-        adjust();
+        // Position is always fixed (appended to body), no breakpoint adjustment needed
 
 
         return this;

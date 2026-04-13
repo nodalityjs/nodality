@@ -18,9 +18,9 @@ test('Dropdown test', async ({ page, baseURL }) => {
 
   await page.screenshot({ path: `${process.env.HOME}/popover.png`, fullPage: true });
 
-  // Wait for the popover to appear — match by background or part of the inner text
-  const popover = page.locator('div[style*="position: absolute"]');
- 
+  // Wait for the popover to appear — contentWrap is now position:fixed on body
+  const popover = page.locator('div[style*="position: fixed"][style*="display: block"]').first();
+
   // Assert it becomes visible
   await expect(popover).toBeVisible();
 });
