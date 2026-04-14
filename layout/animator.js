@@ -233,7 +233,7 @@ class Animator {
 		}
 
 
-		let bops = this.options.borderObj;
+		let bops = this.options && this.options.borderObj;
 
 		if (bops){
 			//alert("PP")
