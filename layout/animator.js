@@ -264,17 +264,23 @@ class Animator {
 
 	
 		if (obj.animation) {
-		
+
 			this.res.style.transition = `${obj.animation}`; //`${obj.animation}s ease-in-out`; // stop resize ???
-			this.res.style.transionProperty = `background, color`;
+			this.res.style.transionProperty = `background, color, transform`;
 			//  this.transition(obj.animation);
 		}
-      
+
+		// remember the pre-hover transform so scale-on-hover can be undone cleanly
+		this.prevTransform = this.res.style.transform;
+
         this.res.onmouseout = () => {
 		//	alert("OJHOIH")
 			this.res.style.backgroundColor = `${this.prevColor}`;
 			this.res.style.color = `${this.foreColor}`;
 		    this.res.style.border = this.prevBorder;
+		    if (obj.scale != null) {
+		        this.res.style.transform = this.prevTransform || "";
+		    }
 
 
 		/*	if (obj.borderObj && obj.borderObj.width){
@@ -305,12 +311,17 @@ class Animator {
 
 			if (obj.border){
 				//alert("IHO")
-				
+
 				let w = obj.border.width;
 				let color = obj.border.color ?? "#2ECC71";
 				//console.log("WO", w, color);
 				//alert(obj.border.color);
 				this.res.style.border = w ? `${w}px solid ${color}` : "1px solid #2ECC71";
+			}
+
+			if (obj.scale != null) {
+				const base = this.prevTransform ? `${this.prevTransform} ` : "";
+				this.res.style.transform = `${base}scale(${obj.scale})`;
 			}
 
 			//if (this.options && this.options.borderObj){ was here
