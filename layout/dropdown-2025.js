@@ -61,22 +61,52 @@ class Dropdown extends Animator {
             this.contentWrap.style.borderRadius = obj.radius;
         }
 
+        // Center the popup under the toggle, clamp to viewport edges.
+        const positionContent = () => {
+          const tRect = this.toggleWrap.getBoundingClientRect();
+          // Ensure width is measurable even while hidden.
+          const prevDisplay = this.contentWrap.style.display;
+          const prevVisibility = this.contentWrap.style.visibility;
+          if (prevDisplay === "none") {
+            this.contentWrap.style.visibility = "hidden";
+            this.contentWrap.style.display = "block";
+          }
+          const cRect = this.contentWrap.getBoundingClientRect();
+          if (prevDisplay === "none") {
+            this.contentWrap.style.display = prevDisplay;
+            this.contentWrap.style.visibility = prevVisibility || "";
+          }
+
+          const margin = 8;
+          const vw = window.innerWidth;
+          const toggleCenter = tRect.left + tRect.width / 2;
+          let left = toggleCenter - cRect.width / 2;
+          if (left < margin) left = margin;
+          if (left + cRect.width > vw - margin) left = vw - margin - cRect.width;
+          if (left < margin) left = margin; // if content wider than viewport
+
+          this.contentWrap.style.top = (tRect.bottom + 4) + "px";
+          this.contentWrap.style.left = left + "px";
+        };
+        this._positionContent = positionContent;
+
+        // Reposition on resize/scroll while open.
+        const maybeReposition = () => {
+          if (this.contentWrap.style.display !== "none") positionContent();
+        };
+        window.addEventListener("resize", maybeReposition);
+        window.addEventListener("scroll", maybeReposition, true);
+
         if (obj.behaviour) {
   const ev = obj.behaviour;
-
-  const positionContent = () => {
-    const rect = this.toggleWrap.getBoundingClientRect();
-    this.contentWrap.style.top = (rect.bottom + 4) + "px";
-    this.contentWrap.style.left = rect.left + "px";
-  };
 
   if (ev === "mouseover" || ev === "mouseenter") {
     let hoverTimeout;
 
     const show = () => {
       clearTimeout(hoverTimeout);
-      positionContent();
       this.contentWrap.style.display = "block";
+      positionContent();
     };
 
     const hide = () => {
@@ -90,28 +120,42 @@ class Dropdown extends Animator {
     this.contentWrap.addEventListener("mouseenter", show);
     this.contentWrap.addEventListener("mouseleave", hide);
 
+    // Touch / tap support (mobile has no hover)
+    this.toggleWrap.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = this.contentWrap.style.display === "block";
+      if (open) {
+        this.contentWrap.style.display = "none";
+      } else {
+        this.contentWrap.style.display = "block";
+        positionContent();
+      }
+    });
+    document.addEventListener("click", (e) => {
+      if (this.contentWrap.style.display === "block"
+          && !this.contentWrap.contains(e.target)
+          && !this.toggleWrap.contains(e.target)) {
+        this.contentWrap.style.display = "none";
+      }
+    });
+
   } else if (ev === "click") {
     this.res.addEventListener("click", () => {
-      positionContent();
       this.toggle();
+      if (this.contentWrap.style.display === "block") positionContent();
     });
 
   } else {
     this.res.addEventListener(ev, () => {
-      positionContent();
       this.contentWrap.style.display = "block";
+      positionContent();
     });
   }
 
 } else {
-  const positionContent = () => {
-    const rect = this.toggleWrap.getBoundingClientRect();
-    this.contentWrap.style.top = (rect.bottom + 4) + "px";
-    this.contentWrap.style.left = rect.left + "px";
-  };
   this.res.addEventListener("click", () => {
-    positionContent();
     this.toggle();
+    if (this.contentWrap.style.display === "block") positionContent();
   });
 }
       
