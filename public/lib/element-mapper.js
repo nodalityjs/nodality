@@ -1,47 +1,66 @@
-import {Animator} from "../layout/animator.js";
-import {Text} from "../layout/text.js";
-import {Image} from "../layout/image.js";
-import {Link} from "../layout/link.js";
-import {FlexRow} from "../layout/flexRow.js";
-import {UINavBar} from "../layout/newNavBar.js";
-import { /*Beta*/DesktopBar } from "../layout/betaDesktopBar.js";
-import { /*Beta*/MobileBar } from "../layout/betaMobileBar.js";
-import { /*Multi*/Switcher } from "../layout/multiswitcher.js";
-import { Dropdown } from "../layout/dropdown2025.js";
-import { Wrapper } from "../layout/container.js";
-import { SideNav } from "../layout/sideNavBar.js";
-import { Spacer } from "../layout/spacer.js";
-//22:58:29 I won!!!
-
-// 16/04/25 18:39:40 Nice!!! 
-// FORM COMPONENTS
-import { FloatingInput } from "../layout/formComponents/floatingInput.js";
-import { Range } from "../layout/formComponents/range.js";
-import { RadioGroup } from "../layout/formComponents/radio.js";
-import { Picker } from "../layout/formComponents/picker.js";
-import { FilePickera } from "../layout/formComponents/imagePicker.js";
-import { DataList } from "../layout/formComponents/dataList.js";
+// CORE
+import { Animator } from "../layout/animator.js";
 import { Base } from "../layout/base.js";
-import { Form } from "../layout/formComponents/form.js";
-import { Button } from "../layout/button.js";
-import { Slider } from "../layout/slider2025.js";
-import { Audio } from "../layout/audionew.js";
-import { Video } from "../layout/video.js";
-import { Table } from "../layout/table.js";
-import { Modal } from "../layout/modal2025.js";
-import { Code } from "../layout/code.js";
+import { Text } from "../layout/text.js";
+import { Image } from "../layout/image.js";
+import { Link } from "../layout/link.js";
+import { FlexRow } from "../layout/flex-row.js";
+import { CustomDivRenderer } from "../layout/nav-factor/custom-div.js";
+import { UINavBar } from "../layout/new-nav-bar.js";
+import { SideBar } from "../layout/side-bar.js";
+import { SideNav } from "../layout/side-nav-bar.js";
 import { Free } from "../layout/free.js";
-import { Checkbox } from "../layout/checkbox.js";
+import { Audio } from "../layout/audio.js";
+//import { Audionew } from "../layout/audionew.js";
+import { Progress } from "../layout/progress.js";
+import { Center } from "../layout/center.js";
+import { Code } from "../layout/code.js";
 import { Stack } from "../layout/stack.js";
-import { LinkStyler } from "../lib/linkGetter.js";
-import { CardGen } from "../lib/cardGetter.js";
-import {AreaSwitcher} from "../layout/gridSwitcher.js";
-import {HScroller} from "../layout/horizontalScroller.js";
+import { Wrapper } from "../layout/container.js";
+import { MetaAdder } from "../layout/meta-adder.js";
+import { Table } from "../layout/table.js";
+import { Dropdown } from "../layout/dropdown-2025.js";
+import { Modal } from "../layout/modal-2025.js";
+import { TextField } from "../layout/text-field.js";
+import { Card } from "../layout/flex-card.js";
+import { Wrap } from "../layout/wrap.js";
+import { FlexGrid } from "../layout/flex-grid.js";
+import { ZoomCard } from "../layout/zoom-card.js";
+import { SimpleBar } from "../layout/simple-bar.js";
+import { DesktopBar } from "../layout/beta-desktop-bar.js";
+import { MobileBar } from "../layout/beta-mobile-bar.js";
+import { Switcher } from "../layout/multiswitcher.js";
+import { Spacer } from "../layout/spacer.js";
+import { HScroller } from "../layout/horizontal-scroller.js";
+import { Checkbox } from "../layout/checkbox.js";
+import { Video } from "../layout/video.js";
 import { UList } from "../layout/ulist.js";
+import { Slider } from "../layout/slider-2025.js";
 
-// SHAPES
+// FORM COMPONENTS
+import { FloatingInput } from "../layout/form-components/floating-input.js";
+import { Range } from "../layout/form-components/range.js";
+import { RadioGroup } from "../layout/form-components/radio.js";
+import { Picker } from "../layout/form-components/picker.js";
+import { FilePickera } from "../layout/form-components/image-picker.js";
+import { DataList } from "../layout/form-components/data-list.js";
+import { Form } from "../layout/form-components/form.js";
+import { Button } from "../layout/button.js";
+
+// LIBRARY HELPERS / ANIMATIONS
+import { Des } from "../lib/designer.js";
+import { LinkStyler } from "../lib/link-getter.js";
+import { CardGen } from "../lib/card-getter.js";
+import { KeyframeAnim } from "../lib/keyframe-animation.js";
+import { TransformAnim } from "../lib/transform-anim.js";
+import { Stacker } from "../lib/stacker.js";
+import { ScrollVideo } from "../lib/scroll-video.js";
+
+// SHAPES / MISC
+import { AreaSwitcher } from "../layout/grid-switcher.js";
 import { Polygon } from "../layout/polygon.js";
 import { Circle } from "../layout/circle.js";
+
 
 class ElementMapper { // 22:09:58 04/11/2024
    static mapType(obj) {
@@ -378,14 +397,14 @@ animation: {
             transform: {
               op: {
                 name: "transform",
-                transform: {
+    
                   static: true,
                   keep: true,
                   hardCSS: \`translate(-50%, -50%) rotate(\${angle}deg) translate(${radius}px) rotate(\${-angle}deg)\`
                   values: [
                     \`translate(-50%, -50%) rotate(\${angle}deg) translate(120px) rotate(\${-angle}deg)\`,
                   ],
-                }
+       
               }
             }
           });

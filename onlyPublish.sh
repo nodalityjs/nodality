@@ -10,10 +10,30 @@ else
 fi
 
 
-# Copy layout folders
+# Copy layout folders (root for publish)
 cp -R /Users/filipvabrousek/Desktop/layout/layout /Users/filipvabrousek/launch/
 cp -R /Users/filipvabrousek/Desktop/layout/lib /Users/filipvabrousek/launch/
 cp -R /Users/filipvabrousek/Desktop/layout/assets /Users/filipvabrousek/launch/
+
+# Mirror into public/ so e2e test pages can resolve ../layout/* and ../lib/* and ../assets/*
+rm -rf /Users/filipvabrousek/launch/public/layout
+rm -rf /Users/filipvabrousek/launch/public/lib
+rm -rf /Users/filipvabrousek/launch/public/assets
+cp -R /Users/filipvabrousek/Desktop/layout/layout /Users/filipvabrousek/launch/public/
+cp -R /Users/filipvabrousek/Desktop/layout/lib /Users/filipvabrousek/launch/public/
+cp -R /Users/filipvabrousek/Desktop/layout/assets /Users/filipvabrousek/launch/public/
+
+# ----------------------------
+# Kill any stale dev/test servers on 3000-3010 so playwright starts fresh
+# (reuseExistingServer would otherwise latch onto the wrong-rooted server)
+# ----------------------------
+for port in 3000 3001 3002 3003 3004 3005; do
+  pid=$(lsof -ti tcp:$port -sTCP:LISTEN 2>/dev/null)
+  if [ -n "$pid" ]; then
+    echo "🧹 Killing stale process $pid on port $port"
+    kill -9 $pid 2>/dev/null || true
+  fi
+done
 
 # ----------------------------
 # Run tests locally first
