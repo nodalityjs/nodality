@@ -26,8 +26,9 @@ class FlexRow extends Animator {
 
 		var obj = options;
 		//------
-		
-		
+
+		obj.onTap && this.onTap(obj.onTap);
+
 		obj.id && this.res.setAttribute("id", obj.id); //"#ABC";
 		obj.position && (this.res.style.position = obj.position); 	
 		obj.top !== undefined && (this.res.style.top = obj.top); 

@@ -27,9 +27,16 @@ class Card extends Animator {
 		return this;	
 	}
 
+	onTap(handler){
+		this.res.addEventListener("click", handler);
+		return this;
+	}
+
 	set(obj){
 		let stra = "";
 		this.obj = obj;
+
+		obj.onTap && this.onTap(obj.onTap);
 
 		obj.background && (this.res.style.background = obj.background);
 

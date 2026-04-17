@@ -121,19 +121,20 @@ class Image extends Animator {
 
 	set(options){
 
-		
+
 		let stra = ""
-		
+
 		this.options = options;
 let obj = options;
-		
 
-	  
-	
-		
+		obj.onTap && this.onTap(obj.onTap);
 
-		
-		let type = options.isFull; 
+
+
+
+
+
+		let type = options.isFull;
 
 
 	//	options.isFull && (stra += `\n isFull: "${options.isFull}",`);

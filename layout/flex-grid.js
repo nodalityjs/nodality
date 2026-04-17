@@ -33,10 +33,17 @@ class FlexGrid extends Animator {
 		return "FlexRowLayoutElement";
 	}
 
+	onTap(handler){
+		this.res.addEventListener("click", handler);
+		return this;
+	}
+
 	set(options){
 		options.id && this.res.setAttribute("id", options.id);
 		this.commonMethods(options);
-		
+
+		options.onTap && this.onTap(options.onTap);
+
 		this.code.push(".set({");
 	//	this.code.push(JSON.stringify(options));
 	//	console.log("OPE");

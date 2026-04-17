@@ -260,14 +260,21 @@ document.body.appendChild(link);
 	  
 
 
+	onTap(handler){
+		this.res.addEventListener("click", handler);
+		return this;
+	}
+
 	set(obj){ // make it like I would like it
-// `1px solid ${this.blastData.color} 
+// `1px solid ${this.blastData.color}
 
 // push at all times
 true && (this.elCSS.push(`text-decoration: none; \n`));
 this.options = obj;
 
 let stra = "";
+
+obj.onTap && this.onTap(obj.onTap);
 
 //obj.isHidden && this.isHidden(obj.isHidden);
 

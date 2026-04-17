@@ -76,6 +76,11 @@ code = `${pad}new Wrapper()`;
 		return this;
 	  }
 
+	  onTap(handler){
+		this.res.addEventListener("click", handler);
+		return this;
+	  }
+
 	  gpos(obj){
 		//alert(obj.col);
 		this.res.style.gridColumn = obj.col;
@@ -88,7 +93,9 @@ code = `${pad}new Wrapper()`;
 		this.obj = obj;
 
 				this.commonMethods(obj);
-				
+
+		obj.onTap && this.onTap(obj.onTap);
+
 		let stra = ".set({";
 
 		obj.isHidden && this.isHidden(obj.isHidden);
