@@ -243,6 +243,7 @@ class Animator {
         this.prevColor = this.res.style.backgroundColor;
 		this.foreColor = this.res.style.color;
 		this.prevBorder = this.res.style.border;
+		this.prevBoxShadow = this.res.style.boxShadow;
 
 
 	/*	if (obj.border){
@@ -278,8 +279,11 @@ class Animator {
 			this.res.style.backgroundColor = `${this.prevColor}`;
 			this.res.style.color = `${this.foreColor}`;
 		    this.res.style.border = this.prevBorder;
-		    if (obj.scale != null) {
+		    if (obj.scale != null || obj.transform != null) {
 		        this.res.style.transform = this.prevTransform || "";
+		    }
+		    if (obj.boxShadow != null) {
+		        this.res.style.boxShadow = this.prevBoxShadow || "";
 		    }
 
 
@@ -319,9 +323,16 @@ class Animator {
 				this.res.style.border = w ? `${w}px solid ${color}` : "1px solid #2ECC71";
 			}
 
-			if (obj.scale != null) {
+			if (obj.scale != null || obj.transform != null) {
 				const base = this.prevTransform ? `${this.prevTransform} ` : "";
-				this.res.style.transform = `${base}scale(${obj.scale})`;
+				const parts = [];
+				if (obj.transform != null) parts.push(obj.transform);
+				if (obj.scale != null) parts.push(`scale(${obj.scale})`);
+				this.res.style.transform = `${base}${parts.join(" ")}`;
+			}
+
+			if (obj.boxShadow != null) {
+				this.res.style.boxShadow = obj.boxShadow;
 			}
 
 			//if (this.options && this.options.borderObj){ was here
