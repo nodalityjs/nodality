@@ -18,6 +18,7 @@ import { Center } from "../layout/center.js";
 import { Code } from "../layout/code.js";
 import { Stack } from "../layout/stack.js";
 import { Wrapper } from "../layout/container.js";
+import { Svg } from "../layout/svg.js";
 import { MetaAdder } from "../layout/meta-adder.js";
 import { Table } from "../layout/table.js";
 import { Dropdown } from "../layout/dropdown-2025.js";
@@ -79,6 +80,7 @@ if (typeof window !== 'undefined') {
   window.Code = Code;
   window.Stack = Stack;
   window.Wrapper = Wrapper;
+  window.Svg = Svg;
   window.MetaAdder = MetaAdder;
   window.Table = Table;
   window.Dropdown = Dropdown;
@@ -134,6 +136,7 @@ if (typeof global !== 'undefined') {
   global.Code = Code;
   global.Stack = Stack;
   global.Wrapper = Wrapper;
+  global.Svg = Svg;
   global.MetaAdder = MetaAdder;
   global.Table = Table;
   global.Dropdown = Dropdown;
@@ -189,6 +192,7 @@ export {
   Code,
   Stack,
   Wrapper,
+  Svg,
   MetaAdder,
   Table,
   Dropdown,
