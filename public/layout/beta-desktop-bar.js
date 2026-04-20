@@ -26,8 +26,14 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
     set(obj){
         console.warn(obj);
         this.obj = obj;
+
+        // Apply built-in defaults FIRST so caller-supplied pad/mar/
+        // background/radius below can override them. Previously setStyles
+        // ran last and hardcoded padding=1rem, silently clobbering
+        // whatever pad the caller passed.
+        this.setStyles(obj);
+
         obj.background && (this.res.style.backgroundColor = obj.background);
-        obj.mar && super.mar(obj.mar);
         obj.brand && this.setBrand(obj.brand);
         obj.radius && (this.res.style.borderRadius = obj.radius);
 
@@ -43,9 +49,6 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         if (obj.hamburgerColour) {
             this.hamburgerColour = obj.hamburgerColour;
         }
-        // {
-       // [{"a": 21}]
-       this.setStyles(obj);
         return this;
     }
 
@@ -53,6 +56,8 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         this.navbar.style.display = 'flex';
         this.navbar.style.flexDirection = 'column';
 
+        // Default padding — caller-supplied `pad` in set() runs AFTER
+        // this and overrides it.
         this.navbar.style.padding = '1rem';
         this.navbar.style.backgroundColor = this.obj.background ?? '#333';
         //this.navbar.style.color = 'white';
@@ -67,7 +72,7 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         this.navContent.style.display = 'flex';
         this.navContent.style.gap = '1rem';
 
-    
+
     }
 
     setBrand(brandElement) {
