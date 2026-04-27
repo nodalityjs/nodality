@@ -211,6 +211,12 @@ class Animator {
         letterSpacing: "letterSpacing",
         textTransform: "textTransform",
         whiteSpace: "whiteSpace",
+        // Wrapping behaviour for long words. `overflowWrap: "break-word"` (or
+        // "anywhere") lets a label that's longer than its flex-shrunken cell
+        // break mid-word instead of overflowing horizontally.
+        overflowWrap: "overflowWrap",
+        wordBreak: "wordBreak",
+        wordWrap: "wordWrap",
 
         // ── Shadows / effects ──────────────────────────────────────────
         boxShadow: "boxShadow",
