@@ -1649,7 +1649,12 @@ resmar(arr) {
 	borderObj(options){
 		let type = options.type ?? "solid";
 		this.res.style.border = `${options.width} ${type} ${options.color}`
-		this.res.style.borderRadius = options.radius; 
+		// Only touch borderRadius when the caller actually provided one.
+		// Otherwise we'd clobber the radius set via the styleMap (e.g.
+		// `radius: "50%"` on a circle) with `undefined`, which clears it.
+		if (options.radius !== undefined) {
+			this.res.style.borderRadius = options.radius;
+		}
 		return this;
 	}
     

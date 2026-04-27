@@ -321,7 +321,11 @@ code = `${pad}new Wrapper()`;
 
 		if (obj.borderObj){
 			this.res.style.border = `${obj.borderObj.width} solid ${obj.borderObj.color}`
-			this.res.style.borderRadius = obj.borderObj.radius;
+			// Only touch borderRadius when caller provided one — otherwise we'd
+			// clobber the radius set via styleMap (e.g. `radius: "50%"`).
+			if (obj.borderObj.radius !== undefined) {
+				this.res.style.borderRadius = obj.borderObj.radius;
+			}
 
 			/*borderObj: {
 				side: "all",
@@ -333,7 +337,9 @@ code = `${pad}new Wrapper()`;
 		// borderObja kept as alias for backwards compatibility
 		if (obj.borderObja){
 			this.res.style.border = `${obj.borderObja.width} solid ${obj.borderObja.color}`
-			this.res.style.borderRadius = obj.borderObja.radius;
+			if (obj.borderObja.radius !== undefined) {
+				this.res.style.borderRadius = obj.borderObja.radius;
+			}
 		}
 
 		obj.font && this.font(obj.font);

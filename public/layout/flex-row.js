@@ -237,7 +237,11 @@ let stringified = JSON.stringify(options.borderObj);
 			//alert(options.justify);
 		}
 		
-		options.radius && (this.res.style.borderRadius = "1rem");
+		// Use the passed value, not a hardcoded "1rem". commonMethods's
+		// styleMap already maps radius → borderRadius, so this is a defensive
+		// re-apply in case `borderObj()` (called above) clobbered it with an
+		// undefined `borderObj.radius`.
+		options.radius && (this.res.style.borderRadius = options.radius);
 
 		//const obj = options;
 		options.aligns && this.aligns(options.aligns);
