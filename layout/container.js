@@ -169,7 +169,10 @@ code = `${pad}new Wrapper()`;
 
 		let arr = [];
 
-		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || obj.transform){
+		// Plain CSS string transforms are handled by commonMethods. Only
+		// object-shaped transform descriptors enter the animation pipeline.
+		const _hasAnimTransform = obj.transform && typeof obj.transform === "object";
+		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || _hasAnimTransform){
 			if (obj.gradient){
 				this.globalGradient = obj.gradient.op.gradient;
 			if (obj.gradient.op.direction === "radial") {
@@ -177,7 +180,7 @@ code = `${pad}new Wrapper()`;
 				}
 			}
 
-		
+
 			if (obj.stroke){
 				super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
 			}
@@ -187,7 +190,7 @@ code = `${pad}new Wrapper()`;
 			}
 
 
-			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, obj.transform];
+			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, _hasAnimTransform ? obj.transform : undefined];
 			ft = ft.filter(el => el != undefined);
 
 		
@@ -223,7 +226,7 @@ code = `${pad}new Wrapper()`;
 			keep.push("span");
 		}
 
-		if (obj.transform){
+		if (_hasAnimTransform){
 			keep.push("transform");
 		}
 
@@ -303,7 +306,9 @@ code = `${pad}new Wrapper()`;
 		obj.width && (stra += `\n width: "${obj.width}",`);	
 
 
-		obj.overflow && (this.res.style.overflow = "hidden");
+		// Overflow is handled by commonMethods (styleMap) — it now respects
+		// the actual value (visible / hidden / auto / scroll / clip), not
+		// just hard-coded "hidden". Kept here only for codegen output.
 		obj.overflow && (stra += `\n overflow: "${obj.overflow}",`);
 
 		obj.height && this.heightNoAuto(obj.height);
@@ -363,7 +368,9 @@ code = `${pad}new Wrapper()`;
 
 		obj.zIndex && (this.res.style.zIndex = obj.zIndex);
 	
-		obj.transform && this.reactOnTransform(obj.transform); 
+		// String transforms are handled by commonMethods. Only object-shaped
+		// transform descriptors (with .op / .transform) go to the animation system.
+		(obj.transform && typeof obj.transform === "object") && this.reactOnTransform(obj.transform);
 		// obj.makeResponsiveBehaviour && obj.makeResponsiveBehaviour !== "undefined" && this.makeResponsiveBehaviour(obj.makeResponsiveBehaviour);
 		obj.name && (this.name = obj.name)
 		obj.responsive && this.rsp(obj.responsive);

@@ -163,11 +163,12 @@ class Animator {
 */
 
   // Map of obj keys → style properties
+  // Extended 2026-04-27 — first-class CSS props so callers don't need keySet.
+  // Categories: positioning, flex-item, grid, typography, shadows/effects,
+  // overflow, sizing, pointer/selection.
     const styleMap = {
+        // ── Typography / sizing (pre-existing) ─────────────────────────
         exact: "fontSize",
-        zIndex: "zIndex",
-        position: "position",
-        top: "top",
         cursor: "cursor",
         width: "width",
         maxWidth: "maxWidth",
@@ -177,9 +178,67 @@ class Animator {
         lineHeight: "lineHeight",
         background: "background",
         font: "fontFamily",
-		opacity: "opacity",
-		gap: "gap",
-		minHeight: "minHeight"
+        opacity: "opacity",
+        gap: "gap",
+        minHeight: "minHeight",
+
+        // ── Positioning ────────────────────────────────────────────────
+        position: "position",
+        inset: "inset",
+        top: "top",
+        right: "right",
+        bottom: "bottom",
+        left: "left",
+        zIndex: "zIndex",
+
+        // ── Flex item / wrapping ───────────────────────────────────────
+        flex: "flex",
+        flexShrink: "flexShrink",
+        flexGrow: "flexGrow",
+        flexBasis: "flexBasis",
+        flexWrap: "flexWrap",
+        alignSelf: "alignSelf",
+        // `display` accepts any value: "inline-flex", "grid", "block", etc.
+        display: "display",
+
+        // ── Grid ───────────────────────────────────────────────────────
+        gridTemplateColumns: "gridTemplateColumns",
+        gridTemplateRows: "gridTemplateRows",
+        rowGap: "rowGap",
+        columnGap: "columnGap",
+
+        // ── Typography (extended) ──────────────────────────────────────
+        letterSpacing: "letterSpacing",
+        textTransform: "textTransform",
+        whiteSpace: "whiteSpace",
+
+        // ── Shadows / effects ──────────────────────────────────────────
+        boxShadow: "boxShadow",
+        backdropFilter: "backdropFilter",
+        WebkitBackdropFilter: "WebkitBackdropFilter",
+
+        // ── Overflow ───────────────────────────────────────────────────
+        overflow: "overflow",
+        overflowX: "overflowX",
+        overflowY: "overflowY",
+        WebkitOverflowScrolling: "WebkitOverflowScrolling",
+        WebkitTapHighlightColor: "WebkitTapHighlightColor",
+
+        // ── Sizing (extended) ──────────────────────────────────────────
+        minWidth: "minWidth",
+        boxSizing: "boxSizing",
+
+        // ── Pointer / selection ────────────────────────────────────────
+        pointerEvents: "pointerEvents",
+        userSelect: "userSelect",
+        WebkitUserSelect: "WebkitUserSelect",
+
+        // ── Convenience extras ─────────────────────────────────────────
+        // textAlign here lets non-Text classes (Wrapper, FlexRow) align
+        // child text without falling through to keySet. Text already
+        // exposes `align` separately.
+        textAlign: "textAlign",
+        transition: "transition",
     };
 
     // Apply styles safely
@@ -187,6 +246,14 @@ class Animator {
         if (obj[key] != null) {
             this.res.style[styleMap[key]] = obj[key];
         }
+    }
+
+    // `transform` is overloaded: a string is a plain CSS transform, an
+    // object is a Nodality animation descriptor handled by reactOnTransform
+    // (called further below). Strings are applied here so they reach the
+    // DOM without going through the animation system.
+    if (typeof obj.transform === "string") {
+        this.res.style.transform = obj.transform;
     }
 //alert(obj.respad);
     // Special methods
@@ -201,7 +268,9 @@ class Animator {
     obj.noTheme && (this._noTheme = true);
     obj.theme && this.theme(obj.theme);
     obj.hide && this.isHidden(obj.hide);
-	obj.transform && this.reactOnTransform(obj.transform);
+	// Only route to the animation system for object-shaped transforms.
+	// String transforms are applied above via the styleMap path.
+	(obj.transform && typeof obj.transform === "object") && this.reactOnTransform(obj.transform);
 
 	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
 

@@ -49,7 +49,8 @@ class Code extends Animator {
 
 		let arr = [];
 
-		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || obj.transform){
+		const _hasAnimTransform = obj.transform && typeof obj.transform === "object";
+		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || _hasAnimTransform){
 			if (obj.gradient){
 				this.globalGradient = obj.gradient.op.gradient;
 			
@@ -68,7 +69,7 @@ class Code extends Animator {
 			}
 
 
-			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, obj.transform];
+			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, _hasAnimTransform ? obj.transform : undefined];
 			ft = ft.filter(el => el != undefined);
 
 		
