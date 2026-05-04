@@ -44,6 +44,12 @@ class TextField extends Animator {
 		obj.maxWidth && (this.res.style.maxWidth = obj.maxWidth);
 		obj.exact && (this.res.style.fontSize = obj.exact);
 		obj.radius && this.round(obj.radius);
+		obj.color && (this.res.style.color = obj.color);
+		obj.background && (this.res.style.background = obj.background);
+		obj.font && (this.res.style.fontFamily = obj.font);
+		obj.weight && (this.res.style.fontWeight = obj.weight);
+		obj.bold && (this.res.style.fontWeight = "bold");
+		obj.theme && this.theme(obj.theme);
 		return this;
 	}
 
