@@ -46,7 +46,7 @@ code = `${pad}new Wrapper()`;
         code += `\n${pad}  .set(${objString})`;
     }
 
-    if (this.items.length) {
+    if (this.items?.length) {
         code += `\n${pad}  .add([\n` +
             this.items.map(c => c.toCode(indent + 4)).join(",\n") +
             `\n${pad}  ])`;
