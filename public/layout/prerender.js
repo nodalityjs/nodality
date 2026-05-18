@@ -114,6 +114,9 @@ export async function prerender({
   localStorageKey = "h7lang",
   url = "http://localhost/",
   viewport = { width: 390, height: 844 },
+  htmlLang,
+  canonical,
+  alternates,
   build,
   output,
 }) {
@@ -327,6 +330,49 @@ export async function prerender({
     // those won't have their output captured. Keep builders sync or
     // promise-based for full coverage.
     await new Promise((resolve) => setImmediate(resolve));
+
+    // ─── SEO head injection ─────────────────────────────────────────
+    //
+    // Inject per-locale `<html lang>`, `<link rel="canonical">`, and
+    // `<link rel="alternate" hreflang>` tags so search engines and
+    // social-share crawlers can attribute each prerendered file to
+    // its correct language and prevent duplicate-content rank
+    // collapse across locales.
+    //
+    // Doing this at the library level (rather than the consumer
+    // template) keeps every SSG site that uses `nodality/ssg`
+    // SEO-complete without each consumer reinventing the boilerplate.
+
+    if (htmlLang) {
+      window.document.documentElement.setAttribute("lang", htmlLang);
+    }
+
+    if (canonical) {
+      // Remove any prior <link rel="canonical"> from the template so
+      // we don't end up with two competing canonicals after re-runs.
+      const prior = window.document.head.querySelector('link[rel="canonical"]');
+      if (prior) prior.remove();
+      const link = window.document.createElement("link");
+      link.setAttribute("rel", "canonical");
+      link.setAttribute("href", canonical);
+      window.document.head.appendChild(link);
+    }
+
+    if (Array.isArray(alternates) && alternates.length > 0) {
+      // Strip prior hreflang alternates so successive prerender runs
+      // produce byte-identical output (idempotent build).
+      for (const el of window.document.head.querySelectorAll('link[rel="alternate"][hreflang]')) {
+        el.remove();
+      }
+      for (const alt of alternates) {
+        if (!alt || !alt.hreflang || !alt.href) continue;
+        const link = window.document.createElement("link");
+        link.setAttribute("rel", "alternate");
+        link.setAttribute("hreflang", alt.hreflang);
+        link.setAttribute("href", alt.href);
+        window.document.head.appendChild(link);
+      }
+    }
 
     // ─── Hydration handoff ──────────────────────────────────────────
     //
