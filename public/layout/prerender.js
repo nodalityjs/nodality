@@ -87,6 +87,15 @@ import path from "node:path";
  * @param {string} [opts.url="http://localhost/"] — Base URL for the jsdom
  *   window. Affects `window.location`, relative-URL resolution, and the
  *   `Document.URL` your code may read.
+ * @param {{ width?: number, height?: number }} [opts.viewport={width:390,height:844}]
+ *   — Simulated viewport dimensions. Drives `window.innerWidth`,
+ *   `window.innerHeight`, and the response of `window.matchMedia()`
+ *   to viewport queries like `(min-width: 768px)`. Default is mobile
+ *   (iPhone 12-ish: 390×844) so JS-driven responsive layouts (e.g.
+ *   `Switcher({ breakpoints })`) emit the MOBILE variant during SSG.
+ *   That's the "mobile-first" pattern — phones see the right layout
+ *   immediately, desktop users see the mobile layout briefly until
+ *   JS rehydrates with the desktop variant.
  * @param {(window: Window) => (void | Promise<void>)} opts.build —
  *   Async function that runs inside the simulated browser. Receives the
  *   jsdom `window` object. Should construct the page via Nodality
@@ -104,6 +113,7 @@ export async function prerender({
   locale,
   localStorageKey = "h7lang",
   url = "http://localhost/",
+  viewport = { width: 390, height: 844 },
   build,
   output,
 }) {
@@ -185,18 +195,58 @@ export async function prerender({
       disconnect() {}
     };
   }
-  if (!window.matchMedia) {
-    window.matchMedia = () => ({
-      matches: false,
-      media: "",
+  // Simulated viewport. jsdom's defaults are 1024×768 — we override
+  // with the caller-provided (or default mobile) dimensions so JS-
+  // driven responsive layouts pick the right variant during SSG.
+  //
+  // `innerWidth` / `innerHeight` are read by code like
+  // `Switcher.choose()` that compares `window.innerWidth` against
+  // each breakpoint's `at` value. They must be defined as values
+  // (not getters) so subsequent assignments don't throw.
+  const vw = (viewport && Number(viewport.width))  || 390;
+  const vh = (viewport && Number(viewport.height)) || 844;
+  try {
+    Object.defineProperty(window, "innerWidth", { value: vw, configurable: true, writable: true });
+    Object.defineProperty(window, "innerHeight", { value: vh, configurable: true, writable: true });
+    Object.defineProperty(window, "outerWidth",  { value: vw, configurable: true, writable: true });
+    Object.defineProperty(window, "outerHeight", { value: vh, configurable: true, writable: true });
+  } catch {
+    // jsdom version that freezes these — fall back to direct assignment.
+    try { window.innerWidth  = vw; window.innerHeight = vh; } catch {}
+  }
+
+  // Replace jsdom's matchMedia (which returns matches:false for every
+  // query) with a viewport-aware shim that resolves CSS `(min-width:
+  // N)` / `(max-width: N)` against the simulated width. This lets
+  // matchMedia-driven responsive code (and Nodality's Switcher
+  // matchMedia path) pick the right branch during SSG.
+  //
+  // We override unconditionally — jsdom's default is too permissive
+  // for our purposes since it answers `false` for every viewport
+  // query, defeating the mobile-first goal.
+  window.matchMedia = (query) => {
+    let matches = false;
+    if (typeof query === "string" && query.includes("width")) {
+      // Parse a single "(min-width: 768px)" or "(max-width: 768px)"
+      // clause. Multi-clause queries (commas, `and`) fall through to
+      // false — Nodality's breakpoint code doesn't emit those.
+      const min = query.match(/min-width:\s*(\d+)\s*px/i);
+      const max = query.match(/max-width:\s*(\d+)\s*px/i);
+      if (min && !max) matches = vw >= Number(min[1]);
+      else if (max && !min) matches = vw <= Number(max[1]);
+      // Both present (range) or other → leave as false.
+    }
+    return {
+      matches,
+      media: query || "",
       onchange: null,
       addListener() {},
       removeListener() {},
       addEventListener() {},
       removeEventListener() {},
       dispatchEvent() { return false; },
-    });
-  }
+    };
+  };
   // Some libraries probe these for code-splitting / analytics. Stub
   // them as harmless no-ops so the builder doesn't crash; the live
   // browser still uses the real implementations.
