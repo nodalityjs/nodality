@@ -1,6 +1,6 @@
 {
   "name": "nodality",
-  "version": "1.0.151",
+  "version": "1.0.152",
   "description": "A lightweight library for declarative UI elements.",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -14,7 +14,8 @@
       "require": "./dist/index.js",
       "import": "./dist/index.esm.js"
     },
-    "./ssg": "./layout/prerender.js"
+    "./ssg": "./layout/prerender.js",
+    "./ssg-site": "./layout/prerender-site.js"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
