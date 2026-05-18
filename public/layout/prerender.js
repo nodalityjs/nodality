@@ -234,22 +234,23 @@ export async function prerender({
   // since jsdom provides its own copy on `window` that the builder
   // can reach via `window.navigator`. Same defensive check for any
   // other future getter-only globals Node may add.
+  // Rather than try to detect every read-only global ahead of time
+  // (descriptors differ subtly between data and accessor properties,
+  // and Node's set keeps evolving), just attempt each assignment in
+  // a try/catch and remember which ones actually took. The finally
+  // block only restores the successful ones, preventing the same
+  // throw on cleanup.
   const originalGlobals = {};
+  const assigned = new Set();
   for (const key of PROXIED) {
-    if (key in globalThis) originalGlobals[key] = globalThis[key];
     if (!(key in window)) continue;
-    const desc = Object.getOwnPropertyDescriptor(globalThis, key);
-    if (desc && desc.set === undefined && desc.writable === false) {
-      // Read-only built-in (e.g. Node 22+ `navigator`). Skip — the
-      // builder can still reach the jsdom copy via `window.<key>`.
-      continue;
-    }
     try {
+      if (key in globalThis) originalGlobals[key] = globalThis[key];
       globalThis[key] = window[key];
+      assigned.add(key);
     } catch {
-      // Belt-and-braces: if descriptor inspection missed something
-      // (host-defined exotic, frozen prototype chain), swallow the
-      // assignment failure rather than aborting the whole render.
+      // Read-only built-in (e.g. Node 22+ `navigator`). The builder
+      // can still reach the jsdom copy via `window.<key>`.
     }
   }
 
@@ -297,11 +298,23 @@ export async function prerender({
     // caller runs prerender() in a loop — without this, the second
     // invocation would inherit the FIRST jsdom's window, which has
     // already been closed.
-    for (const key of PROXIED) {
-      if (key in originalGlobals) {
-        globalThis[key] = originalGlobals[key];
-      } else {
-        delete globalThis[key];
+    //
+    // We only restore keys we successfully wrote in the first place
+    // (`assigned`). Anything Node refused to let us assign is still
+    // its original built-in, so there's nothing to roll back. Each
+    // restore is also try/catch-guarded for the same reason — if
+    // Node tightened the descriptor between begin and end of build
+    // (unlikely but cheap to defend against), we want cleanup to
+    // continue rather than throw out of the finally block.
+    for (const key of assigned) {
+      try {
+        if (key in originalGlobals) {
+          globalThis[key] = originalGlobals[key];
+        } else {
+          delete globalThis[key];
+        }
+      } catch {
+        // Skip — restoration is best-effort.
       }
     }
     // Release jsdom's internal resources (timers, parser state).
