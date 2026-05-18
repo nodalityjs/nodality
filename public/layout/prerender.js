@@ -328,11 +328,50 @@ export async function prerender({
     // promise-based for full coverage.
     await new Promise((resolve) => setImmediate(resolve));
 
+    // ─── Hydration handoff ──────────────────────────────────────────
+    //
+    // The runtime <script> tags from the template still load in the
+    // live browser — they're how interactivity (dropdowns, animations,
+    // language switching) reaches the user. But Nodality's `render()`
+    // primitive APPENDS to the mount target rather than replacing it.
+    // That means without intervention, the browser would parse the
+    // prerendered DOM (visible), then app.js would run and append a
+    // SECOND copy of every section beneath it. The user sees the
+    // page rendered twice, stacked.
+    //
+    // Fix: inject a tiny inline `<script>` right BEFORE the first
+    // runtime module script. The inline script empties the mount
+    // container so app.js starts with a clean slate. Bots that don't
+    // execute JS still see the prerendered content (SEO + social
+    // preview win preserved). Users with JS see the prerendered
+    // content as instant-paint, then a sub-frame later the inline
+    // script clears mount and app.js rebuilds — visually a brief
+    // flicker, no duplication.
+    //
+    // Why not just have app.js clear mount itself: nodality has no
+    // hook for "before first render" and the page entry scripts in
+    // every consumer would each need the same boilerplate. Doing it
+    // here, once, keeps consumers untouched.
+    if (mount) {
+      const firstRuntimeScript = window.document.querySelector(
+        'body script[type="module"][src], body script[src][type="module"]'
+      );
+      if (firstRuntimeScript) {
+        const clearScript = window.document.createElement("script");
+        // Inline (not type="module") so it executes synchronously,
+        // before any module scripts begin loading. Module scripts
+        // are always deferred, so the clear runs in the right order
+        // regardless of where it sits in the DOM relative to them.
+        clearScript.textContent =
+          `(function(){var m=document.querySelector(${JSON.stringify(mount)});if(m)m.innerHTML='';})();`;
+        firstRuntimeScript.parentNode.insertBefore(clearScript, firstRuntimeScript);
+      }
+    }
+
     // Serialize the full document. `dom.serialize()` returns
     // `<!DOCTYPE html><html>...</html>` including the template's
-    // head + the now-populated body. The runtime <script> tags from
-    // the template are preserved verbatim, so the live browser will
-    // re-execute app.js and re-mount on top of the static DOM.
+    // head + the now-populated body PLUS the hydration-clear script
+    // we injected above.
     const rendered = dom.serialize();
 
     // Ensure the output directory exists. Writing to a path like
