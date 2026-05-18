@@ -225,10 +225,32 @@ export async function prerender({
     "requestAnimationFrame", "cancelAnimationFrame", "getComputedStyle",
     "fetch", "dataLayer", "gtag",
   ];
+  // Some Node versions (22+) make certain globals — most notably
+  // `navigator` — getter-only on `globalThis`, which means a plain
+  // assignment (`globalThis.navigator = window.navigator`) throws
+  // "Cannot set property navigator of #<Object> which has only a
+  // getter". Inspect the property descriptor and skip read-only
+  // ones — the live browser's native object is fine to leave alone
+  // since jsdom provides its own copy on `window` that the builder
+  // can reach via `window.navigator`. Same defensive check for any
+  // other future getter-only globals Node may add.
   const originalGlobals = {};
   for (const key of PROXIED) {
     if (key in globalThis) originalGlobals[key] = globalThis[key];
-    if (key in window)     globalThis[key] = window[key];
+    if (!(key in window)) continue;
+    const desc = Object.getOwnPropertyDescriptor(globalThis, key);
+    if (desc && desc.set === undefined && desc.writable === false) {
+      // Read-only built-in (e.g. Node 22+ `navigator`). Skip — the
+      // builder can still reach the jsdom copy via `window.<key>`.
+      continue;
+    }
+    try {
+      globalThis[key] = window[key];
+    } catch {
+      // Belt-and-braces: if descriptor inspection missed something
+      // (host-defined exotic, frozen prototype chain), swallow the
+      // assignment failure rather than aborting the whole render.
+    }
   }
 
   try {
