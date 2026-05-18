@@ -331,6 +331,69 @@ export async function prerender({
     // promise-based for full coverage.
     await new Promise((resolve) => setImmediate(resolve));
 
+    // ─── Cleanup pass: dedupe styles + strip body noise ─────────────
+    //
+    // Nodality's components have render-time side effects that
+    // accumulate during the prerender build:
+    //
+    //   • Each section calling .render("#mount") injects its own
+    //     <style> tag into <head>. The same `.hiw-card` block ends
+    //     up duplicated once per section that uses those classes.
+    //
+    //   • Dropdown.render() appends its floating panel
+    //     (`this.contentWrap`) directly to `document.body`, OUTSIDE
+    //     `#mount`. Each render call appends another copy. With
+    //     Switcher rendering both mobile + desktop variants, plus
+    //     repeated render() invocations across the build, you can
+    //     end up with 10+ identical hidden dropdowns.
+    //
+    //   • Modal components do the same thing — fixed-position
+    //     overlays appended to body.
+    //
+    // None of this duplication is needed in the static output. The
+    // crawler-relevant content all lives INSIDE #mount. The floating
+    // panels are JS-driven UI that the browser recreates fresh when
+    // the runtime clear-mount script fires + app.js re-renders.
+    //
+    // So: dedupe <style> tags by text content and remove every
+    // body child that isn't #mount. Cuts the prerender output
+    // roughly in half without changing what's visible to crawlers
+    // or to real users.
+
+    // Dedupe identical <style> tags. Keep the first occurrence,
+    // remove subsequent ones with the same textContent.
+    {
+      const seen = new Set();
+      for (const style of window.document.head.querySelectorAll("style")) {
+        const key = style.textContent || "";
+        if (seen.has(key)) {
+          style.remove();
+        } else {
+          seen.add(key);
+        }
+      }
+    }
+
+    // Strip every body child except #mount (or whichever element
+    // matches the `mount` selector) and the runtime <script> tags.
+    // Floating dropdowns, modals, tooltips, etc. — all appended to
+    // body by their respective render()s — get evicted here.
+    if (mount) {
+      const mountEl = window.document.querySelector(mount);
+      const body = window.document.body;
+      const keepers = new Set();
+      if (mountEl) keepers.add(mountEl);
+      // Keep all <script> tags so the runtime entries (app.js,
+      // cookie-consent.js, the clear-mount inline) survive.
+      for (const s of body.querySelectorAll(":scope > script")) keepers.add(s);
+      // Keep GTM noscript iframe + any other <noscript> fallbacks.
+      for (const n of body.querySelectorAll(":scope > noscript")) keepers.add(n);
+      // Remove every direct child that wasn't whitelisted.
+      for (const child of Array.from(body.children)) {
+        if (!keepers.has(child)) child.remove();
+      }
+    }
+
     // ─── SEO head injection ─────────────────────────────────────────
     //
     // Inject per-locale `<html lang>`, `<link rel="canonical">`, and
@@ -399,6 +462,17 @@ export async function prerender({
     // every consumer would each need the same boilerplate. Doing it
     // here, once, keeps consumers untouched.
     if (mount) {
+      const expectedClearBody =
+        `(function(){var m=document.querySelector(${JSON.stringify(mount)});if(m)m.innerHTML='';})();`;
+
+      // Remove any pre-existing clear-mount scripts (left over from
+      // a prior prerender run that read this same file as its
+      // template). Without this, each successive build adds another
+      // copy and the inline script section bloats.
+      for (const s of window.document.querySelectorAll("body > script:not([src]):not([type])")) {
+        if (s.textContent === expectedClearBody) s.remove();
+      }
+
       const firstRuntimeScript = window.document.querySelector(
         'body script[type="module"][src], body script[src][type="module"]'
       );
@@ -408,8 +482,7 @@ export async function prerender({
         // before any module scripts begin loading. Module scripts
         // are always deferred, so the clear runs in the right order
         // regardless of where it sits in the DOM relative to them.
-        clearScript.textContent =
-          `(function(){var m=document.querySelector(${JSON.stringify(mount)});if(m)m.innerHTML='';})();`;
+        clearScript.textContent = expectedClearBody;
         firstRuntimeScript.parentNode.insertBefore(clearScript, firstRuntimeScript);
       }
     }
