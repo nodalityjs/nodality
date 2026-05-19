@@ -181,6 +181,22 @@ export async function prerender({
   // the builder constructs objects that reference observation APIs.
   // Real observation isn't meaningful at build time (no scrolling,
   // no resizing, no layout) and SSG doesn't need it.
+  // jsdom doesn't implement the Web Animations API (`Element.animate`).
+  // Nodality's animation runtime calls it on the underlying DOM nodes;
+  // without it the call throws and aborts the page build. Provide a
+  // no-op stub that returns the minimum surface (`cancel`, `finish`,
+  // `play`, `pause`) so the registration path completes silently.
+  const ElementProto = window.Element && window.Element.prototype;
+  if (ElementProto && typeof ElementProto.animate !== "function") {
+    ElementProto.animate = function () {
+      return {
+        cancel: () => {}, finish: () => {}, play: () => {}, pause: () => {},
+        reverse: () => {}, addEventListener: () => {}, removeEventListener: () => {},
+        playState: "finished", finished: Promise.resolve(),
+      };
+    };
+  }
+
   if (!window.IntersectionObserver) {
     window.IntersectionObserver = class {
       constructor() {}
