@@ -278,7 +278,11 @@ export async function prerender({
     "requestAnimationFrame", "cancelAnimationFrame", "getComputedStyle",
     "fetch", "dataLayer", "gtag",
     "DOMParser", "XMLSerializer", "Range", "NodeFilter",
-    "SVGElement", "HTMLImageElement", "Image",
+    // Deliberately NOT shimming the browser `Image` / `HTMLImageElement`
+    // / `SVGElement` constructors — Nodality exports its own `Image`
+    // class and `nodality/_globals.js` writes it to `globalThis`. The
+    // browser-constructor copies would clobber it and break every
+    // `new Image().set(…)` call in the entries.
   ];
   // Some Node versions (22+) make certain globals — most notably
   // `navigator` — getter-only on `globalThis`, which means a plain
