@@ -213,6 +213,18 @@ export async function prerender({
     Object.defineProperty(window, "innerHeight", { value: vh, configurable: true, writable: true });
     Object.defineProperty(window, "outerWidth",  { value: vw, configurable: true, writable: true });
     Object.defineProperty(window, "outerHeight", { value: vh, configurable: true, writable: true });
+    // jsdom doesn't implement `visualViewport`. Nodality's animator
+    // reads `window.visualViewport.width` when registering responsive
+    // animation queries, so it crashes ("reading 'width' of undefined")
+    // without this shim. A static object matching the simulated
+    // viewport is enough — there's no pinch-zoom during SSG.
+    if (!window.visualViewport) {
+      Object.defineProperty(window, "visualViewport", {
+        value: { width: vw, height: vh, scale: 1, offsetLeft: 0, offsetTop: 0,
+                 addEventListener: () => {}, removeEventListener: () => {} },
+        configurable: true, writable: true,
+      });
+    }
   } catch {
     // jsdom version that freezes these — fall back to direct assignment.
     try { window.innerWidth  = vw; window.innerHeight = vh; } catch {}
@@ -274,7 +286,7 @@ export async function prerender({
     "window", "document", "localStorage", "sessionStorage", "navigator",
     "location", "HTMLElement", "Element", "Node", "DocumentFragment",
     "Event", "CustomEvent", "MouseEvent", "KeyboardEvent", "PointerEvent",
-    "IntersectionObserver", "ResizeObserver", "matchMedia",
+    "IntersectionObserver", "ResizeObserver", "matchMedia", "visualViewport",
     "requestAnimationFrame", "cancelAnimationFrame", "getComputedStyle",
     "fetch", "dataLayer", "gtag",
     "DOMParser", "XMLSerializer", "Range", "NodeFilter",
