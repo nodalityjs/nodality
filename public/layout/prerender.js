@@ -277,6 +277,8 @@ export async function prerender({
     "IntersectionObserver", "ResizeObserver", "matchMedia",
     "requestAnimationFrame", "cancelAnimationFrame", "getComputedStyle",
     "fetch", "dataLayer", "gtag",
+    "DOMParser", "XMLSerializer", "Range", "NodeFilter",
+    "SVGElement", "HTMLImageElement", "Image",
   ];
   // Some Node versions (22+) make certain globals — most notably
   // `navigator` — getter-only on `globalThis`, which means a plain
