@@ -124,10 +124,15 @@ this.options = obj;
 			 this.margin(obj.margin);
 		}
 
-		/*obj.mar && (this.mar(obj.mar));
-		obj.pad && (this.pad(obj.pad));
+		// Plain `mar` / `pad` are handled implicitly by the
+		// `padding` / `margin` branches above (the codegen converts
+		// short-form arrays to those before reaching here). But the
+		// responsive variants `respad` / `resmar` are not — without
+		// these two lines, consumers writing `new Button(...).set({
+		// resmar: [...] })` get silent no-ops while the same options
+		// on Link, Text, Image, Center etc. work as expected.
 		obj.respad && this.respad(obj.respad);
-		obj.resmar && this.resmar(obj.resmar);*/
+		obj.resmar && this.resmar(obj.resmar);
 
 
 
