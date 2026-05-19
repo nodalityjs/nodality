@@ -90,11 +90,15 @@ const DEFAULT_ASSET_PREFIXES = [
  *                                            the template HTML + entry .js files. Output
  *                                            files are written under it (default locale
  *                                            at the root, others under /<locale>/).
- * @param {string} config.defaultLocale     — The locale code whose pages live at the
+ * @param {string} [config.defaultLocale]   — The locale code whose pages live at the
  *                                            root of uploadDir. All other locales get a
- *                                            same-named subdir.
- * @param {string[]} config.locales         — All locale codes to render. Must include
- *                                            `defaultLocale`.
+ *                                            same-named subdir. Optional — omit for a
+ *                                            single-locale site with no locale tagging.
+ * @param {string[]} [config.locales]       — All locale codes to render. Must include
+ *                                            `defaultLocale` (if both given). Defaults
+ *                                            to `[defaultLocale]` when only the default
+ *                                            is set; defaults to a single untagged
+ *                                            build when neither is set.
  * @param {Array<{html:string,entry:string}>} config.pages
  *                                          — Each page's public HTML file (used as
  *                                            template) and the JS entry script that
@@ -115,19 +119,39 @@ export async function prerenderSite(config) {
 
   // Child mode? Render exactly one locale and exit.
   const childLocale = process.env[ENV_LOCALE];
-  if (childLocale) {
-    return runChild(config, childLocale);
+  if (childLocale !== undefined) {
+    // The env var carries a string; map the literal "null" sentinel
+    // back to a real null so single-locale paths work in the child.
+    const locale = childLocale === "__none__" ? null : childLocale;
+    return runChild(config, locale);
   }
 
-  // Parent mode — fan out one subprocess per locale, sequentially
-  // (parallel would scramble console output and risk thrashing CPU).
+  // Single-locale (or unspecified) fast path: skip subprocess fanout.
+  // There's no ESM-cache-leak risk to guard against because only one
+  // locale will run in this process. Sitemap/hreflang are also no-ops
+  // when there's only one locale.
   const startedAt = Date.now();
+  const isMulti = config.locales.length > 1;
+
+  if (!isMulti) {
+    const locale = config.locales[0];
+    console.log(`🌍 Prerendering ${config.pages.length} page(s)${locale ? ` (${locale})` : ""}…`);
+    console.log();
+    await runChild(config, locale);
+    const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+    console.log(`✅ Prerender done in ${elapsed}s — ${config.pages.length} page(s)`);
+    return;
+  }
+
+  // Multi-locale: fan out one subprocess per locale, sequentially
+  // (parallel would scramble console output and risk thrashing CPU).
   console.log(`🌍 Prerendering ${config.locales.length} locales × ${config.pages.length} pages…`);
   console.log();
 
   let failures = 0;
   for (const locale of config.locales) {
-    console.log(`── ${locale} ${"─".repeat(60 - locale.length - 3)}`);
+    const label = locale ?? "(default)";
+    console.log(`── ${label} ${"─".repeat(60 - String(label).length - 3)}`);
     const ok = await runLocaleSubprocess(locale);
     if (!ok) failures++;
     console.log();
@@ -147,15 +171,10 @@ export async function prerenderSite(config) {
 }
 
 function validateConfig(config) {
-  const required = ["origin", "uploadDir", "defaultLocale", "locales", "pages"];
+  // Hard requirements — no sensible defaults possible.
+  const required = ["origin", "uploadDir", "pages"];
   for (const k of required) {
     if (!config[k]) throw new Error(`prerenderSite: config.${k} is required`);
-  }
-  if (!Array.isArray(config.locales) || config.locales.length === 0) {
-    throw new Error("prerenderSite: config.locales must be a non-empty array");
-  }
-  if (!config.locales.includes(config.defaultLocale)) {
-    throw new Error(`prerenderSite: config.defaultLocale "${config.defaultLocale}" not in config.locales`);
   }
   if (!Array.isArray(config.pages) || config.pages.length === 0) {
     throw new Error("prerenderSite: config.pages must be a non-empty array");
@@ -164,6 +183,32 @@ function validateConfig(config) {
     if (!p.html || !p.entry) {
       throw new Error("prerenderSite: each page needs { html, entry }");
     }
+  }
+
+  // Soft defaults for the locale config — a single-locale site
+  // doesn't need to declare anything beyond the implicit "default".
+  // We mutate config here so the rest of the file can assume both
+  // keys are populated.
+  if (!config.defaultLocale && !config.locales) {
+    // Fully unspecified — single-locale build, no locale tagging.
+    // Use a sentinel `null` so subsequent code can skip <html lang>,
+    // hreflang, and localStorage injection.
+    config.defaultLocale = null;
+    config.locales = [null];
+  } else if (!config.locales) {
+    // Default declared but no list given — single-locale build at
+    // the root with that default locale's <html lang>.
+    config.locales = [config.defaultLocale];
+  } else if (!Array.isArray(config.locales) || config.locales.length === 0) {
+    throw new Error("prerenderSite: config.locales must be a non-empty array");
+  } else if (!config.defaultLocale) {
+    // Locales given but no default — assume the first entry is the
+    // one whose pages live at the root.
+    config.defaultLocale = config.locales[0];
+  }
+
+  if (config.defaultLocale && !config.locales.includes(config.defaultLocale)) {
+    throw new Error(`prerenderSite: config.defaultLocale "${config.defaultLocale}" not in config.locales`);
   }
 }
 
@@ -182,9 +227,12 @@ function runLocaleSubprocess(locale) {
       resolve(false);
       return;
     }
+    // Encode null locale as a sentinel string so it survives the env
+    // round-trip (env vars are always strings).
+    const localeStr = locale === null ? "__none__" : locale;
     const child = spawn(process.execPath, [entry], {
       cwd: process.cwd(),
-      env: { ...process.env, [ENV_LOCALE]: locale },
+      env: { ...process.env, [ENV_LOCALE]: localeStr },
       stdio: "inherit",
     });
     child.on("exit", (code) => resolve(code === 0));
@@ -212,7 +260,9 @@ async function runChild(config, locale) {
     localStorageKey = "h7lang",
   } = config;
 
-  const isSubdir = locale !== defaultLocale;
+  // A null locale (single-locale, untagged) always renders to the
+  // root. Any other locale goes to root only if it equals the default.
+  const isSubdir = locale !== null && locale !== defaultLocale;
   const localeDir = isSubdir ? path.join(uploadDir, locale) : uploadDir;
   await fs.mkdir(localeDir, { recursive: true });
 
@@ -249,17 +299,27 @@ async function runChild(config, locale) {
       process.stdout.write(`  ${page.html.padEnd(22)} `);
 
       try {
+        // Build the prerender call. Locale-related options are
+        // skipped when this is a single-locale-untagged build
+        // (locale === null) so the static output has no <html lang>,
+        // no canonical, no hreflang, no localStorage seed. The
+        // consumer's site looks like a vanilla single-page build.
+        const isLocaleAware = locale !== null;
         const result = await prerender({
           template: tmplPath,
           output:   outPath,
           mount,
-          locale,
+          locale: isLocaleAware ? locale : undefined,
           localStorageKey,
           viewport,
           url: urlFor(config, locale, page.html),
-          htmlLang:   locale,
-          canonical:  urlFor(config, locale, page.html),
-          alternates: alternatesFor(config, page.html),
+          htmlLang:   isLocaleAware ? locale : undefined,
+          canonical:  isLocaleAware && config.locales.length > 1
+            ? urlFor(config, locale, page.html)
+            : undefined,
+          alternates: isLocaleAware && config.locales.length > 1
+            ? alternatesFor(config, page.html)
+            : undefined,
           build: async () => {
             const importUrl = `${pathToFileURL(entryPath).href}?t=${stamp}-${page.entry}`;
             await import(importUrl);
@@ -325,7 +385,8 @@ async function buildCleanTemplate(htmlPath, isSubdir, mount) {
 
 /** URL for a (locale, page) pair under this site's origin. */
 function urlFor(config, locale, page) {
-  const slash = locale === config.defaultLocale ? "" : `${locale}/`;
+  // Null locale (untagged) and the default locale both live at root.
+  const slash = (locale === null || locale === config.defaultLocale) ? "" : `${locale}/`;
   const tail = page === "index.html" ? slash : `${slash}${page}`;
   return `${config.origin}/${tail}`;
 }
