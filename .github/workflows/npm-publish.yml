@@ -18,10 +18,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2. Setup Node.js (includes npm)
+      # 2. Setup Node.js (includes npm).
+      #
+      # Pinned to 22 LTS because:
+      #   - Node 18.20.0 ships npm 10.5, which has a known compatibility
+      #     issue where publishing with --provenance fails with HTTP 404
+      #     (PUT https://registry.npmjs.org/<pkg>) when a `bin` field is
+      #     newly added to a previously-published package. The provenance
+      #     statement signs cleanly, gets logged to sigstore, but the
+      #     final registry PUT 404s. nodality 1.0.159 and 1.0.160 hit
+      #     this — the WARN-cleaning of bin path / repo url that was
+      #     blamed in 1.0.159 was fixed in package.json, but 1.0.160 still
+      #     404'd with provenance flowing through npm 10.5.
+      #   - Node 22 LTS ships npm 10.9+ which has the fix.
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.20.0'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
