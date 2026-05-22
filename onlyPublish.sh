@@ -14,6 +14,10 @@ fi
 cp -R /Users/filipvabrousek/Desktop/layout/layout /Users/filipvabrousek/launch/
 cp -R /Users/filipvabrousek/Desktop/layout/lib /Users/filipvabrousek/launch/
 cp -R /Users/filipvabrousek/Desktop/layout/assets /Users/filipvabrousek/launch/
+# bin/ holds the `nodality` CLI binary (e.g. `npx nodality prerender`).
+# Mirror behaviour of the other copies above so it's available to
+# both the published tarball and to the e2e test pages.
+cp -R /Users/filipvabrousek/Desktop/layout/bin /Users/filipvabrousek/launch/
 
 # Mirror into public/ so e2e test pages can resolve ../layout/* and ../lib/* and ../assets/*
 rm -rf /Users/filipvabrousek/launch/public/layout

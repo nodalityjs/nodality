@@ -1,0 +1,223 @@
+#!/usr/bin/env node
+// bin/nodality.js — `npx nodality <command>` CLI entry shipped with
+// the nodality package. Today the only subcommand is `prerender`,
+// which walks the consumer's `upload/` directory, pairs each
+// `<name>.html` with `pages/<name>.js` (or `<name>.js` for flat
+// layouts), and renders the resulting tree to static HTML in place.
+//
+// Why this lives in the nodality package rather than in a separate
+// `nodality-cli`:
+//   • Single install (`npm i nodality`) gives you the engine AND the
+//     runner — same pattern as next, vite, astro, prisma.
+//   • The CLI and the engine ship together so version drift between
+//     them is impossible.
+//   • Consumer scripts wrap this in `npm run prerender`, but
+//     `npx nodality prerender` also works without any wiring.
+//
+// Configuration lives in the consumer's `nodality.config.json`:
+//
+//   {
+//     "origin":        "https://example.com",
+//     "uploadDir":     "upload",
+//     "defaultLocale": "cs",
+//     "locales":       ["cs", "en", ...],
+//     "pages":         [{ "html": "index.html", "entry": "app.js" }, ...]
+//     "tolerateAsyncErrors": true
+//   }
+//
+// Anything omitted falls back to sensible defaults (single-locale,
+// upload/, auto-discovered page list). CLI flags override the file.
+
+import fs from "node:fs";
+import path from "node:path";
+import { prerenderSite } from "../layout/prerender-site.js";
+
+// ─── Usage ──────────────────────────────────────────────────────
+
+function showUsage() {
+  console.log(`Usage:
+  nodality prerender [flags]                  # SSG: render upload/*.html in place
+  nodality help
+
+Prerender flags (all optional; fall through to nodality.config.json, then defaults):
+  --origin=<url>            Public origin, e.g. https://example.com (required if no config)
+  --upload=<path>           Upload directory (default: ./upload)
+  --default-locale=<code>   Default locale code for multi-locale builds
+  --locales=<a,b,c>         Comma-separated locale list
+  --tolerate-async          Install uncaught/unhandledRejection handlers so a single page's
+                            late throw (from a deferred animation/fetch timer) doesn't abort
+                            the whole batch — useful for sites with span-animation entries.
+
+Examples:
+  nodality prerender
+  nodality prerender --origin=https://example.com --tolerate-async
+`);
+  process.exit(1);
+}
+
+// ─── Flag parsing — minimal, no deps ────────────────────────────
+
+function parseFlags(argv) {
+  const flags = {};
+  for (const arg of argv) {
+    if (!arg.startsWith("--")) continue;
+    const eq = arg.indexOf("=");
+    if (eq === -1) flags[arg.slice(2)] = true;
+    else flags[arg.slice(2, eq)] = arg.slice(eq + 1);
+  }
+  return flags;
+}
+
+// ─── Config file loader ─────────────────────────────────────────
+
+function loadConfigFile(cwd) {
+  const p = path.join(cwd, "nodality.config.json");
+  if (!fs.existsSync(p)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch (e) {
+    console.error(`[nodality] Failed to parse ${p}: ${e.message}`);
+    process.exit(1);
+  }
+}
+
+// ─── Page auto-discovery ────────────────────────────────────────
+
+/**
+ * Pair each upload/<name>.html with its entry script. Supports both
+ * common layouts:
+ *   • Flat: `upload/app.js`, `upload/o-konceptu.js` at uploadDir root
+ *   • Nested: `upload/pages/index.js`, `upload/pages/products.js`
+ *
+ * HTMLs with no matching entry are skipped with a warning. Irregular
+ * pairs (e.g. `index.html → app.js`) can be declared explicitly via
+ * the `pages` key in nodality.config.json, which bypasses discovery.
+ */
+function discoverPages(uploadDir) {
+  if (!fs.existsSync(uploadDir)) {
+    console.error(`[nodality] uploadDir not found: ${uploadDir}`);
+    process.exit(1);
+  }
+  const htmls = fs
+    .readdirSync(uploadDir)
+    .filter((f) => f.endsWith(".html"))
+    .sort();
+
+  const pages = [];
+  for (const html of htmls) {
+    const base = path.basename(html, ".html");
+    const candidates = [path.join("pages", `${base}.js`), `${base}.js`];
+    let entry = null;
+    for (const c of candidates) {
+      if (fs.existsSync(path.join(uploadDir, c))) {
+        entry = c;
+        break;
+      }
+    }
+    if (entry) pages.push({ html, entry });
+    else console.warn(`[nodality] ⚠ ${html} skipped — no pages/${base}.js or ${base}.js`);
+  }
+
+  if (pages.length === 0) {
+    console.error(`[nodality] No HTML/entry pairs found under ${uploadDir}.`);
+    process.exit(1);
+  }
+  return pages;
+}
+
+// ─── prerender subcommand ──────────────────────────────────────
+
+async function runPrerender(rawArgs) {
+  const cwd = process.cwd();
+  const flags = parseFlags(rawArgs);
+  const fileConfig = loadConfigFile(cwd);
+
+  // Flag > config file > default.
+  const origin = flags.origin || fileConfig.origin || null;
+  const uploadDir = path.resolve(cwd, flags.upload || fileConfig.uploadDir || "upload");
+  const defaultLocale = flags["default-locale"] || fileConfig.defaultLocale || null;
+  const locales =
+    (flags.locales && flags.locales.split(",").map((s) => s.trim())) ||
+    fileConfig.locales ||
+    null;
+  const tolerateAsync =
+    flags["tolerate-async"] === true ||
+    flags["tolerate-async"] === "true" ||
+    fileConfig.tolerateAsyncErrors === true;
+
+  if (!origin) {
+    console.error(`[nodality] --origin not given and no "origin" in nodality.config.json.`);
+    process.exit(1);
+  }
+
+  if (tolerateAsync) {
+    // Some Nodality animation ops schedule setTimeout callbacks that
+    // fire AFTER prerender has serialized the page. When those throw
+    // (jsdom realm closed, etc.) a Node default-handler would kill
+    // the whole process mid-batch. Demote to warnings so the loop
+    // keeps going — same pattern the hand-written prerender.mjs
+    // files used in sls3-2025/2026.
+    process.on("uncaughtException", (e) =>
+      console.warn(`⚠  uncaughtException:  ${e.message}`),
+    );
+    process.on("unhandledRejection", (e) =>
+      console.warn(`⚠  unhandledRejection: ${e?.message ?? e}`),
+    );
+  }
+
+  // Explicit `pages` from config wins over auto-discovery. The
+  // discovery rules (pages/<base>.js, <base>.js) can't infer
+  // irregular pairs like h7-nodality's `index.html → app.js`; for
+  // those projects the user lists pairs in nodality.config.json.
+  const pages =
+    Array.isArray(fileConfig.pages) && fileConfig.pages.length
+      ? fileConfig.pages
+      : discoverPages(uploadDir);
+
+  // Only the PARENT process prints the banner. In multi-locale fanout
+  // each locale runs in a child subprocess that re-enters this same
+  // script with NODALITY_SSG_LOCALE set; suppressing the banner there
+  // keeps output clean (the parent already prints `── cs ──` separators).
+  if (!process.env.NODALITY_SSG_LOCALE) {
+    console.log(
+      `[nodality] Prerender ${pages.length} page(s) @ ${origin}` +
+        (defaultLocale ? ` (default: ${defaultLocale})` : " (single-locale, untagged)"),
+    );
+  }
+
+  const config = { origin, uploadDir, pages };
+  if (defaultLocale) config.defaultLocale = defaultLocale;
+  if (locales) config.locales = locales;
+
+  await prerenderSite(config);
+}
+
+// ─── Dispatch ──────────────────────────────────────────────────
+
+async function main() {
+  // Subprocess-mode shortcut. `prerenderSite` parallelises locales
+  // by spawning `process.argv[1]` (this script) as a child with the
+  // NODALITY_SSG_LOCALE env var set but NO CLI args. Without this
+  // branch the child would hit showUsage() and exit, killing every
+  // locale's render. Re-enter the prerender directly when the env
+  // var is present.
+  if (process.env.NODALITY_SSG_LOCALE !== undefined) {
+    await runPrerender([]);
+    return;
+  }
+
+  const [command, ...rest] = process.argv.slice(2);
+  if (!command || command === "help" || command === "--help" || command === "-h") {
+    showUsage();
+  } else if (command === "prerender") {
+    await runPrerender(rest);
+  } else {
+    console.error(`[nodality] Unknown command: ${command}`);
+    showUsage();
+  }
+}
+
+main().catch((err) => {
+  console.error(`[nodality] ${err?.message ?? err}`);
+  process.exit(1);
+});
