@@ -192,7 +192,12 @@ function bootstrapUpload(cwd, uploadDir) {
 
     const entryPath = path.join(pagesDir, `${pageName}.js`);
     if (!fs.existsSync(entryPath)) {
-      fs.copyFileSync(path.join(srcDir, srcFile), entryPath);
+      // `code: true` toggles Nodality's on-page <pre>/<code> dev panel,
+      // which is useful while writing src/ but should be off in the
+      // SSG output. Rewrite when cloning into upload/pages/.
+      const srcContent = fs.readFileSync(path.join(srcDir, srcFile), "utf8");
+      const ssgContent = srcContent.replace(/code:\s*true/g, "code: false");
+      fs.writeFileSync(entryPath, ssgContent);
       wrote++;
     }
 
