@@ -47,12 +47,86 @@ Prerender flags (all optional; fall through to nodality.config.json, then defaul
   --tolerate-async          Install uncaught/unhandledRejection handlers so a single page's
                             late throw (from a deferred animation/fetch timer) doesn't abort
                             the whole batch — useful for sites with span-animation entries.
+  --verbose                 Print every console.log() emitted by the library during render.
+                            Default is quiet — only progress lines, page sizes, and the
+                            final summary are shown. Use this when debugging.
 
 Examples:
   nodality prerender
   nodality prerender --origin=https://example.com --tolerate-async
+  nodality prerender --verbose
 `);
   process.exit(1);
+}
+
+/**
+ * Install a stdout filter that hides the library's internal debug
+ * chatter (OGA, MBO, BRIS, APPENDED-, 0P, TAGS SET, date stamps, raw
+ * object dumps, "Appending brand:" lines, etc.) during prerender.
+ * Progress banners from `prerenderSite` (page-name lines, `→ … KB`,
+ * `✅ Prerender done`) and our own `[nodality] …` banner pass through
+ * unmodified.
+ *
+ * Bypassed with --verbose (or NODALITY_VERBOSE=1) when you need the
+ * full chatter to debug a render that silently goes wrong.
+ *
+ * We hook process.stdout.write (not console.log) because the library
+ * has 100+ scattered console.log calls across 30 files, AND because
+ * jsdom's virtual console forwards differently than expected, AND
+ * because some output uses process.stdout.write directly. Filtering
+ * at the byte stream catches every path uniformly.
+ */
+function installLogFilter() {
+  const origWrite = process.stdout.write.bind(process.stdout);
+
+  // Strict whitelist: only lines matching one of these patterns
+  // survive. Everything else (dev markers, object dumps, stack traces
+  // from page scripts, HTML fragments leaking out of jsdom, media-
+  // query strings, date stamps, …) is dropped.
+  const ALLOW = [
+    /^\[nodality\]/,                       // our CLI banner
+    /^🌍/,                                  // prerenderSite progress banner
+    /^✅/, /^❌/, /^⚠/,                       // status emojis
+    /^── /,                                 // locale separators
+    /^  [a-z0-9\-]+\.html\s/,              // page progress: "  index.html ..."
+    /^→ /,                                  // result lines
+    /^$/,                                   // blank lines (preserve spacing)
+  ];
+
+  function shouldDropLine(line) {
+    for (const rx of ALLOW) if (rx.test(line)) return false;
+    return true;
+  }
+
+  // Buffer partial lines so we can decide on line boundaries.
+  let buf = "";
+
+  process.stdout.write = function (chunk, encoding, cb) {
+    const s = typeof chunk === "string" ? chunk : chunk?.toString?.(encoding || "utf8") ?? "";
+    buf += s;
+
+    let out = "";
+    let nl;
+    while ((nl = buf.indexOf("\n")) !== -1) {
+      const line = buf.slice(0, nl);
+      buf = buf.slice(nl + 1);
+      if (!shouldDropLine(line)) out += line + "\n";
+    }
+
+    // A trailing buffer with no newline is a progress write like
+    // `  index.html             ` from prerender-site.js. Pass it
+    // through so the user sees progress before the line completes.
+    // We only do this when the buffered fragment passes the page-
+    // progress check; otherwise hold until newline.
+    if (buf && /^  [a-z0-9\-]+\.html\s/.test(buf)) {
+      out += buf;
+      buf = "";
+    }
+
+    if (out) origWrite(out, encoding, cb);
+    else if (cb) cb();
+    return true;
+  };
 }
 
 // ─── Flag parsing — minimal, no deps ────────────────────────────
@@ -144,6 +218,18 @@ async function runPrerender(rawArgs) {
     flags["tolerate-async"] === true ||
     flags["tolerate-async"] === "true" ||
     fileConfig.tolerateAsyncErrors === true;
+
+  // Quiet by default; --verbose or NODALITY_VERBOSE=1 turns the
+  // library's internal chatter back on. Only install the filter once
+  // (the multi-locale fanout re-enters this function in the parent
+  // process for the no-locales path, but on the child path
+  // NODALITY_SSG_LOCALE is set and we still want the filter on).
+  const verbose =
+    flags.verbose === true ||
+    flags.verbose === "true" ||
+    process.env.NODALITY_VERBOSE === "1" ||
+    fileConfig.verbose === true;
+  if (!verbose) installLogFilter();
 
   if (!origin) {
     console.error(`[nodality] --origin not given and no "origin" in nodality.config.json.`);
