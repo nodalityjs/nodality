@@ -155,6 +155,90 @@ function loadConfigFile(cwd) {
   }
 }
 
+// ─── SSG bootstrap ──────────────────────────────────────────────
+
+/**
+ * On first run, derive the upload/ structure from the project's root
+ * files so a freshly scaffolded project can prerender without manual
+ * setup. For each `src/<name>.js` we generate `upload/pages/<name>.js`
+ * (verbatim copy) and an `upload/<name>.html` whose importmap points
+ * at `./lib.bundle.js` and whose `<script src>` points at the page
+ * entry. The first src file (alphabetically) is also written as
+ * `upload/index.html` when no explicit index entry exists, so the
+ * dev server has a default landing page.
+ *
+ * If the user has already populated upload/ themselves, we touch
+ * nothing. Bootstrap only runs when upload/ is missing OR contains
+ * no .html files.
+ */
+function bootstrapUpload(cwd, uploadDir) {
+  const srcDir = path.join(cwd, "src");
+  if (!fs.existsSync(srcDir)) return false;
+
+  const srcFiles = fs.readdirSync(srcDir).filter((f) => f.endsWith(".js"));
+  if (srcFiles.length === 0) return false;
+
+  fs.mkdirSync(uploadDir, { recursive: true });
+  const pagesDir = path.join(uploadDir, "pages");
+  fs.mkdirSync(pagesDir, { recursive: true });
+
+  const projectName = path.basename(cwd);
+  let wrote = 0;
+  for (const srcFile of srcFiles) {
+    const base = path.basename(srcFile, ".js");
+    // Convention: src/app.js → upload/index.html + upload/pages/index.js.
+    // All others: src/<name>.js → upload/<name>.html + upload/pages/<name>.js.
+    const pageName = base === "app" ? "index" : base;
+
+    const entryPath = path.join(pagesDir, `${pageName}.js`);
+    if (!fs.existsSync(entryPath)) {
+      fs.copyFileSync(path.join(srcDir, srcFile), entryPath);
+      wrote++;
+    }
+
+    const htmlPath = path.join(uploadDir, `${pageName}.html`);
+    if (!fs.existsSync(htmlPath)) {
+      fs.writeFileSync(htmlPath, renderUploadHtml(projectName, pageName));
+      wrote++;
+    }
+  }
+
+  if (wrote > 0) {
+    console.log(`[nodality] Bootstrapped upload/ from src/ (${wrote} file(s) written)`);
+  }
+
+  if (!fs.existsSync(path.join(uploadDir, "lib.bundle.js"))) {
+    console.warn(
+      `[nodality] ⚠ upload/lib.bundle.js missing — run \`npm run build\` first ` +
+        `so the prerendered HTML can load the library bundle at runtime.`,
+    );
+  }
+  return true;
+}
+
+function renderUploadHtml(projectName, pageName) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${projectName}</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "nodality": "./lib.bundle.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module" src="./pages/${pageName}.js"></script>
+</body>
+</html>
+`;
+}
+
 // ─── Page auto-discovery ────────────────────────────────────────
 
 /**
@@ -250,6 +334,16 @@ async function runPrerender(rawArgs) {
       console.warn(`⚠  unhandledRejection: ${e?.message ?? e}`),
     );
   }
+
+  // First-run bootstrap: if upload/ is missing or has no HTML pages
+  // yet, derive it from the project's src/ + root index.html. This is
+  // what create-nodality projects rely on so the scaffolder doesn't
+  // have to ship duplicate copies of source files. No-op if upload/
+  // is already populated.
+  const needsBootstrap =
+    !fs.existsSync(uploadDir) ||
+    fs.readdirSync(uploadDir).filter((f) => f.endsWith(".html")).length === 0;
+  if (needsBootstrap) bootstrapUpload(cwd, uploadDir);
 
   // Explicit `pages` from config wins over auto-discovery. The
   // discovery rules (pages/<base>.js, <base>.js) can't infer
