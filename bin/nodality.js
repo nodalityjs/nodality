@@ -29,15 +29,22 @@
 // upload/, auto-discovered page list). CLI flags override the file.
 
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { prerenderSite } from "../layout/prerender-site.js";
+import { prerender } from "../layout/prerender.js";
 
 // ─── Usage ──────────────────────────────────────────────────────
 
 function showUsage() {
   console.log(`Usage:
   nodality prerender [flags]                  # SSG: render upload/*.html in place
+  nodality compile [src/<file>.js] [flags]    # Emit Designer output as a companion file
   nodality help
+
+Compile flags:
+  --out=<path>              Override output path (defaults to upload/pages/<name>.designer.js)
+  --stdout                  Print imperative code to stdout instead of writing a file
 
 Prerender flags (all optional; fall through to nodality.config.json, then defaults):
   --origin=<url>            Public origin, e.g. https://example.com (required if no config)
@@ -155,95 +162,6 @@ function loadConfigFile(cwd) {
   }
 }
 
-// ─── SSG bootstrap ──────────────────────────────────────────────
-
-/**
- * On first run, derive the upload/ structure from the project's root
- * files so a freshly scaffolded project can prerender without manual
- * setup. For each `src/<name>.js` we generate `upload/pages/<name>.js`
- * (verbatim copy) and an `upload/<name>.html` whose importmap points
- * at `./lib.bundle.js` and whose `<script src>` points at the page
- * entry. The first src file (alphabetically) is also written as
- * `upload/index.html` when no explicit index entry exists, so the
- * dev server has a default landing page.
- *
- * If the user has already populated upload/ themselves, we touch
- * nothing. Bootstrap only runs when upload/ is missing OR contains
- * no .html files.
- */
-function bootstrapUpload(cwd, uploadDir) {
-  const srcDir = path.join(cwd, "src");
-  if (!fs.existsSync(srcDir)) return false;
-
-  const srcFiles = fs.readdirSync(srcDir).filter((f) => f.endsWith(".js"));
-  if (srcFiles.length === 0) return false;
-
-  fs.mkdirSync(uploadDir, { recursive: true });
-  const pagesDir = path.join(uploadDir, "pages");
-  fs.mkdirSync(pagesDir, { recursive: true });
-
-  const projectName = path.basename(cwd);
-  let wrote = 0;
-  for (const srcFile of srcFiles) {
-    const base = path.basename(srcFile, ".js");
-    // Convention: src/app.js → upload/index.html + upload/pages/index.js.
-    // All others: src/<name>.js → upload/<name>.html + upload/pages/<name>.js.
-    const pageName = base === "app" ? "index" : base;
-
-    const entryPath = path.join(pagesDir, `${pageName}.js`);
-    if (!fs.existsSync(entryPath)) {
-      // `code: true` toggles Nodality's on-page <pre>/<code> dev panel,
-      // which is useful while writing src/ but should be off in the
-      // SSG output. Rewrite when cloning into upload/pages/.
-      const srcContent = fs.readFileSync(path.join(srcDir, srcFile), "utf8");
-      const ssgContent = srcContent.replace(/code:\s*true/g, "code: false");
-      fs.writeFileSync(entryPath, ssgContent);
-      wrote++;
-    }
-
-    const htmlPath = path.join(uploadDir, `${pageName}.html`);
-    if (!fs.existsSync(htmlPath)) {
-      fs.writeFileSync(htmlPath, renderUploadHtml(projectName, pageName));
-      wrote++;
-    }
-  }
-
-  if (wrote > 0) {
-    console.log(`[nodality] Bootstrapped upload/ from src/ (${wrote} file(s) written)`);
-  }
-
-  if (!fs.existsSync(path.join(uploadDir, "lib.bundle.js"))) {
-    console.warn(
-      `[nodality] ⚠ upload/lib.bundle.js missing — run \`npm run build\` first ` +
-        `so the prerendered HTML can load the library bundle at runtime.`,
-    );
-  }
-  return true;
-}
-
-function renderUploadHtml(projectName, pageName) {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${projectName}</title>
-  <script type="importmap">
-  {
-    "imports": {
-      "nodality": "./lib.bundle.js"
-    }
-  }
-  </script>
-</head>
-<body>
-  <div id="mount"></div>
-  <script type="module" src="./pages/${pageName}.js"></script>
-</body>
-</html>
-`;
-}
-
 // ─── Page auto-discovery ────────────────────────────────────────
 
 /**
@@ -340,16 +258,6 @@ async function runPrerender(rawArgs) {
     );
   }
 
-  // First-run bootstrap: if upload/ is missing or has no HTML pages
-  // yet, derive it from the project's src/ + root index.html. This is
-  // what create-nodality projects rely on so the scaffolder doesn't
-  // have to ship duplicate copies of source files. No-op if upload/
-  // is already populated.
-  const needsBootstrap =
-    !fs.existsSync(uploadDir) ||
-    fs.readdirSync(uploadDir).filter((f) => f.endsWith(".html")).length === 0;
-  if (needsBootstrap) bootstrapUpload(cwd, uploadDir);
-
   // Explicit `pages` from config wins over auto-discovery. The
   // discovery rules (pages/<base>.js, <base>.js) can't infer
   // irregular pairs like h7-nodality's `index.html → app.js`; for
@@ -377,6 +285,141 @@ async function runPrerender(rawArgs) {
   await prerenderSite(config);
 }
 
+// ─── compile subcommand ────────────────────────────────────────
+
+/**
+ * Run the Designer (`src/<name>.js`) in jsdom and emit the imperative
+ * code it would have shown in the `code: true` on-page panel into a
+ * companion file `upload/pages/<name>.designer.js` (non-destructive —
+ * the canonical `upload/pages/<name>.js` is never touched).
+ *
+ * Developer workflow:
+ *   1. Sketch in `src/app.js` using the declarative Designer API.
+ *   2. `nodality compile`  →  emits `upload/pages/index.designer.js`
+ *      containing `new Text(...).set({...}).render("#mount")` etc.
+ *   3. Diff the .designer.js against your canonical
+ *      `upload/pages/index.js`; copy/cherry-pick what you want;
+ *      refine by hand. The .designer.js is throwaway — regenerate
+ *      whenever you sketch new pieces in src/.
+ *
+ * Flags:
+ *   --out=<path>   write to this file instead of the default companion
+ *                  (use this when you want to overwrite the canonical
+ *                  file; you own the risk)
+ *   --stdout       print the imperative code to stdout instead of
+ *                  writing a file (pipe into pbcopy, etc.)
+ *
+ * Mechanism: sets `globalThis.NODALITY_EMIT = true` before importing
+ * the Designer entry. `Des.set()` short-circuits when this flag is
+ * present, stashing `this.code` into `globalThis.__NODALITY_EMITTED__`
+ * instead of evaluating it. We then format and emit that array.
+ */
+async function runCompile(rawArgs) {
+  const cwd = process.cwd();
+  const flags = parseFlags(rawArgs);
+  const positionals = rawArgs.filter((a) => !a.startsWith("--"));
+
+  const srcRel = positionals[0] || "src/app.js";
+  const srcAbs = path.resolve(cwd, srcRel);
+  if (!fs.existsSync(srcAbs)) {
+    console.error(`[nodality] compile: source not found: ${srcRel}`);
+    process.exit(1);
+  }
+
+  const base = path.basename(srcAbs, ".js");
+  const pageName = base === "app" ? "index" : base;
+  const defaultOut = path.join(cwd, "upload", "pages", `${pageName}.designer.js`);
+  const outAbs = flags.out ? path.resolve(cwd, flags.out) : defaultOut;
+  const toStdout = flags.stdout === true || flags.stdout === "true";
+
+  // Reuse the full prerender machinery — it already installs every
+  // browser shim the Designer's add() pipeline touches (IntersectionObserver,
+  // matchMedia, rAF, Element.animate, innerWidth/Height, …). We write
+  // throwaway template + output files into a temp dir; the only thing
+  // we actually want is the side effect of __NODALITY_EMITTED__ being
+  // populated when `Des.set()` short-circuits under NODALITY_EMIT.
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "nodality-compile-"));
+  const tmplPath = path.join(tmpDir, "template.html");
+  const outPath = path.join(tmpDir, "out.html");
+  fs.writeFileSync(
+    tmplPath,
+    `<!DOCTYPE html><html><body><div id="mount"></div></body></html>`,
+  );
+
+  globalThis.NODALITY_EMIT = true;
+  globalThis.__NODALITY_EMITTED__ = null;
+
+  try {
+    await prerender({
+      template: tmplPath,
+      output: outPath,
+      mount: "#mount",
+      build: async () => {
+        await import(`file://${srcAbs}?t=${Date.now()}`);
+      },
+    });
+  } catch (e) {
+    // Designer-emit mode is purely a code-capture pass; if prerender's
+    // own serialize step throws because we short-circuited the render,
+    // that's fine as long as we captured something.
+    if (!globalThis.__NODALITY_EMITTED__) {
+      console.error(`[nodality] compile: failed to load ${srcRel}: ${e.message}`);
+      process.exit(1);
+    }
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    globalThis.NODALITY_EMIT = false;
+  }
+
+  const emitted = globalThis.__NODALITY_EMITTED__;
+  if (!emitted || !Array.isArray(emitted) || emitted.length === 0) {
+    console.error(
+      `[nodality] compile: ${srcRel} did not produce Designer output. ` +
+        `Make sure it ends with \`new Des().nodes(...).add(...).set({ mount: "#mount" })\`.`,
+    );
+    process.exit(1);
+  }
+
+  // Wrap captured code strings into a standalone module.
+  const body = emitted
+    .map((line) => line.trim().replace(/;\s*$/, ""))
+    .map((line) => `${line};`)
+    .join("\n\n");
+
+  const out = `// Auto-emitted by \`nodality compile\` from ${srcRel}.
+// This is the imperative form the Designer would have shown in the
+// \`code: true\` panel. It is a throwaway artifact — diff it against
+// your canonical upload/pages/${pageName}.js, copy what you want,
+// then refine by hand. Re-run \`nodality compile\` whenever you
+// sketch new pieces in ${srcRel}.
+
+import {
+  Text, Image, Link, FlexRow, FlexGrid, Wrapper, Center, Stack,
+  Card, ZoomCard, Switcher, MobileBar, DesktopBar, SideNav, UINavBar,
+  Dropdown, Modal, Table, Spacer, HScroller, Polygon, Circle, UList,
+  Free, Audio, Progress, Code, MetaAdder, TextField,
+  FloatingInput, Range, RadioGroup, Picker, FilePickera, DataList,
+  Base, Form, Button, Slider, Video, Checkbox,
+} from "nodality";
+
+${body}
+`;
+
+  if (toStdout) {
+    process.stdout.write(out);
+    return;
+  }
+
+  fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+  fs.writeFileSync(outAbs, out);
+  const rel = path.relative(cwd, outAbs);
+  console.log(`[nodality] compile: emitted ${emitted.length} statement(s) → ${rel}`);
+  if (!flags.out) {
+    const canonical = path.join("upload", "pages", `${pageName}.js`);
+    console.log(`[nodality]   diff against your canonical ${canonical} and cherry-pick.`);
+  }
+}
+
 // ─── Dispatch ──────────────────────────────────────────────────
 
 async function main() {
@@ -396,6 +439,8 @@ async function main() {
     showUsage();
   } else if (command === "prerender") {
     await runPrerender(rest);
+  } else if (command === "compile") {
+    await runCompile(rest);
   } else {
     console.error(`[nodality] Unknown command: ${command}`);
     showUsage();
