@@ -386,6 +386,34 @@ async function runCompile(rawArgs) {
     .map((line) => `${line};`)
     .join("\n\n");
 
+  // Derive the import list from the actual class names used in the
+  // emitted statements rather than dumping a hardcoded superset.
+  // nodality only exports a known subset of class names; importing a
+  // non-exported name (e.g. `Form`, `Polygon`) trips ESM's named-export
+  // verification at parse time and breaks the file.
+  const NODALITY_EXPORTS = new Set([
+    "ElementMapper", "Animator",
+    "Text", "Image", "Link", "FlexRow", "UINavBar",
+    "Free", "NAudio", "Progress", "Center", "Code",
+    "Stack", "Wrapper", "Svg", "MetaAdder", "Table",
+    "Dropdown", "Modal", "TextField", "Card", "Wrap",
+    "FlexGrid", "ZoomCard", "CustomDivRenderer", "SideBar",
+    "SideNav", "SimpleBar", "DesktopBar", "MobileBar",
+    "Switcher", "Spacer", "HScroller", "Checkbox", "Base",
+    "FilePickera", "Picker", "Range", "RadioGroup", "DataList",
+    "Button", "Des", "LinkStyler", "CardGen", "KeyframeAnim",
+    "TransformAnim", "Stacker", "ScrollVideo", "Theme",
+    "AreaSwitcher", "Video", "UList", "Slider",
+    "Polygon", "Circle", "FloatingInput", "Form",
+  ]);
+  const used = new Set();
+  for (const line of emitted) {
+    for (const m of line.matchAll(/\bnew\s+([A-Z]\w*)/g)) {
+      if (NODALITY_EXPORTS.has(m[1])) used.add(m[1]);
+    }
+  }
+  const importList = [...used].sort().join(", ") || "Text";
+
   const out = `// Auto-emitted by \`nodality compile\` from ${srcRel}.
 // This is the imperative form the Designer would have shown in the
 // \`code: true\` panel. It is a throwaway artifact — diff it against
@@ -393,14 +421,7 @@ async function runCompile(rawArgs) {
 // then refine by hand. Re-run \`nodality compile\` whenever you
 // sketch new pieces in ${srcRel}.
 
-import {
-  Text, Image, Link, FlexRow, FlexGrid, Wrapper, Center, Stack,
-  Card, ZoomCard, Switcher, MobileBar, DesktopBar, SideNav, UINavBar,
-  Dropdown, Modal, Table, Spacer, HScroller, Polygon, Circle, UList,
-  Free, Audio, Progress, Code, MetaAdder, TextField,
-  FloatingInput, Range, RadioGroup, Picker, FilePickera, DataList,
-  Base, Form, Button, Slider, Video, Checkbox,
-} from "nodality";
+import { ${importList} } from "nodality";
 
 ${body}
 `;

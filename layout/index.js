@@ -119,6 +119,10 @@ if (typeof window !== 'undefined') {
   window.Video = Video;
   window.UList = UList;
   window.Slider = Slider;
+  window.Polygon = Polygon;
+  window.Circle = Circle;
+  window.FloatingInput = FloatingInput;
+  window.Form = Form;
 }
 
 if (typeof global !== 'undefined') {
@@ -175,6 +179,10 @@ if (typeof global !== 'undefined') {
   global.Video = Video;
   global.UList = UList;
   global.Slider = Slider;
+  global.Polygon = Polygon;
+  global.Circle = Circle;
+  global.FloatingInput = FloatingInput;
+  global.Form = Form;
 }
 
 export {
@@ -230,5 +238,9 @@ export {
   AreaSwitcher,
   Video,
   UList,
-  Slider
+  Slider,
+  Polygon,
+  Circle,
+  FloatingInput,
+  Form
 }; // 172112 Nice!!!! 17/04/25
