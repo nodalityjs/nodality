@@ -140,6 +140,16 @@ export async function prerenderSite(config) {
     await runChild(config, locale);
     const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
     console.log(`✅ Prerender done in ${elapsed}s — ${config.pages.length} page(s)`);
+    // Single-locale sitemap (1.0.168+). Earlier versions only wrote
+    // a sitemap on multi-locale builds, so single-locale projects had
+    // to bolt on their own `scripts/generate-sitemap.mjs`. We now
+    // emit on every build unless the caller explicitly opts out
+    // with `sitemap: false`. URLs are origin + page.html, lastmod is
+    // build time, no hreflang (single locale has nothing to alternate).
+    if (config.sitemap !== false) {
+      await writeSitemap(config);
+      console.log(`✅ Sitemap regenerated — ${config.pages.length} URL(s)`);
+    }
     return;
   }
 
@@ -393,6 +403,10 @@ function urlFor(config, locale, page) {
 
 /** hreflang alternates for one page (all locales + x-default). */
 function alternatesFor(config, page) {
+  // Single-locale builds (incl. the implicit untagged-locale case)
+  // have nothing to alternate to — emitting `xhtml:link rel="alternate"`
+  // with the same URL as the `<loc>` would just clutter the sitemap.
+  if (config.locales.length <= 1) return [];
   const xDefault = config.xDefaultLocale || config.defaultLocale;
   const alts = config.locales.map((l) => ({ hreflang: l, href: urlFor(config, l, page) }));
   alts.push({ hreflang: "x-default", href: urlFor(config, xDefault, page) });
@@ -421,7 +435,7 @@ async function writeSitemap(config) {
         `    <lastmod>${now}</lastmod>\n` +
         `    <changefreq>${changefreq}</changefreq>\n` +
         `    <priority>${priority}</priority>\n` +
-        altLines + "\n" +
+        (altLines ? altLines + "\n" : "") +
         `  </url>`
       );
     }

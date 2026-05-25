@@ -206,7 +206,22 @@ function runFanout(cwd, uploadDir, fanoutConfig) {
 
   let totalWrote = 0;
   for (const spec of fanoutConfig) {
-    const { template, data, items, id = "id", title, entry, bodyAttr = "data-product-id" } = spec;
+    const {
+      template, data, items, id = "id", title, entry,
+      bodyAttr = "data-product-id",
+      // ─── Auto-injected JSON-LD per item (1.0.168+) ─────────
+      // When `jsonLdType` is set, fanout emits a
+      // `<script type="application/ld+json" data-seo="1">` block per
+      // generated HTML with the right schema.org type and fields
+      // mapped from each item. Saves projects from importing
+      // nodality/seo and calling productJsonLd() by hand inside the
+      // page entry — useful because the page entry runs LATE (after
+      // the static HTML is already served) so crawlers that don't
+      // execute JS miss any client-injected structured data.
+      jsonLdType,        // e.g. "Product" | "Article"
+      jsonLdFields,      // map of schema-key → dot-path on item (e.g. { name: "name", image: "images.0", sku: "id" })
+      jsonLdExtra,       // static fields to add verbatim (e.g. { brand: { "@type": "Brand", name: "SLS3" }, priceCurrency: "CZK" })
+    } = spec;
     if (!template || !data) {
       console.warn(`[nodality] fanout: skipping spec without template/data`);
       continue;
@@ -292,6 +307,18 @@ function runFanout(cwd, uploadDir, fanoutConfig) {
       );
       html = html.replace(srcRx, `$1$2${entryBase}-${itemId}.js$3`);
 
+      // Auto-injected JSON-LD per item, if the spec asked for it.
+      // Inserted inside <head> (before </head>) so crawlers see it
+      // without executing the page entry — critical for Bing /
+      // social-card scrapers / non-Google crawlers that don't run JS.
+      if (jsonLdType && jsonLdFields) {
+        const ld = buildItemJsonLd(jsonLdType, jsonLdFields, jsonLdExtra, item);
+        const tag = `<script type="application/ld+json" data-seo="1">${
+          JSON.stringify(ld)
+        }</script>`;
+        html = html.replace(/<\/head>/i, `${tag}\n</head>`);
+      }
+
       fs.writeFileSync(path.join(uploadDir, `${base}-${itemId}.html`), html);
 
       // JS wrapper. The user's entry must export an async function
@@ -333,6 +360,41 @@ await fn(${JSON.stringify(String(itemId))});
     totalWrote += wrote;
   }
   return totalWrote;
+}
+
+/**
+ * Look up a dot/bracket path on a single item, e.g. "images.0" or
+ * "sizing.sizes.0.range". Returns undefined for missing branches.
+ * Used by fanout's per-item JSON-LD field mapper.
+ */
+function getByPath(obj, path) {
+  if (obj == null || !path) return undefined;
+  const parts = String(path).split(".");
+  let acc = obj;
+  for (const p of parts) {
+    if (acc == null) return undefined;
+    acc = acc[p];
+  }
+  return acc;
+}
+
+/**
+ * Build a schema.org JSON-LD object for one fanout item. `fields`
+ * maps schema-key → dot-path on the item; `extra` is merged in
+ * verbatim (static fields like brand, priceCurrency, "@context").
+ */
+function buildItemJsonLd(type, fields, extra, item) {
+  const out = { "@context": "https://schema.org", "@type": type };
+  for (const [key, fieldPath] of Object.entries(fields || {})) {
+    const v = getByPath(item, fieldPath);
+    if (v !== undefined && v !== null && v !== "") out[key] = v;
+  }
+  if (extra && typeof extra === "object") {
+    for (const [k, v] of Object.entries(extra)) {
+      if (v !== undefined) out[k] = v;
+    }
+  }
+  return out;
 }
 
 /** Resolve a dot-path with `[]` segments to an array of items. */

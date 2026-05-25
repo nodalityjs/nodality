@@ -306,11 +306,21 @@ export async function prerender({
     "requestAnimationFrame", "cancelAnimationFrame", "getComputedStyle",
     "fetch", "dataLayer", "gtag",
     "DOMParser", "XMLSerializer", "Range", "NodeFilter",
+    // `SVGElement` is bridged so library code that does
+    // `obj.svg instanceof SVGElement` (button.js, custom icons, …)
+    // doesn't throw `ReferenceError: SVGElement is not defined` under
+    // jsdom. The previous policy of NOT shimming it caused per-page
+    // render aborts on every detail page that used a UList with
+    // bullets — projects had to drop a `globalThis.SVGElement = class
+    // {}` stub into `_globals.js` to paper over it. SVG-related
+    // checks return `false` for non-real-SVG values at SSG time, same
+    // as in the browser when the value isn't an SVG node.
+    "SVGElement", "SVGSVGElement",
     // Deliberately NOT shimming the browser `Image` / `HTMLImageElement`
-    // / `SVGElement` constructors — Nodality exports its own `Image`
-    // class and `nodality/_globals.js` writes it to `globalThis`. The
-    // browser-constructor copies would clobber it and break every
-    // `new Image().set(…)` call in the entries.
+    // constructors — Nodality exports its own `Image` class and
+    // `nodality/_globals.js` writes it to `globalThis`. The browser
+    // copies would clobber it and break every `new Image().set(…)`
+    // call in the entries.
   ];
   // Some Node versions (22+) make certain globals — most notably
   // `navigator` — getter-only on `globalThis`, which means a plain
