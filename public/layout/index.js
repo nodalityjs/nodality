@@ -64,6 +64,19 @@ import { AreaSwitcher } from "../layout/grid-switcher.js";
 import { Polygon } from "../layout/polygon.js";
 import { Circle } from "../layout/circle.js";
 
+// SEO + data helpers — also surface via package.json subpath exports
+// (`nodality/seo`, `nodality/data`) for Node-side tree-shaking, but we
+// re-export from the main entry so browsers reach them through the
+// SAME `import { applySeoMeta } from "nodality"` line that the
+// importmap already resolves. Without this, browser-side use of the
+// subpath form throws "Failed to resolve module specifier
+// 'nodality/seo'" because no importmap entry maps it.
+import {
+  applySeoMeta, setSeoOrigin,
+  websiteJsonLd, organizationJsonLd, productJsonLd, articleJsonLd, breadcrumbJsonLd,
+} from "../lib/seo.js";
+import { loadJson } from "../lib/data.js";
+
 // Expose modules as globals
 if (typeof window !== 'undefined') {
   window.ElementMapper = ElementMapper;
@@ -242,5 +255,14 @@ export {
   Polygon,
   Circle,
   FloatingInput,
-  Form
+  Form,
+  // SEO + data helpers — see explanation above the imports block.
+  applySeoMeta,
+  setSeoOrigin,
+  websiteJsonLd,
+  organizationJsonLd,
+  productJsonLd,
+  articleJsonLd,
+  breadcrumbJsonLd,
+  loadJson,
 }; // 172112 Nice!!!! 17/04/25
