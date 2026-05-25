@@ -40,6 +40,9 @@ function showUsage() {
   console.log(`Usage:
   nodality prerender [flags]                  # SSG: render upload/*.html in place
   nodality compile [src/<file>.js] [flags]    # Emit Designer output as a companion file
+  nodality fanout                             # Generate per-item pages from JSON (reads
+                                              # the \`fanout\` block in nodality.config.json;
+                                              # runs automatically before \`prerender\`)
   nodality help
 
 Compile flags:
@@ -162,6 +165,218 @@ function loadConfigFile(cwd) {
   }
 }
 
+// ─── Fanout (data-driven page expansion) ────────────────────────
+
+/**
+ * Generate one HTML + entry-script pair per item in a JSON dataset.
+ * The classic use case is a "detail" template that takes a query
+ * parameter at runtime (`/detail.html?id=helix`) and the SEO problem
+ * that crawlers see an empty mount for every product. Fanout reads
+ * the data once at build time, walks an array within it, and writes
+ * a per-item static page that the prerender step then turns into
+ * fully populated HTML.
+ *
+ * Configured in `nodality.config.json`:
+ *
+ *   "fanout": [
+ *     {
+ *       "template": "detail.html",
+ *       "data":     "products.json",
+ *       "items":    "categories[].products",  // dot path with [] for flatMap
+ *       "id":       "id",                     // field on each item
+ *       "title":    "SLS3 — {name}",          // {name} = item.name, {id} etc.
+ *       "entry":    "pages/detail.js",        // exported renderDetailPage(id)
+ *       "bodyAttr": "data-product-id"         // attr on <body> for the id
+ *     }
+ *   ]
+ *
+ * Output:
+ *   • `upload/<basename>-<id>.html` — clone of the template, with
+ *     `<title>` substituted and `<body data-...="<id>">`.
+ *   • `upload/pages/<basename>-<id>.js` — thin wrapper that imports
+ *     the entry's exported renderer and invokes it with this id.
+ *
+ * Stale outputs from a previous run (orphaned products etc.) are
+ * cleaned up before regenerating. The expansion runs once at the
+ * start of `nodality prerender` whenever the config has a `fanout`
+ * block; you can also invoke it standalone via `nodality fanout`.
+ */
+function runFanout(cwd, uploadDir, fanoutConfig) {
+  if (!Array.isArray(fanoutConfig) || fanoutConfig.length === 0) return 0;
+
+  let totalWrote = 0;
+  for (const spec of fanoutConfig) {
+    const { template, data, items, id = "id", title, entry, bodyAttr = "data-product-id" } = spec;
+    if (!template || !data) {
+      console.warn(`[nodality] fanout: skipping spec without template/data`);
+      continue;
+    }
+
+    const tplPath = path.join(uploadDir, template);
+    const dataPath = path.join(uploadDir, data);
+    if (!fs.existsSync(tplPath)) {
+      console.error(`[nodality] fanout: template missing: ${template}`);
+      process.exit(1);
+    }
+    if (!fs.existsSync(dataPath)) {
+      console.error(`[nodality] fanout: data missing: ${data}`);
+      process.exit(1);
+    }
+
+    const json = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+    const list = resolveItemsPath(json, items ?? "");
+    if (!Array.isArray(list) || list.length === 0) {
+      console.warn(`[nodality] fanout: ${data} produced no items at path "${items}"`);
+      continue;
+    }
+
+    const templateHtml = fs.readFileSync(tplPath, "utf8");
+    const base = path.basename(template, ".html");
+    const pagesDir = path.join(uploadDir, "pages");
+    fs.mkdirSync(pagesDir, { recursive: true });
+
+    // Clean stale outputs from a previous run so removing an item
+    // also removes its page. Match by prefix; original template
+    // (e.g. `detail.html` itself) is never touched.
+    for (const f of fs.readdirSync(uploadDir)) {
+      if (new RegExp(`^${escapeRegex(base)}-.+\\.html$`).test(f)) {
+        fs.unlinkSync(path.join(uploadDir, f));
+      }
+    }
+    for (const f of fs.readdirSync(pagesDir)) {
+      if (new RegExp(`^${escapeRegex(base)}-.+\\.js$`).test(f)) {
+        fs.unlinkSync(path.join(pagesDir, f));
+      }
+    }
+
+    // Discover the entry file to mirror per-item if not given.
+    const entryRel = entry ?? `pages/${base}.js`;
+    const entryFull = path.join(uploadDir, entryRel);
+    if (!fs.existsSync(entryFull)) {
+      console.error(`[nodality] fanout: entry script missing: ${entryRel}`);
+      process.exit(1);
+    }
+    const entryBase = path.basename(entryRel, ".js");
+    const entryDir = path.dirname(entryRel);
+
+    let wrote = 0;
+    for (const item of list) {
+      const itemId = item?.[id];
+      if (!itemId || !/^[A-Za-z0-9][A-Za-z0-9-_]*$/.test(String(itemId))) {
+        console.warn(`[nodality] fanout: skipping item with bad ${id}: ${JSON.stringify(itemId)}`);
+        continue;
+      }
+
+      // HTML: rewrite <title>, inject body data-attr, point script src
+      // at the per-item entry.
+      const resolvedTitle = title
+        ? interpolate(title, item)
+        : String(item?.name ?? itemId);
+      const escTitle = escapeHtml(resolvedTitle);
+
+      let html = templateHtml
+        .replace(/<title>[^<]*<\/title>/i, `<title>${escTitle}</title>`)
+        .replace(/<body(\s[^>]*)?>/i, (_, attrs = "") => {
+          const cleaned = (attrs ?? "").replace(
+            new RegExp(`\\s+${escapeRegex(bodyAttr)}="[^"]*"`),
+            "",
+          );
+          return `<body${cleaned} ${bodyAttr}="${itemId}">`;
+        });
+
+      // Rewrite the original `<script src=".../pages/<entryBase>.js">`
+      // to point at the per-item wrapper.
+      const srcRx = new RegExp(
+        `(<script[^>]*src=")([^"]*\\/?)${escapeRegex(entryBase)}\\.js("[^>]*>)`,
+        "i",
+      );
+      html = html.replace(srcRx, `$1$2${entryBase}-${itemId}.js$3`);
+
+      fs.writeFileSync(path.join(uploadDir, `${base}-${itemId}.html`), html);
+
+      // JS wrapper. The user's entry must export an async function
+      // named `renderDetailPage` (or, generically, the camelCase
+      // form of the basename + "Page"). We call it with the id.
+      const fnName = entryBase
+        .split(/[-_]/)
+        .map((p, i) => (i === 0 ? p : p[0].toUpperCase() + p.slice(1)))
+        .join("") + "Page"; // detail → renderDetailPage? No — detailPage
+      // To minimise convention surprises, default to the underscored
+      // `render<Pascal>Page` form too. Try both: the wrapper imports
+      // whichever the entry exports.
+      const pascal = entryBase
+        .split(/[-_]/)
+        .map((p) => p[0].toUpperCase() + p.slice(1))
+        .join("");
+      const wrapperBody = `// Auto-generated by \`nodality fanout\`.
+// Per-item entry — invokes the renderer in ${entryRel}
+// with this item's id baked in.
+import * as mod from "./${path.basename(entryRel)}";
+
+const fn = mod.render${pascal}Page ?? mod.${fnName} ?? mod.default;
+if (typeof fn !== "function") {
+  throw new Error(
+    "[fanout] ${entryRel} must export render${pascal}Page(id) " +
+      "(or a default async function). nodality fanout could not find one.",
+  );
+}
+await fn(${JSON.stringify(String(itemId))});
+`;
+      fs.writeFileSync(
+        path.join(pagesDir, `${entryBase}-${itemId}.js`),
+        wrapperBody,
+      );
+      wrote++;
+    }
+
+    console.log(`[nodality] fanout: ${template} × ${data} → ${wrote} page(s)`);
+    totalWrote += wrote;
+  }
+  return totalWrote;
+}
+
+/** Resolve a dot-path with `[]` segments to an array of items. */
+function resolveItemsPath(data, path) {
+  if (!path) return Array.isArray(data) ? data : [];
+  const tokens = path.split(/\.|(\[\])/).filter(Boolean);
+  let acc = data;
+  for (const tok of tokens) {
+    if (tok === "[]") {
+      if (!Array.isArray(acc)) return [];
+      continue;
+    }
+    if (Array.isArray(acc)) {
+      acc = acc.flatMap((x) => (x != null ? [x[tok]] : [])).filter((x) => x != null);
+      // After accessing a field through an array, the result is an
+      // array of values (possibly nested). Don't auto-flatten — the
+      // user can put another `[]` after if they want.
+    } else if (acc != null) {
+      acc = acc[tok];
+    } else {
+      return [];
+    }
+  }
+  return Array.isArray(acc) ? acc.flat(Infinity).filter((x) => x != null) : [];
+}
+
+/** Replace `{field}` in a template with item[field]. */
+function interpolate(template, item) {
+  return template.replace(/\{([^}]+)\}/g, (_, key) => {
+    const v = key.split(".").reduce((acc, k) => (acc == null ? acc : acc[k]), item);
+    return v == null ? "" : String(v);
+  });
+}
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[<>&"']/g, (c) =>
+    c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === "&" ? "&amp;" : c === '"' ? "&quot;" : "&#39;",
+  );
+}
+
 // ─── Page auto-discovery ────────────────────────────────────────
 
 /**
@@ -256,6 +471,16 @@ async function runPrerender(rawArgs) {
     process.on("unhandledRejection", (e) =>
       console.warn(`⚠  unhandledRejection: ${e?.message ?? e}`),
     );
+  }
+
+  // Data-driven page fanout. When the config declares a `fanout`
+  // block (per-product detail pages, per-article blog entries, etc.),
+  // expand it BEFORE auto-discovery so the generated HTMLs are picked
+  // up alongside the hand-written ones. Subprocess child renders skip
+  // fanout — the parent already wrote the files and re-running inside
+  // each locale would just thrash them.
+  if (!process.env.NODALITY_SSG_LOCALE && Array.isArray(fileConfig.fanout)) {
+    runFanout(cwd, uploadDir, fileConfig.fanout);
   }
 
   // Explicit `pages` from config wins over auto-discovery. The
@@ -441,6 +666,29 @@ ${body}
   }
 }
 
+// ─── fanout subcommand (standalone) ────────────────────────────
+
+/**
+ * Run the fanout expansion standalone (without prerender) — useful
+ * for debugging the generated files before kicking off a full SSG.
+ * Reads the `fanout` block from nodality.config.json.
+ */
+async function runFanoutStandalone(rawArgs) {
+  const cwd = process.cwd();
+  const flags = parseFlags(rawArgs);
+  const fileConfig = loadConfigFile(cwd);
+  const uploadDir = path.resolve(cwd, flags.upload || fileConfig.uploadDir || "upload");
+
+  if (!Array.isArray(fileConfig.fanout) || fileConfig.fanout.length === 0) {
+    console.error(`[nodality] fanout: no \`fanout\` block in nodality.config.json`);
+    process.exit(1);
+  }
+  const wrote = runFanout(cwd, uploadDir, fileConfig.fanout);
+  if (wrote === 0) {
+    console.warn(`[nodality] fanout: 0 page(s) generated — check config & data`);
+  }
+}
+
 // ─── Dispatch ──────────────────────────────────────────────────
 
 async function main() {
@@ -462,6 +710,8 @@ async function main() {
     await runPrerender(rest);
   } else if (command === "compile") {
     await runCompile(rest);
+  } else if (command === "fanout") {
+    await runFanoutStandalone(rest);
   } else {
     console.error(`[nodality] Unknown command: ${command}`);
     showUsage();
