@@ -35,28 +35,23 @@ const IS_NODE = typeof process !== "undefined" && !!process.versions?.node;
 export async function loadJson(name, { fallback = undefined } = {}) {
   try {
     if (IS_NODE) {
-      // ESM JSON imports require the `with { type: "json" }` attribute.
-      // The path is interpreted relative to THIS file's URL, so the
-      // page entry's `upload/pages/` location implicitly resolves to
-      // `upload/<name>`. Consumers don't need to think about it.
-      const mod = await import(`./../../upload/${name}`, { with: { type: "json" } })
-        .catch(async () => {
-          // Fall back to a relative-from-cwd resolution for projects
-          // that don't follow the `upload/` convention. Same shape;
-          // process.cwd() is the project root at prerender time.
-          const fs = await import("node:fs");
-          const path = await import("node:path");
-          const cwd = process.cwd();
-          // Try upload/<name> then plain <name>.
-          for (const rel of [path.join("upload", name), name]) {
-            const abs = path.resolve(cwd, rel);
-            if (fs.existsSync(abs)) {
-              return { default: JSON.parse(fs.readFileSync(abs, "utf8")) };
-            }
-          }
-          throw new Error(`loadJson: ${name} not found (tried ./upload/${name} and ./${name})`);
-        });
-      return mod.default ?? mod;
+      // `webpackIgnore` keeps webpack from trying to resolve these
+      // node-builtin specifiers at bundle time. The browser bundle
+      // path is gated by `IS_NODE` above so this code never runs in
+      // the browser; webpack just needs to be told not to inline.
+      const fs = await import(/* webpackIgnore: true */ "node:fs");
+      const path = await import(/* webpackIgnore: true */ "node:path");
+      const cwd = process.cwd();
+      // Look for the file under `upload/` first (the canonical
+      // create-nodality layout), then plain `<name>` at project
+      // root as a fallback for non-conventional projects.
+      for (const rel of [path.join("upload", name), name]) {
+        const abs = path.resolve(cwd, rel);
+        if (fs.existsSync(abs)) {
+          return JSON.parse(fs.readFileSync(abs, "utf8"));
+        }
+      }
+      throw new Error(`loadJson: ${name} not found (tried ./upload/${name} and ./${name})`);
     }
     const res = await fetch(`./${name}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
