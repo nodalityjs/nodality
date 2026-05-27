@@ -569,6 +569,20 @@ async function runPrerender(rawArgs) {
   if (defaultLocale) config.defaultLocale = defaultLocale;
   if (locales) config.locales = locales;
 
+  // Forward fanout template basenames to the sitemap writer so it
+  // can auto-exclude them. Fanout templates (e.g. `category.html`
+  // driving `category-<id>.html`) are scaffolding, not pages —
+  // listing them in sitemap.xml would invite crawlers to thin
+  // duplicates of the real per-id outputs.
+  if (Array.isArray(fileConfig.fanout) && fileConfig.fanout.length) {
+    config.fanoutTemplates = fileConfig.fanout
+      .map((spec) => spec.template)
+      .filter(Boolean);
+  }
+  if (Array.isArray(fileConfig.sitemapExclude)) {
+    config.sitemapExclude = fileConfig.sitemapExclude;
+  }
+
   await prerenderSite(config);
 }
 

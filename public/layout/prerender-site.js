@@ -45,6 +45,13 @@
 //   viewport       { width, height }   default { 390, 844 } (mobile-first)
 //   mount          CSS selector        default "#mount"
 //   sitemap        boolean             default true (writes sitemap.xml)
+//   sitemapExclude string[]            HTML filenames to omit from sitemap.xml
+//                                       (fanout templates are auto-excluded;
+//                                       use this for additional special cases)
+//   fanoutTemplates string[]           fanout template basenames the prerender
+//                                       was built around — sitemap writer
+//                                       skips these automatically because they
+//                                       are not standalone pages by design
 //   xDefaultLocale string              default = defaultLocale
 //   assetPrefixes  string[]            default ["assets/", "dist/", "badge-",
 //                                               "apple-touch-icon", "favicon."]
@@ -416,8 +423,20 @@ function alternatesFor(config, page) {
 /** Write the sitemap.xml covering every (locale, page) URL. */
 async function writeSitemap(config) {
   const now = new Date().toISOString().slice(0, 10);
+  // Fanout templates (e.g. `category.html` driving the per-id
+  // `category-<id>.html` outputs) are not standalone pages — they
+  // ship with empty mounts and exist solely as the boilerplate the
+  // per-item wrappers clone. Indexing them would dilute ranking
+  // signal across thin duplicates of the real per-id pages, so the
+  // sitemap writer drops them automatically. Callers can also list
+  // additional `sitemapExclude` entries for one-off cases.
+  const excludeSet = new Set([
+    ...(config.fanoutTemplates ?? []),
+    ...(config.sitemapExclude ?? []),
+  ]);
   const entries = [];
   for (const page of config.pages) {
+    if (excludeSet.has(page.html)) continue;
     for (const locale of config.locales) {
       const loc = urlFor(config, locale, page.html);
       const alts = alternatesFor(config, page.html);
