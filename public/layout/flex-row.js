@@ -457,9 +457,7 @@ let stringified = JSON.stringify(options.borderObj);
 
 
 	onlyWrap(){
-		// alert("oj")
 		this.res.style.flexWrap = "wrap";
-		this.res.style.backgroundColor = "green";
 		return this;
 	}
 

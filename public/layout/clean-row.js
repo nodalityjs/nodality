@@ -268,9 +268,7 @@ class CleanRow extends Animator {
 
 
 	onlyWrap(){
-		// alert("oj")
 		this.res.style.flexWrap = "wrap";
-		this.res.style.backgroundColor = "green";
 		return this;
 	}
 
