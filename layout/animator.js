@@ -1,6 +1,7 @@
 
 
 import { Theme } from "../lib/theme.js";
+import { applyRasterPipeline } from "../lib/raster-ops.js";
 
 // 22/08/2020 - 16:30
 class Animator {
@@ -23,6 +24,37 @@ class Animator {
 			Promise.resolve().then(() => this._applyTheme(Theme.mode));
 		}
     }
+
+	// Raster ops (lib/raster-ops.js) are a display-time effect: the
+	// element carries `raster: [{op, ...}, ...]` in its set() options
+	// (injected by ElementMapper.filteroRaster from the Des nodes, or
+	// written by hand), and the GPU pipeline attaches to this.res only
+	// AFTER the element actually renders — i.e. once res is connected
+	// to the document and has a layout box. Safe no-op headless.
+	rasterize(list){
+		if (!list || list.length === 0 || this._rasterHandle) return;
+		if (typeof document === "undefined" || typeof setTimeout === "undefined") return;
+		// setTimeout, not requestAnimationFrame: rAF is throttled to a
+		// standstill in backgrounded tabs, which would leave the effect
+		// permanently unattached there.
+		let attempts = 0;
+		const tryAttach = () => {
+			if (this._rasterHandle) return;
+			if (this.res && this.res.isConnected) {
+				try {
+					this._rasterHandle = applyRasterPipeline(this.res, list);
+				} catch (e) {
+					console.warn("[nodality] raster pipeline skipped:", e);
+					return;
+				}
+				if (this._rasterHandle) return; // attached
+				// null: layout box not ready yet (or WebGL/motion
+				// unavailable) - keep retrying within the budget.
+			}
+			if (++attempts < 80) setTimeout(tryAttach, 50);
+		};
+		setTimeout(tryAttach, 0);
+	}
 
 	isHidden(hide){
 		if (hide){
@@ -274,6 +306,7 @@ class Animator {
     obj.noTheme && (this._noTheme = true);
     obj.theme && this.theme(obj.theme);
     obj.hide && this.isHidden(obj.hide);
+    obj.raster && this.rasterize(obj.raster);
 	// Only route to the animation system for object-shaped transforms.
 	// String transforms are applied above via the styleMap path.
 	(obj.transform && typeof obj.transform === "object") && this.reactOnTransform(obj.transform);

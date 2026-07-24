@@ -324,10 +324,13 @@ console.log(html);
     return html;
   }
 	
-	set(obj){ 
+	set(obj){
 		this.resCopy = this.res;
 		this.options = obj;
 		super.setPrevText(this.text);
+		// Text.set does not route through Animator.commonMethods, so
+		// react to element-level raster ops (lib/raster-ops.js) here.
+		obj.raster && this.rasterize(obj.raster);
 		let stra = "";
 
 
