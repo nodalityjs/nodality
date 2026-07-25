@@ -20,6 +20,13 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Pinned read-only rather than inherited. This job installs third
+    # party dependencies and downloads a browser, so it should hold no
+    # token that could write to the repo or publish. Stating it here
+    # means a later change to the repository's default workflow
+    # permissions cannot silently widen it.
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
