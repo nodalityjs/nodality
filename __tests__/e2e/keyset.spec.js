@@ -5,7 +5,7 @@ const path = require('path'); // <-- ADD THIS LINE
 
 test('Keyset test', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 1024, height: 768 });
-  await page.goto(`${baseURL}/public/keyset.html`);
+  await page.goto(`${baseURL}/public/keySet.html`);
   const heading = page.locator('h1');
   await expect(heading).toBeVisible();
 

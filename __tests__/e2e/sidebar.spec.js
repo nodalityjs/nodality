@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 test('Sidebar works', async ({ page, baseURL }) => {
   await page.setViewportSize({ width: 700, height: 800 });
-  await page.goto(`${baseURL}/public/sideBar`);
+  await page.goto(`${baseURL}/public/sidebar.html`);
 
   
  // Find the open button (☰) — it has opacity 0, but still clickable
