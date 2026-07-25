@@ -949,9 +949,38 @@ ${defaultSeam}
 
 // ── Snapshot backend: DOM subtree -> SVG foreignObject -> texture ────
 
+// Viewport-relative CSS inside a foreignObject resolves against the SVG
+// element's own size, not the browser viewport — so `font-size: calc(
+// 1.625rem + 5.075vw)` renders at a different size in the snapshot than
+// it does on the page. The glyphs then sit somewhere the DOM text does
+// not, which is what makes the selection highlight look offset.
+//
+// Freeze those declarations to the pixel values the element actually
+// computes, on a clone, so the snapshot matches the live layout.
+const VIEWPORT_UNIT = /\d(?:vw|vh|vmin|vmax|dvw|dvh|svw|svh|lvw|lvh)\b/i;
+
+function freezeViewportUnits(original, clone) {
+    const origs = [original, ...original.querySelectorAll("*")];
+    const clones = [clone, ...clone.querySelectorAll("*")];
+    for (let i = 0; i < origs.length && i < clones.length; i++) {
+        const inline = clones[i].style;
+        if (!inline || inline.length === 0) continue;
+        let computed = null;
+        // Iterate a snapshot of the names: writing to style mutates the list.
+        for (const prop of Array.from(inline)) {
+            if (!VIEWPORT_UNIT.test(inline.getPropertyValue(prop))) continue;
+            computed = computed || window.getComputedStyle(origs[i]);
+            const px = computed.getPropertyValue(prop);
+            if (px) inline.setProperty(prop, px, inline.getPropertyPriority(prop));
+        }
+    }
+    return clone;
+}
+
 function snapshotToImage(el, w, h, dpr) {
     return new Promise((resolve, reject) => {
-        const serialized = new XMLSerializer().serializeToString(el);
+        const serialized = new XMLSerializer()
+            .serializeToString(freezeViewportUnits(el, el.cloneNode(true)));
         const svg =
             `<svg xmlns="http://www.w3.org/2000/svg" width="${w * dpr}" height="${h * dpr}" viewBox="0 0 ${w} ${h}">` +
             `<foreignObject width="100%" height="100%">` +
@@ -1061,6 +1090,16 @@ function applyRasterPipeline(el, rasterNodes) {
         // chrome://flags/#canvas-draw-element). layoutsubtree was already
         // set before context creation above.
         const wrap = document.createElement("div");
+        // The wrapper MUST fill the canvas box. Left to itself it
+        // shrink-wraps its content — a headline wraps to the text width,
+        // not the element width — and texElementImage2D then captures
+        // that narrower box while the shader maps the texture across the
+        // whole canvas. Everything comes out stretched horizontally by
+        // canvasWidth/contentWidth, so the drawn glyphs no longer sit
+        // where the DOM text does and selection lands on the wrong
+        // characters.
+        wrap.style.cssText =
+            `display:block;width:${rect.width}px;height:${rect.height}px;`;
         while (el.firstChild) wrap.appendChild(el.firstChild);
         canvas.appendChild(wrap);
         sourceEl = wrap;
@@ -1069,13 +1108,24 @@ function applyRasterPipeline(el, rasterNodes) {
         canvas.style.cssText =
             `display:block;width:${rect.width}px;height:${rect.height}px;`;
     } else {
-        // Snapshot mode: purely visual overlay; the real DOM stays put
-        // underneath for accessibility, selection and events.
+        // Snapshot mode: purely visual overlay.
         canvas.style.cssText =
             "position:absolute;top:0;left:0;" +
             `width:${rect.width}px;height:${rect.height}px;` +
             "pointer-events:none;z-index:2147483000;";
-        canvas.setAttribute("aria-hidden", "true");
+        if (pureOverlay) {
+            // The real content is still visible underneath and keeps its
+            // own semantics, so the canvas is pure decoration.
+            canvas.setAttribute("aria-hidden", "true");
+        } else {
+            // In-place: the host gets hidden below, which would take its
+            // text out of the accessibility tree, out of find-in-page and
+            // out of innerText. Carry the label onto the canvas so the
+            // element is still announced rather than silently vanishing.
+            canvas.setAttribute("role", "img");
+            const label = (el.textContent || "").replace(/\s+/g, " ").trim();
+            if (label) canvas.setAttribute("aria-label", label.slice(0, 300));
+        }
     }
     el.appendChild(canvas);
 
@@ -1329,6 +1379,65 @@ function applyRasterPipeline(el, rasterNodes) {
     // texture is live, the host's own painting is hidden via the
     // visibility trick (the canvas child re-shows itself) so transparent
     // hosts — e.g. a bare headline — don't ghost-double under the effect.
+    // Keeping the host selectable.
+    // --------------------------------------------------------------
+    // The host must NOT be visibility:hidden. Hidden text cannot be
+    // selected, so dragging over the effect either selects nothing or
+    // catches neighbouring content — which is what makes the highlight
+    // look offset and unreliable. Instead the host stays in the flow
+    // with its ink made transparent, and the canvas is painted BEHIND
+    // it. The glyphs are invisible but still hit-testable, and the
+    // browser paints the selection highlight above the canvas, aligned
+    // with the real text, because that is where the text actually is.
+    const INK = {
+        "color": "transparent",
+        "-webkit-text-fill-color": "transparent",
+        "-webkit-text-stroke-color": "transparent",
+        "background-color": "transparent",
+        "background-image": "none",
+        "border-color": "transparent",
+        "box-shadow": "none",
+        "text-shadow": "none",
+    };
+    const REPLACED = "img,svg,video,picture,iframe";
+    let inkSaved = null;
+
+    const hideHostInk = () => {
+        if (inkSaved) return;
+        inkSaved = [];
+        for (const node of [el, ...el.querySelectorAll("*")]) {
+            if (node === canvas || node.tagName === "CANVAS") continue;
+            const saved = { op: node.style.getPropertyValue("opacity") };
+            for (const p in INK) saved[p] = node.style.getPropertyValue(p);
+            inkSaved.push([node, saved]);
+            for (const p in INK) node.style.setProperty(p, INK[p], "important");
+            // Replaced content has no "ink" property to neutralise.
+            if (node !== el && node.matches && node.matches(REPLACED)) {
+                node.style.setProperty("opacity", "0", "important");
+            }
+        }
+        // Contain the negative-z canvas so it stays behind this element's
+        // text but never slips behind an ancestor's background.
+        el.style.isolation = "isolate";
+        canvas.style.zIndex = "-1";
+    };
+
+    const showHostInk = () => {
+        el.style.visibility = "";
+        if (!inkSaved) return;
+        for (const [node, saved] of inkSaved) {
+            for (const p in INK) {
+                if (saved[p]) node.style.setProperty(p, saved[p]);
+                else node.style.removeProperty(p);
+            }
+            if (saved.op) node.style.setProperty("opacity", saved.op);
+            else node.style.removeProperty("opacity");
+        }
+        inkSaved = null;
+        el.style.isolation = "";
+        canvas.style.zIndex = "";
+    };
+
     const snapshotCapture = () => {
         // Overlay + image content: use the image directly as the texture.
         if (isOverlay) {
@@ -1353,8 +1462,7 @@ function applyRasterPipeline(el, rasterNodes) {
             }
         }
         canvas.style.display = "none";
-        const prevVisibility = el.style.visibility;
-        el.style.visibility = "";
+        showHostInk();
         const p = snapshotToImage(el, rect.width, rect.height, dpr)
             .then((img) => {
                 if (destroyed) return;
@@ -1362,15 +1470,14 @@ function applyRasterPipeline(el, rasterNodes) {
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
                 finishUpload();
                 textureReady = true;
-                // In-place transforms hide the host (the canvas replaces
-                // its look). A pure-overlay chain keeps it visible so the
-                // real content shows through the bubble; a mixed chain
-                // (in-place + overlay) hides it — the canvas carries all.
-                el.style.visibility = pureOverlay ? "" : "hidden";
+                // A pure-overlay chain leaves the host alone; the lens
+                // floats over untouched content. Otherwise the canvas
+                // carries the look and the host's own ink is suppressed.
+                if (!pureOverlay) hideHostInk();
                 canvas.style.visibility = "visible";
             })
             .catch((e) => {
-                el.style.visibility = prevVisibility;
+                showHostInk();
                 console.warn("[nodality] raster snapshot failed:", e);
             });
         canvas.style.display = "";
@@ -1665,6 +1772,7 @@ function applyRasterPipeline(el, rasterNodes) {
             }
             solverOps.length = 0;
             while (sourceEl !== el && sourceEl.firstChild) el.appendChild(sourceEl.firstChild);
+            showHostInk();
             el.style.visibility = "";
             canvas.remove();
         },
