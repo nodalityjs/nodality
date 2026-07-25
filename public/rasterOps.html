@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raster ops test page</title>
+  <style>
+    body { margin: 0; font-family: Helvetica, Arial, sans-serif; background: #0d1520; }
+    #mount { background: #123f6d; padding: 30px 34px; max-width: 820px; }
+  </style>
+</head>
+<body>
+  <div id="mount"></div>
+
+  <script type="module">
+    // The op chain is taken from the URL hash so one fixture can serve
+    // every case the spec needs. The hash rather than a query string:
+    // `serve` issues a clean-URL redirect for /x.html and drops the
+    // query on the way, which silently gave every test the default
+    // chain. A hash is client-side and survives the redirect.
+    import { Des } from '../lib/designer.js';
+    import { RASTER_OP_NAMES, DRIVER_NAMES, isHTMLInCanvasAvailable, applyRasterPipeline }
+      from '../lib/raster-ops.js';
+
+    // Exposed so the spec can assert on the module surface directly.
+    window.__raster = { RASTER_OP_NAMES, DRIVER_NAMES, isHTMLInCanvasAvailable, applyRasterPipeline };
+
+    // The pipeline logs which backend it chose; capture it so backend
+    // selection can be asserted rather than inferred from pixels.
+    window.__logs = [];
+    for (const level of ['info', 'warn']) {
+      const orig = console[level].bind(console);
+      console[level] = (...a) => { window.__logs.push(a.join(' ')); orig(...a); };
+    }
+
+    const CHAINS = {
+      inplace:  [{ op: 'hexalize', size: 14 }],
+      overlay:  [{ op: 'blobs', count: 2, radius: 40 }],
+      mixed:    [{ op: 'hexalize', size: 14 }, { op: 'blobs', count: 2, radius: 40 }],
+      optout:   [{ op: 'hexalize', size: 14, live: false }],
+      halftone: [{ op: 'halftone', size: 5, angle: 15 }],
+      aberration: [{ op: 'aberration', amount: 8 }],
+      driverMouse:  [{ op: 'offset', by: 'mouse', strength: 10 }],
+      driverHover:  [{ op: 'offset', by: 'hover', strength: 10 }],
+      driverScroll: [{ op: 'offset', by: 'scroll', strength: 10 }],
+      driverTime:   [{ op: 'offset', by: 'time', strength: 10 }],
+      badDriver:    [{ op: 'offset', by: 'telepathy', strength: 10 }],
+      all: [
+        { op: 'hexalize', size: 16 },
+        { op: 'offset', by: 'mouse', strength: 10 },
+        { op: 'duotone', by: 'mouse', colors: ['#104B87', '#E8FF00'] },
+        { op: 'edges', color: '#FFFFFF', strength: 0.35 },
+        { op: 'halftone', size: 5, angle: 15 },
+        { op: 'aberration', amount: 6 },
+      ],
+      none: [],
+    };
+
+    const key = new URLSearchParams(
+      (location.hash || '').replace(/^#/, '')).get('ops') || 'inplace';
+    window.__chain = key;
+
+    new Des()
+      .nodes(CHAINS[key] || [])
+      .add([{ type: 'h1', id: '#hero', text: 'Raster' }])
+      .set({ mount: '#mount', code: false });
+
+    // Signal readiness once the pipeline has had a chance to attach.
+    window.__ready = false;
+    const started = Date.now();
+    const poll = setInterval(() => {
+      const c = document.querySelector('[data-nodality-raster]');
+      if (c || Date.now() - started > 3000) {
+        window.__ready = true;
+        clearInterval(poll);
+      }
+    }, 50);
+  </script>
+</body>
+</html>

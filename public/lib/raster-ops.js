@@ -40,6 +40,32 @@
 
 const MAX_BLOBS = 12;
 
+// ── Drivers ──────────────────────────────────────────────────────────
+// What steers a reactive op. Previously "react to the pointer" was
+// hardcoded into offset and duotone; a driver makes the input a value in
+// the node data, so the same op can be aimed at different signals:
+//
+//   { op: "offset", by: "mouse" }    { op: "offset", by: "scroll" }
+//
+// Each driver returns a focus point in device pixels plus an amount in
+// 0..1 that the op scales its effect by. Ops read them as u<i>_dpos and
+// u<i>_damt; the pipeline evaluates and uploads them once per frame.
+const DRIVERS = {
+    mouse: (c) => ({ x: c.mouseX, y: c.mouseY, amt: 1 }),
+    // Same focus as mouse, but faded in and out with the hover state, so
+    // the effect resolves away when the pointer leaves.
+    hover: (c) => ({ x: c.mouseX, y: c.mouseY, amt: c.hover }),
+    // A band that travels up the element as it crosses the viewport.
+    scroll: (c) => ({ x: c.w * 0.5, y: c.h * c.scroll, amt: 1 }),
+    // Hands-free: the focus drifts on a Lissajous path.
+    time: (c) => ({
+        x: c.w * (0.5 + 0.34 * Math.cos(c.t * 0.6)),
+        y: c.h * (0.5 + 0.34 * Math.sin(c.t * 0.8)),
+        amt: 1,
+    }),
+};
+const DRIVER_NAMES = Object.keys(DRIVERS);
+
 const REGISTRY = {
     hexalize: {
         stage: "cell",
@@ -65,13 +91,17 @@ const REGISTRY = {
         // version shifted only the texture lookup, which left grid
         // edges frozen in screen space.)
         stage: "warp",
-        decl: (p) => `uniform float ${p}strength; uniform float ${p}radius;`,
+        // Steered by the pointer unless the node says otherwise, which is
+        // what this op did before drivers existed.
+        defaultDriver: "mouse",
+        decl: (p) => `uniform float ${p}strength; uniform float ${p}radius;
+            uniform vec2 ${p}dpos; uniform float ${p}damt;`,
         code: (p) => `
         {
-            float d = length(warped - u_mouse);
+            float d = length(warped - ${p}dpos);
             float fall = 1.0 - smoothstep(0.0, ${p}radius, d);
-            vec2 dir = d > 0.5 ? (warped - u_mouse) / d : vec2(0.0);
-            warped -= dir * ${p}strength * fall;
+            vec2 dir = d > 0.5 ? (warped - ${p}dpos) / d : vec2(0.0);
+            warped -= dir * ${p}strength * fall * ${p}damt;
         }`,
         uniforms: (node, dpr) => ({
             strength: ["1f", (node.strength || 20) * dpr],
@@ -81,13 +111,15 @@ const REGISTRY = {
 
     duotone: {
         stage: "color",
-        decl: (p) => `uniform vec3 ${p}a; uniform vec3 ${p}b; uniform float ${p}radius;`,
+        decl: (p) => `uniform vec3 ${p}a; uniform vec3 ${p}b; uniform float ${p}radius;
+            uniform vec2 ${p}dpos; uniform float ${p}damt;`,
         code: (p, node) => `
         {
             float lum = dot(col, vec3(0.299, 0.587, 0.114));
             vec3 duo = mix(${p}a, ${p}b, lum);
-            ${node.by === "mouse"
-                ? `float mask = 1.0 - smoothstep(${p}radius * 0.35, ${p}radius, length(center - u_mouse));`
+            ${node.by
+                ? `float mask = (1.0 - smoothstep(${p}radius * 0.35, ${p}radius,
+                       length(center - ${p}dpos))) * ${p}damt;`
                 : `float mask = 1.0;`}
             col = mix(col, duo, mask);
         }`,
@@ -140,6 +172,87 @@ const REGISTRY = {
     // projection at all — the whole simulation is a single pass.
     //
     //   { op: "stir", strength: 26, swirl: 2.4, decay: 0.985 }
+    // Halftone: the print dot screen. Tone is carried by dot AREA on a
+    // rotated grid rather than by intensity, the way offset lithography
+    // reproduces a continuous-tone image with a single ink.
+    //
+    //   { op: "halftone", size: 6, angle: 15, ink: "#0B1B2B" }
+    //
+    // With a driver the screen coarsens toward the focus, like holding a
+    // loupe over the sheet.
+    halftone: {
+        stage: "color",
+        decl: (p) => `
+            uniform float ${p}size;
+            uniform float ${p}angle;
+            uniform vec3 ${p}ink;
+            uniform vec3 ${p}paper;
+            uniform float ${p}soft;
+            uniform float ${p}radius;
+            uniform vec2 ${p}dpos;
+            uniform float ${p}damt;`,
+        code: (p, node) => `
+        {
+            float lum = dot(col, vec3(0.299, 0.587, 0.114));
+            float sz = ${p}size;${node.by ? `
+            float fd = 1.0 - smoothstep(0.0, ${p}radius, length(frag - ${p}dpos));
+            sz *= 1.0 + fd * ${p}damt * 1.8;` : ``}
+            // Screen angle: rotating the grid is what stops the dots
+            // reading as a horizontal/vertical texture.
+            float ca = cos(${p}angle), sa = sin(${p}angle);
+            vec2 rp = vec2(ca * frag.x - sa * frag.y,
+                           sa * frag.x + ca * frag.y) / max(sz, 1.0);
+            vec2 cell = fract(rp) - 0.5;
+            // Dot radius from tone: darker tone prints a bigger dot.
+            // sqrt because ink coverage goes as area, not radius.
+            float rr = sqrt(clamp(1.0 - lum, 0.0, 1.0)) * 0.55;
+            float dm = smoothstep(rr, rr - ${p}soft, length(cell));
+            col = mix(${p}paper, ${p}ink, dm);
+        }`,
+        uniforms: (node, dpr) => ({
+            size: ["1f", (node.size || 6) * dpr],
+            angle: ["1f", ((node.angle != null ? node.angle : 15) * Math.PI) / 180],
+            ink: ["3fv", hexToRgb(node.ink || "#0B1B2B")],
+            paper: ["3fv", hexToRgb(node.paper || "#FFFFFF")],
+            soft: ["1f", node.softness != null ? node.softness : 0.08],
+            radius: ["1f", (node.radius || 220) * dpr],
+        }),
+    },
+
+    // Chromatic aberration: the only op that uses the displace stage. It
+    // does not move the sample position itself, it sets `chroma`, the
+    // per-channel split the sampler applies - red and blue are fetched
+    // either side of green along the radial direction, the way a simple
+    // lens disperses wavelengths toward its edges.
+    //
+    //   { op: "aberration", amount: 6 }            // radial, lens-like
+    //   { op: "aberration", amount: 14, by: "mouse" }  // focused at the pointer
+    aberration: {
+        stage: "displace",
+        chroma: true,
+        decl: (p) => `
+            uniform float ${p}amount;
+            uniform float ${p}radius;
+            uniform vec2 ${p}dpos;
+            uniform float ${p}damt;`,
+        code: (p, node) => `
+        {
+            vec2 ctr = ${node.by ? `${p}dpos` : `u_res * 0.5`};
+            vec2 dv = sampleP - ctr;
+            float dl = length(dv);
+            vec2 dir = dl > 0.5 ? dv / dl : vec2(0.0);
+            ${node.by
+                ? `float amt = ${p}amount * ${p}damt *
+                       (1.0 - smoothstep(0.0, ${p}radius, dl));`
+                : `float amt = ${p}amount * (dl / max(length(u_res) * 0.5, 1.0));`}
+            chroma += dir * amt;
+        }`,
+        uniforms: (node, dpr) => ({
+            amount: ["1f", (node.amount != null ? node.amount : 6) * dpr],
+            radius: ["1f", (node.radius || 240) * dpr],
+        }),
+    },
+
     // Stirred liquid: an incompressible fluid whose velocity field warps
     // the content and whose dye field colours it.
     //
@@ -791,6 +904,13 @@ function buildFragmentShader(nodes) {
     // darkening only applies when a cell op runs without an edges op.
     const hasEdges = nodes.some((n) => n.op === "edges");
     const defaultSeam = hasEdges ? "" : "    col *= 1.0 - edge * 0.55;";
+    // Per-channel resampling costs two extra fetches, so it is only
+    // emitted when a displace-stage op actually asks for dispersion.
+    const hasChroma = nodes.some((n) => (REGISTRY[n.op] || {}).chroma);
+    const chromaFetch = hasChroma ? `
+    vec2 cpx = vec2(chroma.x, -chroma.y) / u_res;
+    col.r = texture2D(u_tex, clamp(uv + cpx, 0.001, 0.999)).r;
+    col.b = texture2D(u_tex, clamp(uv - cpx, 0.001, 0.999)).b;` : "";
     return `
 precision highp float;
 uniform sampler2D u_tex;
@@ -806,10 +926,11 @@ ${warp}
     float edge = 0.0;
 ${cell}
     vec2 sampleP = warped;
+    vec2 chroma = vec2(0.0);
 ${displace}
     vec2 uv = vec2(sampleP.x / u_res.x, 1.0 - sampleP.y / u_res.y);
     vec4 tex = texture2D(u_tex, clamp(uv, 0.001, 0.999));
-    vec3 col = tex.rgb;
+    vec3 col = tex.rgb;${chromaFetch}
     vec3 edgeCol = vec3(1.0);
     float edgeCov = 0.0;
     vec3 ovCol = vec3(0.0);
@@ -1352,6 +1473,35 @@ function applyRasterPipeline(el, rasterNodes) {
     el.addEventListener("mousemove", onMove, { passive: true });
     el.addEventListener("touchmove", onMove, { passive: true });
 
+    // Driver inputs beyond the pointer. hoverTarget flips on enter/leave
+    // and `hover` eases toward it, so a hover-driven op resolves away
+    // smoothly instead of snapping off.
+    let hoverTarget = 0, hover = 0;
+    const onEnter = () => { hoverTarget = 1; };
+    const onLeave = () => { hoverTarget = 0; };
+    el.addEventListener("mouseenter", onEnter, { passive: true });
+    el.addEventListener("mouseleave", onLeave, { passive: true });
+
+    // Which nodes need a driver evaluated, and with what.
+    const driverNodes = [];
+    rasterNodes.forEach((node, i) => {
+        const def = REGISTRY[node.op] || {};
+        const name = node.by || def.defaultDriver;
+        if (name && DRIVERS[name]) driverNodes.push({ i, fn: DRIVERS[name] });
+        else if (node.by) {
+            console.warn("[nodality] unknown driver '" + node.by + "' on op '" +
+                node.op + "' - known drivers: " + DRIVER_NAMES.join(", "));
+        }
+    });
+
+    // How far the element has travelled across the viewport, 0..1.
+    const scrollProgress = () => {
+        if (typeof window === "undefined") return 0.5;
+        const r = el.getBoundingClientRect();
+        const vh = window.innerHeight || 1;
+        return Math.max(0, Math.min(1, (vh - r.top) / (vh + r.height)));
+    };
+
     // Render loop — paused while off-screen.
     let raf = 0;
     let visible = true;
@@ -1374,6 +1524,20 @@ function applyRasterPipeline(el, rasterNodes) {
             gl.uniform2f(U("u_res"), canvas.width, canvas.height);
             gl.uniform2f(U("u_mouse"), mouse[0], mouse[1]);
             gl.uniform1f(U("u_time"), now / 1000);
+            // Evaluate each reactive op's driver and upload its focus.
+            if (driverNodes.length > 0) {
+                hover += (hoverTarget - hover) * (1 - Math.exp(-dt * 8));
+                const dctx = {
+                    mouseX: mouse[0], mouseY: mouse[1],
+                    w: canvas.width, h: canvas.height,
+                    t: now / 1000, hover, scroll: scrollProgress(),
+                };
+                for (const d of driverNodes) {
+                    const v = d.fn(dctx);
+                    gl.uniform2f(U(`u${d.i}_dpos`), v.x, v.y);
+                    gl.uniform1f(U(`u${d.i}_damt`), v.amt);
+                }
+            }
             // Advance and upload per-frame CPU simulations.
             if (dynamicOps.length > 0) {
                 const ctx = { w: canvas.width, h: canvas.height, mouseX: mouse[0], mouseY: mouse[1], dt: dt, t: now / 1000 };
@@ -1492,6 +1656,8 @@ function applyRasterPipeline(el, rasterNodes) {
             if (typeof window !== "undefined") window.removeEventListener("resize", onWinResize);
             el.removeEventListener("mousemove", onMove);
             el.removeEventListener("touchmove", onMove);
+            el.removeEventListener("mouseenter", onEnter);
+            el.removeEventListener("mouseleave", onLeave);
             canvas.removeEventListener("paint", onPaint);
             for (const s of solverOps) {
                 s.cleanup();
@@ -1505,4 +1671,7 @@ function applyRasterPipeline(el, rasterNodes) {
     };
 }
 
-export { applyRasterPipeline, registerRasterOp, RASTER_OP_NAMES, isHTMLInCanvasAvailable };
+export {
+    applyRasterPipeline, registerRasterOp, RASTER_OP_NAMES,
+    isHTMLInCanvasAvailable, DRIVER_NAMES,
+};
