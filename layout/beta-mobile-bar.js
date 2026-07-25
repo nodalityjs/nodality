@@ -28,11 +28,8 @@ class /*Beta*/MobileBar extends Animator {
 	  }
 
     toCode(){
-        console.warn(this.items);
         let items = this.items.map(it => it.toCode()).flatMap(x => x);
 
-        console.log("BAD CONV");
-        console.log(this.removeQuotesFromFirstWord(JSON.stringify(this.obj, null, 4)));
 
   
      //   console.warn(items.join("").replace(/}\)/g, '}),'));
@@ -43,12 +40,9 @@ class /*Beta*/MobileBar extends Animator {
 //delete this.obj.brand;
 //this.obj.brand = this.obj.brand.toCode()[0];//.replace(/^"|"$/g, '');
 let repl = this.removeQuotesFromFirstWord(JSON.stringify(this.obj));
-console.log(repl);
 
 
 
-console.log("REPL")
-console.log(repl);
 
 // 23:38:35 Yes!!! 23/04/2025
 // Alway construct neste in this way
@@ -71,12 +65,10 @@ radius: ${JSON.stringify(this.obj.radius)},
     set(obj){
         this.obj = obj;
 
-        console.log("After passing to set:");
 //console.log(obj.brand);
 //console.log(Object.getPrototypeOf(obj.brand));
 //console.log(obj.brand.render());
 
-        console.log("OBJ IN SET");
     //    console.log(this.obj.brand);
     //    console.log(obj.brand);
 
@@ -125,7 +117,6 @@ radius: ${JSON.stringify(this.obj.radius)},
 
     makeNavbar(obj){
 
-        console.log("OBJ IN SETA");
      //   console.log(obj.brand.res);
      //   console.log(obj.brand);
 
@@ -155,7 +146,6 @@ console.log(newTextInstance.render());*/
        //    console.log("APPENDING")
           //  let branda = document.createElement("h1");
            // branda.textContent = "h";
-            console.log("BRIS");
             //console.log(obj.brand);
          //   console.log(obj.brand.res);
            // console.log(typeof obj.brand.res);
@@ -166,7 +156,6 @@ console.log(newTextInstance.render());*/
          
 //if (obj.brand.render){
 
-    console.log("APPENDED-")
   //  this.brand.appendChild(obj.brand.res);
    // console.log(obj.brand.render());
 //this.brand.style.border = "3px solid orange";
@@ -181,7 +170,6 @@ if (obj.brand && typeof newTextInstance.render === "function") {
     console.log("Appending brand:", newTextInstance.render());
     this.brand.appendChild(newTextInstance.render());
 } else {
-    console.warn("Brand does not have a valid render method:", obj.brand);
 }
           
       //  }
@@ -238,11 +226,8 @@ if (obj.brand && typeof newTextInstance.render === "function") {
    /* setBrand(brandElement) {
 
         if (brandElement instanceof Node) {
-            console.log("KBO");
-            console.log(brandElement);
             this.brand.innerHTML = '';
 
-            console.log(this.navbarHeader.children);
             this.navContent.appendChild(brandElement);
            // this.brand.appendChild(brandElement);
         }
@@ -255,7 +240,6 @@ if (obj.brand && typeof newTextInstance.render === "function") {
     }*/
 
     add(ele){
-        console.log(ele);
         this.items = ele;
 
        

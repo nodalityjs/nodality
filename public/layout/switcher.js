@@ -6,7 +6,6 @@ class Switcher {
       this.res = null;
       this.obj = obj;
       this.code = [];
-      console.warn(this.obj);
 
       if (obj.first.toCode && obj.second.toCode){
 
@@ -59,7 +58,6 @@ class Switcher {
    
     const innerSwitch = () => {
 
-    console.log("I")
 
   // alert("LK")
 
@@ -89,7 +87,6 @@ this.res.innerHTML = "";
   
     toCode(){
      // alert("IO0")
-     console.log(this.code);
       return this.codeArr;
     }
   

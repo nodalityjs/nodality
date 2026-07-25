@@ -32,10 +32,8 @@ class AreaSwitcher {
     */
     react(arr){
       const reacta = () => {
-        console.log(arr.length);
 for (var i = 0; i < arr.length - 1; i++){
  // alert(parseInt(arr[i].at))
- console.warn(window.innerWidth);
  //console.warn("BETWEEN" + parseInt(arr[i].at) + " - " + parseInt(arr[i + 1].at) );
 
  let from = parseInt(arr[i].at);
@@ -44,7 +42,6 @@ for (var i = 0; i < arr.length - 1; i++){
 
   if ( window.innerWidth > from && window.innerWidth < to ){
 //alert("O")
-console.log("FROM    " + from + "    TO  " + to);
     let obj = arr[i].template;
 
      let withSpaceObj = obj.map(str => str.split('').join(' '));
@@ -55,7 +52,6 @@ console.log("FROM    " + from + "    TO  " + to);
  
     } else if (window.innerWidth > to) {
     //  this.gridContainer.style.border = `3px solid ${arr[arr.length - 1].color}`;
-      console.log("BIGGER THAN"  +  " "  + to);
       //alert("P")
       // This always fires
       let obj = arr[arr.length - 1].template;
@@ -76,7 +72,6 @@ console.log("FROM    " + from + "    TO  " + to);
     }
   
      add(items){
-      console.log(items);
   
    //   let withSpaceObj = obj.map(str => str.split('').join(' '));
    //   const outputString = withSpaceObj.map(row => `"${row}"`).join(" ");

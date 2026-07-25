@@ -24,7 +24,6 @@ class Base {
 				return a[property];
 			},
 			set(T, P, V, R) {
-				 console.warn("PUSHED REACTIVELY :D");
 				me.itemso = a[P].map(t => String(t));
 				return a[P];
 			},

@@ -34,7 +34,6 @@ import {Animator} from "../animator.js";
             container.appendChild(dl);
             container.addEventListener("change", () => {
                 let val = document.querySelector("#my").value;
-                console.log(val); 
                 this.currentItem = val;
             });
             
@@ -70,7 +69,6 @@ import {Animator} from "../animator.js";
 
     arrayPadding(arr, value) {
 		//alert("PP")
-		console.log(arr);
 			if (arr.includes("left")){
 				this.res.style.paddingLeft = value;
 			}
@@ -102,7 +100,6 @@ import {Animator} from "../animator.js";
 	
 		arrayMargin(arr, value) {
 			//alert("PP")
-			console.log(arr);
 				if (arr.includes("left")){
 					this.res.style.marginLeft = value;
 				}

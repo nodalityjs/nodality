@@ -86,8 +86,6 @@ class SideNav extends Animator {
                             if (anna){
 
                             
-                            console.log("OPEN KEYFRAMES");
-                            console.log(anna.op.keyframesOpen);
                          
                             let opts = anna.op.openOptions;
                         
@@ -100,7 +98,6 @@ class SideNav extends Animator {
                                 opts.duration = 300;
                             }
 
-                            console.log(opts);
                             
                             // Why does duration affect navigation appearing????
                            //THIS BLOCK CONTROLS APPEARING !!!!
@@ -163,9 +160,6 @@ this.ope.finished.then(() => {
   // alert(this.obj.tags.open);
 });
 } else {
-  console.log("OWO");
-  console.log(this.opeClose);
-  console.log(this.ope);
 }*/
 
 /*
@@ -263,8 +257,6 @@ if (this.obj.tags) {
     items(it) {
         this.masterEL = it.items.filter(it => it.link !== undefined);
 
-        console.log("EXTRACT IDs");
-        console.log(it);
 
         let mappedIDS = it.items
         .filter(it => it.items === undefined)
@@ -277,8 +269,6 @@ if (this.obj.tags) {
 
         if (this.masterEL[0] !== undefined){
 
-        console.log("ANNAX");
-        console.log(this.masterEL[0]);
 
         let anna = this.masterEL[0].options.animation;
        
@@ -293,10 +283,6 @@ if (this.obj.tags) {
                     let resetDelay = anna.op.closeOptions;
                     resetDelay.delay = 0;
 
-                    console.log("ANNAX");
-                    console.log("SETTING INITIAL STATE ZEROING THE DELAY");
-                    console.log(anna.op.keyframesClose);
-                    console.log(resetDelay);
                     
                     
 

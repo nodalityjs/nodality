@@ -6,7 +6,6 @@ class Card {
 		this.text = text;
 		this.url = url;
 		this.setup();
-		console.log("aju");
 	}
 
 	setup() {

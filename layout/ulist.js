@@ -85,8 +85,6 @@ class UList extends Animator {
 		}*/
 
 		// console.log("ARA IS " + arr);
-		console.log("ARA IS ");
-		console.log(arr);
 
 			this.chainReact(arr, this.options.id, keep);
 		}

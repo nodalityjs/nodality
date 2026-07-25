@@ -17,7 +17,6 @@ class Text extends Animator {
 		this.react = [];
 		this.code.push(`new Text("${this.text}")`);
 		//console.log("15/12/25 cool");
-		console.log("26-01-26 11:12:00");
 	}
 
 
@@ -171,7 +170,6 @@ class Text extends Animator {
 		if (opts === undefined) {
 			return this;
 		}
-console.log("DEL");
 		const options = opts.op;
 		const breakpoint = opts.point;
 
@@ -318,8 +316,6 @@ console.log("DEL");
 
     // Line breaks
     html = html.replace(/\n/g, "<br>");
-console.log("HTML");
-console.log(html);
 
     return html;
   }
@@ -457,8 +453,6 @@ this.res.style.position = "absolute";
 
 
 		/*if (obj.transform){
-			console.warn("ARE DIFFERENT OBJS HERE?");
-			console.warn(obj.transform)
 		}*/
 		// Done by commonMethods
 		//obj.transform && this.reactOnTransform(obj.transform); // remove obj.op.duration
@@ -467,8 +461,6 @@ this.res.style.position = "absolute";
 			alert("P");
 		}*/
 
-		console.log("OGA");
-		console.log(obj);
 		
 		
 		this.callReact(obj);
@@ -546,8 +538,6 @@ this.res.style.position = "absolute";
 		}*/
 
 		// console.log("ARA IS " + arr);
-		console.log("ARA IS ");
-		console.log(arr);
 
 			this.chainReact(arr, this.options.id, keep);
 		}
@@ -1347,8 +1337,6 @@ checkForAnimation(queries){
 			el.setAttribute("id", obj.id);
 
 
-				console.log("ANIMAS");
-				console.log(obj);
 
 			if (obj.type === "span"){
 
@@ -1727,9 +1715,6 @@ checkForAnimation(queries){
 	render(div) {
 
 		/*console.log("FINAL CSS");
-		console.log(this.css[0].range);
-		console.log(this.css[0].rules);
-		console.log(this.elCSS);
 	*/
 
 		
@@ -1763,8 +1748,6 @@ checkForAnimation(queries){
 			}
 
 			if (this.looksLikeMarkdown(this.text)) {
-			console.log("See md"); // 224635 29/09/25
-			console.log(this.parseMarkdown(this.text));
       this.res.innerHTML = this.parseMarkdown(this.text);
     } 
 

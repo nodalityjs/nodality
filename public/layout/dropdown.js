@@ -22,11 +22,9 @@ class DropdownOld extends Animator { // 232811
             
         if (window.matchMedia("(max-width: 600px").matches){
             //alert("K")
-            console.log("TORELATIVE");
             this.res.children[1].style.position = "relative";
             
         } else {
-            console.log("TOABSOLUTE");
             this.res.children[1].style.position = "absolute"; // WOW !!!
         }
     }

@@ -199,7 +199,6 @@ class UINavBar extends Animator {
       //  console.log(starts);
       //alert("NEXT");
       //alert(this.items);
-      console.log(this.items);
      // alert(starts); //THIS SHOULD BE TRUE;
 
         if (true) { // We are adding class instances to the Area
@@ -723,7 +722,6 @@ class UINavBar extends Animator {
 
         } else {
            // alert("/");
-           console.log(this.res);
           //   const innerItemsWrapper = this.res.children[0].children[0].children[0];//findNestedDivWithId(this.res.children, 'innerItemsWrapper');
          //   innerItemsWrapper.style.marginTop = "0";
            // const innerItemsWrapper = findNestedDivWithId(this.res.children, 'innerItemsWrapper');

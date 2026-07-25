@@ -110,8 +110,6 @@ class Code extends Animator {
 		}*/
 
 		// console.log("ARA IS " + arr);
-		console.log("ARA IS ");
-		console.log(arr);
 
 			this.chainReact(arr, obj.id, keep);
 		}

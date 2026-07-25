@@ -38,11 +38,9 @@ class Grid {
 	
 	
 	setAreas(areas){
-		console.log(areas);
 		this.res.children[0].style.gridArea = "a";
 		this.res.children[1].style.gridArea = "b";
 		this.res.style.gridTemplateAreas = `"a a a b"`;
-		console.warn(this.res.style.gridTemplateAreas);
 		return this;
 	}
 
@@ -96,7 +94,6 @@ class Grid {
 	}
 
 	items(arr) {
-		console.warn(arr);
 		for (var i = 0; i < arr.length; i++) {
 			this.res.appendChild(arr[i].render());
 		}

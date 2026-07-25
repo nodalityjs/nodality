@@ -111,7 +111,6 @@ return this;
 			.startsWith(`class ${e}`);
 		});
 
-		console.log(starts)
 
 
 
@@ -121,9 +120,6 @@ return this;
 		
 if (starts){
 
-		console.log(items[0]);
-		console.log(items[0] instanceof Spacer)
-		console.log("WHAT ?????")
         
           this.itemCount = items.length;
 
@@ -237,7 +233,6 @@ if (starts){
     
     
     keepItem(item){
-        console.log("Wow");
         this.keepItem = item;
         return this;
     }
@@ -275,7 +270,6 @@ adjust(w) {
 
 	
 	const adjustFontSize = () => {
-		console.log("IN VIEWPORT")
 		for (var i = 0; i < this.res.children.length; i++) {
 			let el = this.res.children[i];
 			el.style.fontSize = media2.matches ? (this.mobileSize ? this.mobileSize : "1.2em") : (this.desktopSize ? this.desktopSize : "1em");

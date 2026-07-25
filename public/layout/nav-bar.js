@@ -175,7 +175,6 @@ class NavBar {
     
     
     keepItem(item){
-        console.log("Wow");
         this.keepItem = item;
         return this;
     }
@@ -225,10 +224,6 @@ adjust(w) {
             .startsWith("class Spacer");
             
             // console.error("---------ERROR---------");
-             console.warn(el.style.flexGrow == "1");
-            console.log(el.style.getPropertyValue("flex-grow"));
-            console.log(el.style.getPropertyValue("flex-grow") == 1);
-            console.warn(isSpacer);
           
             
             if (el.style.getPropertyValue("flex-grow") == 1){
@@ -284,7 +279,6 @@ adjust(w) {
 		 /*(((this.ele.children.length == this.itemCount + 1)||*/
 		if (this.ele.children.length == this.itemCount) {
 			this.ele.insertBefore(btn, this.ele.firstChild);
-		console.log("ADDA");
 		}
 
 		this.ele.style.flexDirection = "column";

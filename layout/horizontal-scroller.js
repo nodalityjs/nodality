@@ -81,10 +81,8 @@ class HScroller {
 
            
             if (event.deltaY < 0) {
-                console.log('Scrolling up');
                 this.pts--;
             } else if (event.deltaY > 0) {
-                console.log('Scrolling down');
                 this.pts++;
             }
 
@@ -92,7 +90,6 @@ class HScroller {
             event.preventDefault();
   
             for (var i = 0; i < div.childNodes.length; i++) {
-                console.log(div.childNodes[i].toString().substr(7));
 
                 let child = div.childNodes[i];
 

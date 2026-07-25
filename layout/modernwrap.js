@@ -17,7 +17,6 @@ class ModernWrap {
 	add(els){
 		for (var i = 0; i < els.length; i++){
 			this.res.appendChild(els[i].render().render());
-            console.log("NIONOIBOIBIO")
 		}
         return this;
 	}

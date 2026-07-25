@@ -145,14 +145,6 @@ let dataList = DataList()
     add(data){
         // perform sign up operations :D
         console.clear();
-        console.log("Creating account with data:");
-        console.log(data.a);
-        console.log(data.b);
-        console.log(data.c);
-        console.log(data.d);
-        console.log(data.e);
-        console.log(data.g);
-        console.log(data.h);
     }
 }
 

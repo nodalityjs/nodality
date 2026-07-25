@@ -94,11 +94,8 @@ class Free extends Animator {
         col = Math.max(1, Math.min(cols, col + Math.round(forceX)));
         row = Math.max(1, Math.min(rows, row + Math.round(forceY)));
  
-console.log(this.items.map(el => el.id));
-console.log(attr.attract.slice(1));
       //  alert("#" + attr.attract.slice(1));
         const element = this.items.filter(el => el.id === attr.attract.slice(1))[0].render(); //Array(this.res.children).filter(el => el.getAttribute("id") === attr.attract.slice(1)); //this.res.querySelector("#" + attr.attract.slice(1));//document.createElement("div");
-        console.log(element);
    
         //  element.id = attr.attract.slice(1);
         element.style.gridRowStart = row;
@@ -128,8 +125,6 @@ console.log(attr.attract.slice(1));
     });
 
    // document.body.appendChild(container);
-   console.log("ARAO");
-   console.log(this.res.children.length);
    return this;
 }
 
@@ -153,8 +148,6 @@ console.log(attr.attract.slice(1));
             
         }
 
-        console.log("MORAA");
-            console.log(this.res.children.length);
        
         return this;
     }
@@ -213,8 +206,6 @@ console.log(attr.attract.slice(1));
     render(div){
 
         // ARE THERE CHILDREN
-      console.log("CHILDREN IN RENDER");
-      console.log(this.res.children.length);
 
 
         if (div){

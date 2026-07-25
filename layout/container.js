@@ -239,8 +239,6 @@ code = `${pad}new Wrapper()`;
 		}
 
 		// console.log("ARA IS " + arr);
-		console.log("CARA IS ");
-		console.log(arr);
 		this.options = obj;
 			 this.chainReact(arr, this.options.id, keep);
 		}

@@ -127,27 +127,21 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
   applyView() {
 
 // check if we are in range
-    console.log("MAKE RANGES"); // 23:45:30 Thanks GPT!!!!
     
     const width = window.innerWidth;
-    console.log(this.breakpoints);
-    console.log(this.breakpoints.map(el => el.at));
 
     let rstart = this.breakpoints.map(el => el.at);
 
     let mapped = this.breakpoints.map(el => el.at);
     let transformed = this.createRanges(mapped);
     let added = this.addRanges(this.breakpoints, rstart);
-    console.log(added);
 
 
     added.forEach(r => {
       const query = `(min-width: ${r.range.from}px) and (max-width: ${r.range.to}px)`;
       const mediaQuery = window.matchMedia(query);
   
-      console.warn(query);
       if (mediaQuery.matches) {
-          console.log(`Viewport width is within the range: ${r.range.from}px to ${r.range.to}px`);
           // Add your logic for this range
      
      
@@ -175,7 +169,6 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
 
 
 //const width = window.innerWidth || document.documentElement.clientWidth;
-console.log("MBO");
 // Ensure `breakpoints` array is structured correctly
 /*this.breakpoints = [
     { at: 0, view: "mobileView" },

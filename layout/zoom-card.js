@@ -129,9 +129,6 @@ class ZoomCard extends Animator {
 	render(div) {
 
 		/*console.log("FINAL CSS");
-		console.log(this.css[0].range);
-		console.log(this.css[0].rules);
-		console.log(this.elCSS);
 	*/
 
 		

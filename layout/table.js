@@ -97,7 +97,6 @@ class Table extends Animator {
 
       keep.push("border");
 
-      console.log("ARA IS ", arr);
 
       this.chainReact(arr, this.options.id, keep);
 

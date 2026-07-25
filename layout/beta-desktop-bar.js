@@ -24,7 +24,6 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
     }
 
     set(obj){
-        console.warn(obj);
         this.obj = obj;
 
         // Apply built-in defaults FIRST so caller-supplied pad/mar/
@@ -76,8 +75,6 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
     }
 
     setBrand(brandElement) {
-        console.warn("SETA");
-        console.log(brandElement);
         this.brand.innerHTML = '';
         this.brand.appendChild(brandElement);
         return this;
@@ -99,21 +96,16 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
     }
 
     toCode(){
-        console.warn(this.items);
         let items = this.items.map(it => it.toCode()).flatMap(x => x);
 
-        console.log("ITSA");
-        console.log(items); // links should not be split in teo
         // console.warn(items.join("").replace(/}\)/g, '}),'));
       /* console.log(this.items[3]);
-        console.log(this.items[3].toCode());
 
         if (this.items[3].toCode().length != 1){
             alert("Wrong link codegen");
         }*/
 
         //   ${items.join("")}
-        console.log(`${items.join(",")}`);
         return `new DesktopBar().set(${this.removeQuotesFromFirstWord(JSON.stringify(this.obj))}).add([
                   ${items.join(",")}
 

@@ -164,7 +164,6 @@ adjust(w) {
 		
 		
 		/*console.warn("LENA");
-		console.log(this.ele.children.length);
 		console.log(this.itemCount);*/
 		
 		

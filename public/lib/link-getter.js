@@ -5,10 +5,6 @@ class LinkStyler {
         let el = obj.el;
         let re = obj.re;
 
-        console.log("OLESTE");
-        console.log(bst);
-        console.log(el);
-        console.log(re);
         let customOptions = obj.options;
         let links = [];
 
@@ -62,8 +58,6 @@ class LinkStyler {
                     }
                 }
 
-                console.log("OMESTE");
-                console.log(obj);
                 let split = bst[j].op.ops.split("-");
 
               //   re["color"] = //bst.op.style.color;

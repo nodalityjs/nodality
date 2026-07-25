@@ -406,8 +406,6 @@ let stringified = JSON.stringify(options.borderObj);
 		}*/
 
 		// console.log("ARA IS " + arr);
-		console.log("ARA IS ");
-		console.log(arr);
 
 			this.chainReact(arr, obj.id, keep);
 		}

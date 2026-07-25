@@ -11,8 +11,6 @@ class RadioGroup /*extends Animator*/ {
     set(objects){
         
         this.options = objects;
-        console.log("ORARA");
-        console.log(this.options);
       
         
         this.radioCount = objects.items.length;
@@ -83,7 +81,6 @@ class RadioGroup /*extends Animator*/ {
             
        /* card.addEventListener("change", () => {
             let picked = card.options[card.selectedIndex].value;
-            console.log(picked);
         });*/
             
             
@@ -107,7 +104,6 @@ class RadioGroup /*extends Animator*/ {
     }
     
     getCheckedValues(){
-        console.log("NOW");
         
         var values = [];
         
@@ -116,7 +112,6 @@ class RadioGroup /*extends Animator*/ {
            
             if (document.querySelector(`#S${i}`).checked) {
             let value = document.querySelector(`#S${i}`);
-            console.log("VALUE IS " + value.value);    
             values.push(value.value);
                 }
         }
@@ -166,7 +161,6 @@ class RadioGroup /*extends Animator*/ {
 
 
 
-            console.log("MULA");
         //    console.log(this.el.children[0]);
 
       

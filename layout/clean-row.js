@@ -23,8 +23,6 @@ class CleanRow extends Animator {
 
         let obj = options;
 
-		console.log("ORLOV");
-		console.log(obj);
 
 		if (obj && obj.id && obj.stroke || obj && obj.id && obj.gradient || obj && obj.id && obj.span || obj && obj.id && obj.backgroundOp){
 	
@@ -51,9 +49,6 @@ class CleanRow extends Animator {
 							});
 						}
 			
-						  console.log("-----RDAAA----");
-						  console.log(arr);
-						  console.log(obj.id);
 						  this.res.setAttribute("id", obj.id);
 						  this.betaReact(arr, obj.id);
 						 // this.protoReact(arr, obj.id);
@@ -585,8 +580,6 @@ class CleanRow extends Animator {
 		this.code.push(".items([");
 
 /*
-		console.log("FL ITEM---");
-		console.log(arr);
 		console.log("/FL ITEM---");*/
 
 		for (var i = 0; i < arr.length; i++) {

@@ -13,9 +13,6 @@ class Form {
   
     add(elements) {
     this.elements = elements;
-    console.log("CODEA");
-    console.log(this.elements);
-    console.log(this.elements.length );
   
       elements.forEach((element) => {
         if (element && typeof element.render === "function") {
@@ -26,7 +23,6 @@ class Form {
         }
       });
 
-      console.log(this.elements);
 
       return this;
     }
@@ -43,8 +39,6 @@ class Form {
     })
     .join(", ");
 
-    console.log("FORM DQ");
-    console.log(mapped);
     return [`new Form().set({${setCode}}).add([ \n ${mapped.join(", \n")}])`];
   }
 

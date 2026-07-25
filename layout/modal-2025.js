@@ -86,7 +86,6 @@ class Modal {
         
        
         for (var i = 0; i < els.length; i++){
-            console.log(els[i]);
             el.appendChild(els[i].render());
         }
         

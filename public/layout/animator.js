@@ -584,7 +584,6 @@ class Animator {
 	/*
 respad(arr) {
   this._applyResponsive(arr, (applied) => {
-    console.log("Applying padding for", applied.breakpoint);
     this.pad(applied.values);
   });
 }*/
@@ -728,9 +727,6 @@ resprop(arr, op) {
 		
 			if (key === "exact"){
 //alert(key);
-console.log("APPL");
-console.log(applied);
-console.log(this.set);
 this.set(applied);
 //this.set({key: })
 			}
@@ -939,7 +935,6 @@ respad(arr) { // COOL
 
         
         if (finalPadValue !== undefined && finalPadValue !== null) {
-            console.log("Applying padding for", applied.breakpoint);
             
             // Call the base 'pad' method with the structure found on the 'values' key.
             this.pad(finalPadValue);
@@ -1329,7 +1324,6 @@ resprop(arr) {
 /*
 resmar(arr) {
   this._applyResponsive(arr, (applied) => {
-    console.log("Applying margin for", applied.breakpoint);
     this.mar(applied.values);
   });
 }*/
@@ -2351,13 +2345,10 @@ setTags(obj){
 	//alert("TAGS SET")
 	this.openTag = obj.open;
 	this.closeTag = obj.close;
-	console.log("TAGS SET");
-	console.log(obj);
 
 }
 
   chainReact(queries, id, keep) { // we use this
-console.log("0P");
 	//this.cssGen(queries, id, this.class, this.class !== undefined); // 02/04/2024 10:43:40 Nice!!!
 
 	this.ap = false;
@@ -2455,7 +2446,6 @@ console.log("0P");
 
 	
  if (this.options.background){
-	console.log(this.options.background);
 
 		 this.res.style.background = this.options.background; 
 	  } else {
@@ -2562,7 +2552,6 @@ if (operations.includes("gradient")){
 	
 	  if (operations.includes("shadow")){
 const { op } = this.options.shadow;
-console.log("OP IS", op);
 
 const steps = op.steps ?? 1;
 const colors = op.colors ?? ["gray"];
@@ -2602,8 +2591,6 @@ if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapp
 			//if (this.getType() === "FlexRowLayoutElement"){
 			//} else {
 		/*
-				console.log("SOAA");
-				console.warn(this.options.shadow);
 
 				let str = "";
 				let off = 0;
@@ -2768,7 +2755,6 @@ this.res.appendChild(overlay);
 
 if (this.options.animation && !this.hasAnimated && !this.options.animation.op.fireAt){
 
-console.warn(this.openTag);
 this.hasAnimated = true;
 let ass = this.options.animation.op;
 //alert(this.openTag);
@@ -2919,12 +2905,8 @@ this.res.querySelectorAll('span').forEach(span => {
   //--------- END OF INDEPENDENT
   
   reactOnTransform = (obj) => {
-console.log("LOBJO IS");
 //alert("///"); // UL DOES NOT REACH THIS DESPITE SAME SYNTAX
-console.log("REPO");
-console.log(this.res);
 
-console.log(obj); // Why obj.op.transform not working for link
 //console.log(obj.op.transform); // I need obj.op.transform
 // 
 
@@ -2934,10 +2916,7 @@ console.log(obj); // Why obj.op.transform not working for link
 
 	if (obj.transform || (obj.op /*&& obj.op.transform*/)){
 		
-		console.log("SIMPLIFIED");
 
-	console.log(obj.transform);
-	console.log(obj.op);
 
 
 
@@ -2955,8 +2934,6 @@ console.log(obj); // Why obj.op.transform not working for link
 		}
 
 
-		console.log("ENTERING");
-		console.log(transform);
 	
 		//  {static: true, keep: true, values: Array(4), duration: '3s-ease-in-out'
 		// SIMPLE
@@ -2999,16 +2976,13 @@ console.log(obj); // Why obj.op.transform not working for link
 	let matrix = '';
 	let opacity = '';
 
-	console.log("ERRA - still nested");
 	// There is still nested transform object
-	console.log(transform);
 
 	// Check if the transform values array is empty
 	if (transform.values.length === 0) { 
 		return; // If the array is empty, exit the function
 	}
 
-	console.warn(transform);
 
 	// Loop through the transform values and extract the needed ones
 	transform.values.forEach(value => {
@@ -3120,8 +3094,6 @@ console.log(obj); // Why obj.op.transform not working for link
 
 	const reset = () => {
 		let resetTransformValue = '';
-console.log("RESET");
-console.log(transform);
 
 		transform.values.forEach(value => {
 			if (value.startsWith('tx:')) {
@@ -3181,8 +3153,6 @@ if (transform.on){
 	
 	} else {
 		alert("THIS FIRE WITH GRADIENT (invalid block");
-		console.log("INVALID BLOCKA");
-		console.log(obj);
 	}
 
 	}
