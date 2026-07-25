@@ -53,16 +53,13 @@ jobs:
       - name: Run e2e tests
         run: npm run test
 
-      # Scoped to the raster unit tests on purpose. A bare `jest` run
-      # also picks up the Playwright specs in __tests__/e2e (they throw
-      # "test() called here"), and several older suites in __tests__/jest
-      # still import '../lib/...' from a directory where that path no
-      # longer resolves. Widen this once those are fixed.
+      # Scoped to the folder, not the whole project: a bare `jest` run
+      # also sweeps up the Playwright specs in __tests__/e2e, which throw
+      # "Playwright Test did not expect test() to be called here". Every
+      # file in __tests__/jest is picked up, so new unit tests need no
+      # change here.
       - name: Run unit tests
-        run: >
-          npx jest
-          __tests__/jest/raster-ops.test.js
-          __tests__/jest/fixture-urls.test.js
+        run: npx jest __tests__/jest
 
       - name: Upload report on failure
         if: failure()
