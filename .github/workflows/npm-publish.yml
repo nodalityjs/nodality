@@ -52,7 +52,10 @@ jobs:
       # still import '../lib/...' from a directory where that path no
       # longer resolves. Widen this once those are fixed.
       - name: Run unit tests
-        run: npx jest __tests__/jest/raster-ops.test.js
+        run: >
+          npx jest
+          __tests__/jest/raster-ops.test.js
+          __tests__/jest/fixture-urls.test.js
 
       - name: Upload report on failure
         if: failure()
