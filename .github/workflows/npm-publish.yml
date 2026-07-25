@@ -50,16 +50,11 @@ jobs:
       # the HTML-in-Canvas origin trial with a launch flag, so the live
       # raster backend is covered here and not only the snapshot
       # fallback.
-      - name: Run e2e tests
+      # One runner for everything. Specs that request a `page` run in
+      # Chromium; the rest (fixture-urls, raster-ops-unit) run in Node,
+      # so there is no second test framework to install or configure.
+      - name: Run tests
         run: npm run test
-
-      # Scoped to the folder, not the whole project: a bare `jest` run
-      # also sweeps up the Playwright specs in __tests__/e2e, which throw
-      # "Playwright Test did not expect test() to be called here". Every
-      # file in __tests__/jest is picked up, so new unit tests need no
-      # change here.
-      - name: Run unit tests
-        run: npx jest __tests__/jest
 
       - name: Upload report on failure
         if: failure()
