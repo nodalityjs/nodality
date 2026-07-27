@@ -281,4 +281,72 @@ test.describe('HTML-in-Canvas API', () => {
     expect(state.wrapped).toBe(true);
     expect(state.layoutsubtree).toBe(true);
   });
+
+  test('live mode captures a wrapper that fills the canvas box', async ({ page, baseURL }) => {
+    // Regression guard for rasterised glyphs not landing where the DOM
+    // text is.
+    //
+    // The wrapper the pipeline moves content into had no width, so it
+    // shrink-wrapped to its content -- 593px for a headline inside a
+    // 900px element. texElementImage2D captures THAT box while the
+    // shader maps the texture across the whole canvas, so everything
+    // came out stretched horizontally by canvasWidth/contentWidth
+    // (1.517x in the case that surfaced this). Zero error at the first
+    // glyph and growing across the line, so selecting text highlighted
+    // steadily wronger characters the further in you went.
+    //
+    // The shader maps uv 0..1 over the full canvas, so "capture source
+    // and canvas are the same box" is precisely the condition that makes
+    // the drawn pixels line up with the DOM underneath. Assert the boxes
+    // rather than the pixels: it is exact and deterministic, where a
+    // screenshot diff would be neither.
+    await load(page, baseURL, 'inplace');
+    if ((await backendOf(page)) !== 'live') {
+      test.skip(true, 'needs chrome://flags/#canvas-draw-element');
+      return;
+    }
+    const m = await page.evaluate(() => {
+      const c = document.querySelector('[data-nodality-raster]');
+      const wrap = c.firstElementChild;
+      const cb = c.getBoundingClientRect();
+      const wb = wrap.getBoundingClientRect();
+      const walker = document.createTreeWalker(c, NodeFilter.SHOW_TEXT);
+      const tn = walker.nextNode();
+      let text = null;
+      if (tn) {
+        const r = document.createRange();
+        r.selectNodeContents(tn);
+        const tb = r.getBoundingClientRect();
+        text = { left: tb.left, right: tb.right, width: tb.width };
+      }
+      return {
+        canvas: { left: cb.left, width: cb.width, height: cb.height },
+        wrapper: { tag: wrap.tagName, width: wb.width, height: wb.height },
+        backingW: c.width, backingH: c.height,
+        dpr: window.devicePixelRatio,
+        text,
+      };
+    });
+
+    expect(m.wrapper.tag).toBe('DIV');
+    // The capture source must be exactly the canvas box, not the
+    // content's shrink-wrapped box.
+    expect(m.wrapper.width).toBeCloseTo(m.canvas.width, 0);
+    expect(m.wrapper.height).toBeCloseTo(m.canvas.height, 0);
+    // Stated as the ratio too, because that ratio IS the stretch factor
+    // the bug applied to every glyph position.
+    expect(m.canvas.width / m.wrapper.width).toBeCloseTo(1, 2);
+
+    // The backing store must match the CSS box scaled by dpr, or the
+    // shader's uv mapping would be off even with the boxes agreeing.
+    expect(m.backingW).toBe(Math.round(m.canvas.width * m.dpr));
+    expect(m.backingH).toBe(Math.round(m.canvas.height * m.dpr));
+
+    // And the text the shader draws from has to sit inside the region
+    // the shader samples.
+    expect(m.text).not.toBeNull();
+    expect(m.text.width).toBeGreaterThan(0);
+    expect(m.text.left).toBeGreaterThanOrEqual(m.canvas.left - 1);
+    expect(m.text.right).toBeLessThanOrEqual(m.canvas.left + m.canvas.width + 1);
+  });
 });
