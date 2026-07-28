@@ -49,7 +49,8 @@ test.describe('module surface', () => {
       drivers: window.__raster.DRIVER_NAMES,
     }));
     for (const op of ['hexalize', 'offset', 'duotone', 'edges',
-                      'halftone', 'aberration', 'stir', 'blobs']) {
+                      'halftone', 'aberration', 'stir', 'blobs',
+                      'mask', 'noise', 'copy', 'echo', 'merge', 'switch']) {
       expect(api.ops).toContain(op);
     }
     expect(api.drivers).toEqual(expect.arrayContaining(['mouse', 'hover', 'scroll', 'time']));
@@ -127,7 +128,10 @@ test.describe('DOM contract', () => {
 });
 
 test.describe('ops compile and attach', () => {
-  for (const ops of ['inplace', 'overlay', 'halftone', 'aberration', 'all']) {
+  for (const ops of ['inplace', 'overlay', 'halftone', 'aberration', 'all',
+                     'mask', 'maskAt', 'noiseField', 'copyRing', 'copyPoints',
+                     'mergeMode', 'mergeWarp', 'warpFull', 'solverInMerge',
+                     'switchOn', 'switchOff']) {
     test(`chain "${ops}" builds without a shader error`, async ({ page, baseURL }) => {
       const errors = [];
       page.on('pageerror', (e) => errors.push(e.message));
@@ -348,5 +352,166 @@ test.describe('HTML-in-Canvas API', () => {
     expect(m.text.width).toBeGreaterThan(0);
     expect(m.text.left).toBeGreaterThanOrEqual(m.canvas.left - 1);
     expect(m.text.right).toBeLessThanOrEqual(m.canvas.left + m.canvas.width + 1);
+  });
+});
+
+// ── Node-to-node ops ────────────────────────────────────────────────
+//
+// These are the ops whose whole point is that one node reads another's
+// output, so the assertions are about the RELATIONSHIP between chains:
+// a masked chain must not render the same as an unmasked one, and a
+// switch must actually pick a branch.
+
+// A chain's rendered result, as raw PNG bytes. Compared for inequality
+// rather than equality: a GPU is entitled to differ by a least
+// significant bit, but not to render a constrained effect identically
+// to an unconstrained one.
+async function shot(page, baseURL, ops) {
+  await load(page, baseURL, ops);
+  // Let the first animation frame land before capturing.
+  await page.waitForTimeout(250);
+  return page.locator('#mount').screenshot();
+}
+
+test.describe('fields', () => {
+  test('a masked op renders differently from the same op unmasked',
+    async ({ page, baseURL }) => {
+      const plain = await shot(page, baseURL, 'halftone');
+      const masked = await shot(page, baseURL, 'mask');
+      expect(masked.equals(plain)).toBe(false);
+    });
+
+  test('moving the mask with at: changes where the effect lands',
+    async ({ page, baseURL }) => {
+      const centred = await shot(page, baseURL, 'mask');
+      const placed = await shot(page, baseURL, 'maskAt');
+      expect(placed.equals(centred)).toBe(false);
+    });
+
+  test('a field producer draws nothing on its own', async ({ page, baseURL }) => {
+    // mask/noise write a scalar field and no colour. With nothing
+    // reading the field, the result must be the untouched element.
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await load(page, baseURL, 'noiseField');
+    expect(await logs(page)).not.toMatch(/raster shader/);
+    expect(errors).toEqual([]);
+  });
+});
+
+test.describe('copy', () => {
+  test('instances change the rendered result', async ({ page, baseURL }) => {
+    const none = await shot(page, baseURL, 'none');
+    const copied = await shot(page, baseURL, 'copyPoints');
+    expect(copied.equals(none)).toBe(false);
+  });
+
+  test('a point set and a ring are not the same arrangement',
+    async ({ page, baseURL }) => {
+      const points = await shot(page, baseURL, 'copyPoints');
+      const ring = await shot(page, baseURL, 'copyRing');
+      expect(ring.equals(points)).toBe(false);
+    });
+});
+
+test.describe('merge', () => {
+  test('a merge is not the same as chaining the two branches',
+    async ({ page, baseURL }) => {
+      // The whole claim of merge: branches see the shared input, not
+      // each other. If this ever renders identically to the chained
+      // form, the branch rewind has stopped working.
+      const chained = await shot(page, baseURL, 'all');
+      const merged = await shot(page, baseURL, 'mergeMode');
+      expect(merged.equals(chained)).toBe(false);
+    });
+
+  test('a stateful solver works inside a merge branch', async ({ page, baseURL }) => {
+    // stir allocates ping-pong float targets and steps them per frame.
+    // Nested in a branch it must still get its uniform slot, its driver
+    // and its solver — a flatten that only walked top-level nodes would
+    // compile fine here and then render nothing.
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await load(page, baseURL, 'solverInMerge');
+    expect(await logs(page)).not.toMatch(/raster shader|pipeline skipped/);
+    expect(errors).toEqual([]);
+
+    // Stir it, then check the frame actually changed: a solver that was
+    // never stepped renders the same pixels no matter where the pointer
+    // goes.
+    const box = await page.locator('#mount').boundingBox();
+    const y = box.y + box.height / 2;
+    await page.mouse.move(box.x + 10, y);
+    await page.waitForTimeout(200);
+    const before = await page.locator('#mount').screenshot();
+    for (let i = 1; i <= 6; i++) {
+      await page.mouse.move(box.x + 10 + i * 30, y + (i % 2 ? 6 : -6));
+      await page.waitForTimeout(40);
+    }
+    await page.waitForTimeout(300);
+    const after = await page.locator('#mount').screenshot();
+    expect(after.equals(before)).toBe(false);
+  });
+
+  test('merging a warp against no warp lands between the two',
+    async ({ page, baseURL }) => {
+      // Strictly between: a chain cannot express this at all, because
+      // in a chain the second op only ever sees the first op's
+      // already-displaced coordinates.
+      const half = await shot(page, baseURL, 'mergeWarp');
+      const none = await shot(page, baseURL, 'halftone');
+      const full = await shot(page, baseURL, 'warpFull');
+      expect(half.equals(none)).toBe(false);
+      expect(half.equals(full)).toBe(false);
+      expect(none.equals(full)).toBe(false);
+    });
+});
+
+test.describe('switch', () => {
+  test('a passing test takes the use branch', async ({ page, baseURL }) => {
+    await load(page, baseURL, 'none');
+    const ops = await page.evaluate(() =>
+      window.__raster.resolveSwitches([{
+        op: 'switch', when: true,
+        use: [{ op: 'hexalize' }], else: [{ op: 'halftone' }],
+      }], 0).map((n) => n.op));
+    expect(ops).toEqual(['hexalize']);
+  });
+
+  test('a failing test takes the else branch', async ({ page, baseURL }) => {
+    await load(page, baseURL, 'none');
+    const ops = await page.evaluate(() =>
+      window.__raster.resolveSwitches([{
+        op: 'switch', when: false,
+        use: [{ op: 'hexalize' }], else: [{ op: 'halftone' }],
+      }], 0).map((n) => n.op));
+    expect(ops).toEqual(['halftone']);
+  });
+
+  test('switches nest and flatten in order', async ({ page, baseURL }) => {
+    await load(page, baseURL, 'none');
+    const ops = await page.evaluate(() =>
+      window.__raster.resolveSwitches([
+        { op: 'edges' },
+        { op: 'switch', when: true,
+          use: [{ op: 'switch', when: false,
+                  use: [{ op: 'blobs' }], else: [{ op: 'halftone' }] },
+                { op: 'duotone' }],
+          else: [{ op: 'stir' }] },
+      ], 0).map((n) => n.op));
+    expect(ops).toEqual(['edges', 'halftone', 'duotone']);
+  });
+
+  test('an empty branch attaches no pipeline at all', async ({ page, baseURL }) => {
+    await load(page, baseURL, 'switchEmpty');
+    const attached = await page.evaluate(() =>
+      !!document.querySelector('[data-nodality-raster]'));
+    expect(attached).toBe(false);
+  });
+
+  test('the two branches render differently', async ({ page, baseURL }) => {
+    const on = await shot(page, baseURL, 'switchOn');
+    const off = await shot(page, baseURL, 'switchOff');
+    expect(on.equals(off)).toBe(false);
   });
 });

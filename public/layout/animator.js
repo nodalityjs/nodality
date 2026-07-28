@@ -634,8 +634,39 @@ resprop(arr, op) {
         default: [0, 100000], xs: [0, 575], sm: [576, 767], md: [768, 991],
         lg: [992, 1199], xl: [1200, 1399], xxl: [1400, 100000]
     };
-    const excludedKeys = ['resprop', 'breakpoint', 'value', 'values', 'range']; 
-    
+    const excludedKeys = ['resprop', 'breakpoint', 'value', 'values', 'range'];
+
+    // Shorthand → CSSOM property names. Values are written with
+    // `element.style[prop] = …`, which silently discards any key that is not a
+    // real CSSOM property — so `flexDir: "column"` used to do nothing at all,
+    // with no error. Map the shorthands people actually write, and warn on
+    // anything else that is neither a CSSOM property nor an internal method.
+    const PROP_ALIASES = {
+        flexDir: "flexDirection",
+        dir: "flexDirection",
+        justify: "justifyContent",
+        align: "alignItems",
+        wrap: "flexWrap",
+        bg: "background",
+        radius: "borderRadius",
+        z: "zIndex",
+    };
+
+    const resolveProp = (key) => {
+        const mapped = PROP_ALIASES[key] || key;
+        if (
+            typeof console !== "undefined" &&
+            typeof this[key] !== "function" &&
+            !(mapped in this.res.style)
+        ) {
+            console.warn(
+                `[nodality] resprop: "${key}" is not a CSS property or component method — ignored.` +
+                (PROP_ALIASES[key] ? "" : ` Did you mean one of: ${Object.keys(PROP_ALIASES).join(", ")}?`)
+            );
+        }
+        return mapped;
+    };
+
     // A. Normalize ranges: Treat "800px" as [0, 800] (Max-Width logic)
     arr.forEach(item => {
         if (breakpoints[item.breakpoint] !== undefined) {
@@ -714,9 +745,7 @@ resprop(arr, op) {
                 const ks = defaultItem[key];
                 if (ks && ks.key) this.res.style[ks.key] = ks.value;
             } else {
-                this.res.style[key] = defaultItem[key];
-
-				
+                this.res.style[resolveProp(key)] = defaultItem[key];
             }
         });
 
@@ -741,11 +770,11 @@ this.set(applied);
                 } 
                 // Handle internal methods (e.g., this.width("300px"))
                 else if (typeof this[key] === 'function') {
-                    this[key](value); 
-                } 
+                    this[key](value);
+                }
                 // Handle direct CSS property assignment
                 else {
-                    this.res.style[key] = value;
+                    this.res.style[resolveProp(key)] = value;
                 }
 
 
@@ -794,8 +823,12 @@ respad(arr) {
     // --- 2. STATE CAPTURE & RESET PREPARATION ---
 
     // D. Ensure 'defaultItem' has a 'values' property, falling back to the base 'pad' option.
+    // `this.options` is only populated by callReact()/resprop(), both of which
+    // run AFTER commonMethods() dispatches here — so on components like Wrapper
+    // it is still undefined at this point. Guard rather than throw: a missing
+    // base `pad` simply means there is nothing to reset to.
     if (defaultItem.values === undefined) {
-         defaultItem.values = this.options.pad || null;
+         defaultItem.values = (this.options && this.options.pad) || null;
     }
 
 
@@ -1361,9 +1394,10 @@ resmar(arr) {
     
     // --- 2. STATE CAPTURE & RESET PREPARATION ---
 
-    // D. Ensure 'defaultItem' has a 'values' property, falling back to the base 'pad' option.
+    // D. Ensure 'defaultItem' has a 'values' property, falling back to the base
+    // `mar` option. Same ordering caveat as respad() — see the note there.
     if (defaultItem.values === undefined) {
-         defaultItem.values = this.options.pad || null;
+         defaultItem.values = (this.options && (this.options.mar || this.options.pad)) || null;
     }
 
 

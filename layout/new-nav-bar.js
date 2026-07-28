@@ -378,8 +378,13 @@ class UINavBar extends Animator {
 
         btn.style.zIndex = 1;
 
-        if (this.res.children[0].children.length === 1) { // Problem here
-            this.res.children[0].insertBefore(btn, this.res.children[0].firstChild);
+        // Insert the hamburger once, keyed on its presence rather than on the
+        // wrapper's child count. The old `children.length === 1` guard silently
+        // skipped insertion whenever anything else had already been appended,
+        // leaving render() to hide the items wrapper in its place.
+        const bar = this.res.children[0];
+        if (bar && !bar.querySelector("#hamburger")) {
+            bar.insertBefore(btn, bar.firstChild);
         }
 
         return this;
@@ -861,8 +866,14 @@ class UINavBar extends Animator {
                 innerIW.style.flexDirection = "row";
             }
 
+            // Above the mobile breakpoint the hamburger is hidden and the
+            // links show. Target it by id, not by index: items() only inserts
+            // the button when the wrapper has exactly one child, so on a plain
+            // .setup().items().render() chain index 0 is the items wrapper —
+            // and hiding that made the whole nav disappear on desktop.
             if (!this.obj.isSide && !media.matches && !myMedia.matches) {
-                this.res.children[0].children[0].style.display = "none";
+                const hamburger = this.res.querySelector("#hamburger");
+                if (hamburger) hamburger.style.display = "none";
             }
 
 

@@ -51,6 +51,10 @@ const MAX_BLOBS = 12;
 // 0..1 that the op scales its effect by. Ops read them as u<i>_dpos and
 // u<i>_damt; the pipeline evaluates and uploads them once per frame.
 const DRIVERS = {
+    // Centre of the element at full strength. The default for ops that
+    // need a focus point but were not given a `by:` -- without it their
+    // dpos/damt would never be uploaded and would read as zero.
+    static: (c) => ({ x: c.w * 0.5, y: c.h * 0.5, amt: 1 }),
     mouse: (c) => ({ x: c.mouseX, y: c.mouseY, amt: 1 }),
     // Same focus as mouse, but faded in and out with the hover state, so
     // the effect resolves away when the pointer leaves.
@@ -251,6 +255,280 @@ const REGISTRY = {
             amount: ["1f", (node.amount != null ? node.amount : 6) * dpr],
             radius: ["1f", (node.radius || 240) * dpr],
         }),
+    },
+
+    // ── Field producers ──────────────────────────────────────────────
+    // These draw nothing. They write a scalar field that LATER ops read
+    // via `masked:`, which is the whole of the node-to-node data flow:
+    //
+    //   { op: "mask",  from: "radial", as: "centre", radius: 300 },
+    //   { op: "stir",  masked: "centre" },      // fluid only in the middle
+    //   { op: "halftone" },                     // screen everywhere
+    //
+    // The masking wrapper is generic, so an op does not know or care
+    // that it is being constrained — every op, including ones written
+    // before fields existed, can be masked.
+
+    // Geometric / content masks.
+    mask: {
+        stage: "field",
+        producesField: true,
+        defaultDriver: "static",
+        decl: (p) => `
+            uniform vec2 ${p}dpos;
+            uniform float ${p}damt;
+            uniform float ${p}radius;
+            uniform vec2 ${p}at;
+            uniform vec2 ${p}remap;
+            uniform float ${p}invert;`,
+        code: (p, node) => {
+            const src = node.from || "radial";
+            // Where a radial mask sits. `at:` is fractional (0..1 of the
+            // element box) so it survives resizes; without it the focus
+            // comes from the driver, which defaults to the centre.
+            const ctr = node.at ? `(${p}at * u_res)` : `${p}dpos`;
+            const raw = src === "vertical"
+                ? `frag.y / max(u_res.y, 1.0)`
+                : src === "horizontal"
+                    ? `frag.x / max(u_res.x, 1.0)`
+                    : /* radial, and the default */
+                    `1.0 - smoothstep(0.0, ${p}radius, length(frag - ${ctr}))`;
+            return `
+        {
+            float m = ${raw};
+            m = clamp((m - ${p}remap.x) / max(${p}remap.y - ${p}remap.x, 1e-4), 0.0, 1.0);
+            m = mix(m, 1.0 - m, ${p}invert);
+            ${fieldVar(node.as || "mask")} *= m * ${p}damt;
+        }`;
+        },
+        uniforms: (node, dpr) => ({
+            radius: ["1f", (node.radius != null ? node.radius : 260) * dpr],
+            at: ["2fv", node.at || [0.5, 0.5]],
+            remap: ["2fv", node.remap || [0, 1]],
+            invert: ["1f", node.invert ? 1 : 0],
+        }),
+    },
+
+    // Animated value noise as a field. The Houdini move: make an
+    // attribute, then reference it downstream.
+    //
+    //   { op: "noise", as: "turbulence", scale: 3, speed: 0.4 },
+    //   { op: "offset", masked: "turbulence", strength: 30 },
+    noise: {
+        stage: "field",
+        producesField: true,
+        decl: (p) => `
+            uniform float ${p}scale;
+            uniform float ${p}speed;
+            uniform vec2 ${p}remap;
+            uniform float ${p}amp;
+            float ${p}h(vec2 v) {
+                return fract(sin(dot(v, vec2(41.113, 289.717))) * 43758.545);
+            }
+            float ${p}n(vec2 v) {
+                vec2 i = floor(v), f = v - i;
+                f = f * f * (3.0 - 2.0 * f);
+                return mix(mix(${p}h(i), ${p}h(i + vec2(1.0, 0.0)), f.x),
+                           mix(${p}h(i + vec2(0.0, 1.0)), ${p}h(i + vec2(1.0, 1.0)), f.x), f.y);
+            }`,
+        code: (p, node) => `
+        {
+            vec2 np = frag / max(u_res.y, 1.0) * ${p}scale;
+            // Two octaves: enough structure to read as turbulence
+            // without the cost of a full fBm.
+            float n = ${p}n(np + u_time * ${p}speed) * 0.65 +
+                      ${p}n(np * 2.7 - u_time * ${p}speed * 0.6) * 0.35;
+            n = clamp((n - ${p}remap.x) / max(${p}remap.y - ${p}remap.x, 1e-4), 0.0, 1.0);
+            ${fieldVar(node.as || "mask")} *= mix(1.0, n, ${p}amp);
+        }`,
+        uniforms: (node) => ({
+            scale: ["1f", node.scale != null ? node.scale : 3],
+            speed: ["1f", node.speed != null ? node.speed : 0.3],
+            remap: ["2fv", node.remap || [0, 1]],
+            amp: ["1f", node.amount != null ? node.amount : 1],
+        }),
+    },
+
+    // Copy to points. The content is re-sampled at a set of points, each
+    // stamp scaled and rotated, and composited into the overlay layer so
+    // the copies sit above the original rather than replacing it.
+    //
+    //   { op: "copy", count: 6, radius: 120, scale: 0.55, rotate: 0.3 }
+    //   { op: "copy", points: [[0.2, 0.5], [0.8, 0.5]], scale: 0.4 }
+    //
+    // With `count`, the points are a ring around the driver focus, so
+    // `by: "mouse"` drags the whole instance set around. With explicit
+    // `points`, positions are fractional (0..1 of the element box) and
+    // survive resizes.
+    //
+    // Single pass, so the stamp count is fixed at compile time and the
+    // loop is unrolled: `count` is a structural parameter, not something
+    // to animate. Copies sample the ORIGINAL texture, not the result of
+    // earlier colour ops, so a copy of a halftoned element is a copy of
+    // the unhalftoned source with the screen applied over it.
+    copy: {
+        stage: "color",
+        defaultDriver: "static",
+        decl: (p) => `
+            uniform vec2 ${p}dpos;
+            uniform float ${p}damt;
+            uniform float ${p}radius;
+            uniform float ${p}scale;
+            uniform float ${p}rotate;
+            uniform float ${p}fade;
+            uniform float ${p}amount;`,
+        code: (p, node) => {
+            const explicit = Array.isArray(node.points) && node.points.length > 0;
+            const n = explicit
+                ? node.points.length
+                : Math.max(1, Math.min(24, Math.round(node.count || 5)));
+            let body = "";
+            for (let k = 0; k < n; k++) {
+                // Where this stamp is centred.
+                const centre = explicit
+                    ? `vec2(${(+node.points[k][0]).toFixed(5)}, ${(+node.points[k][1]).toFixed(5)}) * u_res`
+                    : (() => {
+                        const a = (k / n) * Math.PI * 2;
+                        return `${p}dpos + vec2(${Math.cos(a).toFixed(5)}, ` +
+                            `${Math.sin(a).toFixed(5)}) * ${p}radius`;
+                    })();
+                body += `
+        {
+            float ang = ${p}rotate * ${(k + 1).toFixed(1)};
+            float cs = cos(ang), sn = sin(ang);
+            // Inverse transform: to draw a stamp scaled by s about a
+            // centre c, fetch from the source at (frag - c) / s.
+            vec2 d = mat2(cs, -sn, sn, cs) * (frag - (${centre}));
+            vec2 q = d / max(${p}scale, 1e-3) + u_res * 0.5;
+            vec2 quv = vec2(q.x / u_res.x, 1.0 - q.y / u_res.y);
+            vec2 inside = step(vec2(0.0), quv) * step(quv, vec2(1.0));
+            vec4 s = texture2D(u_tex, clamp(quv, 0.0, 1.0));
+            float w = s.a * inside.x * inside.y * ${p}amount * ${p}damt
+                      * pow(${p}fade, ${k.toFixed(1)});
+            // Straight-alpha OVER, newest stamp on top.
+            float na = w + ovA * (1.0 - w);
+            ovCol = (s.rgb * w + ovCol * ovA * (1.0 - w)) / max(na, 1e-4);
+            ovA = na;
+        }`;
+            }
+            return body;
+        },
+        uniforms: (node, dpr) => ({
+            radius: ["1f", (node.radius != null ? node.radius : 110) * dpr],
+            scale: ["1f", node.scale != null ? node.scale : 0.5],
+            rotate: ["1f", node.rotate != null ? node.rotate : 0],
+            fade: ["1f", node.fade != null ? node.fade : 1],
+            amount: ["1f", node.amount != null ? node.amount : 1],
+        }),
+    },
+
+    // Merge two sub-chains and blend the results.
+    //
+    //   { op: "merge", mode: "screen", mix: 1.0,
+    //     a: [ { op: "halftone" } ],
+    //     b: [ { op: "duotone", colors: [...] } ] }
+    //
+    // Both branches start from the same state and neither sees the
+    // other's output — that is the difference between a merge and a
+    // chain. `mix` fades the whole merge back toward branch A, so
+    // `mix: 0` is A alone and `mix: 1` is the full blend.
+    //
+    // The shader work is emitted inline, so a merge costs no extra pass,
+    // no extra framebuffer and no second capture of the DOM. It cannot,
+    // for the same reason, give the branches different source content.
+    merge: {
+        // Never routed through the normal stage path — emitMerge()
+        // handles it — but it still needs decl/uniforms so its `mix`
+        // gets declared and uploaded like any other op's.
+        stage: "color",
+        decl: (p) => `uniform float ${p}mix;`,
+        code: () => "",
+        uniforms: (node) => ({ mix: ["1f", node.mix != null ? node.mix : 1] }),
+    },
+
+    // Echo: temporal accumulation. Each frame is blended into a
+    // persistent full-resolution buffer, so content that CHANGES leaves a
+    // fading trail behind it — typing smears, a counter ticking over
+    // leaves a comet, a scrolling list ghosts.
+    //
+    // This is the one op that cannot work on the snapshot backend. A
+    // snapshot is a single frozen image, so accumulating it converges to
+    // that same still frame and nothing moves; it needs the live
+    // HTML-in-Canvas capture, where the texture is re-uploaded from the
+    // real DOM on every paint. Run it with the origin trial off and you
+    // correctly see nothing happen.
+    //
+    //   { op: "echo", decay: 0.92, strength: 0.85 }
+    //
+    // The trail is written into the BORDER layer, which the frame
+    // skeleton composites underneath the content, so the ghosts sit
+    // behind the live text rather than veiling it.
+    echo: {
+        stage: "color",
+        decl: (p) => `
+            uniform sampler2D ${p}hist;
+            uniform float ${p}strength;
+            uniform vec3 ${p}tint;
+            uniform float ${p}tintAmt;`,
+        code: (p) => `
+        {
+            // Sampled in screen space: the trail records where things
+            // WERE, which is not where a warp op would fetch them from.
+            vec2 huv = vec2(frag.x / u_res.x, 1.0 - frag.y / u_res.y);
+            vec4 h = texture2D(${p}hist, clamp(huv, 0.001, 0.999));
+            float ha = clamp(h.a * ${p}strength, 0.0, 1.0);
+            vec3 hc = mix(h.rgb, ${p}tint, ${p}tintAmt);
+            // Straight-alpha OVER into the border layer so an edges op
+            // in the same chain still composites correctly.
+            float na = ha + edgeCov * (1.0 - ha);
+            edgeCol = (hc * ha + edgeCol * edgeCov * (1.0 - ha)) / max(na, 1e-4);
+            edgeCov = na;
+        }`,
+        uniforms: (node) => ({
+            strength: ["1f", node.strength != null ? node.strength : 0.85],
+            tint: ["3fv", hexToRgb(node.tint || "#7FD4FF")],
+            tintAmt: ["1f", node.tint ? (node.tintAmount != null ? node.tintAmount : 0.5) : 0.0],
+        }),
+        solver: {
+            // Full canvas resolution: a trail wants to be as sharp as the
+            // content it is trailing, not a coarse simulation grid.
+            resolutions: (node, w, h) => ({ frame: [w, h] }),
+            targets: { history: { double: true, res: "frame", fmt: "rgba", smooth: true } },
+            samplers: { hist: "history" },
+            programs: {
+                // out = max(content, history * decay)
+                //
+                // max rather than a mix: the brightest thing that has
+                // passed through a pixel is what persists, so trails read
+                // as light left behind instead of a muddy average. decay
+                // is per-frame and normalised for frame rate.
+                accumulate: `
+precision highp float;
+uniform sampler2D u_content;
+uniform sampler2D u_hist;
+uniform vec2 u_texel;
+uniform float u_decay;
+void main() {
+    vec2 uv = gl_FragCoord.xy * u_texel;
+    vec4 c = texture2D(u_content, uv);
+    vec4 h = texture2D(u_hist, uv) * u_decay;
+    gl_FragColor = max(c, h);
+}`,
+            },
+            // echo takes no pointer input, so nothing to splat.
+            splatColor: () => [0, 0, 0],
+            step: (S, node, ctx) => {
+                const dt = Math.min(ctx.dt, 1 / 30);
+                const decay = Math.pow(node.decay != null ? node.decay : 0.92, dt * 60);
+                S.use("accumulate");
+                S.f2("u_texel", 1 / S.canvasW, 1 / S.canvasH);
+                S.f1("u_decay", decay);
+                S.smp("u_content", S.content, 0);
+                S.smp("u_hist", S.read("history"), 1);
+                S.blit(S.write("history"));
+                S.swap("history");
+            },
+        },
     },
 
     // Stirred liquid: an incompressible fluid whose velocity field warps
@@ -858,7 +1136,11 @@ function hexToRgb(c) {
 // Names designer.js uses to route nodes into this pipeline instead of
 // the CSS-level op loop. Kept as a live array so registerRasterOp()
 // extends routing too.
-const RASTER_OP_NAMES = Object.keys(REGISTRY);
+// `switch` has no REGISTRY entry — it is resolved to a node list before
+// the shader is built — but it still has to be routed to elements like
+// any other raster node, so it is named here explicitly. Only the switch
+// node carries `target:`; the sub-chains inherit whatever it matched.
+const RASTER_OP_NAMES = Object.keys(REGISTRY).concat("switch");
 
 // Extension surface — mirrors the CSS-level operation registry:
 // registerRasterOp("pixelate", { stage, decl, code, uniforms }).
@@ -876,25 +1158,165 @@ function isHTMLInCanvasAvailable() {
 
 const VS = `attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }`;
 
-function buildFragmentShader(nodes) {
-    let decls = "", warp = "", cell = "", displace = "", color = "";
-    nodes.forEach((node, i) => {
+// What each stage is allowed to modify. Masking works by snapshotting
+// these before an op runs and lerping back toward the snapshot by the
+// mask value, so ANY op can be masked without the op knowing about it.
+const STAGE_VARS = {
+    warp: ["warped"],
+    cell: ["center", "edge"],
+    displace: ["sampleP", "chroma"],
+    color: ["col", "edgeCol", "edgeCov", "ovCol", "ovA"],
+};
+
+// A node opts into a field with `masked: true` (the default field) or
+// `masked: "name"`. Field producers declare `as:` to name what they
+// write. This is the whole of the node-to-node data flow: one op writes
+// a scalar field, later ops read it.
+// No double underscores anywhere: GLSL reserves identifiers
+// containing `__` as possible future keywords, and Chrome rejects
+// the shader outright rather than warning.
+const fieldVar = (name) => `fld_${String(name).replace(/[^A-Za-z0-9_]/g, "")}`;
+const maskedField = (node) =>
+    node.masked === true ? "mask" : (typeof node.masked === "string" ? node.masked : null);
+
+const glslType = (v) =>
+    (v === "edge" || v === "edgeCov" || v === "ovA") ? "float"
+        : (v === "col" || v === "edgeCol" || v === "ovCol") ? "vec3"
+            : "vec2";
+
+// How `merge` combines its two branches. Applied to the vec3 stage
+// variables only; the scalars and coordinates are plainly interpolated,
+// because "screen" is meaningless for a displacement.
+const BLEND = {
+    over: (a, b) => b,
+    add: (a, b) => `min(${a} + ${b}, vec3(1.0))`,
+    screen: (a, b) => `1.0 - (1.0 - ${a}) * (1.0 - ${b})`,
+    multiply: (a, b) => `${a} * ${b}`,
+    difference: (a, b) => `abs(${a} - ${b})`,
+    lighten: (a, b) => `max(${a}, ${b})`,
+    darken: (a, b) => `min(${a}, ${b})`,
+};
+
+const emptyBuckets = () =>
+    ({ field: "", warp: "", cell: "", displace: "", color: "" });
+
+// Flatten a node tree (merge nodes carry sub-chains) into the linear
+// list that owns the uniform slots. Depth-first, parent before children,
+// so `u<i>_` prefixes are stable and every consumer — shader emission,
+// uniform upload, drivers, solvers — agrees on which node is index i.
+// Returns records rather than mutating the caller's node objects.
+function flattenRaster(nodes, flat) {
+    const recs = [];
+    for (const node of (nodes || [])) {
+        if (!node || !node.op) continue;
+        const rec = { node: node, i: flat.length };
+        flat.push(node);
+        if (node.op === "merge") {
+            rec.a = flattenRaster(node.a, flat);
+            rec.b = flattenRaster(node.b, flat);
+        }
+        recs.push(rec);
+    }
+    return recs;
+}
+
+function emitStages(recs, buckets) {
+    for (const rec of recs) {
+        const node = rec.node;
+        if (node.op === "merge") { emitMerge(rec, buckets); continue; }
         const def = REGISTRY[node.op];
-        if (!def) return;
-        const p = `u${i}_`;
-        decls += def.decl(p, node) + "\n";
+        if (!def) continue;
+        const p = `u${rec.i}_`;
         // An op may contribute to more than one stage (stage: ["warp",
         // "color"]) — code() then receives the stage it is emitting for.
         // A plain string stage keeps the original single-snippet form.
         const stages = Array.isArray(def.stage) ? def.stage : [def.stage];
+        const mask = maskedField(node);
         stages.forEach((st) => {
-            const snippet = def.code(p, node, st) + "\n";
-            if (st === "warp") warp += snippet;
-            else if (st === "cell") cell += snippet;
-            else if (st === "displace") displace += snippet;
-            else color += snippet;
+            let snippet = def.code(p, node, st) + "\n";
+            if (mask && STAGE_VARS[st]) {
+                // Generic masking wrapper: no op needs to know it is
+                // being masked, which is what lets a field constrain
+                // ops written long before fields existed.
+                const vars = STAGE_VARS[st];
+                const snap = vars.map((v, k) =>
+                    `        ${glslType(v)} msv${k} = ${v};`).join("\n");
+                const back = vars.map((v, k) =>
+                    `        ${v} = mix(msv${k}, ${v}, ${fieldVar(mask)});`).join("\n");
+                snippet = `    {\n${snap}\n${snippet}\n${back}\n    }\n`;
+            }
+            // `field` has no STAGE_VARS entry (it writes named fields,
+            // not stage variables), so it is listed explicitly here —
+            // anything unrecognised still falls through to colour.
+            const bucket = (st === "field" || st === "warp" ||
+                st === "cell" || st === "displace") ? st : "color";
+            buckets[bucket] += snippet;
         });
+    }
+}
+
+// merge: run two sub-chains from the same starting state and combine
+// them. Still one pass — each branch's stage code is emitted into its
+// own scope, the stage variables are rewound between branches, and the
+// two results are blended. That is what makes it free: no second
+// framebuffer, no second capture of the DOM.
+//
+// The consequence is that a branch cannot see the other's output, only
+// the shared input, which is exactly the semantics you want for a merge
+// and not the semantics of a chain.
+function emitMerge(rec, buckets) {
+    const p = `u${rec.i}_`;
+    const blend = BLEND[rec.node.mode] || BLEND.over;
+    const A = emptyBuckets(), B = emptyBuckets();
+    emitStages(rec.a || [], A);
+    emitStages(rec.b || [], B);
+    // Fields are shared state, not branch-local: a mask written inside
+    // one branch is visible to the other, and to everything after.
+    buckets.field += A.field + B.field;
+    for (const st of ["warp", "cell", "displace", "color"]) {
+        if (!A[st] && !B[st]) continue;
+        const vars = STAGE_VARS[st];
+        let s = "    {\n";
+        vars.forEach((v, k) => { s += `        ${glslType(v)} pre${k} = ${v};\n`; });
+        s += A[st];
+        vars.forEach((v, k) => { s += `        ${glslType(v)} bra${k} = ${v};\n`; });
+        vars.forEach((v, k) => { s += `        ${v} = pre${k};\n`; });
+        s += B[st];
+        vars.forEach((v, k) => {
+            const combined = glslType(v) === "vec3"
+                ? blend(`bra${k}`, v)
+                : v;
+            s += `        ${v} = mix(bra${k}, ${combined}, ${p}mix);\n`;
+        });
+        s += "    }\n";
+        buckets[st] += s;
+    }
+}
+
+function buildFragmentShader(recs, flat) {
+    let decls = "";
+
+    // Every field any node writes or reads, declared up front at 1.0 so
+    // an unmatched reference is a no-op rather than a compile error.
+    const fieldNames = new Set();
+    flat.forEach((n) => {
+        const def = REGISTRY[n.op];
+        if (def && def.producesField) fieldNames.add(n.as || "mask");
+        const m = maskedField(n);
+        if (m) fieldNames.add(m);
     });
+    const fieldDecls = [...fieldNames]
+        .map((n) => `    float ${fieldVar(n)} = 1.0;`).join("\n");
+
+    flat.forEach((node, i) => {
+        const def = REGISTRY[node.op];
+        if (def) decls += def.decl(`u${i}_`, node) + "\n";
+    });
+
+    const buckets = emptyBuckets();
+    emitStages(recs, buckets);
+    const { field, warp, cell, displace, color } = buckets;
+    const nodes = flat;
     // Compositing, in three layers (all straight-alpha):
     //   1. border layer (edgeCol/edgeCov, from an edges op) UNDER
     //   2. content layer (col over tex.a)                    then
@@ -920,6 +1342,8 @@ uniform float u_time;
 ${decls}
 void main() {
     vec2 frag = vec2(gl_FragCoord.x, u_res.y - gl_FragCoord.y);
+${fieldDecls}
+${field}
     vec2 warped = frag;
 ${warp}
     vec2 center = warped;
@@ -993,6 +1417,59 @@ function snapshotToImage(el, w, h, dpr) {
     });
 }
 
+// ── switch: pick a sub-chain by condition ────────────────────────────
+//
+//   { op: "switch",
+//     when: "(max-width: 700px)",     // or "coarse", "fine", "no-hover"
+//     use:  [ { op: "halftone" } ],   // taken when the test passes
+//     else: [ { op: "stir" }, ... ] } // taken when it does not
+//
+// This is a build-time node, not a shader op: it produces a node list,
+// which is then compiled like any other. Sub-chains nest, so a switch
+// may contain a switch.
+//
+// Evaluated ONCE, when the pipeline attaches. It is meant for choices
+// that are properties of the device — a cheap chain on a phone, a heavy
+// one on a desktop — not for anything that should change as the window
+// is dragged: switching mid-session would need a new shader program,
+// and the pipeline compiles exactly one.
+const SWITCH_ALIASES = {
+    coarse: "(pointer: coarse)",
+    fine: "(pointer: fine)",
+    hover: "(hover: hover)",
+    "no-hover": "(hover: none)",
+    "reduced-motion": "(prefers-reduced-motion: reduce)",
+    dark: "(prefers-color-scheme: dark)",
+    light: "(prefers-color-scheme: light)",
+};
+
+function switchTest(when) {
+    if (typeof when === "function") {
+        try { return !!when(); } catch (e) { return false; }
+    }
+    if (typeof when === "boolean") return when;
+    if (typeof when !== "string" || when === "") return false;
+    const q = SWITCH_ALIASES[when] || when;
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+    try { return window.matchMedia(q).matches; } catch (e) { return false; }
+}
+
+function resolveSwitches(nodes, depth) {
+    if (!Array.isArray(nodes)) return [];
+    // Cheap cycle guard: sub-chains are plain data and could be shared
+    // by reference, so a self-referential list would otherwise hang.
+    if ((depth || 0) > 8) return [];
+    const out = [];
+    for (const node of nodes) {
+        if (!node || node.op !== "switch") { out.push(node); continue; }
+        const branch = switchTest(node.when) ? node.use : node.else;
+        // A branch may legitimately be empty — that is how you say
+        // "do nothing on small screens".
+        for (const sub of resolveSwitches(branch || [], (depth || 0) + 1)) out.push(sub);
+    }
+    return out;
+}
+
 // ── Pipeline runner ──────────────────────────────────────────────────
 
 function applyRasterPipeline(el, rasterNodes) {
@@ -1001,6 +1478,20 @@ function applyRasterPipeline(el, rasterNodes) {
     // page untouched.
     if (!el || typeof document === "undefined" || typeof window === "undefined") return null;
     if (!rasterNodes || rasterNodes.length === 0) return null;
+    // Flatten any switch nodes down to the chain this device actually
+    // gets, before anything reads the list.
+    if (rasterNodes.some((n) => n && n.op === "switch")) {
+        rasterNodes = resolveSwitches(rasterNodes, 0);
+        if (rasterNodes.length === 0) return null;
+    }
+    // Flatten merge sub-chains into the linear list that owns the
+    // uniform slots. `tree` keeps the branch structure for the shader
+    // emitter; `flat` is what every other loop iterates, so a node
+    // nested inside a merge gets its uniforms, driver and solver set up
+    // exactly like a top-level one.
+    const flatNodes = [];
+    const rasterTree = flattenRaster(rasterNodes, flatNodes);
+    rasterNodes = flatNodes;
     if (typeof window.matchMedia === "function" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
 
@@ -1141,7 +1632,7 @@ function applyRasterPipeline(el, rasterNodes) {
     };
     const prog = gl.createProgram();
     gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, buildFragmentShader(rasterNodes)));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, buildFragmentShader(rasterTree, rasterNodes)));
     // Pin "a" to location 0 so a field-simulation program (which shares
     // this vertex buffer and attribute array) can be swapped in without
     // respecifying the pointer.
@@ -1200,7 +1691,9 @@ function applyRasterPipeline(el, rasterNodes) {
             return null;
         }
         gl.getExtension("OES_texture_float_linear");
-        const res = def.solver.resolutions(node);
+        // Canvas dimensions are passed through so a target can be
+        // full-resolution (echo's history) rather than a fixed grid.
+        const res = def.solver.resolutions(node, canvas.width, canvas.height);
         const FMT = {
             r: [gl.R16F, gl.RED],
             rg: [gl.RG16F, gl.RG],
@@ -1208,7 +1701,7 @@ function applyRasterPipeline(el, rasterNodes) {
         };
 
         const made = [];
-        const mkTarget = (size, fmt, smooth) => {
+        const mkTarget = (w, h, fmt, smooth) => {
             const [internal, format] = FMT[fmt];
             const t = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, t);
@@ -1217,17 +1710,17 @@ function applyRasterPipeline(el, rasterNodes) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, flt);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, internal, size, size, 0,
+            gl.texImage2D(gl.TEXTURE_2D, 0, internal, w, h, 0,
                 format, gl.HALF_FLOAT, null);
             const fbo = gl.createFramebuffer();
             gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
                 gl.TEXTURE_2D, t, 0);
             const ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
-            gl.viewport(0, 0, size, size);
+            gl.viewport(0, 0, w, h);
             gl.clearColor(0, 0, 0, 1);
             gl.clear(gl.COLOR_BUFFER_BIT);
-            const rec = { tex: t, fbo, size, ok };
+            const rec = { tex: t, fbo, w, h, ok };
             made.push(rec);
             return rec;
         };
@@ -1236,15 +1729,16 @@ function applyRasterPipeline(el, rasterNodes) {
         let allOk = true;
         for (const name in def.solver.targets) {
             const spec = def.solver.targets[name];
-            const size = res[spec.res];
+            const dim = res[spec.res];
+            const [tw, th] = Array.isArray(dim) ? dim : [dim, dim];
             if (spec.double) {
                 targets[name] = {
-                    a: mkTarget(size, spec.fmt, spec.smooth),
-                    b: mkTarget(size, spec.fmt, spec.smooth),
+                    a: mkTarget(tw, th, spec.fmt, spec.smooth),
+                    b: mkTarget(tw, th, spec.fmt, spec.smooth),
                 };
                 allOk = allOk && targets[name].a.ok && targets[name].b.ok;
             } else {
-                targets[name] = { a: mkTarget(size, spec.fmt, spec.smooth) };
+                targets[name] = { a: mkTarget(tw, th, spec.fmt, spec.smooth) };
                 allOk = allOk && targets[name].a.ok;
             }
         }
@@ -1319,13 +1813,18 @@ function applyRasterPipeline(el, rasterNodes) {
             read: (name) => s.targets[name].a,
             write: (name) => s.targets[name].b,
             single: (name) => s.targets[name].a,
+            // The captured page content, as a bindable target. echo
+            // accumulates from it; stir never touches it.
+            content: { tex },
+            canvasW: canvas.width,
+            canvasH: canvas.height,
             swap(name) {
                 const t = s.targets[name];
                 const tmp = t.a; t.a = t.b; t.b = tmp;
             },
             blit(target) {
                 gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
-                gl.viewport(0, 0, target.size, target.size);
+                gl.viewport(0, 0, target.w, target.h);
                 gl.drawArrays(gl.TRIANGLES, 0, 3);
             },
         };
@@ -1683,20 +2182,25 @@ function applyRasterPipeline(el, rasterNodes) {
 
     let ro = null;
     let resizeTimer = 0;
+    // Re-measure the host and capture again. Shared by the
+    // ResizeObserver, the window-resize fallback and the font-loading
+    // recapture, so all three agree on what "resize the canvas" means.
+    const remeasureAndCapture = () => {
+        if (destroyed || mode !== "snapshot") return;
+        const m = measure();
+        rect.width = m.width;
+        rect.height = m.height;
+        canvas.width = Math.round(m.width * dpr);
+        canvas.height = Math.round(m.height * dpr);
+        canvas.style.width = m.width + "px";
+        canvas.style.height = m.height + "px";
+        snapshotCapture();
+    };
+
     if (typeof ResizeObserver !== "undefined") {
         ro = new ResizeObserver(() => {
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                if (destroyed || mode !== "snapshot") return;
-                const m = measure();
-                rect.width = m.width;
-                rect.height = m.height;
-                canvas.width = Math.round(m.width * dpr);
-                canvas.height = Math.round(m.height * dpr);
-                canvas.style.width = m.width + "px";
-                canvas.style.height = m.height + "px";
-                snapshotCapture();
-            }, 150);
+            resizeTimer = setTimeout(remeasureAndCapture, 150);
         });
         ro.observe(el);
     }
@@ -1713,17 +2217,7 @@ function applyRasterPipeline(el, rasterNodes) {
         clearTimeout(winResizeTimer);
         winResizeTimer = setTimeout(() => {
             if (destroyed) return;
-            if (mode === "snapshot") {
-                const m = measure();
-                rect.width = m.width;
-                rect.height = m.height;
-                canvas.width = Math.round(m.width * dpr);
-                canvas.height = Math.round(m.height * dpr);
-                canvas.style.width = m.width + "px";
-                canvas.style.height = m.height + "px";
-                snapshotCapture();
-                return;
-            }
+            if (mode === "snapshot") { remeasureAndCapture(); return; }
             const w = el.clientWidth ||
                 (el.parentElement && el.parentElement.clientWidth) || rect.width;
             canvas.style.width = w + "px";
@@ -1748,6 +2242,19 @@ function applyRasterPipeline(el, rasterNodes) {
         raf = requestAnimationFrame(draw);
     } else {
         snapshotCapture().then(() => { raf = requestAnimationFrame(draw); });
+        // A web font that arrives after the first capture changes glyph
+        // metrics, and therefore line breaking: the snapshot would keep
+        // whatever the fallback font wrapped to while the DOM underneath
+        // reflows to something else. The element box does not necessarily
+        // change, so the ResizeObserver never fires and the mismatch
+        // persists until an unrelated resize. Capture once more when the
+        // fonts settle.
+        if (typeof document !== "undefined" && document.fonts &&
+            typeof document.fonts.ready === "object") {
+            Promise.resolve(document.fonts.ready)
+                .then(remeasureAndCapture)
+                .catch(() => {});
+        }
     }
 
     return {
@@ -1782,4 +2289,7 @@ function applyRasterPipeline(el, rasterNodes) {
 export {
     applyRasterPipeline, registerRasterOp, RASTER_OP_NAMES,
     isHTMLInCanvasAvailable, DRIVER_NAMES,
+    // Exported so which branch a `switch` takes can be asserted directly
+    // rather than inferred from pixels.
+    resolveSwitches,
 };

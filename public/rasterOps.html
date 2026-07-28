@@ -19,11 +19,12 @@
     // query on the way, which silently gave every test the default
     // chain. A hash is client-side and survives the redirect.
     import { Des } from '../lib/designer.js';
-    import { RASTER_OP_NAMES, DRIVER_NAMES, isHTMLInCanvasAvailable, applyRasterPipeline }
-      from '../lib/raster-ops.js';
+    import { RASTER_OP_NAMES, DRIVER_NAMES, isHTMLInCanvasAvailable, applyRasterPipeline,
+             resolveSwitches } from '../lib/raster-ops.js';
 
     // Exposed so the spec can assert on the module surface directly.
-    window.__raster = { RASTER_OP_NAMES, DRIVER_NAMES, isHTMLInCanvasAvailable, applyRasterPipeline };
+    window.__raster = { RASTER_OP_NAMES, DRIVER_NAMES, isHTMLInCanvasAvailable, applyRasterPipeline,
+                        resolveSwitches };
 
     // The pipeline logs which backend it chose; capture it so backend
     // selection can be asserted rather than inferred from pixels.
@@ -45,6 +46,53 @@
       driverScroll: [{ op: 'offset', by: 'scroll', strength: 10 }],
       driverTime:   [{ op: 'offset', by: 'time', strength: 10 }],
       badDriver:    [{ op: 'offset', by: 'telepathy', strength: 10 }],
+      // Fields and the node-to-node ops.
+      // Fields and warps here must OVERLAP THE GLYPHS to be observable:
+      // the headline is left-aligned and only fills the first ~40% of
+      // the box, so a mask centred in the element lands on empty space
+      // and renders identically to no mask at all — a green test that
+      // proves nothing.
+      mask:      [{ op: 'mask', as: 'centre', from: 'horizontal', remap: [0.0, 0.4] },
+                  { op: 'halftone', size: 5, angle: 15, masked: 'centre' }],
+      maskAt:    [{ op: 'mask', as: 'centre', from: 'radial', at: [0.1, 0.5], radius: 220 },
+                  { op: 'halftone', size: 5, angle: 15, masked: 'centre' }],
+      noiseField:[{ op: 'noise', as: 'turb', scale: 4, speed: 0.3 },
+                  { op: 'offset', by: 'time', strength: 20, masked: 'turb' },
+                  { op: 'halftone', size: 5, angle: 15 }],
+      copyRing:  [{ op: 'copy', by: 'mouse', count: 4, radius: 60, scale: 0.4 }],
+      copyPoints:[{ op: 'copy', points: [[0.3, 0.5], [0.7, 0.5]], scale: 0.35 }],
+      mergeMode: [{ op: 'merge', mode: 'screen', mix: 1,
+                    a: [{ op: 'halftone', size: 5, angle: 15 }],
+                    b: [{ op: 'duotone', colors: ['#104B87', '#E8FF00'] }] }],
+      // `static` rather than `time`: the time driver's focus starts at
+      // x = 0.84 * width, which is past the end of the text.
+      mergeWarp: [{ op: 'merge', mode: 'over', mix: 0.5,
+                    a: [{ op: 'offset', by: 'static', strength: 45, radius: 900 }], b: [] },
+                  { op: 'halftone', size: 5, angle: 15 }],
+      warpFull:  [{ op: 'offset', by: 'static', strength: 45, radius: 900 },
+                  { op: 'halftone', size: 5, angle: 15 }],
+      // A STATEFUL node nested inside a merge branch. `stir` allocates
+      // ping-pong float targets and steps them every frame; the flatten
+      // pass has to give a node inside a sub-chain the same uniform
+      // slot, driver and solver setup as a top-level one.
+      solverInMerge: [
+        { op: 'mask', as: 'pool', from: 'radial', at: [0.2, 0.5], radius: 200 },
+        { op: 'merge', mode: 'over', mix: 0.4,
+          a: [{ op: 'stir', masked: 'pool', strength: 30, curl: 2.6,
+                resolution: 64, dyeResolution: 128, tint: '#7FD4FF' }],
+          b: [] },
+        { op: 'halftone', size: 5, angle: 15 }],
+      // A switch whose test is always true / always false, so the spec
+      // can assert on which branch was taken without depending on the
+      // browser window size.
+      switchOn:  [{ op: 'switch', when: '(min-width: 1px)',
+                    use:  [{ op: 'hexalize', size: 14 }],
+                    else: [{ op: 'halftone', size: 5, angle: 15 }] }],
+      switchOff: [{ op: 'switch', when: '(min-width: 999999px)',
+                    use:  [{ op: 'hexalize', size: 14 }],
+                    else: [{ op: 'halftone', size: 5, angle: 15 }] }],
+      switchEmpty: [{ op: 'switch', when: '(min-width: 999999px)',
+                      use: [{ op: 'hexalize', size: 14 }], else: [] }],
       all: [
         { op: 'hexalize', size: 16 },
         { op: 'offset', by: 'mouse', strength: 10 },
@@ -52,6 +100,8 @@
         { op: 'edges', color: '#FFFFFF', strength: 0.35 },
         { op: 'halftone', size: 5, angle: 15 },
         { op: 'aberration', amount: 6 },
+        { op: 'mask', as: 'centre', from: 'radial', radius: 200 },
+        { op: 'copy', count: 3, radius: 50, scale: 0.4, masked: 'centre' },
       ],
       none: [],
     };
