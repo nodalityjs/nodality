@@ -148,7 +148,21 @@ let obj = options;
 
 
 		options.url && this.res.setAttribute("src", options.url);
-		
+
+		// Responsive sources + loading hints. All optional, so images that
+		// don't pass them are byte-for-byte what they were before. Only
+		// meaningful when the element is a real <img> (the default setup),
+		// not the background-image path taken by "exact"/"uncover".
+		if (this.res.tagName === "IMG") {
+			options.srcset && this.res.setAttribute("srcset", options.srcset);
+			options.sizes && this.res.setAttribute("sizes", options.sizes);
+			options.alt !== undefined && this.res.setAttribute("alt", options.alt);
+			options.loading && this.res.setAttribute("loading", options.loading);
+			options.decoding && this.res.setAttribute("decoding", options.decoding);
+			options.fetchPriority &&
+				this.res.setAttribute("fetchpriority", options.fetchPriority);
+		}
+
 		  options.id && this.res.setAttribute("id",  options.id);
 		options.id && (stra += ` id: "${options.id}", \n`);
 		this.id = options.id;
@@ -218,6 +232,11 @@ obj.pad && this.pad(obj.pad);
 
 		options.objectFit && (this.res.style.objectFit = /*"cover")*/ options.objectFit);
 		options.objectFit && (stra += `\n objectFit: "${options.objectFit}",`);
+
+		// Companion to objectFit — chooses which part of a cropped image stays
+		// visible (e.g. "center 38%" to favour faces over foreground).
+		options.objectPosition && (this.res.style.objectPosition = options.objectPosition);
+		options.objectPosition && (stra += `\n objectPosition: "${options.objectPosition}",`);
 
 
 		options.as && this.as(options.as);

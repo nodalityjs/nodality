@@ -188,6 +188,11 @@ class UINavBar extends Animator {
         //
         //   gap          spacing between items (CSS length)
         //   justify      justify-content on the item row
+        //   alignItems   align-items on the item row. Without it the row
+        //                inherits `normal`, i.e. stretch: every item becomes
+        //                full bar height and short text sits at the top of its
+        //                box, so a plain link and a padded pill visibly
+        //                misalign. Pass "center" for a conventional bar.
         //   barPad       padding inside the bar itself
         //   maxWidth     caps + centres the item row (page-width bars)
         //   borderBottom hairline under the bar
@@ -195,6 +200,7 @@ class UINavBar extends Animator {
         this._ui = {
             gap: obj.gap,
             justify: obj.justify,
+            alignItems: obj.alignItems,
             barPad: obj.barPad,
             maxWidth: obj.maxWidth,
             borderBottom: obj.borderBottom,
@@ -902,6 +908,7 @@ class UINavBar extends Animator {
             if (innerIW) {
                 if (ui.gap) innerIW.style.gap = ui.gap;
                 if (ui.justify) innerIW.style.justifyContent = ui.justify;
+                if (ui.alignItems) innerIW.style.alignItems = ui.alignItems;
                 if (ui.barPad) innerIW.style.padding = ui.barPad;
                 if (ui.maxWidth) {
                     innerIW.style.maxWidth = ui.maxWidth;
