@@ -1948,12 +1948,20 @@ function applyRasterPipeline(el, rasterNodes) {
         const px = mouse[0] / canvas.width;
         const py = 1 - mouse[1] / canvas.height;
         let dx = 0, dy = 0;
-        if (s.primed) {
+        // Only a real pointer event counts as motion. `mouse` is stored in
+        // canvas pixels, so this normalised position also shifts whenever the
+        // canvas itself resizes or moves — an element being animated (a
+        // scroll-driven hero expanding) would otherwise inject phantom
+        // velocity every frame and stir itself with the pointer sitting
+        // still, or with the pointer nowhere near it.
+        if (s.primed && pointerMoved) {
             dx = (px - s.prevX) / Math.max(dt, 1e-3);
             dy = (py - s.prevY) / Math.max(dt, 1e-3);
         }
+        // Re-baseline regardless, so the frame after a resize does not
+        // measure its delta against a position from a different geometry.
         s.prevX = px; s.prevY = py; s.primed = true;
-        const moving = Math.abs(dx) + Math.abs(dy) > 1e-3;
+        const moving = pointerMoved && Math.abs(dx) + Math.abs(dy) > 1e-3;
 
         s.def.solver.step(S, s.node, {
             dt, px, py, dx, dy, moving,
@@ -2185,10 +2193,17 @@ function applyRasterPipeline(el, rasterNodes) {
     // Pointer -> u_mouse (listen on the host so the overlay stays
     // pointer-events: none).
     let mouse = [canvas.width * 0.5, canvas.height * 0.5];
+    // Set by a real pointer event, cleared once the solvers have consumed
+    // it. Stateful ops splat only while this is true, so nothing is stirred
+    // by the element resizing or scrolling under a stationary pointer.
+    let pointerMoved = false;
     const onMove = (e) => {
         const r = canvas.getBoundingClientRect();
         const pt = e.touches ? e.touches[0] : e;
-        mouse = [(pt.clientX - r.left) * dpr, (pt.clientY - r.top) * dpr];
+        const next = [(pt.clientX - r.left) * dpr, (pt.clientY - r.top) * dpr];
+        // Guard against move events that report the same position.
+        if (next[0] !== mouse[0] || next[1] !== mouse[1]) pointerMoved = true;
+        mouse = next;
     };
     el.addEventListener("mousemove", onMove, { passive: true });
     el.addEventListener("touchmove", onMove, { passive: true });
@@ -2234,6 +2249,10 @@ function applyRasterPipeline(el, rasterNodes) {
             // 1. Advance stateful fluid solvers into their own off-screen
             //    targets (this rebinds framebuffer/program/textures).
             for (const s of solverOps) stepSolver(s, dt);
+            // Consumed for this frame: a splat needs a fresh pointer event,
+            // not merely a pointer position that happens to differ because
+            // the canvas moved or resized beneath it.
+            pointerMoved = false;
 
             // 2. Composite pass, back on the visible framebuffer.
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -2300,15 +2319,30 @@ function applyRasterPipeline(el, rasterNodes) {
     // ResizeObserver, the window-resize fallback and the font-loading
     // recapture, so all three agree on what "resize the canvas" means.
     const remeasureAndCapture = () => {
-        if (destroyed || mode !== "snapshot") return;
+        if (destroyed) return;
         const m = measure();
+        if (m.width < 2 || m.height < 2) return;
+        const bw = Math.round(m.width * dpr);
+        const bh = Math.round(m.height * dpr);
         rect.width = m.width;
         rect.height = m.height;
-        canvas.width = Math.round(m.width * dpr);
-        canvas.height = Math.round(m.height * dpr);
         canvas.style.width = m.width + "px";
         canvas.style.height = m.height + "px";
-        snapshotCapture();
+        // Re-allocating the buffer clears it, so skip when it already matches
+        // — syncCanvasBox may have kept the CSS box in step without needing a
+        // new buffer at all.
+        const bufferStale = canvas.width !== bw || canvas.height !== bh;
+        if (bufferStale) {
+            canvas.width = bw;
+            canvas.height = bh;
+        }
+        if (mode === "snapshot") {
+            snapshotCapture();
+        } else if (bufferStale) {
+            // Live mode re-uploads from the DOM every paint, so it needs no
+            // recapture — only a fresh upload at the new buffer size.
+            onPaint();
+        }
     };
 
     // Match the canvas box to the host immediately, without recapturing.
@@ -2317,6 +2351,11 @@ function applyRasterPipeline(el, rasterNodes) {
     // being animated (a scroll-driven hero expanding every frame) would
     // otherwise render up to a debounce-interval behind its own layout —
     // the canvas visibly trailing the content it is drawn over.
+    // CSS size only. Assigning canvas.width/height re-allocates the drawing
+    // buffer and CLEARS it, so doing that per frame while an element is being
+    // animated makes the whole effect flash on every scroll step. The buffer
+    // is left to the debounced recapture below; stretching the existing one
+    // for a few frames costs a little sharpness and nothing else.
     const syncCanvasBox = () => {
         if (destroyed) return;
         const m = measure();
@@ -2327,8 +2366,6 @@ function applyRasterPipeline(el, rasterNodes) {
         rect.height = m.height;
         canvas.style.width = m.width + "px";
         canvas.style.height = m.height + "px";
-        canvas.width = Math.round(m.width * dpr);
-        canvas.height = Math.round(m.height * dpr);
     };
 
     if (typeof ResizeObserver !== "undefined") {
