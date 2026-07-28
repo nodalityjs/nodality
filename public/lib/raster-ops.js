@@ -1401,7 +1401,41 @@ function freezeViewportUnits(original, clone) {
     return clone;
 }
 
+/**
+ * The single <img> a host renders, if that is all it is.
+ *
+ * A foreignObject rendered from a data: URI never fetches subresources, so
+ * any <img> inside the serialized subtree comes back blank — a photo host
+ * would capture as fully transparent. When the host is just an image we can
+ * skip serialization entirely and upload that image as the texture, which
+ * is both correct and considerably cheaper.
+ *
+ * Only same-origin, already-decoded images qualify: a cross-origin one
+ * would taint the canvas and break the readback the pipeline depends on.
+ */
+function soleImageOf(el) {
+    if (!el) return null;
+    const img = el.tagName === "IMG"
+        ? el
+        : (el.children && el.children.length === 1 && el.children[0].tagName === "IMG"
+            ? el.children[0]
+            : null);
+    if (!img || !img.complete || !img.naturalWidth) return null;
+    try {
+        // Relative and same-origin absolute srcs both resolve clean here.
+        if (new URL(img.currentSrc || img.src, location.href).origin !== location.origin) {
+            return null;
+        }
+    } catch (e) {
+        return null;
+    }
+    return img;
+}
+
 function snapshotToImage(el, w, h, dpr) {
+    const direct = soleImageOf(el);
+    if (direct) return Promise.resolve(direct);
+
     return new Promise((resolve, reject) => {
         const serialized = new XMLSerializer()
             .serializeToString(freezeViewportUnits(el, el.cloneNode(true)));
