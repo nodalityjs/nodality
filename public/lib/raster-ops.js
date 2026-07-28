@@ -175,7 +175,11 @@ const REGISTRY = {
     // inject divergence energy the field stays stable with no pressure
     // projection at all — the whole simulation is a single pass.
     //
-    //   { op: "stir", strength: 26, swirl: 2.4, decay: 0.985 }
+    //   { op: "stir", strength: 26, curl: 2.4, decay: 0.985 }
+    //
+    // The swirliness knob is `curl` (vorticity confinement). An earlier
+    // version of this line said `swirl`, which the solver never reads — it
+    // is accepted silently and leaves curl at its default.
     // Halftone: the print dot screen. Tone is carried by dot AREA on a
     // rotated grid rather than by intensity, the way offset lithography
     // reproduces a continuous-tone image with a single ink.
@@ -2307,8 +2311,29 @@ function applyRasterPipeline(el, rasterNodes) {
         snapshotCapture();
     };
 
+    // Match the canvas box to the host immediately, without recapturing.
+    // Re-uploading the texture is the expensive half and stays debounced;
+    // resizing the element is cheap and must not be, because a host that is
+    // being animated (a scroll-driven hero expanding every frame) would
+    // otherwise render up to a debounce-interval behind its own layout —
+    // the canvas visibly trailing the content it is drawn over.
+    const syncCanvasBox = () => {
+        if (destroyed) return;
+        const m = measure();
+        if (m.width < 2 || m.height < 2) return;
+        if (Math.round(m.width) === Math.round(rect.width) &&
+            Math.round(m.height) === Math.round(rect.height)) return;
+        rect.width = m.width;
+        rect.height = m.height;
+        canvas.style.width = m.width + "px";
+        canvas.style.height = m.height + "px";
+        canvas.width = Math.round(m.width * dpr);
+        canvas.height = Math.round(m.height * dpr);
+    };
+
     if (typeof ResizeObserver !== "undefined") {
         ro = new ResizeObserver(() => {
+            syncCanvasBox();
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(remeasureAndCapture, 150);
         });
