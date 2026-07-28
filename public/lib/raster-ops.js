@@ -1419,11 +1419,18 @@ function freezeViewportUnits(original, clone) {
  */
 function soleImageOf(el) {
     if (!el) return null;
-    const img = el.tagName === "IMG"
-        ? el
-        : (el.children && el.children.length === 1 && el.children[0].tagName === "IMG"
-            ? el.children[0]
-            : null);
+    let img = null;
+    if (el.tagName === "IMG") {
+        img = el;
+    } else if (el.children) {
+        // Ignore the pipeline's own canvas: by the time a capture runs it has
+        // already been appended to the host, so a strict one-child test never
+        // matches and a wrapped photo falls back to the foreignObject path —
+        // which cannot fetch the image and captures blank.
+        const content = Array.prototype.filter.call(
+            el.children, (n) => !n.hasAttribute || !n.hasAttribute("data-nodality-raster"));
+        if (content.length === 1 && content[0].tagName === "IMG") img = content[0];
+    }
     if (!img || !img.complete || !img.naturalWidth) return null;
     try {
         // Relative and same-origin absolute srcs both resolve clean here.
@@ -1616,11 +1623,18 @@ function applyRasterPipeline(el, rasterNodes) {
     // Content-box measurement: some elements (fluid-sized Text) keep a
     // collapsed layout box while their glyphs overflow it, so fall back
     // to scroll dimensions when the rect is degenerate.
+    //
+    // The fallback is per-axis and only for a genuinely collapsed box. It
+    // used to be an unconditional max(rect, scroll), which cannot shrink:
+    // the canvas is a CHILD of the measured element, so once it has been
+    // sized up its own width holds scrollWidth at the old value, the max
+    // never comes down, and a host that is animating smaller (a hero
+    // collapsing as you scroll back up) leaves the canvas stuck wide.
     const measure = () => {
         const r = el.getBoundingClientRect();
         return {
-            width: Math.max(r.width, el.scrollWidth || 0),
-            height: Math.max(r.height, el.scrollHeight || 0),
+            width: r.width >= 2 ? r.width : (el.scrollWidth || 0),
+            height: r.height >= 2 ? r.height : (el.scrollHeight || 0),
         };
     };
     const rect = measure();
