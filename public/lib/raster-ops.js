@@ -164,16 +164,17 @@ const REGISTRY = {
     // samples the finished field. See the `field` descriptor below and
     // the field-simulation block in applyRasterPipeline().
     //
-    // Formulation (deliberately not the usual Stable-Fluids solver):
-    // the classic GPU fluid pipeline is advect + vorticity confinement +
-    // a divergence/pressure Jacobi solve (Stam 1999; Harris, GPU Gems
-    // 2003) — roughly ten passes. This op instead advects momentum along
-    // its own flow (semi-Lagrangian backtrace, the one genuinely
-    // universal piece) and then ROTATES each momentum vector by the
-    // local curl angle. Rotation preserves magnitude, so eddies keep
-    // spinning instead of being pushed around, and because it cannot
-    // inject divergence energy the field stays stable with no pressure
-    // projection at all — the whole simulation is a single pass.
+    // Formulation: the classic GPU Stable-Fluids pipeline (Stam 1999;
+    // Harris, GPU Gems 2003) — splat, curl, vorticity confinement,
+    // divergence, a Jacobi pressure solve, gradient subtraction, then
+    // semi-Lagrangian advection of velocity and dye. See the provenance
+    // note on the `stir` field descriptor below for the citations and
+    // for what this op inherits from existing implementations.
+    //
+    // An earlier version of this comment claimed the op was a single
+    // pass with no pressure projection. It never was — the solver has
+    // always run the full projection, which is what makes the flow roll
+    // into persistent vortices rather than smear.
     //
     //   { op: "stir", strength: 26, curl: 2.4, decay: 0.985 }
     //
@@ -538,8 +539,31 @@ void main() {
     // Stirred liquid: an incompressible fluid whose velocity field warps
     // the content and whose dye field colours it.
     //
-    // Implemented from the published algorithm, not from any particular
-    // existing codebase:
+    // Provenance. The solver was written from the published papers, and
+    // no code was copied from an existing implementation — the neighbour
+    // taps are computed in-fragment from gl_FragCoord rather than passed
+    // down as vL/vR/vT/vB varyings, advection samples directly instead of
+    // through a hand-rolled bilerp(), and the rainbow hue comes from the
+    // stroke direction rather than a random HSV pick. But it is not
+    // independent of that lineage either, and two things are inherited
+    // rather than derived from the papers:
+    //
+    //   - The option vocabulary and several defaults (curl, pressure,
+    //     pressureIterations, radius, force, intensity, rainbow,
+    //     dyeResolution; resolution 128, dyeResolution 512, pressure 0.8)
+    //     follow the conventions of Pavel Dobryakov's
+    //     WebGL-Fluid-Simulation (MIT) and its many descendants.
+    //   - The free-slip boundary handling — four inline conditionals in
+    //     the divergence shader that mirror the centre velocity at the
+    //     walls — is that codebase's approach. Stam and Harris both use a
+    //     separate boundary pass over border geometry instead.
+    //
+    // Everything below that looks identical to other implementations
+    // beyond those two points is identical because the mathematics admits
+    // one spelling: (r+l+t+b-d)*0.25 is the Jacobi iteration as printed
+    // in GPU Gems 38, and the divergence, curl and confinement kernels
+    // are the standard central differences.
+    //
     //   J. Stam, "Stable Fluids", SIGGRAPH '99, 121-128 - the
     //     unconditionally stable operator splitting used here: add
     //     forces, advect by a backward particle trace, then project the
@@ -1443,9 +1467,70 @@ function soleImageOf(el) {
     return img;
 }
 
+/**
+ * Draw `img` into an offscreen canvas at the host's box, honouring the
+ * element's own `object-fit` / `object-position`.
+ *
+ * The pipeline samples its texture as `fragCoord / u_res`, i.e. stretched
+ * across the whole quad. That is right for a DOM snapshot, which is captured
+ * at the canvas aspect — but the direct-image path uploads the source at its
+ * NATURAL aspect, so any host whose box is a different shape rendered the
+ * photo distorted, and `object-fit: cover` no longer had any say because the
+ * image was no longer being laid out by CSS at all.
+ *
+ * Baking the fit in here keeps it out of the shader and means the texture
+ * always arrives pre-cropped to the box the quad expects.
+ */
+function fitImageToBox(img, w, h, dpr) {
+    const cw = Math.max(1, Math.round(w * dpr));
+    const ch = Math.max(1, Math.round(h * dpr));
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    if (!iw || !ih) return img;
+
+    let fit = "fill", pos = "50% 50%";
+    if (typeof getComputedStyle === "function") {
+        const cs = getComputedStyle(img);
+        fit = cs.objectFit || "fill";
+        pos = cs.objectPosition || "50% 50%";
+    }
+    // `fill` is the CSS default and matches the old stretch behaviour, so
+    // leave those callers on the cheap path.
+    if (fit === "fill") return img;
+
+    const sx = cw / iw, sy = ch / ih;
+    const scale = fit === "cover" ? Math.max(sx, sy)
+        : fit === "contain" ? Math.min(sx, sy)
+        : fit === "none" ? 1
+        : fit === "scale-down" ? Math.min(1, Math.min(sx, sy))
+        : Math.max(sx, sy);
+
+    const dw = iw * scale, dh = ih * scale;
+    // object-position: percentages position the overflow, so 0% pins the
+    // near edge and 100% the far edge.
+    const parts = String(pos).trim().split(/\s+/);
+    const frac = (v, i) => {
+        if (v == null) return 0.5;
+        if (v.endsWith("%")) return parseFloat(v) / 100;
+        if (v === "left" || v === "top") return 0;
+        if (v === "right" || v === "bottom") return 1;
+        if (v === "center") return 0.5;
+        const px = parseFloat(v);
+        return isNaN(px) ? 0.5 : px / (i === 0 ? Math.max(cw - dw, 1) : Math.max(ch - dh, 1));
+    };
+    const fx = frac(parts[0], 0);
+    const fy = frac(parts.length > 1 ? parts[1] : parts[0], 1);
+
+    const c = document.createElement("canvas");
+    c.width = cw; c.height = ch;
+    const ctx = c.getContext("2d");
+    if (!ctx) return img;
+    ctx.drawImage(img, (cw - dw) * fx, (ch - dh) * fy, dw, dh);
+    return c;
+}
+
 function snapshotToImage(el, w, h, dpr) {
     const direct = soleImageOf(el);
-    if (direct) return Promise.resolve(direct);
+    if (direct) return Promise.resolve(fitImageToBox(direct, w, h, dpr));
 
     return new Promise((resolve, reject) => {
         const serialized = new XMLSerializer()
