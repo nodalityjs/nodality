@@ -181,6 +181,30 @@ class UINavBar extends Animator {
             this.res.children[0].style.height = obj.height;
         }
 
+        // ── Presentation options ──────────────────────────────────────────
+        // Collected here and applied in render(), because the bar's inner
+        // wrappers are not created until items() runs. All are optional and
+        // unset by default, so existing bars render exactly as before.
+        //
+        //   gap          spacing between items (CSS length)
+        //   justify      justify-content on the item row
+        //   barPad       padding inside the bar itself
+        //   maxWidth     caps + centres the item row (page-width bars)
+        //   borderBottom hairline under the bar
+        //   ariaLabel    label for the navigation landmark
+        this._ui = {
+            gap: obj.gap,
+            justify: obj.justify,
+            barPad: obj.barPad,
+            maxWidth: obj.maxWidth,
+            borderBottom: obj.borderBottom,
+        };
+
+        // Landmark semantics. Attributes only — no layout or DOM-shape change,
+        // so this is safe for every existing caller.
+        this.res.setAttribute("role", "navigation");
+        this.res.setAttribute("aria-label", obj.ariaLabel || "Primary");
+
         return this;
     }
 
@@ -395,7 +419,18 @@ class UINavBar extends Animator {
     }
 
     sticky() {
-        this.res.children[0].style.position = "fixed";
+        // Applied to the root wrapper, not the inner bar. `position: sticky`
+        // can only travel within its own parent's box, and the inner bar's
+        // parent is exactly bar-height — so sticking it there pins it for zero
+        // pixels and it scrolls straight off. The root is a direct child of the
+        // page container, which is what gives it room to stay pinned.
+        //
+        // `sticky` rather than the previous `fixed`: fixed takes the bar out of
+        // flow and the first section slides underneath it.
+        this.res.style.position = "sticky";
+        this.res.style.top = this.res.style.top || "0px";
+        this.res.style.zIndex = this.res.style.zIndex || 50;
+        this._sticky = true;
         return this;
     }
 
@@ -448,6 +483,12 @@ class UINavBar extends Animator {
 
         var btn = document.createElement("button");
         btn.setAttribute("id", "hamburger");
+        // Announce the control and its state. Attribute-only, so nothing about
+        // the existing visual behaviour changes.
+        btn.setAttribute("type", "button");
+        btn.setAttribute("aria-label", "Menu");
+        btn.setAttribute("aria-expanded", "false");
+        btn.setAttribute("aria-controls", "innerItemsWrapper");
         btn.style.border = "none";
         btn.style.fontWeight = "bold";
         btn.style.position = "absolute"; // NEW
@@ -463,8 +504,9 @@ class UINavBar extends Animator {
 
         btn.addEventListener("click", () => {
 
-            
+
             this.isShown = !this.isShown;
+            btn.setAttribute("aria-expanded", String(this.isShown));
 
             this.hasAnimatedToWide = false;
 
@@ -845,8 +887,31 @@ class UINavBar extends Animator {
             // This gets owervwritten, column fires
 
             let myMedia = window.matchMedia(`(max-device-width: 415px)`);
-            let outerItemsWrapper = this.res.children[0].children[1];
-            let innerIW = outerItemsWrapper.children[0];
+            // Resolve by id, with the historical index as a fallback: the
+            // wrappers sit at index 1 only when the hamburger occupies index 0.
+            let outerItemsWrapper =
+                this.res.querySelector("#outerItemsWrapper") ||
+                this.res.children[0].children[1];
+            let innerIW = outerItemsWrapper &&
+                (outerItemsWrapper.querySelector("#innerItemsWrapper") ||
+                 outerItemsWrapper.children[0]);
+
+            // Apply the optional presentation settings from setup(). Each is
+            // skipped when unset, so bars that don't pass them are untouched.
+            const ui = this._ui || {};
+            if (innerIW) {
+                if (ui.gap) innerIW.style.gap = ui.gap;
+                if (ui.justify) innerIW.style.justifyContent = ui.justify;
+                if (ui.barPad) innerIW.style.padding = ui.barPad;
+                if (ui.maxWidth) {
+                    innerIW.style.maxWidth = ui.maxWidth;
+                    innerIW.style.marginLeft = "auto";
+                    innerIW.style.marginRight = "auto";
+                }
+            }
+            if (outerItemsWrapper && ui.borderBottom) {
+                outerItemsWrapper.style.borderBottom = ui.borderBottom;
+            }
 
            // console.log("TEETH");
            // console.log(outerItemsWrapper);
