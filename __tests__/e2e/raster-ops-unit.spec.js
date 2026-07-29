@@ -55,7 +55,7 @@ test.describe('registry', () => {
   test('exposes the built-in ops and drivers', () => {
     const r = runInNode(`report({ ops: mod.RASTER_OP_NAMES, drivers: mod.DRIVER_NAMES });`);
     for (const op of ['hexalize', 'offset', 'duotone', 'edges',
-                      'halftone', 'aberration', 'stir', 'blobs']) {
+                      'halftone', 'dither', 'aberration', 'stir', 'blobs']) {
       expect(r.ops).toContain(op);
     }
     expect(r.drivers).toEqual(expect.arrayContaining(['mouse', 'hover', 'scroll', 'time']));

@@ -73,8 +73,17 @@ const DRIVER_NAMES = Object.keys(DRIVERS);
 const REGISTRY = {
     hexalize: {
         stage: "cell",
-        decl: (p) => `uniform float ${p}size;`,
-        code: (p) => `
+        decl: (p) => `
+            uniform float ${p}size;
+            uniform float ${p}lift;
+            uniform float ${p}radius;
+            uniform vec2 ${p}dpos;
+            uniform float ${p}damt;`,
+        code: (p, node) => {
+            // Without `lift` this is the original cheap path: find the
+            // owning cell, draw its border, done.
+            if (!node.lift) {
+                return `
         {
             vec2 hp = warped / ${p}size;
             vec2 hr = vec2(1.0, 1.7320508), hh = hr * 0.5;
@@ -84,8 +93,88 @@ const REGISTRY = {
             gv = abs(gv);
             edge = max(edge, smoothstep(0.44, 0.5,
                 max(dot(gv, normalize(vec2(1.0, 1.7320508))), gv.x)));
-        }`,
-        uniforms: (node, dpr) => ({ size: ["1f", (node.size || 24) * dpr] }),
+        }`;
+            }
+
+            // With `lift`, cells near the pointer come TOWARD the viewer.
+            //
+            // A grown hexagon covers ground outside its own lattice cell,
+            // so a fragment can no longer assume it belongs to the cell it
+            // sits in — the neighbour may have swollen over it. Testing
+            // only the owning cell is what made the first two attempts
+            // fail: the border simply left the cell and vanished, because
+            // nothing ever drew the part that hung over its neighbours.
+            //
+            // So each fragment tests its own cell AND the six around it,
+            // and takes the most-enlarged hexagon that covers it. Largest
+            // scale wins, which is the same as "nearest to the viewer" —
+            // that is what makes them overlap correctly instead of
+            // fighting. Six neighbours is enough for any scale under 2x.
+            const NB = [
+                [1, 0], [-1, 0],
+                [0.5, 0.8660254], [-0.5, 0.8660254],
+                [0.5, -0.8660254], [-0.5, -0.8660254],
+            ];
+            const probe = (cx, cy) => `
+            {
+                vec2 c = ${p}c0 + vec2(${cx.toFixed(7)}, ${cy.toFixed(7)});
+                float f = 1.0 - smoothstep(0.0, ${p}radius,
+                                           length(c * ${p}size - ${p}dpos));
+                f *= ${p}damt;
+                float s = 1.0 + ${p}lift * f;
+                vec2 q = hp - c;
+                float hd = max(dot(abs(q), ${p}AX), abs(q).x);
+                // Covered by this cell's grown hexagon, and nearer than
+                // whatever we have so far.
+                if (hd <= 0.5 * s && s > ${p}bestS) {
+                    ${p}bestS = s; ${p}bestC = c; ${p}bestF = f;
+                }
+            }`;
+            return `
+        {
+            vec2 hp = warped / ${p}size;
+            vec2 hr = vec2(1.0, 1.7320508), hh = hr * 0.5;
+            vec2 ha = mod(hp, hr) - hh, hb = mod(hp - hh, hr) - hh;
+            vec2 gv = dot(ha, ha) < dot(hb, hb) ? ha : hb;
+            vec2 ${p}AX = normalize(vec2(1.0, 1.7320508));
+            vec2 ${p}c0 = hp - gv;
+            // Seed with the owning cell. Its own hexagon always covers the
+            // fragment at any scale >= 1, so there is always a winner.
+            vec2 ${p}bestC = ${p}c0;
+            float ${p}bestF = (1.0 - smoothstep(0.0, ${p}radius,
+                length(${p}c0 * ${p}size - ${p}dpos))) * ${p}damt;
+            float ${p}bestS = 1.0 + ${p}lift * ${p}bestF;
+${NB.map(([x, y]) => probe(x, y)).join("")}
+            center = ${p}bestC * ${p}size;
+            // Divide by the winner's scale: the border test then reaches
+            // 0.5 further out (a bigger hexagon) and the sample moves in
+            // toward the centre (its content magnified to match), both by
+            // the same factor, so proportions are preserved exactly.
+            gv = (hp - ${p}bestC) / max(${p}bestS, 1e-3);
+            warped = center + gv * ${p}size;
+            gv = abs(gv);
+            // Border strength follows the SAME falloff as the scale, so a
+            // cell that has not been raised draws no border at all. Away
+            // from the pointer bestF is 0, which means scale 1, sampling
+            // untouched and edge 0 — bit-identical to the source image, so
+            // nothing reveals that an effect is attached until the pointer
+            // arrives. Pair with by:"hover" for a fully flush resting
+            // state; by:"mouse" holds amt at 1 and so keeps a permanent
+            // hotspot wherever the pointer last was.
+            edge = max(edge, smoothstep(0.44, 0.5,
+                max(dot(gv, ${p}AX), gv.x)) * ${p}bestF);
+        }`;
+        },
+        uniforms: (node, dpr) => ({
+            size: ["1f", (node.size || 24) * dpr],
+            // How much bigger a cell gets at the pointer, as a fraction:
+            // 0.3 means the nearest hexagons render at 1.3x. NOT scaled by
+            // dpr — it is a ratio, not a length. 0 disables the whole
+            // branch, so callers that never ask for it compile to exactly
+            // the shader they compiled to before.
+            lift: ["1f", node.lift != null ? node.lift : 0],
+            radius: ["1f", (node.radius || 200) * dpr],
+        }),
     },
 
     offset: {
@@ -224,6 +313,74 @@ const REGISTRY = {
             ink: ["3fv", hexToRgb(node.ink || "#0B1B2B")],
             paper: ["3fv", hexToRgb(node.paper || "#FFFFFF")],
             soft: ["1f", node.softness != null ? node.softness : 0.08],
+            radius: ["1f", (node.radius || 220) * dpr],
+        }),
+    },
+
+    // Ordered dither: quantise the image to a few levels per channel and
+    // break the resulting banding with a Bayer threshold matrix, the way
+    // an indexed-colour display fakes shades it cannot address.
+    //
+    //   { op: "dither", levels: 6 }                 // gentle, keeps colour
+    //   { op: "dither", levels: 3, amount: 0.7 }    // stronger posterise
+    //   { op: "dither", mono: true, ink: "#0B1B2B" } // 1-bit, ink on paper
+    //
+    // Unlike `halftone`, which replaces the picture with ink coverage on
+    // paper, this keeps the original hues and only coarsens them — so it
+    // reads as texture over a photograph rather than as a print process.
+    //
+    // Stateless, so it renders on the snapshot backend. That matters:
+    // `stir` needs the HTML-in-Canvas live backend and silently does
+    // nothing without the origin trial, whereas this runs everywhere.
+    //
+    // `by` coarsens the pattern toward the driver focus, as halftone does.
+    dither: {
+        stage: "color",
+        decl: (p) => `
+            uniform float ${p}levels;
+            uniform float ${p}size;
+            uniform float ${p}amount;
+            uniform vec3 ${p}ink;
+            uniform vec3 ${p}paper;
+            uniform vec2 ${p}dpos;
+            uniform float ${p}damt;
+            uniform float ${p}radius;
+            // Bayer matrices by recursive bit-interleave rather than a
+            // 64-entry table: WebGL1 has no constant array indexing, and
+            // the nesting is exactly the recursive definition of the
+            // ordered-dither matrix.
+            float ${p}b2(vec2 a) {
+                a = floor(a);
+                return fract(a.x * 0.5 + a.y * a.y * 0.75);
+            }
+            float ${p}b4(vec2 a) { return ${p}b2(0.5 * a) * 0.25 + ${p}b2(a); }
+            float ${p}b8(vec2 a) { return ${p}b4(0.5 * a) * 0.25 + ${p}b2(a); }`,
+        code: (p, node) => `
+        {
+            float sz = max(${p}size, 1e-3);${node.by ? `
+            float fd = 1.0 - smoothstep(0.0, ${p}radius, length(frag - ${p}dpos));
+            sz *= 1.0 + fd * ${p}damt * 1.8;` : ``}
+            // Centre the threshold on zero so dithering does not lift or
+            // crush the overall exposure, only redistributes it.
+            float t = ${p}b8(frag / sz) - 0.5;
+            float lv = max(${p}levels, 1.0);
+            ${node.mono ? `
+            float lum = dot(col, vec3(0.299, 0.587, 0.114));
+            float q = step(0.5, lum + t);
+            vec3 dq = mix(${p}ink, ${p}paper, q);` : `
+            // Per channel: scale to level index, offset by the threshold,
+            // round, scale back. The +t before rounding is what turns a
+            // hard band edge into an interleaved pattern of the two
+            // neighbouring levels.
+            vec3 dq = floor(col * lv + 0.5 + t) / lv;`}
+            col = mix(col, clamp(dq, 0.0, 1.0), clamp(${p}amount, 0.0, 1.0));
+        }`,
+        uniforms: (node, dpr) => ({
+            levels: ["1f", node.levels != null ? node.levels : 6],
+            size: ["1f", (node.size != null ? node.size : 1) * dpr],
+            amount: ["1f", node.amount != null ? node.amount : 1],
+            ink: ["3fv", hexToRgb(node.ink || "#0B1B2B")],
+            paper: ["3fv", hexToRgb(node.paper || "#FFFFFF")],
             radius: ["1f", (node.radius || 220) * dpr],
         }),
     },

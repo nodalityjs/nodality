@@ -49,7 +49,7 @@ test.describe('module surface', () => {
       drivers: window.__raster.DRIVER_NAMES,
     }));
     for (const op of ['hexalize', 'offset', 'duotone', 'edges',
-                      'halftone', 'aberration', 'stir', 'blobs',
+                      'halftone', 'dither', 'aberration', 'stir', 'blobs',
                       'mask', 'noise', 'copy', 'echo', 'merge', 'switch']) {
       expect(api.ops).toContain(op);
     }
@@ -129,6 +129,7 @@ test.describe('DOM contract', () => {
 
 test.describe('ops compile and attach', () => {
   for (const ops of ['inplace', 'overlay', 'halftone', 'aberration', 'all',
+                     'dither', 'ditherMono', 'ditherDriver',
                      'mask', 'maskAt', 'noiseField', 'copyRing', 'copyPoints',
                      'mergeMode', 'mergeWarp', 'warpFull', 'solverInMerge',
                      'switchOn', 'switchOff']) {
