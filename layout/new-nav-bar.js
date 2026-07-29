@@ -169,6 +169,17 @@ class UINavBar extends Animator {
             this.hamburgerColour = obj.hamburgerColour;
         }
 
+        // Inset of the hamburger from the top-right corner of the bar.
+        // The button is absolutely positioned at right:0/top:0, so without
+        // this it sits flush against the viewport edge on phones — no gap
+        // at all, and `barPad` cannot help because that pads the item row,
+        // not the button. Unset by default, so existing bars are untouched.
+        // Accepts "12px" (both axes) or "0.9rem 1.5rem" (vertical, then
+        // horizontal), matching the shorthand order of `barPad`.
+        if (obj.hamburgerInset) {
+            this.hamburgerInset = obj.hamburgerInset;
+        }
+
         if (obj.mobileSize) {
             this.mobileSize = obj.mobileSize;
         }
@@ -498,9 +509,24 @@ class UINavBar extends Animator {
         btn.style.border = "none";
         btn.style.fontWeight = "bold";
         btn.style.position = "absolute"; // NEW
-        btn.style.color = "orange";//this.obj.hamColour.opened; //this.hamburgerColour ?? "#3498db";
+        // `hamburgerColour` was accepted by setup() and stored, but never
+        // read here — the colour was hardcoded, so every bar got orange no
+        // matter what it passed. Orange stays the fallback so bars that
+        // don't set the option look exactly as they did.
+        btn.style.color = this.hamburgerColour ?? "orange";
         btn.style.backgroundColor = "transparent";
         btn.style.fontSize = media2.matches ? "2.1em" : "2em";
+
+        // Pull the button in from the corner when asked. Applied as padding
+        // rather than offsets so the inset stays inside the button's own hit
+        // area — a 44px-ish tap target is the point of the gap, not just the
+        // whitespace.
+        if (this.hamburgerInset) {
+            const parts = String(this.hamburgerInset).trim().split(/\s+/);
+            btn.style.padding = parts.length > 1
+                ? `${parts[0]} ${parts[1]}`
+                : `${parts[0]} ${parts[0]}`;
+        }
 
         var node = document.createTextNode(this.symbol ? this.symbol : "☰");
         btn.appendChild(node);
