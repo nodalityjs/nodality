@@ -55,9 +55,14 @@ class Picker extends Animator {
         */
         
         this.el = card;
+        // Animator's inherited helpers (pad, mar, commonMethods, hover, …)
+        // all write to `this.res`, which this class never assigned — so
+        // `pad` and `mar` below were silently doing nothing. Point `res` at
+        // the same node so the inherited half of the API works.
+        this.res = card;
         return this;
     }
-    
+
     set(obj){
         this.options = obj;
         obj.items && this.setup(obj.items, obj.name);
@@ -68,6 +73,11 @@ class Picker extends Animator {
 
         obj.radius && (this.el.style.borderRadius = obj.radius);
         obj.background && (this.el.style.background = obj.background);
+
+        // Same dispatch Text and Wrapper use, so a Picker can be given a
+        // border, height, font size or cursor through set() instead of the
+        // caller styling the <select> by hand.
+        this.commonMethods(obj);
         return this;
     }
 

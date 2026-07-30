@@ -50,6 +50,14 @@ class TextField extends Animator {
 		obj.weight && (this.res.style.fontWeight = obj.weight);
 		obj.bold && (this.res.style.fontWeight = "bold");
 		obj.theme && this.theme(obj.theme);
+
+		// Dispatch to the shared style map (height, boxSizing, minWidth,
+		// cursor, borderObj, …) the way Text and Wrapper do. Without this a
+		// caller could not give a TextField a height or a border through
+		// set() and had to reach for the element, which is exactly what the
+		// component API exists to avoid. Runs last so the explicit options
+		// above stay authoritative where the two overlap.
+		this.commonMethods(obj);
 		return this;
 	}
 
