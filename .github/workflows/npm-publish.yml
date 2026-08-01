@@ -152,9 +152,104 @@ jobs:
       - name: Smoke test every published entry point
         run: node packaging/smoke.mjs /tmp/pack-fixture
 
+      # Hand the very same tarball to the scaffold job, so it exercises
+      # the bytes that just passed the smoke test rather than a rebuild.
+      - name: Upload tarball for the scaffold job
+        uses: actions/upload-artifact@v4
+        with:
+          name: tarball
+          path: ${{ env.TARBALL }}
+          retention-days: 1
+
+
+  # A real consumer, end to end.
+  #
+  # `pack` proves the package installs and its entry points resolve. It
+  # does not prove that a project BUILT on top of the library still works.
+  # This job scaffolds a fresh project with create-nodality, swaps in the
+  # candidate tarball, and runs that project's own toolchain:
+  #
+  #   npm run build   -> webpack bundles nodality through a real bundler
+  #   nodality prerender -> the CLI + SSG path every consumer depends on
+  #
+  # create-nodality is fetched at @latest deliberately: it is a separate
+  # package on its own release cycle that was NOT updated in this commit,
+  # which is what makes it a second opinion rather than an echo of the
+  # suite. The cost is a network dependency — if this job fails, check
+  # whether create-nodality changed before assuming the library broke.
+  # Pin it (create-nodality@1.0.101) if release stability matters more
+  # than catching scaffold drift.
+  scaffold:
+    name: Scaffolded project builds
+    needs: pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Download the smoke-tested tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: /tmp/tarball
+
+      # Scaffolds, npm installs and builds on its own. At this point the
+      # project is on the PUBLISHED nodality, not the candidate.
+      - name: Scaffold a project with create-nodality
+        run: |
+          mkdir -p /tmp/scaffold && cd /tmp/scaffold
+          npm create --yes nodality@latest smoke-app
+
+      # Now replace the library with the candidate and rebuild. This is
+      # the step that actually tests this release.
+      - name: Install the candidate build over it
+        run: |
+          cd /tmp/scaffold/smoke-app
+          npm install "$(ls /tmp/tarball/*.tgz | head -1)"
+          node -p "'nodality in project: ' + require('./node_modules/nodality/package.json').version"
+
+      - name: Rebuild the project against the candidate
+        run: |
+          cd /tmp/scaffold/smoke-app
+          npm run build
+          npx nodality prerender
+
+      # Assert on rendered CONTENT, not file size. The scaffold's page is
+      # deliberately tiny (~700 bytes), so a byte threshold either passes
+      # trivially or fails a healthy build — the first draft of this step
+      # asserted >1000 bytes and would have blocked every release.
+      #
+      # The shell ships `<div id="mount"></div>`; prerendering fills it.
+      # So an empty mount is the exact signature of "the library loaded
+      # but rendered nothing", which is what this job exists to catch.
+      - name: Assert the prerender produced real HTML
+        run: |
+          cd /tmp/scaffold/smoke-app
+          echo "--- upload/index.html ---"; cat upload/index.html
+          test -f upload/index.html \
+            || { echo "::error::prerender produced no upload/index.html"; exit 1; }
+          # -E with <[a-zA-Z]: an EMPTY mount is `<div id="mount"></div>`,
+          # whose next character is also '<', so a bare '<div id="mount"><'
+          # matches it and the check passes for a page that rendered
+          # nothing. Requiring a letter after '<' demands a real opening tag.
+          grep -qE '<div id="mount"><[a-zA-Z]' upload/index.html \
+            || { echo "::error::#mount is empty — nothing was prerendered into it"; exit 1; }
+          grep -q 'Hello' upload/index.html \
+            || { echo "::error::the component's text is missing from the output"; exit 1; }
+          # Proves set() options reached the DOM during SSG, not merely that
+          # an element was created.
+          grep -q 'font-family: Arial' upload/index.html \
+            || { echo "::error::set() styling did not reach the prerendered output"; exit 1; }
+          echo "prerender output verified"
+
   publish:
     name: Publish to NPM
-    needs: [test, pack]
+    needs: [test, pack, scaffold]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
