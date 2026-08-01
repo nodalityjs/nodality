@@ -2,6 +2,11 @@
 
 Generated per release from the source diff.
 
+## 1.0.207 — 2026-08-02
+
+### Fixed
+- `set()` now applies the `borderObj` option directly when given the `{ width, color }` form, instead of silently ignoring it on components without their own handler (e.g. TextField, Picker, Button, Image, Center) or requiring it to be chained separately via `.borderObj(...)`. The shorthand `{ a: "..." }` form is still left to components that implement it themselves.
+
 ## 1.0.206 — 2026-08-02
 
 ### Fixed
