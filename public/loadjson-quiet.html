@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>loadJson quiet</title></head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+    import { loadJson } from '../lib/data.js';
+    window.__res = {};
+    // Expected-absent stub: must be silent.
+    window.__res.quiet = await loadJson('definitely-missing.json', { fallback: [], quiet: true });
+    // Genuinely unexpected absence: must still warn.
+    window.__res.loud  = await loadJson('also-missing.json', { fallback: [] });
+    window.__ready = true;
+  </script>
+</body>
+</html>

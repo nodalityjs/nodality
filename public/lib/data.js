@@ -28,6 +28,10 @@
  * `fallback` is an opt-in escape hatch: pass `{ fallback: [] }` to
  * return the supplied value instead of throwing when the file is
  * missing. Useful for "team.json doesn't exist yet" stub pages.
+ *
+ * Add `{ quiet: true }` when that missing file is the EXPECTED state, so
+ * the build stays silent for a stub and still warns when a file that is
+ * supposed to be there fails to load.
  */
 
 const IS_NODE = typeof process !== "undefined" && !!process.versions?.node;
@@ -44,7 +48,7 @@ const nodeImport = typeof Function !== "undefined"
   ? new Function("s", "return import(s)")
   : null;
 
-export async function loadJson(name, { fallback = undefined } = {}) {
+export async function loadJson(name, { fallback = undefined, quiet = false } = {}) {
   try {
     if (IS_NODE && nodeImport) {
       const fs = await nodeImport("node:fs");
@@ -67,7 +71,13 @@ export async function loadJson(name, { fallback = undefined } = {}) {
   } catch (err) {
     if (fallback !== undefined) {
       // Soft fail — caller asked for a fallback rather than a throw.
-      if (typeof console !== "undefined") {
+      //
+      // `quiet` is for the case this function's own docs describe: a stub
+      // page whose data file does not exist YET. Warning on every build
+      // for a state the author chose makes the message worthless, because
+      // it no longer distinguishes "not written yet" from "the file I
+      // shipped is missing or malformed" — which is the one worth seeing.
+      if (!quiet && typeof console !== "undefined") {
         console.warn(`[loadJson] ${name} failed (${err?.message ?? err}) — using fallback`);
       }
       return fallback;

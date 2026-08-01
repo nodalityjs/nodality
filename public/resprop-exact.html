@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>resprop exact alias</title></head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+    import { Text } from '../layout/index.js';
+    // `exact` is the set() alias for font size; it must mean the same
+    // thing inside a resprop breakpoint.
+    new Text("Sized via exact")
+      .set({
+        font: "Arial",
+        resprop: [
+          { breakpoint: "default", exact: "3rem", background: "green" }
+        ]
+      }).render("#mount");
+    window.__ready = true;
+  </script>
+</body>
+</html>

@@ -700,6 +700,12 @@ resprop(arr, op) {
         bg: "background",
         radius: "borderRadius",
         z: "zIndex",
+        // `exact` is THE alias for font size in set() across every
+        // component, so writing it inside a resprop breakpoint is the
+        // natural thing to do — and it was silently dropped, warning that
+        // a first-class Nodality key "is not a CSS property". One key
+        // meaning fontSize in set() and nothing in resprop is the bug.
+        exact: "fontSize",
     };
 
     const resolveProp = (key) => {
