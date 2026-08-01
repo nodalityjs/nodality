@@ -264,6 +264,47 @@ test.describe('HTML-in-Canvas API', () => {
         result.errs.join(' | ')).not.toBeNull();
     });
 
+  test('live mode keeps the host centring its child', async ({ page, baseURL }) => {
+    // Regression guard: the wrapper the pipeline moves content into was
+    // hardcoded `display:block`, so a host that centred its child with
+    // flex (`align: "center"` -> display:flex, column, align-items:center)
+    // lost that centring the moment the child moved inside the canvas.
+    // On the Relays CTA — a 212px host around a ~164px pill — the pill
+    // jumped ~24px to the left, and only in live mode, because in
+    // snapshot mode the children never leave the host.
+    await load(page, baseURL, 'inplace');
+    if ((await backendOf(page)) !== 'live') {
+      test.skip(true, 'needs chrome://flags/#canvas-draw-element');
+      return;
+    }
+    const m = await page.evaluate(async () => {
+      const host = document.createElement('div');
+      host.style.cssText =
+        'display:flex;flex-direction:column;align-items:center;' +
+        'width:212px;height:54px;';
+      const pill = document.createElement('a');
+      pill.textContent = 'Open the app';
+      pill.style.cssText = 'display:inline-block;width:164px;height:40px;background:#0eb4d8;';
+      host.appendChild(pill);
+      document.body.appendChild(host);
+
+      window.__raster.applyRasterPipeline(host, [{ op: 'hexalize', size: 14 }]);
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      const hb = host.getBoundingClientRect();
+      const pb = pill.getBoundingClientRect();
+      return {
+        hostCentre: hb.left + hb.width / 2,
+        pillCentre: pb.left + pb.width / 2,
+        pillWidth: pb.width,
+      };
+    });
+    // The pill must still sit on the host's centre line, not against its
+    // left edge (which would put the two centres ~24px apart).
+    expect(m.pillWidth).toBeGreaterThan(0);
+    expect(m.pillCentre).toBeCloseTo(m.hostCentre, 0);
+  });
+
   test('live mode hosts the content inside the canvas', async ({ page, baseURL }) => {
     await load(page, baseURL, 'inplace');
     if ((await backendOf(page)) !== 'live') {

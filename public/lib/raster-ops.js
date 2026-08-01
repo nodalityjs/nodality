@@ -1959,8 +1959,26 @@ function applyRasterPipeline(el, rasterNodes) {
         // canvasWidth/contentWidth, so the drawn glyphs no longer sit
         // where the DOM text does and selection lands on the wrong
         // characters.
+        //
+        // The wrapper must also CARRY THE HOST'S OWN LAYOUT. Hardcoding
+        // `display:block` here silently dropped it: a host centring its
+        // child with `align: "center"` (display:flex, flex-direction:
+        // column, align-items:center) handed that child to a block
+        // wrapper, so the child fell back to the left edge of the box.
+        // On a 212px CTA host holding a ~164px pill that reads as ~24px
+        // off centre — visible only in live mode, because in snapshot
+        // mode the children never leave the host.
+        const hostCS = getComputedStyle(el);
+        const hostIsFlex = hostCS.display === "flex" || hostCS.display === "inline-flex";
         wrap.style.cssText =
-            `display:block;width:${rect.width}px;height:${rect.height}px;`;
+            `display:${hostIsFlex ? "flex" : "block"};` +
+            `width:${rect.width}px;height:${rect.height}px;`;
+        if (hostIsFlex) {
+            wrap.style.flexDirection  = hostCS.flexDirection;
+            wrap.style.alignItems     = hostCS.alignItems;
+            wrap.style.justifyContent = hostCS.justifyContent;
+            wrap.style.gap            = hostCS.gap;
+        }
         while (el.firstChild) wrap.appendChild(el.firstChild);
         canvas.appendChild(wrap);
         sourceEl = wrap;
