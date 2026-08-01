@@ -53,18 +53,37 @@ const rawDiff = git("diff", `${prev}..${tag}`, "--", ...SOURCE_PATHS);
 // Strip the per-release version banner. Keep everything else, including
 // context lines, so the model can see what the change is surrounded by.
 const BANNER = /^[+-] \* nodality v\d+\.\d+\.\d+/;
-const diff = rawDiff
-  .split("\n")
-  .filter(l => !BANNER.test(l))
-  .join("\n");
+/** A real change: an added/removed line that is neither a diff header,
+ *  a version banner, nor whitespace-only. */
+const isRealChange = l =>
+  /^[+-][^+-]/.test(l) && !BANNER.test(l) && l.trim() !== "+" && l.trim() !== "-";
 
-// "Real" means an added or removed line that is not a diff header and not
-// a banner. Comment-only and blank changes still count — a doc comment
-// change is a legitimate changelog entry — but pure version churn does not.
-const realChanges = diff
-  .split("\n")
-  .filter(l => /^[+-][^+-]/.test(l))
-  .filter(l => l.trim() !== "+" && l.trim() !== "-");
+// Drop the banner lines AND any file section left with nothing real.
+//
+// Removing the `+`/`- * nodality vX.Y.Z` lines is not enough on its own.
+// For the ~97 files whose ONLY change was that banner, the file section
+// survives — its header, hunk header and CONTEXT lines, which are the
+// surrounding licence comment. The model then reads a diff full of
+// licence text and reasonably reports "copyright year changes", which is
+// what happened in the v1.0.206 entry: every one of those files was
+// listed as a comment/header change when nothing in them had changed at
+// all.
+//
+// So filter per file section and keep only sections that still contain a
+// real change. A file whose banner was rewritten and nothing else simply
+// does not appear.
+const sections = rawDiff.split(/^(?=diff --git )/m).filter(Boolean);
+const kept = sections.filter(sec => sec.split("\n").some(isRealChange));
+
+const diff = kept
+  .map(sec => sec.split("\n").filter(l => !BANNER.test(l)).join("\n"))
+  .join("");
+
+console.log(
+  `  file sections: ${sections.length} in diff, ${kept.length} with real changes`
+);
+
+const realChanges = diff.split("\n").filter(isRealChange);
 
 console.log(`${prev} → ${tag}: ${realChanges.length} real changed line(s) in ${SOURCE_PATHS.join(" ")}`);
 

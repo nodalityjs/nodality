@@ -74,6 +74,12 @@ test.describe('built bundle (dist/index.esm.js)', () => {
     // TextField that took the same option correctly.
     expect(await page.locator('#b-picker').evaluate(n => getComputedStyle(n).color))
       .toBe('rgb(15, 83, 168)');
+
+    // Same story for `borderObj`: dispatched only from commonMethods (and
+    // from hover(), which this component does not declare), so a Picker
+    // given a border through set() used to render with none.
+    expect(await page.locator('#b-picker').evaluate(n => getComputedStyle(n).border))
+      .toBe('2px solid rgb(15, 83, 168)');
   });
 
   test('component-specific options still apply', async ({ page }) => {

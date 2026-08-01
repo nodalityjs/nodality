@@ -354,6 +354,27 @@ class Animator {
     obj.pad && this.pad(obj.pad);
     obj.mar && this.mar(obj.mar);
     obj.respad && this.respad(obj.respad);
+
+    // `borderObj` was never dispatched from here, so a component with no
+    // handler of its own — TextField, Picker, Button, Image, Center —
+    // silently ignored it in set(). The only other place it is applied is
+    // inside hover(), which means it appeared to work on components that
+    // happened to declare a hover and to do nothing on those that did not.
+    //
+    // Callers had to reach for the method instead:
+    //     new Picker().set({ ... }).borderObj({ width: "1px", color: LINE })
+    // which is why the Relays form controls chain it rather than passing
+    // it with everything else.
+    //
+    // Guarded on `width` deliberately. Wrapper also accepts a shorthand
+    // `borderObj: { a: "1px solid #eee" }` that it handles itself; that
+    // shape has no width, and passing it to Animator.borderObj would build
+    // "undefined solid undefined". Requiring width means only the
+    // {width, color} form is handled here and the shorthand is left to the
+    // component that understands it. Components that already apply this
+    // option set the same property to the same value, so it stays
+    // idempotent for them.
+    obj.borderObj && obj.borderObj.width && this.borderObj(obj.borderObj);
     obj.resmar && this.resmar(obj.resmar);
     obj.hover && this.hover(obj.hover);
     obj.size && this.fluidCopy(obj.size);

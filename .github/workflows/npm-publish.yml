@@ -16,6 +16,73 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Decide in a few seconds whether this push is worth a full pipeline.
+  #
+  # `[skip ci]` on the changelog commit covers squash and rebase merges,
+  # but a merge commit is named "Merge pull request #N from ..." by GitHub
+  # and the marker is lost — so a docs-only merge still spent ~6 minutes
+  # on tests, pack and scaffold. This gate catches that case, and any
+  # other markdown-only push, by looking at what actually changed.
+  #
+  # Tags ALWAYS pass. A release must never be gated on file paths: that is
+  # the failure mode `paths-ignore` risks, and it would silently skip
+  # publishing.
+  gate:
+    name: Worth running?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: check
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -u
+          # Releases are never gated.
+          case "$GITHUB_REF" in
+            refs/tags/*) echo "tag push — always run"; echo "run=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+
+          if [ "$EVENT" = "pull_request" ]; then
+            BASE="$PR_BASE"; HEAD="$PR_HEAD"
+          else
+            BASE="$BEFORE"; HEAD="$AFTER"
+          fi
+
+          # A new branch has an all-zero "before" and nothing to diff
+          # against; anything ambiguous errs towards running.
+          case "$BASE" in
+            ""|0000000000000000000000000000000000000000)
+              echo "no usable base ($BASE) — running"; echo "run=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD" || true)
+          if [ -z "$CHANGED" ]; then
+            echo "no changed files resolved — running"; echo "run=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "changed files:"; echo "$CHANGED" | sed 's/^/  /'
+
+          # Skip only when EVERY changed file is markdown. One source file
+          # in the set and the pipeline runs.
+          if echo "$CHANGED" | grep -qvE '\.md$'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "markdown only — skipping the pipeline"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   test:
     name: Tests
     runs-on: ubuntu-latest
@@ -29,10 +96,12 @@ jobs:
     # Reads as: always run for pull requests and manual dispatch, always
     # run for tags, and for a branch push run UNLESS it is a release
     # commit (which the tag run already covers).
+    needs: gate
     if: >-
-      github.event_name != 'push' ||
-      startsWith(github.ref, 'refs/tags/v') ||
-      !startsWith(github.event.head_commit.message, 'release: v')
+      needs.gate.outputs.run == 'true' &&
+      (github.event_name != 'push' ||
+       startsWith(github.ref, 'refs/tags/v') ||
+       !startsWith(github.event.head_commit.message, 'release: v'))
     # Pinned read-only rather than inherited. This job installs third
     # party dependencies and downloads a browser, so it should hold no
     # token that could write to the repo or publish. Stating it here
@@ -388,10 +457,16 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
           git add CHANGELOG.md
-          git commit -m "docs: changelog for $TAG"
+          # [skip ci] because this branch changes one markdown file and
+          # nothing here can test it. Without it, merging the PR costs two
+          # full runs — one for the pull_request event, one for the push to
+          # main — each running tests, pack and scaffold for a doc change.
+          # GitHub honours the marker on both events when it appears in the
+          # head commit message.
+          git commit -m "docs: changelog for $TAG [skip ci]"
           git push origin "$BRANCH"
           gh pr create \
-            --title "docs: changelog for $TAG" \
+            --title "docs: changelog for $TAG [skip ci]" \
             --body "Drafted from the source diff between the previous tag and \`$TAG\`, with version-banner lines filtered out. **Please read it against the diff before merging** — it is model-generated and describes only what the filtered diff contained." \
             --base main --head "$BRANCH"
 
