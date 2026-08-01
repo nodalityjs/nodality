@@ -54,6 +54,9 @@
     // 4. Picker builds its own <select>/<option> nodes internally.
     const pk = new Picker().set({
       items: [['', 'All'], ['CZE', 'CZE']], name: 'c', height: '40px', boxSizing: 'border-box',
+      // Picker styles itself only through commonMethods, so this is the
+      // component that proves `color` is wired into the shared style map.
+      color: 'rgb(15, 83, 168)',
     });
     const pkEl = pk.render();
     pkEl.id = 'b-picker';

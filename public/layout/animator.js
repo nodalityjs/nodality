@@ -252,6 +252,19 @@ class Animator {
         radius: "borderRadius",
         lineHeight: "lineHeight",
         background: "background",
+        // `color` was missing while `background` was present, so a
+        // component that styles itself ONLY through commonMethods could be
+        // given a background but not a text colour. Picker was exactly
+        // that: `new Picker().set({ color: "#0d1117" })` silently did
+        // nothing and the <select> fell back to the browser's black, while
+        // a TextField beside it — which handles obj.color itself — took
+        // the colour. The two rendered differently from identical options.
+        //
+        // Components that already handle obj.color (Text, Link, Image,
+        // Wrapper, Button) now simply set the same property to the same
+        // value. Containers that never handled it (FlexGrid, FlexRow,
+        // Center, UList) gain it, where it was previously a silent no-op.
+        color: "color",
         font: "fontFamily",
         opacity: "opacity",
         gap: "gap",

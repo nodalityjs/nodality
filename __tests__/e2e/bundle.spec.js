@@ -66,6 +66,14 @@ test.describe('built bundle (dist/index.esm.js)', () => {
     }
     // Picker must have built its own option nodes.
     expect(await page.locator('#b-picker option').count()).toBe(2);
+
+    // `color` reaches a component that has NO obj.color handler of its
+    // own and is styled purely through the shared map. It was missing
+    // from that map while `background` was present, so a Picker given a
+    // colour silently rendered in the browser default black next to a
+    // TextField that took the same option correctly.
+    expect(await page.locator('#b-picker').evaluate(n => getComputedStyle(n).color))
+      .toBe('rgb(15, 83, 168)');
   });
 
   test('component-specific options still apply', async ({ page }) => {
