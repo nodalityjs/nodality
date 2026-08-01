@@ -947,8 +947,7 @@ apply(arr) {
 			let query = window.matchMedia(`(max-width: ${el.width}px)`);
 			if (el.device){
 				query = window.matchMedia(`(max-device-width: ${el.width}px)`);
-				alert(el.device);
-			}
+							}
 			
 			
 			

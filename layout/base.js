@@ -22,19 +22,25 @@ class Base {
 	Proxima(a) {
 		var me = this;
 		return new Proxy(a, {
-			set(target, prop, key, value) {
-				 alert(`Setting ${key} to ${value}`);
-				target[key] = value;
-				
-				
-				this.initialState.data.push(key);
-				
+			// Proxy set traps are (target, prop, value, receiver). The old
+			// signature named the third parameter `key`, so `target[key] = value`
+			// stored the incoming VALUE under the receiver as a property name and
+			// the real property was never written — every reactive-state write
+			// silently corrupted the object.
+			set(target, prop, value) {
+				target[prop] = value;
+
+				if (me.initialState && me.initialState.data &&
+					typeof me.initialState.data.push === "function") {
+					me.initialState.data.push(prop);
+				}
+
 				 if (prop !== 'length') {
 					 me.refreshUI("Added");
 				 }
 				return true;//a[P];
 			},
-			has(target, prop, key, value) {
+			has(target, prop) {
 				
 				if (prop !== 'length') {
 					 me.refreshUI("Deleted");
@@ -56,7 +62,6 @@ class Base {
 	loadState(data, id){
 		this.loadEl = id;
 		this.initialState = data;
-		alert(this.initialState.data);
 		
 		return this.observe(this.state.data);
 		
@@ -138,7 +143,6 @@ class Base {
 		
 		
 		let node = document.querySelector("#res");
-		alert(this.render());
 		
 		
 		let nodes = this.toNode(this.toHTML());

@@ -178,8 +178,7 @@ if (this.obj.tags) {
         });
     }
 } else {
-    alert("PPP")
-}*/
+    }*/
 
 
     }

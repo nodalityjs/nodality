@@ -180,7 +180,6 @@ let stringified = JSON.stringify(options.borderObj);
 	//	// console.warn(options);
 
 	//	options.columnAlways && (this.columnAlways = true);
-		 options.columnAlways && alert("JIJ" + options.columnAlways);
 
 		 options.toColumn && this.toColumn(options.toColumn); // OK
 
@@ -489,7 +488,6 @@ let stringified = JSON.stringify(options.borderObj);
 
 
 	toColumn(at){
-		 alert("ON")
 
 		const toCol = () => {
 			let media = window.matchMedia(`(max-width: ${at})`);

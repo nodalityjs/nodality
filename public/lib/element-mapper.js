@@ -49,7 +49,9 @@ import { Form } from "../layout/form-components/form.js";
 import { Button } from "../layout/button.js";
 
 // LIBRARY HELPERS / ANIMATIONS
-import { Des } from "../lib/designer.js";
+// NOTE: no `import { Des }` here. It was unused and formed a circular import
+// (designer -> element-mapper -> designer), which ES modules tolerate but which
+// leaves one module partially initialised under some bundlers.
 import { LinkStyler } from "../lib/link-getter.js";
 import { CardGen } from "../lib/card-getter.js";
 import { KeyframeAnim } from "../lib/keyframe-animation.js";
@@ -373,45 +375,9 @@ animation: {
 }
 
 
-    static mapCopya(){
-
-        
-          return `\n
-        new Wrapper()
-    .set({
-      width: "600px",
-      height: "300px",
-      justifyContent: "center",
-      alignItems: "center",
-      display: "flex",
-      position: "relative",
-    })
-    .add(
-      Array.from({ length: 3 }).map((_, i) => {
-        const angle = i * 120;
-        return new Text("Hello")
-          .set({
-            size: "S1",
-            color: "green",
-            position: "absolute",
-            transform: {
-              op: {
-                name: "transform",
-    
-                  static: true,
-                  keep: true,
-                  hardCSS: \`translate(-50%, -50%) rotate(\${angle}deg) translate(${radius}px) rotate(\${-angle}deg)\`
-                  values: [
-                    \`translate(-50%, -50%) rotate(\${angle}deg) translate(120px) rotate(\${-angle}deg)\`,
-                  ],
-       
-              }
-            }
-          });
-      })
-    )
-          `;
-    }
+    // REMOVED: static mapCopya() — unreachable from mapType() and it
+    // referenced an undefined `radius`, so any call was a guaranteed
+    // ReferenceError. Kept in git history if the ring layout is wanted back.
 
     static button(){
        return new Button("Submit")
@@ -421,7 +387,7 @@ animation: {
             background: "#1abc9c",
             arrpad: {sides: ["all"], value: ".3rem"},
             radius: ".3rem",
-            onTap: () => {alert("Nice")},
+            onTap: () => { console.log("[nodality] demo button tapped"); },
             keySet: {key: "border", value: "3px solid green"}
         });
     }
@@ -459,7 +425,7 @@ animation: {
       //  alert("PP")
         return new RadioGroup()
         .set({
-            items: ["Male", "Female", "Third shit"],
+            items: ["Male", "Female", "Other"],
             multiple: true // wrnóng
         });
     }
@@ -1599,35 +1565,9 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
     }
 
 
-    static mapCDiv(obj){
-
-        let customOptions = obj.customOptions;
-
-      
-      
-        if (rta) {
-
-            let re = el;
-            re["makeResponsiveBehaviour"] = rta.op.hash[0].l;
-            re["index"] = i;
-
-            let childRe = {};
-            childRe["width"] = "200px";
-            childRe["height"] = "100px";
-
-            ela = new Wrapper().set(re)
-            if (rta.op.hash[0].child) {
-
-                childRe["makeResponsiveBehaviour"] = rta.op.hash[0].child.l;
-
-                let child = new Wrapper().set(childRe).add([
-                    new Text("Hello")
-                ]);
-
-                ela = new Wrapper().set(re).add([child]);
-            }
-    }
-}
+    // REMOVED: static mapCDiv(obj) — its dispatch in mapType() has been
+    // commented out for a long time and the body referenced undefined
+    // `rta`, `el` and `i`, so wiring it back up would have thrown.
 
 static checkbox(obj){
     return new Checkbox().set({
@@ -1687,7 +1627,7 @@ static form(obj){
        new RadioGroup()
         .set({
             name: "gender",
-            items: ["Male", "Female", "Third shit"],
+            items: ["Male", "Female", "Other"],
             multiple: false,
             tint: "#1abc9c",
             font: "Arial",
@@ -1871,7 +1811,11 @@ return `new AreaSwitcher()
 }*/
 
 
+    // h1..h6 -> S1..S6. `p` has no digit to slice, so this used to produce the
+    // string "S", and fluidCopy() (which only branches on S1..S6) then silently
+    // applied no fluid sizing at all to every paragraph.
     static getElType(type) {
+        if (type === "p") return "S6";
         return `S${type.substr(1)}`;
     }
 

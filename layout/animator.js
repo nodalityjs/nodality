@@ -33,13 +33,14 @@ class Animator {
 	// to the document and has a layout box. Safe no-op headless.
 	rasterize(list){
 		if (!list || list.length === 0 || this._rasterHandle) return;
+		if (this._rasterCancelled) return; // destroy() ran before we attached
 		if (typeof document === "undefined" || typeof setTimeout === "undefined") return;
 		// setTimeout, not requestAnimationFrame: rAF is throttled to a
 		// standstill in backgrounded tabs, which would leave the effect
 		// permanently unattached there.
 		let attempts = 0;
 		const tryAttach = () => {
-			if (this._rasterHandle) return;
+			if (this._rasterHandle || this._rasterCancelled) return;
 			if (this.res && this.res.isConnected) {
 				try {
 					this._rasterHandle = applyRasterPipeline(this.res, list);
@@ -51,9 +52,10 @@ class Animator {
 				// null: layout box not ready yet (or WebGL/motion
 				// unavailable) - keep retrying within the budget.
 			}
-			if (++attempts < 80) setTimeout(tryAttach, 50);
+			if (++attempts < 80) this._rasterTimer = setTimeout(tryAttach, 50);
 		};
-		setTimeout(tryAttach, 0);
+		this._rasterTimer = setTimeout(tryAttach, 0);
+		this._track(() => clearTimeout(this._rasterTimer));
 	}
 
 	isHidden(hide){
@@ -77,13 +79,54 @@ class Animator {
 		return this;
 	}
 
-	// Tear down theme subscription. Call this when removing a component from
-	// the DOM in long-lived apps to prevent listener accumulation on document.
+	// Register a teardown callback. Everything this component attaches to a
+	// long-lived target (window, document, an observer, the GPU pipeline)
+	// should go through _track/_on so destroy() can actually release it.
+	_track(fn){
+		if (typeof fn !== "function") return fn;
+		(this._disposables || (this._disposables = [])).push(fn);
+		return fn;
+	}
+
+	// addEventListener + automatic removal on destroy(). Element-level
+	// listeners are collected with the element, but window/document ones
+	// outlive it and pin the component (and its DOM subtree) forever.
+	_on(target, type, handler, opts){
+		if (!target || typeof target.addEventListener !== "function") return handler;
+		target.addEventListener(type, handler, opts);
+		this._track(() => target.removeEventListener(type, handler, opts));
+		return handler;
+	}
+
+	// Tear down everything this component attached: theme subscription, the
+	// raster GPU pipeline, window/document listeners and observers. Call it
+	// when removing a component from the DOM in a long-lived app.
+	//
+	// Previously this released only the theme subscription, so each mounted
+	// component leaked its resize/scroll handlers and — for raster elements —
+	// an entire WebGL context, RAF loop and two observers. raster-ops has had
+	// a complete destroy() all along; nothing ever called it.
 	destroy(){
 		if (typeof this._themeUnsub === "function") {
 			this._themeUnsub();
 			this._themeUnsub = null;
 		}
+
+		if (this._rasterHandle && typeof this._rasterHandle.destroy === "function") {
+			try { this._rasterHandle.destroy(); } catch (e) { /* already gone */ }
+		}
+		this._rasterHandle = null;
+		this._rasterCancelled = true;
+
+		if (this._disposables) {
+			for (const off of this._disposables) {
+				try { off(); } catch (e) { /* keep draining */ }
+			}
+			this._disposables.length = 0;
+		}
+		this._responsiveTasks = null;
+		this._responsiveHandler = null;
+
 		if (this.res && this.res.parentNode) {
 			this.res.parentNode.removeChild(this.res);
 		}
@@ -375,7 +418,14 @@ class Animator {
 		if (obj.animation) {
 
 			this.res.style.transition = `${obj.animation}`; //`${obj.animation}s ease-in-out`; // stop resize ???
-			this.res.style.transionProperty = `background, color, transform`;
+			// This used to be misspelled `transionProperty`, which CSSOM
+			// silently discards — so the shipped behaviour was the shorthand's
+			// default, `all`. Fixing the spelling narrows what animates, so the
+			// list has to name every property hover() actually changes
+			// (see the onmouseover/onmouseout handlers below) or those would
+			// start snapping instead of easing.
+			this.res.style.transitionProperty =
+				`background-color, color, border, box-shadow, transform`;
 			//  this.transition(obj.animation);
 		}
 
@@ -519,7 +569,7 @@ class Animator {
 			}
 		};
 
-		window.addEventListener("scroll", compute);
+		this._on(window, "scroll", compute);
 
 		// Fire at the beginning if user sets "from" value to 0
 		if (data.from === 0) {
@@ -612,7 +662,7 @@ _setupResponsiveManager() {
     // We check if the handler is already assigned to avoid duplicate listeners
     if (!this._responsiveHandler) {
         this._responsiveHandler = react;
-        window.addEventListener("resize", react);
+        this._on(window, "resize", react);
     }
 
     // 4. Trigger Execution (ALWAYS)
@@ -695,12 +745,10 @@ resprop(arr, op) {
     
     // --- 2. STATE CAPTURE ---
 
-    this.prevStyles = {};
-    for (const prop in this.res.style) {
-       if (this.res.style.hasOwnProperty(prop) && isNaN(parseInt(prop))) {
-          this.prevStyles[prop] = this.res.style[prop];
-        }
-    }
+    // NOTE: the full-style snapshot that used to live here (this.prevStyles)
+    // was write-only — the only readers are in commented-out earlier versions
+    // of resprop below. It walked every CSSOM property on every resprop() call
+    // for nothing, so it has been dropped.
 
     const responsiveProps = new Set();
     arr.forEach(bp => {
@@ -720,7 +768,7 @@ resprop(arr, op) {
 
     // --- 3. CORE LOGIC ---
     const respropTask = () => {
-        const width = window.innerWidth;
+        const width = Animator.viewportWidth();
         let applied = defaultItem; 
 
         // 1. Find the first matching range. 
@@ -753,11 +801,14 @@ resprop(arr, op) {
         
         // C. Overrides: Apply matching breakpoint values
         for (const key in applied) {
-		
+
+			// `exact` is a font-size. It used to call this.set(applied) —
+			// re-entering the component's whole set() pipeline (re-registering
+			// hover handlers, re-parsing every option) on EVERY resize event.
+			// Apply the property directly instead.
 			if (key === "exact"){
-//alert(key);
-this.set(applied);
-//this.set({key: })
+				this.res.style.fontSize = applied[key];
+				continue;
 			}
 
 
@@ -834,7 +885,7 @@ respad(arr) {
 
     // --- 3. CORE LOGIC: The Responsive Task Function ---
     const respadTask = () => {
-        const width = window.innerWidth;
+        const width = Animator.viewportWidth();
         let applied = defaultItem; 
 
         // 1. RANGE LOGIC: Find the exact breakpoint whose range matches the current width.
@@ -941,7 +992,7 @@ respad(arr) { // COOL
     // --- 3. CORE LOGIC: The 'react' function (Responsive Style Application) ---
 
     const react = () => {
-        const width = window.innerWidth;
+        const width = Animator.viewportWidth();
         let applied = defaultItem; 
 
         // 1. RANGE LOGIC: Find the exact breakpoint whose range matches the current width.
@@ -1062,7 +1113,7 @@ _applyResponsive(arr, applyFn) {
   if (this._responsiveHandler) window.removeEventListener("resize", this._responsiveHandler);
   this._responsiveHandler = react;
 
-  window.addEventListener("resize", react);
+  this._on(window, "resize", react);
   
   // ⭐ FIX: Defer the initial call slightly to avoid race conditions on refresh.
   setTimeout(() => {
@@ -1164,7 +1215,7 @@ resprop(arr) { // COOL
     // --- 3. CORE LOGIC: The 'react' function (Responsive Style Application) ---
 
     const react = () => {
-        const width = window.innerWidth;
+        const width = Animator.viewportWidth();
         let applied = defaultItem; 
 
         // 1. RANGE LOGIC: Find the FIRST breakpoint whose range matches the current width.
@@ -1293,7 +1344,7 @@ resprop(arr) {
     // --- 3. CORE LOGIC: The 'react' function (Responsive Style Application) ---
 
     const react = () => {
-        const width = window.innerWidth;
+        const width = Animator.viewportWidth();
         let applied = defaultItem; 
 
         // 1. STANDARD MIN-WIDTH LOGIC: Find the LARGEST breakpoint whose MIN-WIDTH is matched.
@@ -1403,7 +1454,7 @@ resmar(arr) {
 
     // --- 3. CORE LOGIC: The Responsive Task Function ---
     const resmarTask = () => {
-        const width = window.innerWidth;
+        const width = Animator.viewportWidth();
         let applied = defaultItem; 
 
         // 1. RANGE LOGIC: Find the exact breakpoint whose range matches the current width.
@@ -1480,6 +1531,15 @@ resmar(arr) {
 
 	isNumber(value) {
 		return typeof value === 'number' && !isNaN(value);
+	}
+
+	// Single source of truth for "how wide is the viewport". See the note in
+	// chainReact — visualViewport is preferred (it tracks pinch-zoom) but is
+	// not universally present.
+	static viewportWidth() {
+		if (typeof window === "undefined") return 0;
+		const vv = window.visualViewport;
+		return (vv && typeof vv.width === "number") ? vv.width : window.innerWidth;
 	}
  
 	pad(arr){
@@ -1601,17 +1661,12 @@ resmar(arr) {
         percent = (val - from.max) / (from.min - from.max);
     }
 
-    let toRange = (to.min - to.max) * percent - to.min;
-    toRange = Math.abs(toRange);
-
-    if (to.min < to.max) {
-        let sm = to.max + Math.abs(to.min);
-        let timesPerc = sm * percent;
-        toRange = to.min + timesPerc;
-    }
-
-
-    return toRange;
+    // Linear interpolation across the OUTPUT range. The old form added
+    // |to.min| to to.max instead of subtracting it, so any range whose
+    // minimum was above zero overshot: 0.2 -> 1 produced 0.2 + 1.2p = 1.4
+    // at full scroll. Correct only when to.min <= 0, which is why the
+    // 0 -> 1 demos never showed it.
+    return to.min + (to.max - to.min) * percent;
 }
 
 
@@ -2405,7 +2460,11 @@ setTags(obj){
 	// Function to check and log queries based on screen size
 	const checkQueries = (qban) => {
 		//alert("/P")
-	  const screenSize = window.visualViewport.width;  // window.innerWidth window.screen.width window.visualViewport.width
+	  // One width source for the whole library. visualViewport is absent in
+	  // jsdom and older WebViews (TypeError), and disagrees with innerWidth
+	  // during pinch-zoom — which used to make chainReact breakpoints flip at
+	  // different widths than resprop/respad breakpoints on the same page.
+	  const screenSize = Animator.viewportWidth();
 	  let ops = "";
 	  let operations = [];
 	  let globalQueries = [];
@@ -2793,12 +2852,12 @@ this.hasAnimated = true;
 let ass = this.options.animation.op;
 //alert(this.openTag);
 
- window.addEventListener(/*this.openTag*/"sidebar:open", () => {
+ this._on(window, /*this.openTag*/"sidebar:open", () => {
 		
     this.res.animate(ass.keyframesOpen, ass.openOptions);
   });
 
-   window.addEventListener(/*this.closeTag*/ "sidebar:closed", () => {
+   this._on(window, /*this.closeTag*/ "sidebar:closed", () => {
 	
     this.res.animate(ass.keyframesClose, ass.closeOptions);
   });
@@ -2817,11 +2876,11 @@ let ass = this.options.animation.op;
 		// alert("ONA" + this.openTag);
 		//alert(this.openTag);
 		
-window.addEventListener(this.openTag, () => {
+this._on(window, this.openTag, () => {
 		this.res.animate(ass.keyframesOpen, ass.openOptions);
 	});
 // "sidebar:opened" "sidebar:closed"
-	window.addEventListener(this.closeTag, () => {
+	this._on(window, this.closeTag, () => {
 		this.res.animate(ass.keyframesClose, ass.closeOptions);
 	});
 	   }
@@ -2847,7 +2906,7 @@ window.addEventListener(this.openTag, () => {
 			  }
 		  };
 
-		  window.addEventListener("scroll", scrollHandler);
+		  this._on(window, "scroll", scrollHandler);
 
 	  } 
 
@@ -2868,6 +2927,7 @@ window.addEventListener(this.openTag, () => {
   });
 
   observer.observe(this.res);
+  this._track(() => observer.disconnect());
 }
 /*
 if (!this.openedElements.get(this.res)) {
@@ -2930,7 +2990,7 @@ this.res.querySelectorAll('span').forEach(span => {
 	
 	if (!this.options.animation /*&& this.getType() !== "LayoutWrapperElement"*/){
 	
-	window.addEventListener('resize', () => checkQueries());
+	this._on(window, 'resize', () => checkQueries());
 	}
 	
 	checkQueries();
@@ -3092,7 +3152,7 @@ this.res.querySelectorAll('span').forEach(span => {
 		(this.blastTarget || this.res).style.transform = transformValue;
 		this.res.style.opacity = opacity;
 	} else {
-		alert("OPE")
+		console.warn("[nodality] transform produced no geometric value - check `values`")
 	}
 	}
 
@@ -3111,7 +3171,7 @@ this.res.querySelectorAll('span').forEach(span => {
 		
 	} else {
 		
-		window.addEventListener("load", () => {
+		this._on(window, "load", () => {
 			if (transform.delay) {
 
 				setTimeout(() => {
@@ -3186,7 +3246,7 @@ if (transform.on){
 	}
 	
 	} else {
-		alert("THIS FIRE WITH GRADIENT (invalid block");
+		console.warn("[nodality] reactOnTransform: unrecognised transform descriptor - ignored");
 	}
 
 	}

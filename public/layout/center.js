@@ -88,8 +88,7 @@ return this;
 		} 
 		
 		if (!T && !R && !B){
-			alert("j")
-		this.res.style.margin = L;	
+					this.res.style.margin = L;	
 		}
 		
 		return this;
@@ -135,8 +134,7 @@ return this;
 		} 
 		
 		if (!T && !R && !B){
-			alert("j")
-		this.res.style.margin = L;	
+					this.res.style.margin = L;	
 		}
 		
 		return this;

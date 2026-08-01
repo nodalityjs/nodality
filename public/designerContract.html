@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Designer contract fixture</title>
+  <style>
+    body { margin: 0; font-family: Helvetica, Arial, sans-serif; background: #0d1520; }
+    #mount, #mount2 { background: #123f6d; padding: 20px; max-width: 820px; }
+  </style>
+</head>
+<body>
+  <!-- Two mounts so the `mount` option can be shown to be honoured rather
+       than ignored in favour of a hard-coded "#mount". -->
+  <div id="mount"></div>
+  <div id="mount2"></div>
+
+  <script type="module">
+    // designer.js pulls in the whole component fleet, some of which touches
+    // `window` at module scope — so these assertions cannot run in a bare
+    // Node process the way the raster unit specs do. They run here instead.
+    import { Des } from '../lib/designer.js';
+    window.Des = Des;
+    window.__ready = true;
+  </script>
+</body>
+</html>

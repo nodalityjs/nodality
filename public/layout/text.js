@@ -1684,8 +1684,7 @@ checkForAnimation(queries){
 			if (query.matches) {
 				Object.assign(this.res.style, el.styles);
 			} else {
-				alert("YES min max, but does not match");
-				Object.assign(this.res.style, initStyle);
+								Object.assign(this.res.style, initStyle);
 			}
 				
 			} else {
@@ -1694,8 +1693,7 @@ checkForAnimation(queries){
 				Object.assign(this.res.style, el.styles);
 			} else {
 				//alert("nij")
-					alert("NO min max, and does not match");
-				Object.assign(this.res.style, initStyle);
+									Object.assign(this.res.style, initStyle);
 			}
 		}	
 	  }

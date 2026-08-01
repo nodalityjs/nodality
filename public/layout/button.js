@@ -451,8 +451,7 @@ this.options = obj;
 		const adj = () => {
 			let query = window.matchMedia("(max-device-width: 415px)");
 			if (query.matches) {
-                alert("WOW")
-				this.res.style.fontSize = '6rem';
+                				this.res.style.fontSize = '6rem';
 			} else {
 				this.res.style.fontSize = '3rem';
 			}
