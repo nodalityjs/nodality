@@ -1,3 +1,9 @@
+/*!
+ * nodality v1.0.202
+ * (c) 2026 Filip Vabrousek
+ * License: MIT
+ */
+
 import {Animator} from "./animator.js";
 
 // changed on 26/12/2020

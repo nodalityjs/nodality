@@ -38,6 +38,13 @@ jobs:
 
       - run: npm ci
 
+      # dist/ must exist before the suite runs: __tests__/e2e/bundle.spec.js
+      # loads public/bundle-smoke.html, which imports ../dist/index.esm.js —
+      # the artefact consumers actually run. Every other fixture imports
+      # source, so without this one spec a bundling regression (tree-shaking,
+      # minifier rewrites, a webpack config change) passes the whole suite.
+      - run: npm run build
+
       # Chromium only: the suite does not exercise other engines, and
       # --with-deps pulls the system libraries headless Chromium needs on
       # a bare runner. Rendering there goes through ANGLE/SwiftShader,
@@ -66,9 +73,57 @@ jobs:
             test-results/
           retention-days: 7
 
+
+  # Test what consumers actually install, not the source tree.
+  #
+  # The Playwright suite resolves ../layout/* and ../lib/* inside this repo,
+  # so it never exercises package.json's main, exports, bin or files. All of
+  # those can be wrong with the suite fully green — and one was: `main` and
+  # `exports["."].require` pointed at ./dist/index.js while the build emits
+  # dist/index.cjs.js, so require("nodality") failed with MODULE_NOT_FOUND
+  # for every CommonJS consumer, across releases, invisibly.
+  #
+  # Packing and installing into a throwaway fixture is the only thing that
+  # sees that class of bug. Gates publish alongside the test job.
+  pack:
+    name: Packaged tarball smoke test
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # Same build the publish job runs, so the tarball under test is the
+      # one that would ship.
+      - run: npm run build
+      - run: npm run inject-license || true
+
+      - name: Pack
+        run: echo "TARBALL=$(npm pack --silent | tail -1)" >> "$GITHUB_ENV"
+
+      - name: Install the tarball into a throwaway fixture
+        run: |
+          mkdir -p /tmp/pack-fixture
+          cd /tmp/pack-fixture
+          printf '{"name":"pack-smoke","version":"1.0.0","type":"module","private":true}\n' > package.json
+          npm install "$GITHUB_WORKSPACE/$TARBALL"
+
+      - name: Smoke test every published entry point
+        run: node packaging/smoke.mjs /tmp/pack-fixture
+
   publish:
     name: Publish to NPM
-    needs: test
+    needs: [test, pack]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:

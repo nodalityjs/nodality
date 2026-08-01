@@ -1,3 +1,9 @@
+/*!
+ * nodality v1.0.202
+ * (c) 2026 Filip Vabrousek
+ * License: MIT
+ */
+
 import {Animator} from "./animator.js";
 
 // 13:28 07/04/2020 - BEGIN NOTHING GONNA STOP US NOW  Lets go!

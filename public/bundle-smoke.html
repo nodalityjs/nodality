@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Built bundle smoke</title>
+</head>
+<body>
+  <div id="mount"></div>
+
+  <!--
+    Every other fixture imports SOURCE (../layout/*.js, ../lib/*.js).
+    This one is the only page that loads what consumers actually run:
+    the webpack output in dist/. A bundling regression — tree-shaking
+    dropping a module whose job is registration, the minifier rewriting
+    a construct, a webpack config change — is invisible to source tests
+    and to a tarball existence check, but shows up here.
+  -->
+  <script type="module">
+    import { Text, Wrapper, FlexGrid, Link, TextField, Picker, Base }
+      from '../dist/index.esm.js';
+
+    const errors = [];
+    window.addEventListener('error', e => errors.push(String(e.message)));
+
+    // The named exports the suite depends on existing. Asserting a list
+    // rather than a count so adding an export doesn't fail the test.
+    window.__exports = { Text: !!Text, Wrapper: !!Wrapper, FlexGrid: !!FlexGrid,
+                         Link: !!Link, TextField: !!TextField, Picker: !!Picker, Base: !!Base };
+
+    // 1. Text through the styleMap — `exact` is the font-size alias.
+    new Text('bundled text').set({
+      id: 'b-text', font: 'Arial', exact: '32px', weight: '700', color: 'rgb(15, 83, 168)',
+    }).render('#mount');
+
+    // 2. Wrapper flex options — commonMethods' styleMap (display via
+    //    flexDir, plus gap) must survive minification.
+    new Wrapper().set({ id: 'b-wrap', flexDir: 'column', gap: '12px', width: '240px' })
+      .add([ new Text('a').set({ exact: '10px' }), new Text('b').set({ exact: '10px' }) ])
+      .render('#mount');
+
+    // 3. Inherited dispatch across the class hierarchy. TextField extends
+    //    Animator and only reaches height/boxSizing through
+    //    commonMethods(); if bundling broke that inheritance chain the
+    //    element would render at its natural height.
+    const tf = new TextField().set({
+      type: 'search', placeholder: 'bundled field',
+      height: '40px', boxSizing: 'border-box', radius: 8,
+    });
+    const tfEl = tf.render();
+    tfEl.id = 'b-field';
+    document.querySelector('#mount').appendChild(tfEl);
+
+    // 4. Picker builds its own <select>/<option> nodes internally.
+    const pk = new Picker().set({
+      items: [['', 'All'], ['CZE', 'CZE']], name: 'c', height: '40px', boxSizing: 'border-box',
+    });
+    const pkEl = pk.render();
+    pkEl.id = 'b-picker';
+    document.querySelector('#mount').appendChild(pkEl);
+
+    // 5. Link with the `new` option -> target/rel.
+    new Link('site', 'https://example.com').set({ id: 'b-link', new: true }).render('#mount');
+
+    // 6. FlexGrid.items() calls render() on each child.
+    new FlexGrid().set({ id: 'b-grid', wrap: true, gap: '4px' })
+      .items([ new Text('x').set({ exact: '10px' }), new Text('y').set({ exact: '10px' }) ])
+      .render('#mount');
+
+    window.__errors = errors;
+    window.__ready = true;
+  </script>
+</body>
+</html>
