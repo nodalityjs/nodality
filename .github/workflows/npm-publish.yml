@@ -20,6 +20,19 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # onlyPublish.sh pushes main and then the tag, so a release fires TWO
+    # push events against the identical commit and GitHub runs everything
+    # twice. Only the tag run can publish, so the branch run is pure
+    # duplication — and with the build at ~140s it was the single largest
+    # waste in the pipeline.
+    #
+    # Reads as: always run for pull requests and manual dispatch, always
+    # run for tags, and for a branch push run UNLESS it is a release
+    # commit (which the tag run already covers).
+    if: >-
+      github.event_name != 'push' ||
+      startsWith(github.ref, 'refs/tags/v') ||
+      !startsWith(github.event.head_commit.message, 'release: v')
     # Pinned read-only rather than inherited. This job installs third
     # party dependencies and downloads a browser, so it should hold no
     # token that could write to the repo or publish. Stating it here
@@ -63,6 +76,18 @@ jobs:
       - name: Run tests
         run: npm run test
 
+      # dist/ is built once here and reused by `pack` and `publish`
+      # instead of each rebuilding it. Two benefits: it removes ~140s from
+      # each of those jobs, and it means the artefact that is smoke-tested
+      # and the artefact that is published are literally the same bytes,
+      # rather than two builds trusted to be identical.
+      - name: Upload dist for downstream jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
       - name: Upload report on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -103,9 +128,15 @@ jobs:
 
       - run: npm ci
 
-      # Same build the publish job runs, so the tarball under test is the
-      # one that would ship.
-      - run: npm run build
+      # Reuse the dist/ built by the test job rather than rebuilding it.
+      - name: Download dist from the test job
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      # inject-license rewrites files under layout/, not dist/, so it
+      # still has to run against this job's own checkout.
       - run: npm run inject-license || true
 
       - name: Pack
@@ -158,8 +189,16 @@ jobs:
       # 3. Install dependencies
       - run: npm ci
 
-      # 6. Build packages
-      - run: npm run build
+      # 6. Reuse the dist/ that the test job built and the pack job
+      #    smoke-tested, rather than building a third copy. The build is
+      #    reproducible (verified byte-identical across runs), but
+      #    reusing it removes the need to trust that.
+      - name: Download dist from the test job
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
       - run: npm run inject-license || true
 
       # 7. Verify version matches tag
