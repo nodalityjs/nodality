@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.210
+ * nodality v1.0.211
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -297,6 +297,7 @@ obj.flex && (this.res.style.display = "flex");
 
 //obj.pad && this.pad(obj.pad);
 
+//@ fixMobileTap: Suppress the mobile tap highlight and its 300ms delay.
 obj.fixMobileTap && this.fixMobileTap(obj.fixMobileTap);
 
 //obj.resprop && this.resprop(obj.resprop);
@@ -345,6 +346,7 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 			obj.blastData && (stra += `\n blastData: ${rem},`);
 		}
 
+  //@ nowrap: Keep the label on one line (white-space: nowrap).
 		obj.nowrap && (this.res.style.whiteSpace = "nowrap");
 		obj.font && this.font(obj.font);
 		obj.font && (stra += `\n font: "${obj.font}",`);
@@ -401,6 +403,7 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		// Wasn't there !!!
 		obj.bold && (stra += `\n bold: ${obj.bold},`);
 
+  //@ block: Render as a block-level element rather than inline.
 		obj.block && this.toBlock();
 		obj.block && (stra += `\n block: ${obj.block},`);
 
@@ -525,8 +528,10 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 
 
 
+  //@ rounded: Apply the default corner radius. Use `radius` for a specific value.
 		obj.rounded && this.round();
 
+  //@ new: Open in a new tab — sets target="_blank" and rel="noopener noreferrer".
 		if (obj.new){
 			this.res.setAttribute("target", "_blank");
    			this.res.setAttribute("rel", "noopener noreferrer"); // security best practice

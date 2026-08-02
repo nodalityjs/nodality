@@ -579,13 +579,25 @@ jobs:
         working-directory: docs-src
         env:
           DOCS_TOKEN: ${{ secrets.DOCS_PUBLISH_TOKEN }}
+          # deploy.sh runs the generator in --check mode, and that check needs
+          # a library to compare against. Without SRC_ROOT it falls back to
+          # local-machine paths that do not exist on a runner, so verification
+          # died before it could verify anything.
+          #
+          # The same root the previous step generated from, so the check
+          # compares the committed docs against the source that produced them.
+          SRC_ROOT: ${{ github.workspace }}/library
         run: |
           # Give deploy.sh push access to the site repo without editing it.
           git config --global url."https://x-access-token:${DOCS_TOKEN}@github.com/".insteadOf "https://github.com/"
           git config --global user.name  "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           npm ci
-          SITE_DIR="$RUNNER_TEMP/nodality-site" ./deploy.sh
+          # DOCS_VERSION stripped of its leading "v" here, because the
+          # generate step wrote the footer with ${TAG#v}. Passing
+          # github.ref_name verbatim would render "nodality v1.0.209"
+          # against the committed "nodality 1.0.209" and fail --check.
+          SITE_DIR="$RUNNER_TEMP/nodality-site" DOCS_VERSION="${GITHUB_REF_NAME#v}" ./deploy.sh
 
       - name: Report
         if: steps.guard.outputs.run == 'true' && steps.gen.outputs.changed == 'false'
