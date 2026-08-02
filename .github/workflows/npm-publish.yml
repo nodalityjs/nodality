@@ -470,3 +470,115 @@ jobs:
             --body "Drafted from the source diff between the previous tag and \`$TAG\`, with version-banner lines filtered out. **Please read it against the diff before merging** — it is model-generated and describes only what the filtered diff contained." \
             --base main --head "$BRANCH"
 
+  # Regenerate the API reference from the released tag and publish the
+  # docs site — but only when the reference actually changed.
+  #
+  # Ordering: last. It reads `lib/raster-ops.js` at the tag, which only
+  # exists once publish succeeded, and a docs problem must never colour a
+  # successful release red.
+  #
+  # `needs: [publish, changelog]` with `always()`: changelog is skipped
+  # when no ANTHROPIC_API_KEY is configured, and a skipped dependency
+  # would otherwise skip this job too. The `if` therefore gates on
+  # publish's result explicitly rather than on job ordering.
+  #
+  # PUBLISHES ONLY ON CHANGE. Most releases do not touch the raster
+  # surface; without that gate this would republish the whole site on
+  # every patch — a 200-file commit each time, burying real changes.
+  docs:
+    name: Publish API reference
+    needs: [publish, changelog]
+    if: always() && needs.publish.result == 'success' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      # No token configured is a normal state, not a failure — the release
+      # already succeeded. Publishing the docs needs write access to TWO
+      # other repositories (the docs source and the site), so it is a
+      # deliberate opt-in rather than something that silently starts
+      # working.
+      - name: Skip if no docs token is configured
+        id: guard
+        env:
+          DOCS_TOKEN: ${{ secrets.DOCS_PUBLISH_TOKEN }}
+        run: |
+          if [ -z "$DOCS_TOKEN" ]; then
+            echo "DOCS_PUBLISH_TOKEN not set — skipping docs publish."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The library, at the tag. This is the source the reference must
+      # describe: what a reader can actually install.
+      - name: Check out the library at the release tag
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          path: library
+
+      - name: Check out the docs source
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: nodalityjs/docs
+          token: ${{ secrets.DOCS_PUBLISH_TOKEN }}
+          path: docs-src
+
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.run == 'true'
+        with:
+          node-version: '22'
+
+      - name: Regenerate the reference
+        if: steps.guard.outputs.run == 'true'
+        id: gen
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          OUT=$(RASTER_SRC="$GITHUB_WORKSPACE/library/lib/raster-ops.js" \
+                RASTER_VERSION="${TAG#v}" \
+                node docs-src/scripts/generate-docs.mjs 2>&1) || {
+            echo "$OUT"; echo "::error::docs generation failed"; exit 1; }
+          echo "$OUT"
+          if echo "$OUT" | grep -q "regenerated"; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit the regenerated reference
+        if: steps.guard.outputs.run == 'true' && steps.gen.outputs.changed == 'true'
+        working-directory: docs-src
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/raster docs/api
+          git commit -m "docs: regenerate API reference for $TAG"
+          git push origin HEAD:main
+
+      # Reuse the repo's own deploy.sh rather than reimplementing the
+      # publish here. That script carries properties learned the hard way:
+      # a plain push instead of Docusaurus' force push, .nojekyll verified,
+      # --delete for removed pages, .DS_Store excluded, and guards against
+      # a stale or conflicted source tree. A second publishing path in YAML
+      # would drift from those within a release or two.
+      - name: Publish the site
+        if: steps.guard.outputs.run == 'true' && steps.gen.outputs.changed == 'true'
+        working-directory: docs-src
+        env:
+          DOCS_TOKEN: ${{ secrets.DOCS_PUBLISH_TOKEN }}
+        run: |
+          # Give deploy.sh push access to the site repo without editing it.
+          git config --global url."https://x-access-token:${DOCS_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          npm ci
+          SITE_DIR="$RUNNER_TEMP/nodality-site" ./deploy.sh
+
+      - name: Report
+        if: steps.guard.outputs.run == 'true' && steps.gen.outputs.changed == 'false'
+        run: echo "API reference unchanged for this release — nothing published."

@@ -19,6 +19,38 @@ else
 fi
 
 
+# ----------------------------
+# Sync with origin/main first
+# ----------------------------
+# Every release now opens a changelog PR, and merging it puts main ahead
+# of this clone. Being behind is therefore the NORMAL state between
+# releases, not bad luck. Building on a stale main gets the push rejected
+# and the guard aborts — after a full local test + pack run has already
+# been paid for.
+#
+# --autostash, NOT a clean-tree requirement: uncommitted work in this repo
+# is expected at release time. The workflow, specs and packaging scripts
+# that shipped in 1.0.207 were uncommitted right up until `git add .`
+# swept them in, so refusing to release with a dirty tree would block the
+# normal case.
+#
+# On conflict the rebase is aborted rather than left half-applied, so a
+# failed release never leaves the repo mid-rebase to be discovered later.
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$BRANCH" != "main" ]; then
+  echo "🚫 On branch '$BRANCH', not main. Aborting so the release is not built here."
+  exit 1
+fi
+
+echo "🔄 Syncing with origin/main…"
+if ! git pull --rebase --autostash origin main; then
+  git rebase --abort 2>/dev/null || true
+  echo "❌ Could not rebase onto origin/main. Nothing has been released."
+  echo "   Resolve the conflict, then re-run. If work was autostashed it is"
+  echo "   still recoverable:  git stash list"
+  exit 1
+fi
+
 # Copy layout folders (root for publish)
 cp -R /Users/filipvabrousek/Desktop/layout/layout /Users/filipvabrousek/launch/
 cp -R /Users/filipvabrousek/Desktop/layout/lib /Users/filipvabrousek/launch/
@@ -150,7 +182,13 @@ git tag "v$VERSION"
 # so everything that can still be recovered cheaply has to fail before it.
 # Nothing has been published at this point; the local commit and tag are
 # still discardable with:
-#     git tag -d "v$VERSION" && git reset --hard HEAD~1
+#     git tag -d "v$VERSION" && git reset --soft HEAD~1
+#
+# --soft, NOT --hard. This commit sweeps in everything `git add .` found,
+# including files that live ONLY in this repo (the workflow, packaging
+# scripts, specs and fixtures). --hard would delete them outright, and
+# unlike layout/ and lib/ they are not recoverable by re-copying from
+# ~/Desktop/layout. --soft drops the commit and leaves the work staged.
 if git push --set-upstream origin main; then
   echo "🚀 Commits pushed to GitHub successfully."
 else
@@ -159,7 +197,7 @@ else
   echo "   Likely a diverged remote — reconcile, then re-run:"
   echo "     git pull --rebase origin main"
   echo "   To discard this release attempt entirely:"
-  echo "     git tag -d \"v$VERSION\" && git reset --hard HEAD~1"
+  echo "     git tag -d \"v$VERSION\" && git reset --soft HEAD~1"
   exit 1
 fi
 
@@ -200,3 +238,75 @@ until [ "$(npm view nodality version 2>/dev/null || true)" = "$VERSION" ]; do
   sleep 15
 done
 echo "✅ nodality $VERSION is live on npm — consumers can upgrade."
+
+# ----------------------------
+# Refresh the generated docs tables
+# ----------------------------
+# Only reached when the ENTIRE release succeeded: tests, packaged smoke
+# test, scaffold build, both pushes, and npm actually serving the version.
+# That ordering is the point — the reference must never describe code that
+# failed verification or never shipped.
+#
+# The file is read out of the tag rather than the working tree, because
+# the sandbox is copied into this repo BEFORE the tests run (see the cp -R
+# lines above), so a failed attempt leaves unreleased code sitting here.
+#
+# This regenerates markdown in the docs repo and stops. It does NOT
+# publish: deploying the site stays a deliberate act, run by hand from
+# that repo when you have read the diff.
+DOCS_DIR="${DOCS_DIR:-/Users/filipvabrousek/docosaurus-docs/nodality}"
+GEN="$DOCS_DIR/scripts/generate-docs.mjs"
+
+if [ -f "$GEN" ]; then
+  echo "📖 Refreshing the generated docs from v$VERSION…"
+  # Reads the tag this release just created — which holds exactly the
+  # sandbox content, because the cp -R steps above put it there and it was
+  # then committed and tagged. So this satisfies "same source as the other
+  # files" while also being verifiable: deploy.sh checks the committed docs
+  # against that same tag.
+  #
+  # Sourcing the sandbox directly worked, but left TWO sources in the
+  # chain: this script generated from the sandbox while deploy.sh
+  # regenerated from the tag, so publishing could revert the docs a release
+  # had just written. One source removes the ambiguity entirely.
+  if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+    # Non-fatal on purpose. The release is already out; a docs hiccup must
+    # not make a successful publish look like a failure.
+    # Captured so the "did anything change" answer can drive whether the
+    # docs are worth opening. A release that touched no raster op should
+    # not spawn a dev server for a diff that does not exist.
+    if GEN_OUT="$(LAUNCH_DIR="$PWD" node "$GEN" 2>&1)"; then
+      echo "$GEN_OUT"
+      if echo "$GEN_OUT" | grep -q "regenerated" && [ "${OPEN_DOCS:-1}" != "0" ]; then
+        # Serve the docs so the regenerated tables can be read in place.
+        # Backgrounded with nohup: this is the last step of a release and
+        # the script must still exit. Set OPEN_DOCS=0 to skip.
+        if lsof -ti tcp:3000 -sTCP:LISTEN >/dev/null 2>&1; then
+          echo "   Docs server already running — http://localhost:3000/docs/raster/ops"
+          open "http://localhost:3000/docs/raster/ops" 2>/dev/null || true
+        else
+          echo "   Starting the docs dev server…"
+          ( cd "$DOCS_DIR" && nohup npm start >/tmp/nodality-docs-dev.log 2>&1 & ) || true
+          # Docusaurus takes a few seconds to compile; poll rather than
+          # guess, and give up quietly instead of hanging the release.
+          for _ in $(seq 1 40); do
+            curl -sf -o /dev/null http://localhost:3000/ && break
+            sleep 1
+          done
+          if curl -sf -o /dev/null http://localhost:3000/; then
+            open "http://localhost:3000/docs/raster/ops" 2>/dev/null || true
+            echo "   Docs: http://localhost:3000/docs/raster/ops   (log: /tmp/nodality-docs-dev.log)"
+          else
+            echo "   ⚠️  Docs server did not come up — see /tmp/nodality-docs-dev.log" >&2
+          fi
+        fi
+      fi
+      echo "   Review and publish when ready:  cd $DOCS_DIR && ./deploy.sh"
+    else
+      echo "$GEN_OUT"
+      echo "⚠️  Docs regeneration failed — the release itself is fine." >&2
+    fi
+  else
+    echo "⚠️  Tag v$VERSION not found locally — docs not refreshed." >&2
+  fi
+fi

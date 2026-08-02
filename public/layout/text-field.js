@@ -35,20 +35,28 @@ class TextField extends Animator {
 
 	set(obj){
 		this.options = obj;
+		//@ type: Input type attribute. Defaults to "text"; "search" adds the native clear button.
 		this.res.setAttribute("type", obj.type ?? "text");
+		//@ placeholder: Placeholder text shown while the field is empty.
 		obj.placeholder && (this.res.placeholder = obj.placeholder);
+		//@ arrayPadding: Padding on named sides. {sides: ["left","top"], value: "1rem"}.
 		obj.arrayPadding && this.arrayPadding(obj.arrayPadding.sides, obj.arrayPadding.value);
+		//@ arrayMargin: Margin on named sides. {sides: ["left"], value: "1rem"}.
 		obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
 		obj.pad && this.pad(obj.pad);
         obj.mar && this.mar(obj.mar);
 		obj.maxWidth && (this.res.style.maxWidth = obj.maxWidth);
+		//@ exact: Font size as an exact CSS length, e.g. "0.875rem".
 		obj.exact && (this.res.style.fontSize = obj.exact);
+		//@ radius: Corner radius in pixels. A bare number, not a CSS length.
 		obj.radius && this.round(obj.radius);
 		obj.color && (this.res.style.color = obj.color);
 		obj.background && (this.res.style.background = obj.background);
 		obj.font && (this.res.style.fontFamily = obj.font);
 		obj.weight && (this.res.style.fontWeight = obj.weight);
+		//@ bold: Shorthand for font-weight bold. Overrides `weight` if both are given.
 		obj.bold && (this.res.style.fontWeight = "bold");
+		//@ theme: Light/dark colour overrides. {light: {...}, dark: {...}}.
 		obj.theme && this.theme(obj.theme);
 
 		// Dispatch to the shared style map (height, boxSizing, minWidth,

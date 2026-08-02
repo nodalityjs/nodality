@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.206
+ * nodality v1.0.207
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -104,6 +104,7 @@ code = `${pad}new Wrapper()`;
 
 		let stra = ".set({";
 
+  //@ isHidden: Hide the element.
 		obj.isHidden && this.isHidden(obj.isHidden);
 		obj.scale && (this.res.style.scale=obj.scale);
 		obj.scale && (stra += `scale: ${obj.scale}`);
@@ -121,6 +122,7 @@ code = `${pad}new Wrapper()`;
 			//	obj.mar && (stra += `mar: {sides: [${obj.mar.sides.map(x => `"${x}"`).join(", ")}], value: "${obj.arrpad.value}"}, `);
 		obj.arrpad && (stra += `pad: {sides: [${obj.arrpad.sides.map(x => `"${x}"`).join(", ")}], value: "${obj.arrpad.value}"}, `); // 2345 06/03
 
+  //@ gpos: Grid placement — {col, row}, written to grid-column and grid-row.
 		obj.gpos && this.gpos(obj.gpos);
 
 
@@ -263,12 +265,14 @@ code = `${pad}new Wrapper()`;
 
 	obj.mar && this.mar(obj.mar); // has to be here
 
+ //@ sticky: Stick to the top of the scroll container (position: sticky; top: 0).
 	obj.sticky && this.sticky();
 
 	obj.transition && (this.res.style.transition = obj.transition);
 
 	obj.class && this.res.setAttribute("class", obj.class);
 
+ //@ ga: CSS grid-area, verbatim.
 	obj.ga && (this.res.style.gridArea = obj.ga);
 
 		if (obj.opacity) {
@@ -294,6 +298,7 @@ code = `${pad}new Wrapper()`;
 		obj.center && this.toCenter(obj.center);
 		obj.center && (stra += `center: "${obj.center}",`);
 
+  //@ simpleCenter: Centre children on both axes (justify + align, content + items).
 		obj.simpleCenter && this.simpleCenter();
 		obj.simpleCenter && (stra += `center: "${obj.simpleCenter}",`);
 		
@@ -304,6 +309,7 @@ code = `${pad}new Wrapper()`;
 		obj.radius && (stra += `\n radius: "${obj.radius}",`);
 		obj.border && this.border(obj.border);
 
+  //@ simpleBorder: Border as one CSS shorthand string, e.g. "1px solid #eee".
 		obj.simpleBorder && (this.res.style.border = obj.simpleBorder);
 
 		obj.width && this.width(obj.width);
@@ -349,14 +355,18 @@ code = `${pad}new Wrapper()`;
 		obj.font && this.font(obj.font);
 		obj.font && (stra += `font: "${obj.font}",`);	
 		obj.maxWidth && this.maxWidth(obj.maxWidth);
+  //@ flexCenter: Flex column with justify-content: center.
 		obj.flexCenter && this.flexc(obj.flexCenter);
+  //@ multipad: Several padding values applied together.
 		obj.multipad && this.makeMultiPad(obj.multipad);
+  //@ multimargin: Several margin values applied together.
 		obj.multimargin && this.makeMultiMargin(obj.multimargin);
 		obj.color && this.color(obj.color);
 		obj.background && this.background(obj.background);
 		obj.background && (stra += `background: "${obj.background}",`);	
 
 		obj.weight && this.weight(obj.weight);
+  //@ paddings: Padding via the paddingo() form.
 		obj.paddings && this.paddingo(obj.paddings);
 
 		obj.area && this.setArea(obj.area);
@@ -369,9 +379,13 @@ code = `${pad}new Wrapper()`;
 		obj.alignIts && (this.res.style.alignItems = "flex-start"/*obj.alignIts*/);
 		obj.alignIts && (this.res.style.justifyItems = "flex-start"/*obj.alignIts*/);
 		
+  //@ customAlign: align-items, verbatim — for values `align` does not cover.
 		obj.customAlign && (this.res.style.alignItems = obj.customAlign);
+  //@ customJustify: justify-items, verbatim.
 		obj.customJustify && (this.res.style.justifyItems = obj.customJustify);
+  //@ disp: CSS display, verbatim — "block", "grid", "inline-flex".
 		obj.disp && (this.res.style.display = obj.disp);
+  //@ flexDir: Flex direction. Also sets display:flex, so it is enough on its own.
 		obj.flexDir && (this.res.style.flexDirection = obj.flexDir);
 		obj.flexDir && (this.res.style.display = "flex");
 		obj.flexDir && (stra += `\n flexDir: "${obj.flexDir}",`)

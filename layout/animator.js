@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.206
+ * nodality v1.0.207
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -357,8 +357,11 @@ class Animator {
     }
 //alert(obj.respad);
     // Special methods
+    //@ pad: Padding. Array of side objects — [{t:14},{b:14},{l:30},{r:30}], or [{a:24}] for all sides.
     obj.pad && this.pad(obj.pad);
+    //@ mar: Margin. Same array-of-sides form as `pad`; `mar: "center"` is shorthand for 0 auto.
     obj.mar && this.mar(obj.mar);
+    //@ respad: Responsive padding — per-breakpoint overrides of `pad`.
     obj.respad && this.respad(obj.respad);
 
     // `borderObj` was never dispatched from here, so a component with no
@@ -380,15 +383,18 @@ class Animator {
     // component that understands it. Components that already apply this
     // option set the same property to the same value, so it stays
     // idempotent for them.
+    //@ borderObj: Border as {width, color, type?, radius?}. Width carries its unit, e.g. "1px".
     obj.borderObj && obj.borderObj.width && this.borderObj(obj.borderObj);
     obj.resmar && this.resmar(obj.resmar);
     obj.hover && this.hover(obj.hover);
     obj.size && this.fluidCopy(obj.size);
     obj.resprop && this.resprop(obj.resprop, obj);
+    //@ keySet: Escape hatch — {key, value} written straight to element.style, or an array of them.
     obj.keySet && this.keySet(obj.keySet);
     obj.noTheme && (this._noTheme = true);
     obj.theme && this.theme(obj.theme);
     obj.hide && this.isHidden(obj.hide);
+    //@ raster: Attach a WebGL raster pipeline. Array of op nodes; see the Raster section.
     obj.raster && this.rasterize(obj.raster);
 	// Only route to the animation system for object-shaped transforms.
 	// String transforms are applied above via the styleMap path.

@@ -352,8 +352,10 @@ this.res.style.position = "absolute";
 
 		obj.maxWidth && (this.res.style.maxWidth = obj.maxWidth);
 
+  //@ cursor: Show a pointer cursor. Any truthy value; the cursor style itself is fixed.
 		obj.cursor && (this.res.style.cursor = "hand");
 		
+  //@ gpos: Grid placement — {col, row}, written to grid-column and grid-row.
 		obj.gpos && this.gpos(obj.gpos);
 
 		obj.vtn && (this.res.style.viewTransitionName = obj.vtn);
@@ -361,6 +363,7 @@ this.res.style.position = "absolute";
 		obj.index && super.setIndex(obj.index);
 		obj.index && (this.index = obj.index);
 		
+  //@ preffersId: Prefer this id when the Designer emits code for the element.
 		obj.preffersId && (this.preffersId = obj.preffersId);
 	
 		super.setPref(obj.preffersId);
@@ -429,6 +432,7 @@ this.res.style.position = "absolute";
 		
 		// obj.weight && (this.res.style.fontWeight = obj.weight);
 		obj.padding && this.padding(obj.padding);
+  //@ breakWord: Allow long words to wrap mid-word (word-wrap: break-word).
 		obj.breakWord && (this.res.style.wordWrap = "break-word");
 		obj.center && (this.res.style.marginRight = "auto");
 		obj.center && (this.res.style.marginLeft = "auto");
