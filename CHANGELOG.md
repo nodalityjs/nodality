@@ -1,6 +1,11 @@
 # Changelog
 
-Generated per release from the source diff.-
+Generated per release from the source diff.
+
+## 1.0.212 — 2026-08-02
+
+### Changed
+- Added inline documentation comments for existing `link` options: `fixMobileTap`, `nowrap`, `block`, `rounded`, and `new`. No behavioral changes.
 
 ## 1.0.207 — 2026-08-02
 
