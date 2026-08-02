@@ -2,10 +2,10 @@
 
 Generated per release from the source diff.
 
-## 1.0.208 — 2026-08-02
+## 1.0.212 — 2026-08-02
 
 ### Changed
-- Documentation-only update: inline `//@` comments were added throughout `animator.js`, `container.js`, `text-field.js`, and `text.js` describing existing options (e.g. `pad`, `mar`, `respad`, `borderObj`, `keySet`, `raster`, `isHidden`, `gpos`, `sticky`, `ga`, `simpleCenter`, `simpleBorder`, `flexCenter`, `multipad`, `multimargin`, `paddings`, `customAlign`, `customJustify`, `disp`, `flexDir`, `type`, `placeholder`, `arrayPadding`, `arrayMargin`, `exact`, `radius`, `bold`, `theme`, `cursor`, `preffersId`, `breakWord`). No functional or behavioral changes.
+- Added inline documentation comments for existing `link` options: `fixMobileTap`, `nowrap`, `block`, `rounded`, and `new`. No behavioral changes.
 
 ## 1.0.207 — 2026-08-02
 
