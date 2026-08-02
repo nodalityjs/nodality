@@ -538,8 +538,16 @@ jobs:
         id: gen
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
-          OUT=$(RASTER_SRC="$GITHUB_WORKSPACE/library/lib/raster-ops.js" \
-                RASTER_VERSION="${TAG#v}" \
+          # SRC_ROOT / DOCS_VERSION are the names the merged generator reads.
+          # This passed the pre-merge names (RASTER_SRC/RASTER_VERSION), which
+          # the script silently ignored — so it fell through to its
+          # local-machine defaults and died on a macOS path no runner has.
+          #
+          # SRC_ROOT is the checkout root because the generator wants
+          # lib/raster-ops.js AND layout/*.js from ONE place, which is exactly
+          # how the library repo is laid out.
+          OUT=$(SRC_ROOT="$GITHUB_WORKSPACE/library" \
+                DOCS_VERSION="${TAG#v}" \
                 node docs-src/scripts/generate-docs.mjs 2>&1) || {
             echo "$OUT"; echo "::error::docs generation failed"; exit 1; }
           echo "$OUT"
