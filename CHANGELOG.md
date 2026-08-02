@@ -1,6 +1,6 @@
 # Changelog
 
-Generated per release from the source diff.
+Generated per release from the source diff.-
 
 ## 1.0.207 — 2026-08-02
 
