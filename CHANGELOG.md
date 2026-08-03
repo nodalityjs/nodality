@@ -2,6 +2,11 @@
 
 Generated per release from the source diff.
 
+## 1.0.213 — 2026-08-03
+
+### Changed
+- Internal: added inline documentation comments for existing `set` options (`resmar`, `hover`, `size`, `resprop`, `noTheme`, `theme`, `hide`) in `Animator`. No behavioral change.
+
 ## 1.0.212 — 2026-08-02
 
 ### Changed
