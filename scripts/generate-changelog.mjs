@@ -139,7 +139,12 @@ const res = await fetch("https://api.anthropic.com/v1/messages", {
   },
   body: JSON.stringify({
     model: MODEL,
-    max_tokens: 1500,
+    // Generous, because max_tokens is the ceiling for the WHOLE response,
+    // not just the prose. v1.0.214 hit the old 1500 and came back with no
+    // text block at all — a large release needs more room to answer, and
+    // a changelog entry is a handful of bullets either way, so the ceiling
+    // costs nothing when it is not reached.
+    max_tokens: 8000,
     system: SYSTEM,
     messages: [{ role: "user", content: prompt }],
   }),
@@ -158,7 +163,16 @@ const entry = (body.content ?? [])
   .trim();
 
 if (!entry) {
+  // "no text" was the entire diagnostic when this failed on v1.0.214, which
+  // said nothing about WHY. stop_reason and the block types distinguish a
+  // truncated response from a refusal from an unexpected shape.
   console.error("Model returned no text. Writing nothing.");
+  console.error(`  stop_reason: ${body.stop_reason ?? "(none)"}`);
+  console.error(`  block types: ${(body.content ?? []).map(b => b.type).join(", ") || "(empty content)"}`);
+  console.error(`  usage: ${JSON.stringify(body.usage ?? {})}`);
+  if (body.stop_reason === "max_tokens") {
+    console.error("  -> the response hit max_tokens; raise it in this script.");
+  }
   process.exit(1);
 }
 
