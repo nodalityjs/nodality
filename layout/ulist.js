@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -169,23 +169,12 @@ class UList extends Animator {
         return this;
     }
 
-    margin(val) {
-        this.res.style.margin = val;
-        return this;
-    }
 
     border(w, color) {
         this.res.style.border = `${w}px solid ${color}`;
         return this;
     }
 
-    padding(T, L, R, B) {
-        this.res.style.paddingTop = T;
-        this.res.style.paddingLeft = L;
-        this.res.style.paddingRight = R;
-        this.res.style.paddingBottom = B;
-        return this;
-    }
 
     headline() {
         this.em(4);

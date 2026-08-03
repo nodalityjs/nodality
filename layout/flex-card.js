@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -159,7 +159,11 @@ this.options = obj;
     }
 	
 	background(color){
-		this.res.style.backgroundColor = color;
+				// The shorthand, not backgroundColor: it also resets background-image,
+		// so setting a flat colour after a gradient clears the gradient. The
+		// longhand left it in place, so the same call behaved differently
+		// depending on which component you happened to hold.
+		this.res.style.background = color;
 		return this;
 	}
 	
@@ -168,10 +172,6 @@ this.options = obj;
 		return this;
 	}
 	
-	padding(pad){
-		this.res.style.padding = `${pad}px`;
-		return this;
-	}
 	
 	items(els){
 		for (var i = 0; i < els.length; i++){
@@ -185,11 +185,21 @@ this.options = obj;
 	this.res.style.boxShadow = "1px 1px 20px rgba(0, 0, 0, 0.60)";
 	return this;
 	}
-	
-	round(value){
-	this.res.style.borderRadius = `${value}px`;
-	return this;
+	/**
+	 * Corner radius. A number is pixels; a string is passed through, so
+	 * `radius("50%")` and `radius(12)` both work.
+	 */
+	radius(v) {
+		this.res.style.borderRadius = typeof v === "number" ? `${v}px` : v;
+		return this;
 	}
+
+	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
+	round(v) {
+		this.deprecatedOption("round()", "radius()");
+		return this.radius(v);
+	}
+
 	
 	render(div){
 		if (div){

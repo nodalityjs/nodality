@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -123,11 +123,13 @@ this.options = obj;
 		}
 
 		if (obj.padding){
-			this.padding(obj.padding);
+			this.deprecatedOption("padding", "pad");
+			this.pad([{a: obj.padding}]);
 		}
 
 		if (obj.margin){
-			 this.margin(obj.margin);
+			 this.deprecatedOption("margin", "mar");
+			 this.mar([{a: obj.margin}]);
 		}
 
 		// Plain `mar` / `pad` are handled implicitly by the
@@ -203,8 +205,8 @@ this.options = obj;
 		// Before S25 Ultra redesign!
 
 		/*.background("#1abc9c")
-        .padding("10px")
-        .margin("10px")
+        .pad([{a: "10px"}])
+        .mar([{a: "10px"}])
         .border("none")
         .borderRadius("7px")*/
 
@@ -327,32 +329,7 @@ this.options = obj;
         return this;
     }
 	
-	padding(L, T, R, B){
-		if (L && T && R && B){
-		this.res.style.paddingLeft = L;
-		this.res.style.paddingTop = T;
-		this.res.style.paddingRight = R;
-		this.res.style.paddingBottom = B;
-		} else {
-			this.res.style.padding = L;
-		}
-		
-		return this;
-	}
 	
-	margin(L, T, R, B){
-		
-		if (L && T && R && B){
-		this.res.style.marginLeft = L;
-		this.res.style.marginTop = T;
-		this.res.style.marginRight = R;
-		this.res.style.marginBottom = B;
-		} else {
-			this.res.style.margin = L;
-		}
-		
-		return this;
-	}
 	
      auto() {
 		const adj = () => {

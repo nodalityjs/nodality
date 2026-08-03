@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -52,8 +52,8 @@ class Polygon extends Animator {
     if (opts.size) this.size(opts.size.width || opts.size, opts.size.height);
     if (opts.color) this.color(opts.color);
     if (opts.border) this.border(opts.border);
-    if (opts.margin) this.margin(opts.margin);
-    if (opts.padding) this.padding(opts.padding);
+    if (opts.margin) this.mar([{a: opts.margin}]);
+    if (opts.padding) this.pad([{a: opts.padding}]);
     if (opts.background) this.background(opts.background);
     if (opts.center) this.center();
 
@@ -137,8 +137,11 @@ class Polygon extends Animator {
   }
 
 
+  // Text colour, matching every other component. It set `background` here,
+  // duplicating background() two methods below and leaving no way to set the
+  // text colour.
   color(color) {
-    this.res.style.background = color;
+    this.res.style.color = color;
     return this;
   }
 
@@ -150,15 +153,7 @@ class Polygon extends Animator {
     return this;
   }
 
-  margin(m) {
-    this.res.style.margin = typeof m === "number" ? m + "px" : m;
-    return this;
-  }
 
-  padding(p) {
-    this.res.style.padding = typeof p === "number" ? p + "px" : p;
-    return this;
-  }
 
     background(p) {
     this.res.style.background = p;

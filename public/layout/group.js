@@ -63,14 +63,14 @@ class Group extends Animator {
 	}
 
 	background(value){
-		this.res.style.backgroundColor = value;
+				// The shorthand, not backgroundColor: it also resets background-image,
+		// so setting a flat colour after a gradient clears the gradient. The
+		// longhand left it in place, so the same call behaved differently
+		// depending on which component you happened to hold.
+		this.res.style.background = value;
 		return this;
 	}	
 	
-	padding(value){
-		this.res.style.padding = `${value}px`;
-		return this;
-	}
 	
 
 

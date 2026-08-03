@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -29,7 +29,11 @@ class Card {
 	}
 	
 	background(color){
-		this.el.style.backgroundColor = color;
+				// The shorthand, not backgroundColor: it also resets background-image,
+		// so setting a flat colour after a gradient clears the gradient. The
+		// longhand left it in place, so the same call behaved differently
+		// depending on which component you happened to hold.
+		this.el.style.background = color;
 		return this;
 	}
 	

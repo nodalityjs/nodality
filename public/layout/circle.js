@@ -45,7 +45,11 @@ class Circle extends Animator {
   // --- Circle-specific API ---
   diameter(px) { this.res.style.width = this.res.style.height = typeof px === "number" ? px + "px" : px; this.res.style.borderRadius = "50%"; return this; }
   size(w, h = w) { this.res.style.width = typeof w === "number" ? w + "px" : w; this.res.style.height = typeof h === "number" ? h + "px" : h; this.res.style.borderRadius = "50%"; return this; }
-  color(c) { this.res.style.backgroundColor = c; return this; }
+  // `color` is the text colour on every component (it is a styleMap key on
+  // Animator). It used to set backgroundColor here, which made `color:` and
+  // `background:` do the same thing and left no way to set text colour.
+  color(c) { this.res.style.color = c; return this; }
+  background(c) { this.res.style.background = c; return this; }
   border(spec) { this.res.style.border = typeof spec === "string" ? spec : `${spec?.width || 1}px solid ${spec?.color || "black"}`; return this; }
   radius(r) { this.res.style.borderRadius = typeof r === "number" ? r + "px" : r; return this; }
 

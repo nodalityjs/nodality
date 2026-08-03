@@ -280,21 +280,7 @@ this.res.style.display = "grid";
 		return this;
 	}
 	
-	padding(L, T, R, B){
-		this.res.style.paddingLeft = L;
-		this.res.style.paddingTop = T;
-		this.res.style.paddingRight = R;
-		this.res.style.paddingBottom = B;
-		return this;
-	}
 	
-	margin(L, T, R, B){
-		this.res.style.marginLeft = L;
-		this.res.style.marginTop = T;
-		this.res.style.marginRight = R;
-		this.res.style.marginBottom = B;
-		return this;
-	}
     
     itemWidth(w){
 		for (var i = 0; i < this.res.childNodes.length; i++){

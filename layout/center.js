@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -85,20 +85,6 @@ return this;
 	}
 	
 		
-	margin(L, T, R, B) {
-		if (L || T || R || B){ // CAUGHT MYSELF
-		this.res.style.marginLeft = L;
-		this.res.style.marginTop = T;
-		this.res.style.marginRight = R;
-		this.res.style.marginBottom = B;
-		} 
-		
-		if (!T && !R && !B){
-					this.res.style.margin = L;	
-		}
-		
-		return this;
-	}
 	
     
     itemWidth(w){
@@ -111,20 +97,6 @@ return this;
 	}
 	
 		
-	margin(L, T, R, B) {
-		if (L || T || R || B){ // CAUGHT MYSELF
-		this.res.style.marginLeft = L;
-		this.res.style.marginTop = T;
-		this.res.style.marginRight = R;
-		this.res.style.marginBottom = B;
-		} 
-		
-		if (!T && !R && !B){
-					this.res.style.margin = L;	
-		}
-		
-		return this;
-	}
 	
 	/*arrayPadding(arr, value) {
 		if (arr.includes("left")){

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -170,10 +170,6 @@ obj.resmar && this.resmar(obj.resmar);
     return [`new Checkbox().set({\n    ${entries}\n})`];
     }
 
-    margin(amount) {
-        this.el.style.margin = amount;
-        return this;
-    }
 
     render(div) {
         if (div) {

@@ -175,31 +175,7 @@ class TextField extends Animator {
 		return this;
 	}
 	
-	padding(L, T, R, B){
-        
-        
-        if (L){
-           this.res.style.padding = `${L}px`;
-        }
-        
-        else if (L && T && R && B){
-            
-        
-		this.res.style.paddingLeft = L;
-		this.res.style.paddingTop = T;
-		this.res.style.paddingRight = R;
-		this.res.style.paddingBottom = `${B}px`;
-        }
-		return this;
-	}
 	
-	margin(L, T, R, B){
-		this.res.style.marginLeft = L;
-		this.res.style.marginTop = T;
-		this.res.style.marginLeft = R;
-		this.res.style.marginBottom = `${B}px`;
-		return this;
-	}
 	
     
     placeholder(text){
@@ -217,11 +193,21 @@ class TextField extends Animator {
 		this.res.style.width = w;
 		return this;
 	}
-	
-	round(amount){
-		this.res.style.borderRadius = `${amount}px`;
+	/**
+	 * Corner radius. A number is pixels; a string is passed through, so
+	 * `radius("50%")` and `radius(12)` both work.
+	 */
+	radius(v) {
+		this.res.style.borderRadius = typeof v === "number" ? `${v}px` : v;
 		return this;
 	}
+
+	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
+	round(v) {
+		this.deprecatedOption("round()", "radius()");
+		return this.radius(v);
+	}
+
 	
 	onChange(action){
 		var value = this.res.value;

@@ -22,10 +22,6 @@ import {Animator} from "./animator.js";
 		return this;
 	}
 	
-	padding(value){
-		this.res.style.padding = `${value}px`;
-		return this;
-	}
 	
 	size(w, h){
 		this.w = w;

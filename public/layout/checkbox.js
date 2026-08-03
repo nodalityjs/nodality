@@ -164,10 +164,6 @@ obj.resmar && this.resmar(obj.resmar);
     return [`new Checkbox().set({\n    ${entries}\n})`];
     }
 
-    margin(amount) {
-        this.el.style.margin = amount;
-        return this;
-    }
 
     render(div) {
         if (div) {

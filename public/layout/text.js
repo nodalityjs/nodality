@@ -1418,56 +1418,13 @@ checkForAnimation(queries){
 		return this;
 	}
 
-	padding(L, T, R, B) {
-		if (L || T || R || B){ // CAUGHT MYSELF
-		this.res.style.paddingLeft = L;
-		this.res.style.paddingTop = T;
-		this.res.style.paddingRight = R;
-		this.res.style.paddingBottom = B;
-		} 
-		
-		if (!T && !R && !B){
-			//alert("j")
-		this.res.style.padding = L;	
-		}
-		
-		return this;
-	}
 	
 
 	
 	
 	
-	margin(L, T, R, B) {
-		if (L || T || R || B){ // CAUGHT MYSELF
-		this.res.style.marginLeft = L;
-		this.res.style.marginTop = T;
-		this.res.style.marginRight = R;
-		this.res.style.marginBottom = B;
-		} 
-		
-		if (!T && !R && !B){
-			// alert("j")
-		this.res.style.margin = L;	
-		}
-		
-		return this;
-	}
 	
 	
-	margin(direction, value){
-		if (direction == "top"){
-			this.res.style.marginTop = value;
-		} else if (direction == "bottom"){
-			this.res.style.marginBottom = value;
-		}else if (direction == "left"){
-			this.res.style.marginLeft = value;
-		}else if (direction == "right"){
-			this.res.style.marginRight = value;
-		}
-		
-		return this;
-	}
 
 	headline() {
 		this.em(4)
@@ -1480,7 +1437,7 @@ checkForAnimation(queries){
 		this.bold();
 		this.res.style.fontFamily = "Arial";
 		this.color("gray");
-		this.padding("top", 20);
+		this.pad([{t: 20}]);
 		
 		this.res.style.fontSize = "1em";
 		

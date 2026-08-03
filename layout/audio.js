@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -28,10 +28,6 @@ import {Animator} from "./animator.js";
 		return this;
 	}
 	
-	padding(value){
-		this.res.style.padding = `${value}px`;
-		return this;
-	}
 	
 	size(w, h){
 		this.w = w;

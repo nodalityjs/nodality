@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -720,7 +720,11 @@ if (ft.length > 0){
 	}
 
 	background(color){
-		this.res.style.backgroundColor = color;
+				// The shorthand, not backgroundColor: it also resets background-image,
+		// so setting a flat colour after a gradient clears the gradient. The
+		// longhand left it in place, so the same call behaved differently
+		// depending on which component you happened to hold.
+		this.res.style.background = color;
 		return this;
 	}
 
@@ -852,30 +856,28 @@ if (ft.length > 0){
 		this.res.style.backgroundColor = color;
 		return this;
 	}*/
-	
-	round(){
-		//alert("K")
-		this.res.style.borderRadius = "0.5rem";
 
-		if (this.options.rounded){
-			// alert("K");
-			this.res.children[0].style.borderRadius = "0.5rem";
-		}
-
-		return this;
-	}
 
 	newWindow() {
 		this.res.target = "_new";
 		return this;
 	}
     
-
-
-	radius(w){
-		this.res.style.borderRadius = `${w}`;
-        return this;
+	/**
+	 * Corner radius. A number is pixels; a string is passed through, so
+	 * `radius("50%")` and `radius(12)` both work.
+	 */
+	radius(v) {
+		this.res.style.borderRadius = typeof v === "number" ? `${v}px` : v;
+		return this;
 	}
+
+	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
+	round(v) {
+		this.deprecatedOption("round()", "radius()");
+		return this.radius(v);
+	}
+
 
 
 
@@ -922,19 +924,6 @@ if (ft.length > 0){
 	}
 	
 	
-	padding(L, T, R, B){
-		
-		if (L && T && R && B){
-		this.res.style.paddingLeft = L;
-		this.res.style.paddingTop = T;
-		this.res.style.paddingRight = R;
-		this.res.style.paddingBottom = B;
-		} else {
-			this.res.style.padding = L;
-		}
-		
-		return this;
-	}
     
     medium() {
 		const adj = () => {
@@ -960,20 +949,6 @@ if (ft.length > 0){
         return this;
     }
     
-	margin(L, T, R, B){
-		
-		if (L && T && R && B){
-		this.el.style.marginLeft = L;
-		this.el.style.marginTop = T;
-		this.el.style.marginRight = R;
-		this.el.style.marginBottom = B;
-		} else {
-			// alert("2")
-			this.el.style.margin = L;
-		}
-		
-		return this;
-	}
 
 	/**/
 	
@@ -1029,13 +1004,6 @@ if (ft.length > 0){
 		return this;
 	}
 	
-	margin(T, L, R, B){
-		this.res.style.marginTop = T;
-		this.res.style.marginLeft = L;
-		this.res.style.marginRight = R;
-		this.res.style.marginBottom = B;
-		return this;
-	}
 	
 	font(family){
 		this.res.style.fontFamily = family;

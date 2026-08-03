@@ -68,7 +68,6 @@ const entries = [
   'layout/container',
   'layout/meta-adder',
   'layout/table',
-  'layout/dropdown',
   'layout/modal-2025',
   'layout/text-field',
   'layout/flex-card',

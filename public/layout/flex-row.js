@@ -59,7 +59,7 @@ class FlexRow extends Animator {
 
 		//this.code.push(`\n .set({`);
 		if (options.padding){
-			this.padding(options.padding);
+			this.pad([{a: options.padding}]);
 		}
 
 	//alert(options.opacity);
@@ -615,10 +615,6 @@ let stringified = JSON.stringify(options.borderObj);
 
 
 
-	padding(vals){
-		this.res.style.padding = vals;
-		return this;
-	}
 	
     
     toColumn(){

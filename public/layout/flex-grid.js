@@ -198,10 +198,6 @@ class FlexGrid extends Animator {
 	}
 	
 	
-	padding(value){
-		this.res.style.padding = `${value}px`;
-		return this;
-	}
 	
 	
 	

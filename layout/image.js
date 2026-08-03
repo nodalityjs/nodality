@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -840,34 +840,16 @@ if (mqa.matches){
 		return this;
 	}
 	
-	margin(L, T, R, B) {
-		if (L || T || R || B){ // CAUGHT MYSELF
-		this.res.style.marginLeft = L;
-		this.res.style.marginTop = T;
-		this.res.style.marginRight = R;
-		this.res.style.marginBottom = B;
-		} 
-		
-		if (!T && !R && !B){
-			
-			if (T !== 0 || R !== 0 || B !== 0){
-				//	alert("j")
-		this.res.style.margin = L;	
-			}
-		
-			
-		}
-		
-		return this;
-	}
 	
 	
-	padding(el){
-		this.res.style.padding = el;
-		return this;
-	}
+	/**
+	 * Width and height. Renamed from size(), which collided with the `size`
+	 * OPTION — on any component that calls commonMethods, `size:` is the
+	 * fluid type scale (S1…S6), so `.size()` meaning width read as the same
+	 * word doing two unrelated jobs in one call chain.
+	 */
 	
-	size(w, h) {
+	dimensions(w, h) {
 		if (w && h) {
 			this.res.style.width = w;
 			this.res.style.height = h;
@@ -878,6 +860,13 @@ if (mqa.matches){
 
 		return this;
 	}
+
+	//@deprecated size: on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`.
+	size(w, h) {
+		this.deprecatedOption("size() on this component", "dimensions(w, h)");
+		return this.dimensions(w, h);
+	}
+
 
     
     

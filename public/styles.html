@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Style setters — color, background, radius, dimensions</title>
+  <style>body { margin: 0; padding: 0; }</style>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+
+import { Wrapper } from '../layout/container.js';
+import { Text } from '../layout/text.js';
+import { Link } from '../layout/link.js';
+import { Card } from '../layout/flex-card.js';
+import { TextField } from '../layout/text-field.js';
+import { Circle } from '../layout/circle.js';
+import { Polygon } from '../layout/polygon.js';
+import { UList } from '../layout/ulist.js';
+
+window.__notices = [];
+const _err = console.error;
+console.error = (...a) => { window.__notices.push(a.join(" ")); _err(...a); };
+
+// Each case renders one element into #mount; the spec reads them by position.
+// These are the chainable setters, which is where the duplication lives — the
+// options already route through Animator's styleMap and are consistent.
+const cases = [
+  // ── color() must mean text colour on every component ──
+  ["color-wrapper", () => new Wrapper().color("rgb(1, 2, 3)")],
+  ["color-text",    () => new Text("x").color("rgb(1, 2, 3)")],
+  ["color-link",    () => new Link("x", "#").color("rgb(1, 2, 3)")],
+  ["color-circle",  () => new Circle().color("rgb(1, 2, 3)")],
+  ["color-polygon", () => new Polygon().color("rgb(1, 2, 3)")],
+
+  // ── background() ──
+  ["bg-wrapper",    () => new Wrapper().background("rgb(4, 5, 6)")],
+  ["bg-card",       () => new Card("x").background("rgb(4, 5, 6)")],
+  ["bg-link",       () => new Link("x", "#").background("rgb(4, 5, 6)")],
+  ["bg-circle",     () => new Circle().background("rgb(4, 5, 6)")],
+
+  // A gradient followed by a flat colour: the shorthand resets background-image,
+  // the longhand leaves it. This is the difference that makes the split matter.
+  ["bg-gradient-wrapper", () => new Wrapper()
+      .set({ background: "linear-gradient(red, blue)" }).background("rgb(4, 5, 6)")],
+  ["bg-gradient-card", () => new Card("x")
+      .set({ background: "linear-gradient(red, blue)" }).background("rgb(4, 5, 6)")],
+
+  // ── radius(): a number is px, a string passes through ──
+  ["radius-card-num", () => new Card("x").radius(12)],
+  ["radius-card-str", () => new Card("x").radius("50%")],
+  ["radius-tf-num",   () => new TextField().radius(12)],
+  ["radius-link-num", () => new Link("x", "#").radius(12)],
+  ["radius-circle",   () => new Circle().radius(12)],
+
+  // round() is the deprecated alias — same result, plus a notice
+  ["round-card",      () => new Card("x").round(12)],
+  ["round-link",      () => new Link("x", "#").round(12)],
+
+  // ── dimensions() replaced size() on Wrapper and Image ──
+  ["dims-wrapper",    () => new Wrapper().dimensions("120px", "40px")],
+  ["size-wrapper",    () => new Wrapper().size("120px", "40px")],
+
+  // ── padding()/margin() are gone; pad()/mar() are the single spacing API ──
+  ["pad4-wrapper",    () => new Wrapper().pad([{l: "1px"}, {t: "2px"}, {r: "3px"}, {b: "4px"}])],
+  ["pad4-text",       () => new Text("x").pad([{l: "1px"}, {t: "2px"}, {r: "3px"}, {b: "4px"}])],
+  ["pad4-ulist",      () => new UList(["a"]).pad([{l: "1px"}, {t: "2px"}, {r: "3px"}, {b: "4px"}])],
+  ["mar4-wrapper",    () => new Wrapper().mar([{l: "1px"}, {t: "2px"}, {r: "3px"}, {b: "4px"}])],
+  ["mar4-tf",         () => new TextField().mar([{l: "1px"}, {t: "2px"}, {r: "3px"}, {b: "4px"}])],
+];
+
+// The removed chainables, checked per component rather than rendered.
+window.__removed = ["Wrapper", "Text", "Link", "Card", "TextField", "Ulist"].map((n, i) => {
+  const inst = [new Wrapper(), new Text("x"), new Link("x", "#"), new Card("x"),
+                new TextField(), new UList(["a"])][i];
+  return { component: n, padding: typeof inst.padding, margin: typeof inst.margin,
+           pad: typeof inst.pad, mar: typeof inst.mar };
+});
+
+for (const [, make] of cases) make().render("#mount");
+
+window.__cases = cases.map(c => c[0]);
+window.__ready = true;
+
+  </script>
+</body>
+</html>

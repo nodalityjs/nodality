@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.214
+ * nodality v1.0.215
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -771,8 +771,14 @@ code = `${pad}new Wrapper()`;
 		this.res.style.height = `${h}`;
 		return this;
 	}
+	/**
+	 * Width and height. Renamed from size(), which collided with the `size`
+	 * OPTION — on any component that calls commonMethods, `size:` is the
+	 * fluid type scale (S1…S6), so `.size()` meaning width read as the same
+	 * word doing two unrelated jobs in one call chain.
+	 */
 	
-	size(w, h){
+	dimensions(w, h) {
 		this.w = w;
 		this.h = h;
 		
@@ -792,6 +798,13 @@ code = `${pad}new Wrapper()`;
 		return this;
 	}
 
+	//@deprecated size: on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`.
+	size(w, h) {
+		this.deprecatedOption("size() on this component", "dimensions(w, h)");
+		return this.dimensions(w, h);
+	}
+
+
 	background(color) {
 		this.res.style.background = color;
 		return this;
@@ -803,21 +816,7 @@ code = `${pad}new Wrapper()`;
 		return this;
 	}
 	
-	padding(L, T, R, B){
-		this.res.style.paddingLeft = L;
-		this.res.style.paddingTop = T;
-		this.res.style.paddingRight = R;
-		this.res.style.paddingBottom = B;
-		return this;
-	}
 	
-	margin(L, T, R, B){
-		this.res.style.marginLeft = L;
-		this.res.style.marginTop = T;
-		this.res.style.marginRight = R;
-		this.res.style.marginBottom = B;
-		return this;
-	}
     
     itemWidth(w){
 		for (var i = 0; i < this.res.childNodes.length; i++){
