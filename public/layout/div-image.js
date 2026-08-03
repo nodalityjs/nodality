@@ -115,57 +115,9 @@ class AspectImage extends Animator {
 	}
 
 
-	arrayPadding(arr, value) {
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-
-		if (!value){
-			this.res.style.paddingBottom = arr;
-				}
-			
-		
-		return this;
-	}
 
 
 
-	arrayMargin(arr, value) {
-		if (arr.includes("left")){
-			this.res.style.marginLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.marginRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.marginTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.marginBottom = value;
-		}
-
-		if (!value){
-			this.res.style.margin = arr;
-				}
-			
-		
-		return this;
-	}
 
 	onTap(e) {
 		this.res.addEventListener("click", e);

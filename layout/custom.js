@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -16,7 +16,7 @@ class TopBar extends Base {
 			Text("Newsroom"),
 			Spacer(true),
 			 Text("Contact us")
-		]).arrayPadding(["left", "right"], "20px")
+		]).pad([{lr: "20px"}])
 	}
 }
 
@@ -90,7 +90,9 @@ return new FlexGrid(3).items([
 	new Image("https://cdn3.iconfinder.com/data/icons/capsocial-round/500/facebook-512.png").RSize(30, 30, 1.4).padding(10),
 ])
 .width("80%")
-.center();
+// FlexGrid.center() used to mean "centre myself"; center() now centres
+// children everywhere. Centring the element itself is mar("center").
+.mar("center");
 	}
 }
 
@@ -193,7 +195,7 @@ new Text("Cupertino, California — Apple today updated the 13-inch MacBook Pro 
 /*.margin("top", 20)
 .margin("bottom", 30)*/
 
-.arrayPadding(["top", "bottom"], 40)
+.pad([{tb: 40}])
 .width("80%", "center")
 /*.sizes([
 			{w: 800, size: 1.2},
@@ -220,7 +222,7 @@ new Center()
 	.bold()
 	
 ]).itemWidth("80%")
-.arrayPadding(["top", "bottom"], 30)
+.pad([{tb: 30}])
  .render("#res");
 
 

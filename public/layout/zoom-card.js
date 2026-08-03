@@ -21,9 +21,7 @@ class ZoomCard extends Animator {
        obj.mar && this.mar(obj.mar);
 
 
-        obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
 		//obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
-		obj.arrayMargin && (stra += `\n arrayMargin: {sides: [${obj.arrayMargin.sides.map(side => `"${side}", `)}], value: "${obj.arrayMargin.value}"},`); // 2345 06/03
 
         obj.inpad && this.inpad(obj.inpad);
         obj.inpad && (stra += `\n inpad: {${obj.inpad}}`);

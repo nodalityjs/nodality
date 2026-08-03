@@ -48,25 +48,8 @@ class Card extends Animator {
 			this.res.style.borderRadius = obj.radius;
 		}
 
-		if (obj.arrayPadding){
-			let sides = obj.arrayPadding.sides;
-			//console.log(sides);
-			//console.log(sides.map(x => `"${x}"`).join(", "));
-
-			const mapped = sides.map(x => `"${x}"`).join(", ")
-	
 		
-
-		obj.arrayPadding && this.arrayPadding(obj.arrayPadding.sides, obj.arrayPadding.value);
-		//obj.arrayPadding && this.arrayPadding(obj.arrayMargin.sides, obj.arrayMargin.value);
-		obj.arrayPadding && (stra += `\n arrayPadding: {sides: [${mapped}], value: "${obj.arrayPadding.value}"},`); // 2345 06/03
-		
-	
-	}
-		
-		obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
 		//obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
-		obj.arrayMargin && (stra += `\n arrayMargin: {sides: [${obj.arrayMargin.sides.map(side => `"${side}", `)}], value: "${obj.arrayMargin.value}"},`); // 2345 06/03
 
 
 		obj.width && (this.res.style.width = obj.width);
@@ -131,80 +114,9 @@ this.options = obj;
         //  this.res.style.border = "1px solid green";
     }
   }
-
-	arrayPadding(arr, value) {
-
-		if (!value){ // LTRB
-			this.res.style.marginLeft = `${arr[0]}px`;
-			this.res.style.marginTop = `${arr[1]}px`;
-			this.res.style.marginRight = `${arr[2]}px`;
-			this.res.style.marginBottom = `${arr[3]}px`;
-		}
-
-		if (arr[0] === "all"){
-			this.res.style.paddingLeft = value;
-			this.res.style.paddingTop = value;
-			this.res.style.paddingRight = value;
-			this.res.style.paddingBottom = value;
-		}
-
-		
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-
-		if (!value){
-			this.res.style.paddingBottom = arr;
-		}
-		
-
-		//alert(value);
-
-		return this;
-	} //22155 snap to change phone screen
+ //22155 snap to change phone screen
  
 
-	arrayMargin(arr, value) { // 224857 redefined earlier
-
-		// console.log(arr);
-		if (arr.includes("left")){
-			this.res.style.marginLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.marginRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.marginTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.marginBottom = value;
-		}
-
-		if (arr.includes("all")){
-			this.res.style.margin = value;
-		}
-
-		if (!value){
-			this.res.style.marginBottom = arr;
-		}
-		
-		return this;
-	}
 
 	frame(obj){
 

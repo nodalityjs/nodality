@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -31,7 +31,7 @@ class Slider {
           svg: this.createArrowSVG("left", 28, this.tintColor),
           color: this.tintColor,
           radius: "100%",
-          arrayMargin: { sides: ["all"], value: "1rem" },
+          mar: [{a: "1rem"}],
         }),
 
         rightButton: new Button("R").set({
@@ -39,7 +39,7 @@ class Slider {
           svg: this.createArrowSVG("right", 28, this.tintColor),
           color: this.tintColor,
           radius: "100%",
-          arrayMargin: { sides: ["all"], value: "1rem" },
+          mar: [{a: "1rem"}],
         }),
       };
       this.buttons = buttons;

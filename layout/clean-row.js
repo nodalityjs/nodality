@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -183,16 +183,11 @@ class CleanRow extends Animator {
                      
             
                     //alert(options.arrpad);
-                    options.arrayPadding && this.arrayPadding(options.arrayPadding.sides, options.arrayPadding.value);
             
             
-                    options.arrayMargin && this.arrayMargin(options.arrayMargin.sides, options.arrayMargin.value);
-                    this.arrayMarginValue = options.arrayMargin;
-                    options.arrayMargin && this.code.push(`\n arrayMargin: {sides: [${options.arrayMargin.sides.map(m => `"${m}"`).join(", ")}], value: "${options.arrayMargin.value}"},`); // 2345 06/03
             
                 //	alert(options.multipad);
             
-                    options.multipad && this.makeMultiPad(options.multipad);
             
                     if (options.align){
                         //alert("K")
@@ -335,27 +330,6 @@ class CleanRow extends Animator {
 		return this.code; // 21:40:09
 	}
 
-	arrayPadding(arr, value) {
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			//alert("P")
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-			
-		
-		return this;
-	}
 
 	borderAround(data){
 		this.res.style.border = data;
@@ -412,21 +386,6 @@ class CleanRow extends Animator {
  }
 
 
-	makeMultiPad(obj){
-	
-		for (var i = 0; i < obj.length; i++){
-			if (obj[i].side === "left"){
-				
-				this.res.style.paddingLeft = obj[i].value;
-			}
-
-			if (obj[i].side === "right"){
-				this.res.style.paddingRight = obj[i].value;
-			}
-		}
-		
-		return this;
-	}
 
 
 
@@ -435,10 +394,6 @@ class CleanRow extends Animator {
 		return this;
 	}
 	
-	center() {
-	//	this.res.style.justifyItems = "center";
-		return this;
-	}
     
     toColumn(){
         this.res.style.flexDirection = "column";
@@ -452,12 +407,6 @@ class CleanRow extends Animator {
         return this;
     }
     
-    toCenter(classa) {
-        this.res.style.marginLeft = "auto";
-        this.res.style.marginRight = "auto";
-         this.res.setAttribute("class", classa);
-        return this;
-    }
 
 	setup() {
 		let flex = document.createElement("div");
@@ -502,41 +451,6 @@ class CleanRow extends Animator {
 	
 	*/
     
-    arrayMargin(arr, value) {
-
-		//alert(arr);
-		//alert(value);
-
-		// alert(window.matchMedia("(max-device-width: 415px)").matches) 
-//alert("K")
-		if (!value){ // LTRB
-			this.res.style.marginLeft = `${arr[0]}px`;
-			this.res.style.marginTop = `${arr[1]}px`;
-			this.res.style.marginRight = `${arr[2]}px`;
-			this.res.style.marginBottom = `${arr[3]}px`;
-		}
-
-
-	//	alert("ROW.js 452"); //003337
-		//alert(value);
-		if (arr.includes("left")){
-			this.res.style.marginLeft = `${value}px`;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.marginRight = `${value}px`;
-		} // 161357 Surovikin line
-		
-		if (arr.includes("top")){
-			// alert(value)
-			this.res.style.marginTop = `${value}px`;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.marginBottom = `${value}px`;
-        }
-		return this;
-	}
     
     
     

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -210,11 +210,6 @@ class FlexGrid extends Animator {
 	}
 	
 	
-	center(){
-		this.res.style.marginLeft = "auto";
-		this.res.style.marginRight = "auto";
-		return this;
-	}
 	
 	items(elements){
 		this.items = elements;

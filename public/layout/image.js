@@ -324,23 +324,8 @@ obj.pad && this.pad(obj.pad);
 		options.height && (this.res.style.height = options.height);
 		options.height && (stra += `height: "${options.height}", `);
 
-		options.multimargin && this.makeMultiMargin(options.multimargin);
-		//options.multimargin && this.code.push(`multimargin: [\n`);
-		options.multimargin && (stra += `multimargin: [ \n`);
 
-// Seascape add 12/07/23
-options.arrayMargin && this.arrayMargin(options.arrayMargin.sides, options.arrayMargin.value);
 
-		if (options.multimargin){
-			for (var i = 0; i < options.multimargin.length; i++){
-				const mer = options.multimargin[i];
-				stra += `{side: "${mer.side}", value: "${mer.value}"}, \n`;
-			}
-
-			stra += `], \n`;
-		//	this.code.push(`], \n`);
-
-		}
 
 
 		options.maxWidth && this.maxWidth(options.maxWidth);
@@ -518,29 +503,6 @@ options.arrayMargin && this.arrayMargin(options.arrayMargin.sides, options.array
 			//this.protoReact(arr)
 	}
 
-	makeMultiMargin(obj){ // 11:22:52
-	//	this.res.style.zIndex = "1";
-
-		for (var i = 0; i < obj.length; i++){
-			if (obj[i].side === "left"){
-				this.res.style.marginLeft = obj[i].value;
-			}
-
-			if (obj[i].side === "right"){
-				this.res.style.marginRight = obj[i].value;
-			}
-
-			if (obj[i].side === "top"){
-				this.res.style.marginTop = obj[i].value;
-			}
-
-			if (obj[i].side === "bottom"){
-				this.res.style.marginBottom = obj[i].value;
-			}
-		}
-		
-		return this;
-	}
 
 
 	setID(id){
@@ -730,48 +692,8 @@ return this;
 		return this;	
 	}
 
-	arrayPadding(arr, value) {
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-			
-		
-		return this;
-	}
 
 
-	arrayMargin(arr, value) {
-		if (arr.includes("left")){
-			this.res.style.marginLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.marginRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.marginTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.marginBottom = value;
-		}
-			
-		
-		return this;
-	}
 
 
 	setup() {

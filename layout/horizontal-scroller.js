@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -163,7 +163,7 @@ class HScroller {
             fluidc: "S1",
           //  background: "orange",
             font: "Arial",
-            arrayMargin: {sides: ["top"], value: "3rem"},
+            mar: [{t: "3rem"}],
             stroke: {range:["0px","3000px"],op:{name:"blast",color:"#1abc9c",width:"3px"}}
         }),
 
@@ -171,7 +171,7 @@ class HScroller {
         .set({
            width: "400px",
            height: "100%",
-           arrayMargin: {sides: ["left", "bottom"], value: "-1.7rem"},
+           mar: [{l: "-1.7rem"}, {b: "-1.7rem"}],
            arrpad: {sides: ["top"], value: "3rem"},
            opacity: 0.7,
            zIndex: -1,

@@ -130,11 +130,6 @@ class Polygon extends Animator {
     return `polygon(${points.join(",")})`;
   }
 
-  center() {
-    this.res.style.marginLeft = "auto";
-    this.res.style.marginRight = "auto";
-    return this;
-  }
 
   color(color) {
     this.res.style.background = color;

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -120,7 +120,6 @@ code = `${pad}new Wrapper()`;
 		obj.pad && this.pad(obj.pad);
 		obj.mar && this.mar(obj.mar);
 			//	obj.mar && (stra += `mar: {sides: [${obj.mar.sides.map(x => `"${x}"`).join(", ")}], value: "${obj.arrpad.value}"}, `);
-		obj.arrpad && (stra += `pad: {sides: [${obj.arrpad.sides.map(x => `"${x}"`).join(", ")}], value: "${obj.arrpad.value}"}, `); // 2345 06/03
 
   //@ gpos: Grid placement — {col, row}, written to grid-column and grid-row.
 		obj.gpos && this.gpos(obj.gpos);
@@ -253,15 +252,17 @@ code = `${pad}new Wrapper()`;
 
 		
 	
-		if (obj.centerColumn){ // was obj.socenter
-			this.res.style.display = "flex";
-			this.res.style.flexDirection = "column";
-			this.res.style.alignItems = "center";
+		obj.centerColumn && this.deprecatedOption("centerColumn", 'center: "x"');
 
-			obj.centerColumn && (stra += `centerColumn: ${obj.centerColumn},`); // 2345 06/03
-	   }
-
-	obj.mboth && (this.res.style.marginRight = "auto") && (this.res.style.marginLeft = "auto" );
+//@deprecated mboth: superseded by `mar: "center"`. Still works, but warns.
+	// NOT wired to `center`: on a Wrapper `center` calls toCenter(), which
+	// sets display:flex + justify-content:center and centres the wrapper's
+	// CHILDREN. `mboth` centres the wrapper ITSELF in its parent via auto
+	// margins. Pointing one at the other would relayout every page using it.
+	if (obj.mboth) {
+		this.deprecatedOption("mboth", 'mar: "center"');
+		this.mar("center");
+	}
 
 	obj.mar && this.mar(obj.mar); // has to be here
 
@@ -285,22 +286,14 @@ code = `${pad}new Wrapper()`;
 		obj.id && this.res.setAttribute("id",  obj.id);
 
 		
-		obj.arrpad && this.arrayPadding(obj.arrpad.sides, obj.arrpad.value);
-		obj.arrpad && (stra += `arrpad: {sides: [${obj.arrpad.sides.map(x => `"${x}"`).join(", ")}], value: "${obj.arrpad.value}"}, `); // 2345 06/03
 		
-		obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
-	    obj.arrayMargin && (stra += `\n arrayMargin: {sides: ["${obj.arrayMargin.sides}"], value: "${obj.arrayMargin.value}"},`); // 2345 06/03
 		//	obj.arrpad && (stra += `arrpad: {sides: ["${obj.arrpad.sides}"], value: "${obj.arrpad.value}"}, `); // 2345 06/03
 		
 		// COMMENTED OUT 08/01/2025
 		// obj.grow && (this.res.style.flexGrow = 1);
 
-		obj.center && this.toCenter(obj.center);
-		obj.center && (stra += `center: "${obj.center}",`);
 
-  //@ simpleCenter: Centre children on both axes (justify + align, content + items).
-		obj.simpleCenter && this.simpleCenter();
-		obj.simpleCenter && (stra += `center: "${obj.simpleCenter}",`);
+		obj.simpleCenter && this.deprecatedOption("simpleCenter", 'center: true');
 		
 		obj.filter && (this.res.style.backdropFilter = "blur(3px)"); // 002506 21/05 002945
 		obj.radius && this.corner(obj.radius);
@@ -355,19 +348,13 @@ code = `${pad}new Wrapper()`;
 		obj.font && this.font(obj.font);
 		obj.font && (stra += `font: "${obj.font}",`);	
 		obj.maxWidth && this.maxWidth(obj.maxWidth);
-  //@ flexCenter: Flex column with justify-content: center.
-		obj.flexCenter && this.flexc(obj.flexCenter);
-  //@ multipad: Several padding values applied together.
-		obj.multipad && this.makeMultiPad(obj.multipad);
-  //@ multimargin: Several margin values applied together.
-		obj.multimargin && this.makeMultiMargin(obj.multimargin);
+		obj.flexCenter && this.deprecatedOption("flexCenter", 'center: "y"');
 		obj.color && this.color(obj.color);
 		obj.background && this.background(obj.background);
 		obj.background && (stra += `background: "${obj.background}",`);	
 
 		obj.weight && this.weight(obj.weight);
   //@ paddings: Padding via the paddingo() form.
-		obj.paddings && this.paddingo(obj.paddings);
 
 		obj.area && this.setArea(obj.area);
 		obj.area && (stra += `area: "${obj.area}"`);
@@ -375,6 +362,7 @@ code = `${pad}new Wrapper()`;
 		obj.column && (stra += `\n column: "${obj.column}",`);
 
 
+  //@deprecated alignIts: obsolete. Its body sets background:"gray" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`.
 		obj.alignIts && (this.res.style.background = "gray");
 		obj.alignIts && (this.res.style.alignItems = "flex-start"/*obj.alignIts*/);
 		obj.alignIts && (this.res.style.justifyItems = "flex-start"/*obj.alignIts*/);
@@ -389,6 +377,13 @@ code = `${pad}new Wrapper()`;
 		obj.flexDir && (this.res.style.flexDirection = obj.flexDir);
 		obj.flexDir && (this.res.style.display = "flex");
 		obj.flexDir && (stra += `\n flexDir: "${obj.flexDir}",`)
+
+  //@ center: Centres this element's CHILDREN. `true` for both axes, `"x"` horizontal, `"y"` vertical. Axis-aware: in a flex column `"y"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: "center"`.
+		// After disp and flexDir on purpose: center() reads the layout mode
+		// already on the element to decide which property owns which axis,
+		// so it has to run once the mode is set. Dispatched earlier it saw a
+		// bare element every time and always assumed a flex column.
+		obj.center && (stra += `center: ${JSON.stringify(obj.center)},`);
 
 		obj.zIndex && (this.res.style.zIndex = obj.zIndex);
 	
@@ -562,31 +557,10 @@ code = `${pad}new Wrapper()`;
 		return this;
 	}
 
-	paddingo(el){
-		this.res.style.padding = el;
-		return this;
-	}
 
 
-	toCenter(dir){
-		this.res.style.display = "flex";
-		this.res.style.flexDirection = "column";
-		this.res.style.justifyContent = "center";
 
-		if (dir === "both"){
-			this.res.style.alignItems = "center";
-		}
-	
-		return this;
-	}
 
-	simpleCenter(){
-		this.res.style.justifyContent = "center";
-		this.res.style.justifyItems = "center";
-		this.res.style.alignContent = "center";
-		this.res.style.alignItems = "center";
-		return this;
-	}
 
 	
 
@@ -600,52 +574,8 @@ code = `${pad}new Wrapper()`;
 		return this;
 	}
 
-	makeMultiPad(obj){
-	
-		for (var i = 0; i < obj.length; i++){
-			if (obj[i].side === "left"){
-				
-				this.res.style.paddingLeft = obj[i].value;
-			}
 
-			if (obj[i].side === "right"){
-				this.res.style.paddingRight = obj[i].value;
-			}
-		}
-		
-		return this;
-	}
 
-	makeMultiMargin(obj){ // 11:22:52
-		this.res.style.zIndex = "1";
-
-		for (var i = 0; i < obj.length; i++){
-			if (obj[i].side === "left"){
-				this.res.style.marginLeft = obj[i].value;
-			}
-
-			if (obj[i].side === "right"){
-				this.res.style.marginRight = obj[i].value;
-			}
-
-			if (obj[i].side === "top"){
-				this.res.style.marginTop = obj[i].value;
-			}
-
-			if (obj[i].side === "bottom"){
-				this.res.style.marginBottom = obj[i].value;
-			}
-		}
-		
-		return this;
-	}
-
-	flexc(obj){
-		this.res.style.display = "flex";
-		this.res.style.flexDirection = "column";
-		this.res.style.justifyContent = "center";
-		return this;
-	}
 
 	maxWidth(w){
 		this.res.style.maxWidth = w;
@@ -686,19 +616,14 @@ code = `${pad}new Wrapper()`;
 
 	border(obj){ 
          this.res.style.borderRadius = `${obj.radius}px`;
-         this.res.style.padding = "0.25em";
+         // No padding here. It used to set 0.25em, which runs after pad()
+         // in set() and silently overwrote it: {pad: [{a: 40}], border: {…}}
+         // rendered 4px, not 40px. A border has no business sizing the box.
          this.res.style.border = `${obj.width}px solid ${obj.color}`;
          return this;
     }
 
 
-	toCol(){
-		this.res.style.display = "flex";
-		this.res.style.flexDirection = "column";
-		this.res.style.justifyContent = "center";
-		this.res.style.alignItems = "center";
-		return this;
-	}
 
     
 	add(els){
@@ -729,62 +654,9 @@ code = `${pad}new Wrapper()`;
 
 	
 
-	arrayPadding(arr, value) {
-
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-
-			this.res.style.paddingBottom = value;
-		}
-			
-		
-		return this;
-	}
 
 
 
-	arrayMargin(arr, value) {
-
-
-		if (!value){ // LTRB
-			this.res.style.marginLeft = `${arr[0]}px`;
-			this.res.style.marginTop = `${arr[1]}px`;
-			this.res.style.marginRight = `${arr[2]}px`;
-			this.res.style.marginBottom = `${arr[3]}px`;
-		}
-
-
-
-		if (arr.includes("left")){
-			this.res.style.marginLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.marginRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.marginTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.marginBottom = value;
-		}
-			
-		
-		return this;
-	}
 
     
     

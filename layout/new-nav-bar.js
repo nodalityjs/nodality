@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -390,7 +390,7 @@ class UINavBar extends Animator {
                             link = new Dropdown(item.items, item.title)
                         } else {
                             link = new Link(item.title, item.url)
-                                .arrayPadding(["left", "right"], "1em");
+                                .pad([{lr: "1em"}]);
                         }
 
                     } else {

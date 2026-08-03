@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Centering — the center option</title>
+  <style>body { margin: 0; padding: 0; }</style>
+</head>
+<body>
+  <div id="mount"></div>
+  <div id="inherited"></div>
+  <script type="module">
+
+import { Wrapper } from '../layout/container.js';
+import { Text } from '../layout/text.js';
+import { FlexRow } from '../layout/flex-row.js';
+
+// Each case renders into #mount in order; the spec reads them by position.
+const cases = [
+  // default direction is column, so "y" is justify-content and "x" is align-items
+  ["col-both",   { center: true }],
+  ["col-x",      { center: "x" }],
+  ["col-y",      { center: "y" }],
+  ["col-bothkw", { center: "both" }],
+
+  // a row flips which property owns which axis
+  ["row-x",      { flexDir: "row", center: "x" }],
+  ["row-y",      { flexDir: "row", center: "y" }],
+  ["row-both",   { flexDir: "row", center: true }],
+
+  // a grid centres with justify-items/align-items instead
+  ["grid-both",  { disp: "grid", center: true }],
+  ["grid-x",     { disp: "grid", center: "x" }],
+
+  // the removed options: inert, and they warn
+  ["gone-simple", { simpleCenter: true }],
+  ["gone-flexc",  { flexCenter: true }],
+  ["gone-column", { centerColumn: true }],
+  ["baseline",    {}],
+];
+
+window.__notices = [];
+const _err = console.error;
+console.error = (...a) => { window.__notices.push(a.join(" ")); _err(...a); };
+
+for (const [, opts] of cases) new Wrapper().set(opts).render("#mount");
+
+// center() now lives on Animator, so every component has it and it means
+// the same thing on all of them. FlexRow had no center() of its own that
+// worked; Text's set the element's own margins, the opposite meaning.
+new FlexRow().set({ center: true }).render("#inherited");
+new Text("x").set({ center: true }).render("#inherited");
+
+window.__cases = cases.map(c => c[0]);
+window.__ready = true;
+
+  </script>
+</body>
+</html>

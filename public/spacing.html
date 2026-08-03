@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spacing — mar/pad and the deprecated forms</title>
+  <style>
+    /* Neutral baseline so computed values come only from the library. */
+    body { margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  <div id="mount"></div>
+  <div id="probe-a"></div>
+  <div id="probe-b"></div>
+  <script type="module">
+
+import { Wrapper } from '../layout/container.js';
+import { Text } from '../layout/text.js';
+import { TextField } from '../layout/text-field.js';
+
+// Every case renders into #mount in order; the spec addresses them by
+// position. No document.createElement and no element.style here — the
+// point is to measure what the library alone produces.
+//
+// The deprecated forms are each followed by their `mar`/`pad` equivalent.
+// They must agree, because they are now defined as calls to it.
+const cases = [
+  // ── the spec form: the only margin and padding API ──
+  ["mar-all",        "wrapper", { mar: [{ a: 40 }] }],
+  ["mar-sides",      "wrapper", { mar: [{ t: 14 }, { b: 14 }, { l: 30 }, { r: 30 }] }],
+  ["mar-combined",   "wrapper", { mar: [{ tb: 12 }] }],
+  ["mar-string",     "wrapper", { mar: [{ a: "2rem" }] }],
+  ["mar-center",     "wrapper", { mar: "center" }],
+  ["mar-auto",       "wrapper", { mar: [{ lr: "auto" }] }],
+  ["pad-all",        "wrapper", { pad: [{ a: 40 }] }],
+  ["pad-combined",   "wrapper", { pad: [{ lr: 20 }] }],
+  ["pad-text",       "text",    { pad: [{ l: "9%" }] }],
+
+  // ── mboth is kept but deprecated: it warns, and still centres ──
+  ["mboth",          "wrapper", { mboth: true }],
+  ["mboth-eq",       "wrapper", { mar: "center" }],
+
+  // ── border must not touch padding ──
+  ["pad-border",     "wrapper", { pad: [{ a: 40 }], border: { width: 1, color: "#eee", radius: 8 } }],
+  ["pad-noborder",   "wrapper", { pad: [{ a: 40 }] }],
+
+  // ── removed outright: all of these must now be inert ──
+  ["gone-arrayMargin",  "wrapper",   { arrayMargin: { sides: ["all"], value: "1rem" } }],
+  ["gone-arrayPadding", "textfield", { arrayPadding: { sides: ["all"], value: "0.5rem" } }],
+  ["gone-arrpad",       "wrapper",   { arrpad: { sides: ["left"], value: "3rem" } }],
+  ["gone-paddings",     "wrapper",   { paddings: "1rem" }],
+  ["gone-multipad",     "wrapper",   { multipad: [{ side: "left", value: "10px" }] }],
+  ["gone-multimargin",  "wrapper",   { multimargin: [{ side: "top", value: "5px" }] }],
+  ["gone-textpadding",  "text",      { padding: "12px" }],
+  ["tf-baseline",       "textfield", {}],
+  ["text-baseline",     "text",      {}],
+];
+
+for (const [, kind, opts] of cases) {
+  const el = kind === "text" ? new Text("x")
+            : kind === "textfield" ? new TextField()
+            : new Wrapper();
+  el.set(opts).render("#mount");
+}
+
+// Code export. toCode() round-trips the options object, so the
+// guarantee worth testing is that re-running the exported code produces
+// the same spacing — including for the deprecated forms, which now
+// delegate to mar/pad.
+const roundTrip = [
+  ["pad",         { pad: [{ a: 40 }] }],
+  ["marCombined", { mar: [{ tb: 12 }] }],
+  ["marCenter",   { mar: "center" }],
+  ["marSides",    { mar: [{ t: 14 }, { l: 30 }] }],
+];
+
+window.__roundTrip = {};
+for (const [name, opts] of roundTrip) {
+  const src = new Wrapper().set(opts).toCode()[0];
+  // Take the object literal back out of the generated source and rebuild
+  // from it, the way the Designer's output would be re-run.
+  const literal = src.slice(src.indexOf(".set(") + 5, src.lastIndexOf(")"));
+  const rebuilt = new Wrapper().set(new Function("return (" + literal + ")")());
+  const original = new Wrapper().set(opts);
+  original.render("#probe-a");
+  rebuilt.render("#probe-b");
+  const read = el => {
+    const cs = getComputedStyle(el);
+    // Inline values included: `auto` margins resolve to a used pixel
+    // value, so a computed-only reading of mar: "center" is all zeros
+    // and indistinguishable from no spacing at all.
+    return [cs.marginTop, cs.marginRight, cs.marginBottom, cs.marginLeft,
+            cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft,
+            el.style.marginLeft, el.style.marginRight].join(" ");
+  };
+  window.__roundTrip[name] = {
+    code: src,
+    original: read(document.querySelector("#probe-a").lastElementChild),
+    rebuilt: read(document.querySelector("#probe-b").lastElementChild),
+  };
+}
+
+// Deprecation notices, captured for the spec.
+window.__deprecations = [];
+const _err = console.error;
+console.error = (...a) => { window.__deprecations.push(a.join(" ")); _err(...a); };
+new Wrapper().set({ mboth: true }).render("#probe-a");
+
+// The spec reads this to map positions back to case names.
+window.__cases = cases.map(c => c[0]);
+window.__ready = true;
+
+  </script>
+</body>
+</html>

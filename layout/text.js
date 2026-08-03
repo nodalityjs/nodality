@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -411,7 +411,6 @@ this.res.style.position = "absolute";
 	
 		super.setClass(this.options.class);
 		obj.clampc && this.clampCopy(obj.clampc);
-		obj.arrpad && this.arrayPadding(obj.arrpad.sides, obj.arrpad.value);
 		//obj.pad && this.pad(obj.pad);
 	//	obj.respad && this.respad(obj.respad);
 	//	obj.resmar && this.resmar(obj.resmar);
@@ -425,7 +424,6 @@ this.res.style.position = "absolute";
 		obj.absolute && (this.res.style.position = "absolute");
 		
 
-		obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
 		obj.em && this.em(obj.em); 
 
 		if (obj.fluid){
@@ -437,11 +435,12 @@ this.res.style.position = "absolute";
 		obj.align && (this.res.style.textAlign = obj.align);
 		
 		// obj.weight && (this.res.style.fontWeight = obj.weight);
-		obj.padding && this.padding(obj.padding);
   //@ breakWord: Allow long words to wrap mid-word (word-wrap: break-word).
 		obj.breakWord && (this.res.style.wordWrap = "break-word");
-		obj.center && (this.res.style.marginRight = "auto");
-		obj.center && (this.res.style.marginLeft = "auto");
+		// `center` used to set auto margins here, i.e. centre the Text
+		// ITSELF — the opposite of what it means on every other component
+		// now. That is `mar: "center"`.
+		obj.center && this.deprecatedOption("center on Text", 'mar: "center"');
 		//obj.width && (this.res.style.width = obj.width);
 	//	obj.height && (this.res.style.height = obj.height);
 		//obj.background && (this.res.style.backgroundColor = obj.background);
@@ -671,47 +670,6 @@ checkForAnimation(queries){
 		
 	}
 
-	arrayMargin(arr, value) { // 224857 redefined earlier
-
-		if (!value){ // LTRB
-			this.res.style.marginLeft = `${arr[0]}px`;
-			this.res.style.marginTop = `${arr[1]}px`;
-			this.res.style.marginRight = `${arr[2]}px`;
-			this.res.style.marginBottom = `${arr[3]}px`;
-		}
-
-		
-		if (value === "7rem"){
-			// The text does not react to margin changes
-			// alert(arr);
-			// alert(value);
-		}
-		
-		
-		
-		// // console.log(arr);
-		if (arr.includes("left")){
-			this.res.style.marginLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.marginRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.marginTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.marginBottom = value;
-		}
-
-		if (!value){
-			this.res.style.marginBottom = arr;
-		}
-		
-		return this;
-	}
     
 	clampExperiment(){
 
@@ -1389,10 +1347,6 @@ checkForAnimation(queries){
 		return this;
 	}
 
-	center() {
-		this.res.style.textAlign = "center";
-		return this;
-	}
 
 	/*size(s) {
 		this.res.style.fontSize = s;
@@ -1489,36 +1443,6 @@ checkForAnimation(queries){
 
 	
 	
-	arrayPadding(arr, value) {
-	
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-
-		// console.log("PAD");
-		// console.log(this.res.style.paddingLeft);
-		// console.log(arr);
-		// console.log(value);
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-
-		if (!value){
-			this.res.style.paddingBottom = arr;
-		}
-			
-		
-		return this;
-	}
 	
 	margin(L, T, R, B) {
 		if (L || T || R || B){ // CAUGHT MYSELF
@@ -1601,25 +1525,6 @@ checkForAnimation(queries){
 	}
 
 
-	style(st) {
-		this.res.style.color = st.styles.color;
-		this.res.style.fontWeight = st.styles.fontWeight;
-
-		this.res.style.paddingLeft = st.styles.padding[0];
-		this.res.style.paddingTop = st.styles.padding[1];
-		this.res.style.paddingRight = st.styles.padding[2];
-		this.res.style.paddingBottom = st.styles.padding[3];
-
-		this.res.style.marginLeft = st.styles.margin[0];
-		this.res.style.paddingTop = st.styles.margin[1];
-		this.res.style.paddingRight = st.styles.margin[2];
-		this.res.style.paddingBottom = st.styles.margin[3];
-
-		this.res.style.opacity = st.styles.opacity;
-
-
-		return this;
-	}
 	
 	
 	applyStyle(w, style){

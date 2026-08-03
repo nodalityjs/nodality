@@ -384,7 +384,7 @@ class UINavBar extends Animator {
                             link = new Dropdown(item.items, item.title)
                         } else {
                             link = new Link(item.title, item.url)
-                                .arrayPadding(["left", "right"], "1em");
+                                .pad([{lr: "1em"}]);
                         }
 
                     } else {

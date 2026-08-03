@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -221,8 +221,10 @@ document.body.appendChild(link);
 			img.style.width = options.options.size;
 			options.options.radius && (img.style.borderRadius = options.options.radius);
 			img.setAttribute("src", options.options.img);
+			// `pad` here is a raw CSS shorthand string, not the array-of-sides
+			// spec `pad` means everywhere else. Left as it is: changing the
+			// shape would break any caller passing a string.
 			options.options.pad && (this.res.style.padding = options.options.pad);
-			options.options.padRight && (this.res.style.paddingRight = options.options.padRight);
 			link.appendChild(img);
 		}
 
@@ -307,7 +309,7 @@ obj.fixMobileTap && this.fixMobileTap(obj.fixMobileTap);
 const mapped = sides.map(x => `"${x}"`).join(", ");
 		obj.arrayPadding && this.arrayPadding(obj.arrayPadding.sides, obj.arrayPadding.value);
 		//obj.arrayPadding && this.arrayPadding(obj.arrayMargin.sides, obj.arrayMargin.value);
-		obj.arrayPadding && (stra += `\n arrayPadding: {sides: [${mapped}], value: "${obj.arrayPadding.value}"},`);
+		obj.arrayPadding && (stra += this.spacingCode("pad", obj.arrayPadding.sides, obj.arrayPadding.value));
 */
 
 
@@ -415,20 +417,8 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 	//	obj.width && this.width(obj.width);
 		obj.width && (stra += `\n width: "${obj.width}",`);
 
-		if (obj.arrayPadding){
-			let sides = obj.arrayPadding.sides;
-			//// // console.log(sides);
-			//// // console.log(sides.map(x => `"${x}"`).join(", "));
-
-		const mapped = sides.map(x => `"${x}"`).join(", ");
-		obj.arrayPadding && this.arrayPadding(obj.arrayPadding.sides, obj.arrayPadding.value);
-		//obj.arrayPadding && this.arrayPadding(obj.arrayMargin.sides, obj.arrayMargin.value);
-		obj.arrayPadding && (stra += `\n arrayPadding: {sides: [${mapped}], value: "${obj.arrayPadding.value}"},`); // 2345 06/03
-	}
 		
-		obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
 		//obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
-		obj.arrayMargin && (stra += `\n arrayMargin: {sides: [${obj.arrayMargin.sides.map(side => `"${side}", `)}], value: "${obj.arrayMargin.value}"},`); // 2345 06/03
 
 		obj.maxWidth && this.maxWidth(obj.maxWidth);
 		// // // console.log(obj.arrayMargin);
@@ -739,80 +729,9 @@ if (ft.length > 0){
 		return this;
 	}
 	
-// 22:27:47
-	arrayPadding(arr, value) {
-
-		if (!value){ // LTRB
-			this.res.style.marginLeft = `${arr[0]}px`;
-			this.res.style.marginTop = `${arr[1]}px`;
-			this.res.style.marginRight = `${arr[2]}px`;
-			this.res.style.marginBottom = `${arr[3]}px`;
-		}
-
-		if (arr[0] === "all"){
-			this.res.style.paddingLeft = value;
-			this.res.style.paddingTop = value;
-			this.res.style.paddingRight = value;
-			this.res.style.paddingBottom = value;
-		}
-
-		
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-
-		if (!value){
-			this.res.style.paddingBottom = arr;
-		}
-		
-
-		//alert(value);
-
-		return this;
-	} //22155 snap to change phone screen
+// 22:27:47 //22155 snap to change phone screen
  
 
-	arrayMargin(arr, value) { // 224857 redefined earlier
-
-		// // // console.log(arr);
-		if (arr.includes("left")){
-			this.res.style.marginLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.marginRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.marginTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.marginBottom = value;
-		}
-
-		if (arr.includes("all")){
-			this.res.style.margin = value;
-		}
-
-		if (!value){
-			this.res.style.marginBottom = arr;
-		}
-		
-		return this;
-	}
 
 	getClampValue(name){
 		if (name === "S6"){
@@ -922,15 +841,6 @@ if (ft.length > 0){
 	}
 	
 	
-	style(st){
-		this.res.style.color = st.styles.color;
-		this.res.style.fontWeight = st.styles.fontWeight;
-		this.res.style.paddingLeft = st.styles.padding[0];
-		this.res.style.paddingTop = st.styles.padding[1];
-		this.res.style.paddingRight = st.styles.padding[2];
-		this.res.style.paddingBottom = st.styles.padding[3];
-		return this;
-	}
 	
 	color(c){
 		this.res.style.color = c;
@@ -1065,11 +975,7 @@ if (ft.length > 0){
 		return this;
 	}
 
-	/*
-	arrayMargin(px){
-		this.res.style.margin = px;
-		return this;
-	}*/
+	/**/
 	
 	/* hover(back, fore){
 		this.prevColor = this.res.style.backgroundColor;

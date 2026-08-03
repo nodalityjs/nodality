@@ -52,6 +52,16 @@ if ! git pull --rebase --autostash origin main; then
 fi
 
 # Copy layout folders (root for publish)
+#
+# Cleared first, because `cp -R` copies over but never DELETES. A file
+# removed from the sandbox survived here indefinitely and kept shipping in
+# the tarball — the sandbox is the source of truth, so anything it no
+# longer has must not be published. The public/ mirror below already did
+# this; the publish copy did not, which is the half that reaches npm.
+rm -rf /Users/filipvabrousek/launch/layout
+rm -rf /Users/filipvabrousek/launch/lib
+rm -rf /Users/filipvabrousek/launch/assets
+rm -rf /Users/filipvabrousek/launch/bin
 cp -R /Users/filipvabrousek/Desktop/layout/layout /Users/filipvabrousek/launch/
 cp -R /Users/filipvabrousek/Desktop/layout/lib /Users/filipvabrousek/launch/
 cp -R /Users/filipvabrousek/Desktop/layout/assets /Users/filipvabrousek/launch/

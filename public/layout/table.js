@@ -124,11 +124,6 @@ class Table extends Animator {
     return this;
   }
 
-  center() {
-    this.res.style.marginLeft = "auto";
-    this.res.style.marginRight = "auto";
-    return this;
-  }
 
   cellPadding(padding) {
     for (let row of this.res.rows) {

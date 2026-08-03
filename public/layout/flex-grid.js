@@ -204,11 +204,6 @@ class FlexGrid extends Animator {
 	}
 	
 	
-	center(){
-		this.res.style.marginLeft = "auto";
-		this.res.style.marginRight = "auto";
-		return this;
-	}
 	
 	items(elements){
 		this.items = elements;

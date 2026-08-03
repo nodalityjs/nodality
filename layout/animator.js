@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -357,11 +357,11 @@ class Animator {
     }
 //alert(obj.respad);
     // Special methods
-    //@ pad: Padding. Array of side objects — [{t:14},{b:14},{l:30},{r:30}], or [{a:24}] for all sides.
+    //@ pad: Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: "2rem"}` works.
     obj.pad && this.pad(obj.pad);
-    //@ mar: Margin. Same array-of-sides form as `pad`; `mar: "center"` is shorthand for 0 auto.
+    //@ mar: Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: "center"` sets left and right to auto, as does `{a: "auto"}` or `{center: true}`.
     obj.mar && this.mar(obj.mar);
-    //@ respad: Responsive padding — per-breakpoint overrides of `pad`.
+    //@ respad: Responsive padding — per-breakpoint overrides of `pad`, in the same form.
     obj.respad && this.respad(obj.respad);
 
     // `borderObj` was never dispatched from here, so a component with no
@@ -385,7 +385,7 @@ class Animator {
     // idempotent for them.
     //@ borderObj: Border as {width, color, type?, radius?}. Width carries its unit, e.g. "1px".
     obj.borderObj && obj.borderObj.width && this.borderObj(obj.borderObj);
-    //@ resmar: Responsive margin — per-breakpoint overrides of `mar`.
+    //@ resmar: Responsive margin — per-breakpoint overrides of `mar`, in the same form.
     obj.resmar && this.resmar(obj.resmar);
     //@ hover: Styles applied on hover, e.g. {color, background, animation: "0.2s ease"}.
     obj.hover && this.hover(obj.hover);
@@ -403,8 +403,16 @@ class Animator {
     obj.hide && this.isHidden(obj.hide);
     //@ raster: Attach a WebGL raster pipeline. Array of op nodes; see the Raster section.
     obj.raster && this.rasterize(obj.raster);
+
+  //@ center: Centres this element's CHILDREN. `true` for both axes, `"x"` horizontal, `"y"` vertical. Axis-aware: in a flex column `"y"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: "center"`.
+    // Dispatched here rather than per component, so it means the same thing
+    // on all of them. It was wired only into Wrapper before, while other
+    // components either had their own copy with a different meaning or no
+    // centring at all.
+    obj.center && this.center(obj.center, {display: obj.disp || obj.display, flexDirection: obj.flexDir || obj.flexDirection});
 	// Only route to the animation system for object-shaped transforms.
 	// String transforms are applied above via the styleMap path.
+ //@ transform: A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given.
 	(obj.transform && typeof obj.transform === "object") && this.reactOnTransform(obj.transform);
 
 	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
@@ -1587,6 +1595,75 @@ resmar(arr) {
 		window.addEventListener("resize", react);
 		react();
 	}*/
+
+	/**
+	 * Tells the caller they passed an option that no longer exists as the
+	 * way to do this, and what to use instead.
+	 *
+	 * console.error only, deliberately. alert() is banned in live modules
+	 * (see the "no live module calls alert()" invariant): alerts had sat in
+	 * ordinary paths and blocked the page for every visitor, and the ban is
+	 * worth more than making this one warning louder.
+	 */
+	deprecatedOption(name, replacement) {
+		console.error(`nodality: \`${name}\` is deprecated — use \`${replacement}\` instead.`);
+		return this;
+	}
+
+	/**
+		 * Centres this element's CHILDREN.
+		 *
+		 *   center: true    both axes
+		 *   center: "x"     horizontally only
+		 *   center: "y"     vertically only
+		 *
+		 * Replaces six overlapping methods — toCenter(), toCenter("both"),
+		 * flexc(), toCol(), centerColumn and simpleCenter(). flexc() was
+		 * byte-identical to toCenter() and toCol() to toCenter("both"), so the
+		 * same behaviour had four names and the two that differed did so by
+		 * one property each.
+		 *
+		 * To centre the element ITSELF inside its parent, that is `mar:
+		 * "center"` — a different thing, and the reason the old names were so
+		 * easy to confuse.
+		 *
+		 * Axis-aware rather than fixed. justify-content runs along the main
+		 * axis, so in a flex column it is the VERTICAL one and align-items is
+		 * horizontal — the opposite of a flex row. The old methods hardcoded
+		 * flex-direction: column and so only ever worked one way round; this
+		 * reads the direction already set and centres the axis you asked for.
+		 * A grid gets justify-items/align-items instead, which is what
+		 * simpleCenter() was reaching for without setting a display at all.
+		 */
+		center(axis = true, hint = {}){
+			const s = this.res.style;
+			// The hints matter because this runs from commonMethods, before a
+			// component applies its own `disp`/`flexDir` aliases. Without them
+			// center() sees a bare element, assumes a flex column, and puts the
+			// centring on the wrong property for every row and grid.
+			const display = s.display || hint.display || "";
+			const direction = s.flexDirection || hint.flexDirection || "";
+			const grid = display.includes("grid");
+	
+			const x = axis === true || axis === "both" || axis === "x";
+			const y = axis === true || axis === "both" || axis === "y";
+	
+			if (grid){
+				if (x){ s.justifyItems = "center"; s.justifyContent = "center"; }
+				if (y){ s.alignItems = "center"; s.alignContent = "center"; }
+				return this;
+			}
+	
+			if (!display.includes("flex")) s.display = "flex";
+			if (!s.flexDirection) s.flexDirection = direction || "column";
+	
+			const column = (s.flexDirection || "column").startsWith("column");
+			const mainIsY = column;
+	
+			if (mainIsY ? y : x) s.justifyContent = "center";
+			if (mainIsY ? x : y) s.alignItems = "center";
+			return this;
+		}
 
 	isNumber(value) {
 		return typeof value === 'number' && !isNaN(value);
@@ -3323,35 +3400,18 @@ removeQuotesFromFirstWord(jsonString) {
   }
   
 
-arrayMargin(arr, value) { // 224857 redefined earlier
 
-	// // console.log(arr);
-	if (arr.includes("left")){
-		this.res.style.marginLeft = value;
-	}
-	
-	if (arr.includes("right")){
-		this.res.style.marginRight = value;
-	}
-	
-	if (arr.includes("top")){
-		this.res.style.marginTop = value;
-	}
-	
-	if (arr.includes("bottom")){
-		this.res.style.marginBottom = value;
-	}
 
-	if (arr.includes("all")){
-		this.res.style.margin = value;
-	}
 
-	if (!value){
-		this.res.style.marginBottom = arr;
-	}
-	
-	return this;
-}
+
+
+
+
+
+
+
+
+
 /*
 
     navBarExpand(){

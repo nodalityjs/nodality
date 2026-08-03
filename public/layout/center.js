@@ -94,26 +94,6 @@ return this;
 		return this;
 	}
 	
-	arrayPadding(arr, value) {
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-			
-		
-		return this;
-	}
     
     itemWidth(w){
 		for (var i = 0; i < this.res.childNodes.length; i++){

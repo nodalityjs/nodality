@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -51,7 +51,6 @@ class Circle extends Animator {
   // --- Circle-specific API ---
   diameter(px) { this.res.style.width = this.res.style.height = typeof px === "number" ? px + "px" : px; this.res.style.borderRadius = "50%"; return this; }
   size(w, h = w) { this.res.style.width = typeof w === "number" ? w + "px" : w; this.res.style.height = typeof h === "number" ? h + "px" : h; this.res.style.borderRadius = "50%"; return this; }
-  center() { this.res.style.marginLeft = this.res.style.marginRight = "auto"; return this; }
   color(c) { this.res.style.backgroundColor = c; return this; }
   border(spec) { this.res.style.border = typeof spec === "string" ? spec : `${spec?.width || 1}px solid ${spec?.color || "black"}`; return this; }
   radius(r) { this.res.style.borderRadius = typeof r === "number" ? r + "px" : r; return this; }

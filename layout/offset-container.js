@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -31,7 +31,7 @@ class OffsetContainer extends Animator{
 		 obj.columns && this.columns(obj.columns);
 		 obj.width && (this.res.style.width = obj.width);
 		 obj.border && (this.res.style.border = obj.border);
-		 obj.simpleCenter && this.simpleCenter();
+		 obj.simpleCenter && this.deprecatedOption("simpleCenter", 'center: true');
 		// obj.simpleCenter && (stra += `center: "${obj.simpleCenter}",`);
 
 		if (obj.field) {
@@ -44,13 +44,6 @@ class OffsetContainer extends Animator{
 	}
 
 
-	simpleCenter(){
-		this.res.style.justifyContent = "center";
-		this.res.style.justifyItems = "center";
-		this.res.style.alignContent = "center";
-		this.res.style.alignItems = "center";
-		return this;
-	}
 
 	// https://youtube.com/shorts/u7q1Qj1uuD8?feature=share
 

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.212
+ * nodality v1.0.213
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -187,11 +187,7 @@ this.options = obj;
 		obj.frame  && this.frame(obj.frame);
 		obj.frame && (stra += `\n frame: "${obj.frame}",`);
 
-		obj.arrpad && this.arrayPadding(obj.arrpad.sides, obj.arrpad.value);
-		obj.arrpad && (stra += `\n arrpad: {sides: ["${obj.arrpad.sides}"], value: "${obj.arrpad.value}"},`); // 2345 06/03
 
-		obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
-		obj.arrayMargin && (stra += `\n arrayMargin: {sides: ["${obj.arrayMargin.sides}"], value: "${obj.arrayMargin.value}"},`); // 2345 06/03
 
 		obj.keySet && this.keySet(obj.keySet); // 165411 22/01/25 Nice!
 		
@@ -218,86 +214,7 @@ this.options = obj;
     
 
 	
-	arrayPadding(arr, value) {
-	
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
 
-		// console.log("PAD");
-		// console.log(this.res.style.paddingLeft);
-		// console.log(arr);
-		// console.log(value);
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-
-		if (arr.includes("all")){
-			this.res.style.padding = value;
-		}
-
-		if (!value){
-			this.res.style.paddingBottom = arr;
-				}
-			
-		
-		return this;
-	}
-
-	arrayMargin(arr, value) { // 224857 redefined earlier
-
-		if (!value){ // LTRB
-			this.res.style.marginLeft = `${arr[0]}px`;
-			this.res.style.marginTop = `${arr[1]}px`;
-			this.res.style.marginRight = `${arr[2]}px`;
-			this.res.style.marginBottom = `${arr[3]}px`;
-		}
-
-		
-		if (value === "7rem"){
-			// The text does not react to margin changes
-			// alert(arr);
-			// alert(value);
-		}
-		
-		
-		
-		// // console.log(arr);
-		if (arr.includes("left")){
-			this.res.style.marginLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.marginRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.marginTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.marginBottom = value;
-		}
-
-		if (arr.includes("all")){
-			this.res.style.margin = value;
-		}
-
-		if (!value){
-			this.res.style.marginBottom = arr;
-		}
-		
-		return this;
-	}
     
 
 	fluidButtonCopy(name){
