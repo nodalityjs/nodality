@@ -133,6 +133,14 @@ jobs:
       # which still reports WebGL2 and EXT_color_buffer_float, so the
       # raster ops behave as they do locally.
       - name: Install Playwright Chromium
+        # Azure-backed runners have no IPv6 route, but DNS still returns AAAA
+        # records for cdn.playwright.dev. Node picks the AAAA, the connect
+        # fails instantly with ENETUNREACH, and Playwright retries onto the
+        # same address four times before giving up — a hard release failure
+        # with nothing wrong in the repo (v1.0.217 died here). Preferring A
+        # records keeps the download on the route the runner actually has.
+        env:
+          NODE_OPTIONS: --dns-result-order=ipv4first
         run: npx playwright install --with-deps chromium
 
       # The Playwright config starts its own static server and enables
