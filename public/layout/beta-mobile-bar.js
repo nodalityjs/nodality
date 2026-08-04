@@ -9,14 +9,7 @@ class /*Beta*/MobileBar extends Animator {
        // this.setStyles();
     }
 
-    removeQuotesFromBoth(jsonString) {
-        if (!jsonString) {
-            return;
-        }
-        // Remove quotes from both keys and values
-        const modifiedJSON = jsonString.replace(/"([^"]+)":\s*"([^"]+)"/g, '$1: $2');
-        return modifiedJSON;
-    }
+
     
 
     removeQuotesFromFirstWord(jsonString) {

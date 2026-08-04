@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.216
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -18,10 +18,7 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		this.code.push("\n new Wrapper() \n");
 	}
 
-	isLasta(){
-		this.isLast = true;
-		return this;
-	}
+
 
 
 	
@@ -71,29 +68,17 @@ code = `${pad}new Wrapper()`;
 		this.res.style.gridArea = area;
 		return this;
 	}
-	
-	removeQuotesFromFirstWord(jsonString) {
-		const modifiedJSON = jsonString.replace(/"([^"]+)":/g, '$1:');
-		return modifiedJSON;
-	  }
 
-	  clicked(handler){
-		this.res.addEventListener("click", handler);
-		return this;
-	  }
+
+
+
 
 	  onTap(handler){
 		this.res.addEventListener("click", handler);
 		return this;
 	  }
 
-	  gpos(obj){
-		//alert(obj.col);
-		this.res.style.gridColumn = obj.col;
-		this.res.style.gridRow = obj.row;
-		//this.res.style.border = "1px solid green";
-		return this;
-	  }
+
 
 	set(obj){
 		this.obj = obj;
@@ -576,12 +561,6 @@ code = `${pad}new Wrapper()`;
 
 
 
-
-	maxWidth(w){
-		this.res.style.maxWidth = w;
-		return this;
-	}
-
 	font(font){
 		this.res.style.fontFamily = font;
 		return this;
@@ -815,17 +794,8 @@ code = `${pad}new Wrapper()`;
 		this.res.style.borderRadius = corner;
 		return this;
 	}
-	
-	
-    
-    itemWidth(w){
-		for (var i = 0; i < this.res.childNodes.length; i++){
-			let el = this.res.childNodes[i];
-			el.style.width = w;
-		}
-		
-		return this;
-	}
+
+
 
 	
 apply(arr) {

@@ -823,20 +823,7 @@ if (ft.length > 0){
 		return this;
 	}
 
-	myself(obj) {
-		const adj = () => {
-			let query = window.matchMedia("(max-device-width: 415px)");
-			if (query.matches) {
-				this.res.style.fontSize = obj.desktop;
-			} else {
-				this.res.style.fontSize = obj.phone;
-			}
-		}
 
-		adj();
-		window.addEventListener("resize", adj);
-		return this;
-	}
 	
 	
 	

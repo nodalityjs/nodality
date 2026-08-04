@@ -170,19 +170,6 @@ class UList extends Animator {
     }
 
 
-    headline() {
-        this.em(4);
-        this.font("Arial");
-        this.bold();
-        return this;
-    }
-
-    caption() {
-        this.bold();
-        this.res.style.fontFamily = "Arial";
-        this.res.style.color = "#3498db";
-        return this;
-    }
 
 	
 toCode(indent = 0) {

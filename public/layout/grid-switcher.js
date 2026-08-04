@@ -129,22 +129,15 @@ for (var i = 0; i < arr.length - 1; i++){
      this.el = document.createElement("div");
      this.gridWrap = document.createElement("div");
     }
-  
-    DOMAdd(dom){
-      this.domStr = dom;
-      this.domEl = document.querySelector(dom);
-      return this;
-    }
+
+
   
     items(arr){
       this.items = arr;
       return this;
     }
-  
-    dynamicItems(arr){
-      this.dynamicItems = arr;
-      return this;
-    }
+
+
     switch(breakpoints){
       const innerSwitch = () => {
           for (let i = 0; i < breakpoints.length; i++){

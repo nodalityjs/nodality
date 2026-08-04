@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.216
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -563,10 +563,6 @@ let stringified = JSON.stringify(options.borderObj);
 	}
 
 
-	borderAround(data){
-		this.res.style.border = data;
-		return this;
-	}
 
 	
 
@@ -656,19 +652,6 @@ let stringified = JSON.stringify(options.borderObj);
 	}
 
 
-	noSpaceAround(){
-		this.res.style.justifyContent = "";
-		return this;
-	}
-
-
-
-
-	itemAlignCenter(){
-		this.res.style.justifyContent = "center";
-        this.res.style.alignItems = "center";
-		return this;
-	}
 
 
 	/*
@@ -812,58 +795,6 @@ let stringified = JSON.stringify(options.borderObj);
 	}
 
 
-
-	/*
-	
-		this.code.push(".add([ \n");
-		for (var i = 0; i < els.length; i++){
-			let item = els[i].render();//.render();
-			this.res.appendChild(item);
-
-
-			if (els[i].toCode !== undefined){
-
-				 this.code.push(els[i].toCode().flatMap(l=>l)); // 20:10:00 Nice!
-			// 12:25:10 Wow!!!
-
-			
-		}
-		}
-		
-		//122616 06/03 Houdini M2 chip
-		this.code.push("])");
-
-
-		return this;
-	*/
-
-
-	
-
-	adjustRatiosForLayout(){
-
-		if (this.els[1].getWidth == undefined){
-			return this;
-		}
-
-		if (this.els[1].getHeight == undefined){
-			return this; // 171653 fix
-		} // 171354
-
-		window.addEventListener("resize", () => {
-			this.resizeValues();
-		});
-
-
-		this.resizeValues();
-
-
-
-
-		// 18:29:04
-		
-		return this;
-	}
 	
 
 	resizeValues(){

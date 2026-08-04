@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.216
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -468,11 +468,6 @@ class UINavBar extends Animator {
 
 
 
-    openSymbol(symbol) {
-        this.symbol = symbol;
-        return this;
-    }
-
 
     background(obj) {
 
@@ -486,17 +481,7 @@ class UINavBar extends Animator {
         return this;
     }
 
-    transluescent() {
-        this.res.children[0].style.backgroundColor = "rgba(255,255,255,0.72)";
-        return this;
-    }
 
-
-    keepItem(item) {
-      //  console.log("Wow");
-        this.keepItem = item;
-        return this;
-    }
 
     addHamburger = () => {
 

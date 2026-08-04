@@ -59,9 +59,6 @@ class Row {
 	}
 
 
-	static test(){
-		alert("Wow")
-	}
 
 	setup(obj) {
 		//let parent = document.createElement("div");

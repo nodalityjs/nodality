@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.216
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -115,11 +115,8 @@ class TextField extends Animator {
 		window.addEventListener("resize", adj);
 		return this;
 	}
-	
-	listen(value){
-		this.res.addEventListener("input", (e) => this.process(e) /*console.log(this.res.value)*/);
-		return this;
-	}
+
+
 	
 	value(val){
 		 this.res.setAttribute("value", val);
@@ -135,11 +132,8 @@ class TextField extends Animator {
 		this.res.setAttribute("type", "number");
 		return this;
 	}
-	
-	week(){
-		this.res.setAttribute("type", "week");
-		return this;
-	}
+
+
 	
 	process(e){
 		//console.log(this.res.value)

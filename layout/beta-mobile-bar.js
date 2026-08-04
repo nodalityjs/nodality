@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.216
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -15,14 +15,7 @@ class /*Beta*/MobileBar extends Animator {
        // this.setStyles();
     }
 
-    removeQuotesFromBoth(jsonString) {
-        if (!jsonString) {
-            return;
-        }
-        // Remove quotes from both keys and values
-        const modifiedJSON = jsonString.replace(/"([^"]+)":\s*"([^"]+)"/g, '$1: $2');
-        return modifiedJSON;
-    }
+
     
 
     removeQuotesFromFirstWord(jsonString) {

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.216
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -138,22 +138,8 @@ class Base {
   // Change this to div.childNodes to support multiple top-level nodes
   return div.firstChild; 
 }
-	
-	reactState(){
-		
-		/*let nodess = document.querySelector(this.el);
-			
-			while (nodess.firstChild){
-				nodess.removeChild(nodess.lastChild);
-			}*/
-		
-		
-		let node = document.querySelector("#res");
-		
-		
-		let nodes = this.toNode(this.toHTML());
-		node.appendChild(nodes);
-	}
+
+
 	
 	mount(el){
 		this.el = el;

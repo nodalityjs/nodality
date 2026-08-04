@@ -68,15 +68,8 @@ return this;
 		
 		return this;
 	}
-	
-	itemWidth(w){
-		for (var i = 0; i < this.res.childNodes.length; i++){
-			let el = this.res.childNodes[i];
-			el.style.width = w;
-		}
-		
-		return this;
-	}
+
+
 	
 		
 	

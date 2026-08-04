@@ -152,13 +152,8 @@ class NavBar {
 		
 		return this;
 	}
-	
 
-	
-	openSymbol(symbol){
-		this.symbol = symbol;
-		return this;
-	}
+
     
     
         background(obj){
@@ -166,18 +161,8 @@ class NavBar {
               this.ele.style.opacity = obj.opacity;
             return this;
         }
-    
-    transluescent(){
-        this.ele.style.backgroundColor = "rgba(255,255,255,0.72)";
-        return this;
-        //background-color: rgba(255,255,255,0.72);
-    }
-    
-    
-    keepItem(item){
-        this.keepItem = item;
-        return this;
-    }
+
+
 	
 /*--------------------------------------------------ADJUST--------------------------------------------------*/	
 	// set habmurger icon
@@ -253,7 +238,6 @@ adjust(w) {
 			child.style.display = "block";
 			
 			if (child.textContent === this.titleText && this.titleText.length > 0) {
-                alert(child.textContent)
 				child.style.fontSize = "2em";
 			}
 			

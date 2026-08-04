@@ -27,10 +27,7 @@ class Image extends Animator {
 			}*/
 	}
 
-	removeQuotesFromFirstWord(jsonString) {
-		const modifiedJSON = jsonString.replace(/"([^"]+)":/g, '$1:');
-		return modifiedJSON;
-	  }
+
 
 	setType({url, type, mode}){
 		//alert("Thrice?");
@@ -52,29 +49,14 @@ class Image extends Animator {
 		return this;
 	}
 
-	flexOne(){
-		this.res.style.flex = "1";
-		return this;
-	}
+
 
 	hand(){
 		this.res.style.cursor = "hand";
 		return this;
 	}
 
-	
 
-	// Just for visual 
-	setGridWithoutCode(){
-		this.res.style.border = "1px solid white";
-		return this;
-	}
-
-
-	maxWidth(w){
-		this.res.style.maxWidth = w;
-		return this;
-	}
 
 
 	getHeight(){
@@ -510,11 +492,7 @@ obj.pad && this.pad(obj.pad);
 		return this;
 	}
 
-	square(){
-		this.res.style.width = "30%";
-		this.res.style.paddingBottom = "30%";
-		return this;
-	}
+
 
 
 	opacity(value){
@@ -523,11 +501,6 @@ obj.pad && this.pad(obj.pad);
 	}
 
 
-	rowCol(row, col){
-		this.res.style.gridRow = row;
-		this.res.style.gridColumn = col;
-		return this;
-	}
 
 
 	setArea(area){
@@ -535,15 +508,7 @@ obj.pad && this.pad(obj.pad);
 		return this;
 	}
 
-	setGridRow(row){
-		this.res.style.gridRow = row;
-		return this;
-	}
 
-	setGridCol(col){
-		this.res.style.gridColumn = col;
-		return this;
-	}
 
 	setGrid(){
 		this.res.style.gridRow = "span 2";
@@ -562,16 +527,7 @@ obj.pad && this.pad(obj.pad);
 		return this;
 	}
 
-	offseta(){
-		this.res.style.marginLeft = "90px";
-		this.res.style.marginTop = "-30px";
-		return this;
-	}
-	
-	borderAround(data){
-		this.res.style.border = data;
-		return this;
-	}
+
     
 	setClass(name){
 		this.res.setAttribute("class", name);
@@ -611,10 +567,7 @@ obj.pad && this.pad(obj.pad);
         return this;
     }
 
-	allRound(dimensions){
-this.res.style.borderRadius = dimensions;
-return this;
-	}
+
 
 
 	mobileWidth(){
@@ -707,20 +660,14 @@ return this;
 		return this;
 	}
 
-	autoW(){
-		this.res.style.width = "initial";
-		return this;
-	}
+
 
 	float(dir){
 		this.res.style.float = `${dir}`;
 		return this;
 	}
 
-	fillAvailable(){
-		this.res.style.height = "-webkit-fill-available";
-		return this;
-	}
+
 	
 	grayscale(val){
 		this.res.style.filter = `grayscale(${val}%)`;
@@ -829,10 +776,6 @@ if (mqa.matches){
 	}
 
 
-	toBack(){
-		this.res.style.zIndex = "-1";
-		return this;
-	}
 	
 	
 	
@@ -879,24 +822,7 @@ if (mqa.matches){
 		return this;
 	}
 
-    
-    
-	RSize(w, h, ratio) {
-		
-		let mq = window.matchMedia("(max-device-width: 420px)");
-			
-		
-		if (w && h) {
-			
-			this.res.style.width = mq.matches ? w * ratio : w;
-			this.res.style.height = mq.matches ? h * ratio : h;
-		} else {
-			this.res.style.width = mq.matches ? w * ratio : w;
-			this.res.style.height = mq.matches ? w * ratio : w;
-		}
 
-		return this;
-	}
 
 	
 	
@@ -917,14 +843,8 @@ if (mqa.matches){
         
         return this;
     }
-    
-    
-    
-	
-	clipShape(shape) {
-		this.res.style.borderRadius = "50%";
-		return this;
-	}
+
+
 	
 	cornerRadius(val){
 		this.res.style.borderRadius = val;
