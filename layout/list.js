@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.216
+ * nodality v1.0.217
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -126,8 +126,7 @@ class Cell {
 		return this.res;
 	}
 }
-window.List
-Cell = List
-Cell;
-export { List
-Cell };
+window.List = List;
+window.Cell = Cell;
+
+export { List, Cell };

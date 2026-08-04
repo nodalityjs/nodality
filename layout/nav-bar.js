@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.216
+ * nodality v1.0.217
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -342,14 +342,6 @@ adjust(w) {
 	}
 }
 	 
-window.NavBar
-Spacer
-Spacer
-Spacer = NavBar
-Spacer
-Spacer
-Spacer;
-export { NavBar
-Spacer
-Spacer
-Spacer };
+window.NavBar = NavBar;
+
+export { NavBar };

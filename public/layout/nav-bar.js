@@ -336,14 +336,6 @@ adjust(w) {
 	}
 }
 	 
-window.NavBar
-Spacer
-Spacer
-Spacer = NavBar
-Spacer
-Spacer
-Spacer;
-export { NavBar
-Spacer
-Spacer
-Spacer };
+window.NavBar = NavBar;
+
+export { NavBar };
