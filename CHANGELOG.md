@@ -68,6 +68,28 @@ Tagged during CI iteration on the scaffold browser check; neither reached npm.
 
 - Per-side effects for transitions: `side: "old" | "new"` scopes a raster op to one half of a morph, so the outgoing and incoming states can be art-directed separately. Colour-stage ops only — both sides share one sampling coordinate, so a sided warp has no meaning.
 
+## 1.0.221 — 2026-08-06
+
+### Changed
+
+- Many previously standalone layout classes (`Base`, `AreaSwitcher`, `GridSwitcher`, `Grid`, `List`, `Cell`, `MetaAdder`, `Modal`, `NavBar`, `Progress`, `Row`, `ScrollVideo`, `SideBar`, `Spacer`, `Stack`, `Switcher`, `Wrap`) now extend `Animator`, inheriting its shared methods. Each sets `this._noTheme = true` so existing rendering behaviour is preserved.
+- Common methods `round()`, `toCSS()`, `toHTMLA()`, and `background()` are now defined once on `Animator` and removed from `button.js`, `flex-card.js`, `link.js`, `text.js`, `flex-row.js` — behaviour is unchanged since these duplicated the same implementation.
+- `NavBar` and `SideBar` now store their root element on `this.res` instead of `this.ele`.
+- `Base` now stores its root element on `this.res` instead of `this.el`.
+- `GridSwitcher` (in `grid-switcher.js`) now stores its element on `this.res` instead of `this.el`.
+
+### Removed
+
+- `onTap()` removed from `button.js`, `flex-row.js`, and `text.js` (duplicated the same logic; no longer defined on these classes and not present on `Animator` either).
+- `width()` removed from `container.js`, `flex-grid.js`, and `text-field.js` (no equivalent added to `Animator`).
+
+### Breaking
+
+- Code relying on `NavBar.ele` or `SideBar.ele` directly will break — these are now `NavBar.res` / `SideBar.res`.
+- Code relying on `Base.el` (set by `mount()`) will break — now set as `Base.res`.
+- Calling `.onTap()` on `Button`, `FlexRow`, or `Text` instances will now throw, since the method has been removed from these classes without replacement.
+- Calling `.width()` on `Container`, `FlexGrid`, or `TextField` instances will now throw, since the method has been removed from these classes without replacement.
+
 ## 1.0.220 — 2026-08-05
 
 ### Changed
