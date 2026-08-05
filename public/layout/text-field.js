@@ -28,7 +28,6 @@ class TextField extends Animator {
 			}
 
 
-	//	div.style.width = "100%";
 		return this;
 	}
     
@@ -66,7 +65,6 @@ class TextField extends Animator {
 		this.commonMethods(obj);
 		return this;
 	}
-
 
 
 		toCode() {

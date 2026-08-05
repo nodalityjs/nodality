@@ -1,14 +1,10 @@
-import {Animator} from "./animator.js";
-
 class Spacer { 
 	constructor( hide) {
         
         
         
         
-	//	this.hide = hide;
         
-      //  if (hide){
             
       
     var card = document.createElement("div");
@@ -17,7 +13,6 @@ class Spacer {
       //  }
         
         
-      //   if (hide){
             this.res.setAttribute("class", "innerHider");
       //  }
         
@@ -32,8 +27,6 @@ class Spacer {
 	
 	render(){
 		
-      /*  var one = document.createElement("h2");
-        one.style.display = "none !important";*/
 	
 	return this.res //this.res ?? one;
 	

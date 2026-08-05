@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -18,11 +18,6 @@ class Link extends Animator {
 		this.html = [];
 
 	//	alert(link);
-		/*if (text != undefined && link != undefined){
-			this.code.push(`\n new Link("${text}", `,`"${link}")`);
-		} else {
-			this.code.push("\n new Link()");
-		}*/
 		// // // console.log(link); // 
 		
 		this.res = null;
@@ -30,28 +25,6 @@ class Link extends Animator {
 		this.setup();
 		this.inlineBlock(); // auto set ??
 
-/*
-		this.res.addEventListener("click", (e) => {
-  const url = this.link || this.res.getAttribute("href");
-  if (!url) return;
-
-  const isExternal = /^https?:\/\//i.test(url);
-  const isAnchor = url.startsWith("#");
-
-  if (isExternal || isAnchor || url.endsWith(".html")) {
-    // Always let browser handle these
-    return;
-  }
-
-  // Otherwise SPA routing
-  e.preventDefault();
-  if ("navigation" in window) {
-    navigation.navigate(url);
-  } else {
-    history.pushState({}, "", url);
-    document.dispatchEvent(new PopStateEvent("popstate"));
-  }
-});*/
 
 this.res.addEventListener("click", (e) => {
       const raw = this.link || this.res.getAttribute("href");
@@ -60,13 +33,6 @@ this.res.addEventListener("click", (e) => {
       // ✅ normalize again just in case
       const url = new URL(raw, window.location.href).href;
 
-    /*  const isExternal = /^https?:\/\//i.test(url);
-      const isAnchor = url.startsWith("#");
-
-      if (isExternal || isAnchor || url.endsWith(".html")) {
-        // ✅ Let browser do a full navigation
-        return;
-      }*/
 
 const isExternal = /^https?:\/\//i.test(url);
 const isAnchor = url.startsWith("#");
@@ -90,45 +56,6 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 	
 
 
-		/* this.res.addEventListener("click", (e) => {
-    
-		const url = this.link || this.res.getAttribute("href");
-  if (!url) return;
-
-  const isExternal = /^https?:\/\//i.test(url);
-  const isAnchor = url.startsWith("#");
-
-  if (isExternal) {
-    // 🌍 External full URL → let browser handle it normally
-    return;
-  }
-
-  if (isAnchor) {
-    // 🔗 Anchor (#section) → let browser scroll to it
-    return;
-  }
-
-  // At this point it’s a relative or root path (e.g. "/about" or "about.html")
-  const isHTMLFile = url.endsWith(".html");
-
-  if (isHTMLFile) {
-    // 📄 Normal multipage HTML site → let browser load it
-    return;
-  }
-
-  // 🚫 Otherwise → treat as SPA route
-  e.preventDefault();
-
-  if ("navigation" in window) {
-    navigation.navigate(url);
-  } else {
-    history.pushState({}, "", url);
-    document.dispatchEvent(new PopStateEvent("popstate"));
-  }
-
-    });*/
-
-
 	}
 
 	toCSS(){
@@ -141,10 +68,8 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 
 	toElCSS(){
 		this.preffersId ? this.elCSS.unshift(this.res.id + " { \n") : (this.elCSS.unshift("." + this.class + " { \n"));
-		//this.elCSS.unshift(this.res.id + " { \n");
 		this.elCSS.push(" } \n \n");
 		// // console.warn("OI")
-		// // console.log(this.elCSS);
 		return this.elCSS; 
 	}
 
@@ -166,7 +91,6 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 			.replace(/"([^"]+)":/g, '$1:');
 
         return [`new Link().set(${objString})`];
-		//return this.code; // 120646 ovewrite 25/03
 	}
 
 	setArea(area){
@@ -178,9 +102,7 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 		let el = document.createElement("a");
 		el.setAttribute("href", this.link);
 		el.style.textDecoration = "none";
-		//el.style.fontWeight = "bold";
 		el.style.color = "black";
-		//el.style.textAlign = "center";
 		el.style.fontFamily = "Arial";
 		
 		var text = document.createTextNode(this.text);
@@ -197,16 +119,6 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 
 	appendImageAsChild(options, margin){
 
-		/*
-		let link = document.createElement("a");
-link.setAttribute("href", "https://www.apple.com");
-let img = document.createElement("img");
-img.setAttribute("src", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFitX60XAzA1Cd8koHUgjCfMgCyxokZvYCybdzac6w&s");
-link.appendChild(img);
-
-document.body.appendChild(link);
-
-		*/
 
 // // console.log(options);
 
@@ -227,9 +139,6 @@ document.body.appendChild(link);
 			options.options.pad && (this.res.style.padding = options.options.pad);
 			link.appendChild(img);
 		}
-
-
-		//this.res.style.fontSize = "8rem";
 
 
 		
@@ -274,7 +183,6 @@ document.body.appendChild(link);
 	}
 
 	set(obj){ // make it like I would like it
-// `1px solid ${this.blastData.color}
 
 // push at all times
 true && (this.elCSS.push(`text-decoration: none; \n`));
@@ -284,9 +192,6 @@ let stra = "";
 
 obj.onTap && this.onTap(obj.onTap);
 
-//obj.isHidden && this.isHidden(obj.isHidden);
-
-//obj.exact && (this.res.style.fontSize = obj.exact);
 
 obj.tags && super.setTags(obj.tags); // Has to be in both
 
@@ -297,21 +202,9 @@ this.commonMethods(obj);
 
 obj.flex && (this.res.style.display = "flex");
 
-//obj.pad && this.pad(obj.pad);
 
 //@ fixMobileTap: Suppress the mobile tap highlight and its 300ms delay.
 obj.fixMobileTap && this.fixMobileTap(obj.fixMobileTap);
-
-//obj.resprop && this.resprop(obj.resprop);
-
-/*
-
-const mapped = sides.map(x => `"${x}"`).join(", ");
-		obj.arrayPadding && this.arrayPadding(obj.arrayPadding.sides, obj.arrayPadding.value);
-		//obj.arrayPadding && this.arrayPadding(obj.arrayMargin.sides, obj.arrayMargin.value);
-		obj.arrayPadding && (stra += this.spacingCode("pad", obj.arrayPadding.sides, obj.arrayPadding.value));
-*/
-
 
 
 let rempad = this.removeQuotesFromFirstWord(JSON.stringify(obj.pad));
@@ -329,8 +222,6 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 			this.res.style.border = `${obj.borderObj.width} solid ${obj.borderObj.color}`;
 			this.res.style.borderRadius = `${obj.borderObj.radius}`;
 			
-			//this.res.style.border = `3px solid transparent`;
-			//this.res.style.border = "10px solid yellow";
 
 			let rem = this.removeQuotesFromFirstWord(JSON.stringify(obj.borderObj));
 			stra += `\n borderObj: ${rem},`;
@@ -357,17 +248,8 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 	   obj.fluidc && this.fluidCopy(obj.fluidc);
 		obj.fluidc && (stra += `\n fluidc: "${obj.fluidc}",`);
 
-	//	obj.size && this.fluidCopy(obj.size);
 	//	obj.size && (stra += `\n size: "${obj.size}",`);
 
-		/*if (obj.fluidc === "S6") {
-			obj.fluidc && (this.elCSS.push(`font-size: calc(1rem + 1.075vw); \n`));
-		} else {
-			obj.fluidc && (this.elCSS.push(`font-size: calc(1.625rem + 5.075vw); \n`));
-		}*/
-
-
-		// obj.fluidc && (this.elCSS.push(`font-size: calc(1.625rem + 5.075vw); \n`));
 
 		obj.clampc && this.clampCopy(obj.clampc);
 
@@ -393,15 +275,11 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		obj.hover && (stra += `\n hover: ${stre},`);
 
 
-
-
 		
 	
-	//	obj.weight && (this.res.style.fontWeight = obj.weight);
 
 		obj.blast && (this.blastData = obj.blast);
 
-		//obj.bold && (this.res.style.fontWeight = "bold");
 		// Wasn't there !!!
 		obj.bold && (stra += `\n bold: ${obj.bold},`);
 
@@ -409,36 +287,19 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		obj.block && this.toBlock();
 		obj.block && (stra += `\n block: ${obj.block},`);
 
-		//obj.border && this.border(obj);
 
-		//obj.radius && this.radius(obj.radius);
 		obj.radius && (stra += `\n radius: "${obj.radius}",`);
 
-	//	obj.width && this.width(obj.width);
 		obj.width && (stra += `\n width: "${obj.width}",`);
 
 		
-		//obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
 
 		obj.maxWidth && this.maxWidth(obj.maxWidth);
 		// // // console.log(obj.arrayMargin);
 
 
-
 		
 
-	/*	if ((obj.link !== undefined || obj.url !== undefined) && obj.text !== undefined){
-			this.link = obj.link;
-		   this.text = obj.text;
-			stra += `\n link: "${obj.link}",`;
-			stra += `\n text: "${obj.text}",`;
-			
-		obj.link && this.res.setAttribute("href", obj.link);
-		// // // console.log(obj.link);
-
-		obj.text && (this.res.textContent = obj.text);
-
-		}*/
 
 		obj.url && this.res.setAttribute("href", obj.url);
 		stra += `\n url: "${obj.url}",`;
@@ -446,7 +307,6 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		obj.text && (this.res.textContent = obj.text);
 		stra += `\n text: "${obj.text}",`;
 
-		//this.text = obj.text;
 		
 		// stra += `\n text: "${obj.text}",`;
 
@@ -508,14 +368,12 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 			(stra += `\n blast: ${stringified},`);
 		}
 
-		//if obj.keySet && this.keySet(obj.keySet); 
 		//obj.keySet && (stra += `\n keySet: ${stringified},`);
 
 		let str = `new Link().set({${stra}}) \n`;
 
 		this.code.push(str);
 		obj.color && this.color(obj.color);
-
 
 
   //@ rounded: Apply the default corner radius. Use `radius` for a specific value.
@@ -535,52 +393,11 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 
 	
 // 504-711 REACT ON TRANSFORM
-/*
-if (obj.transform && obj.transform.transform){
-	this.reactOnTransform(obj.transform);
-} else {
-	this.reactOnTransform(obj);
-}*/
 
 obj.transform && this.reactOnTransform(obj.transform);
 
 
-
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	let arr = [];
@@ -616,16 +433,6 @@ if (ft.length > 0){
 			}
 
 
-	//	let arr = [];
-
-		/*for (var i = 0; i < ft.length; i++){
-			// // console.log("Linkello");
-			arr.push({
-				range: ft[i].range,
-				log: ft[i].op.name
-			});
-		}*/
-
 		// // console.log("LATA")
 		// // console.log(ft);
 		// // console.log(obj.shadow);
@@ -643,7 +450,6 @@ if (ft.length > 0){
 		
 
 		// THIS GETS OWERWRITTEN
-		// this.res.style.border = "1Px solid orange";
 
 		//alert(obj.hover && obj.hover.border);
 		let keep = [];
@@ -663,19 +469,11 @@ if (ft.length > 0){
 			// alert("PP")
 			keep.push("animation");
 			
-			//this.res.style.opacity = 0.3;
 		}
 
-		/*if (obj.animationSimple){
-			// alert("PP")
-			keep.push("animationSimple");
-			
-			//this.res.style.opacity = 0.3;
-		}*/
  // alert(obj.id);
 // obj.id is undefined why ???
 
-// alert(this.options.id); undef.
 		// it isn't in ID
 
 		// // console.log("Keeper");
@@ -689,12 +487,10 @@ if (ft.length > 0){
 	}
 
 
-
 	
 
 
 		// 211518 you know howf
-	// obj.mar && this.mar(obj.mar); // has to be here
 	
 	//---
 
@@ -807,7 +603,6 @@ if (ft.length > 0){
         }
 
 
-
 		const display6 = "calc(1rem + 0.5vw)"; // calc(1rem + 1.2vw)
         
         if (name === "S6"){
@@ -838,11 +633,6 @@ if (ft.length > 0){
 		return this;
 	}
 	
-	/*background(color){
-		//this.res.style.padding = "1em";
-		this.res.style.backgroundColor = color;
-		return this;
-	}*/
 
 
 	newWindow() {
@@ -866,30 +656,7 @@ if (ft.length > 0){
 	}
 
 
-
-
-
  // 220812 la olympics 2028
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	
@@ -915,9 +682,6 @@ if (ft.length > 0){
     medium() {
 		const adj = () => {
 			let query = window.matchMedia("(max-device-width: 415px)");
-			/* let query = window.matchMedia("(max-device-width: 415px)");
-			if (window.innerWidth < h || query.matches) {
-			} */
 
 			if (query.matches) {
 				this.res.style.fontSize = '2rem';
@@ -939,22 +703,6 @@ if (ft.length > 0){
 
 	/**/
 	
-	/* hover(back, fore){
-		this.prevColor = this.res.style.backgroundColor;
-		this.foreColor = this.res.style.color;
-		
-		this.res.onmouseover = () => {
-			this.res.style.backgroundColor = `${back}`;
-			this.res.style.color = `${fore}`;
-		}
-		
-		this.res.onmouseout = () => {
-			this.res.style.backgroundColor = `${this.prevColor}`;
-			this.res.style.color = `${this.foreColor}`;
-		}
-		
-		return this;
-	} */
     
    
     
@@ -980,7 +728,6 @@ if (ft.length > 0){
 		
 	
 		res();
-	//	window.onresize = res();
 		
 	
 		
@@ -999,12 +746,7 @@ if (ft.length > 0){
 	
 	
 	render(div){
-		// this.code.push("})");
 
-		/*if (this.options.id){
-			this.res.setAttribute("id", this.options.id);
-
-		}*/
 		
 
 		if (div){

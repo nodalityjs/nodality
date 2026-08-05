@@ -1,5 +1,3 @@
-import {Animator} from "./animator.js";
-
 class MetaAdder{
     constructor(){ 
         this.res = document.createElement("meta");

@@ -1,10 +1,8 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
-
-import {Animator} from "./animator.js";
 
 class Wrap { 
 	constructor(els){
@@ -18,21 +16,15 @@ class Wrap {
 		for (var i = 0; i < els.length; i++){
 			
 			
-			/*var element = els[i];
-			var _oldEl = element;
-			element = function(...args) { return new _oldEl(...args) };
-			*/
 			
 			
 			//console.log(new els[i])
 			this.res.appendChild(els[i].render().render());
 
 
-
 			
 		}
 	}
-
 
 
 	
@@ -83,12 +75,6 @@ class Wrap {
 	
 	
 	
-	/*items(els){
-		for (var i = 0; i < els.length; i++){
-			this.res.appendChild(els[i].render().render());
-		}
-		return this;
-	}*/
 	
 	
 	
@@ -106,41 +92,6 @@ class Wrap {
 		
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 export { Wrap };

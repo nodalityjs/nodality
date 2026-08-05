@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -14,7 +14,6 @@ class /*Multi*/Switcher extends Animator {
     this.currentView = null;
     this.internalDiv = null;
     this.resizeListener = null;
-   // this.internalID = it;
   }
 
   set({ breakpoints }) {
@@ -38,13 +37,11 @@ class /*Multi*/Switcher extends Animator {
 
 
   toCode() {
-    //  return ["new Text('A').set({})"];
       const objStringa = JSON.stringify(this.options.breakpoints.map(o => o.view.toCode()).flat(), null,4);
       const objStringas = JSON.stringify(this.options.breakpoints.map(o => o.at), null,4);
 
       const objString = JSON.stringify(this.options.breakpoints, null,4);
       // console.log("OMHELLOA");
-      // console.log(this.options);
       // console.log(objStringa);
       // console.log(objStringas);
 
@@ -62,30 +59,6 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
       })`];
   }
 
-/*
-  render(selector) {
-  alert(selector); // undefined
-
-
-    this.container = document.querySelector(selector);
-
-  //  if (!this.container) { // Why does this condition fire???
-   //   alert("APPLY MOUNt"); // undefined
-      this.container = document.querySelector(this.internalID "#mount");
-    //  throw new Error(`No element found matching selector: ${selector}`);
-   // }
-
-    // Create an internal div for switching content
-    this.internalDiv = document.createElement("div");
-    this.container.appendChild(this.internalDiv);
-
-    this.applyView();
-
-    this.resizeListener = this.applyView.bind(this);
-    window.addEventListener("resize", this.resizeListener);
-
-    return this.container;
-  }*/
 
     render(val) {
       //alert(val)
@@ -163,32 +136,17 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
   });
 
 
-
   //  if (window.matchMedia("(max-width"))
     
-   /* const matchingBreakpoint = this.breakpoints.reduce((prev, current) => {
-      return width >= current.at ? current : prev;
-    }, this.breakpoints[0]);*/
 
   //  console.log("MB");
   //  console.log(matchingBreakpoint);
 
 
-//const width = window.innerWidth || document.documentElement.clientWidth;
 // Ensure `breakpoints` array is structured correctly
-/*this.breakpoints = [
-    { at: 0, view: "mobileView" },
-    { at: 1200, view: "desktopView" }
-];*/
 
 // Find the matching breakpoint
-/*const matchingBreakpoint = this.breakpoints.reduce((prev, current) => {
-    return width >= current.at ? current : prev;
-}, this.breakpoints[0]);
-*/
 //console.log(matchingBreakpoint);
-
-
 
 
  
@@ -208,16 +166,4 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
   }
 }
 
-/*
-// Example usage:
-const switcher = new MultiSwitcher()
-  .set({
-    breakpoints: [
-      { at: "0px", view: Object.assign(document.createElement("h1"), { textContent: "Small View" }) },
-      { at: "700px", view: Object.assign(document.createElement("h1"), { textContent: "Medium View" }) },
-      { at: "800px", view: Object.assign(document.createElement("h1"), { textContent: "Large View" }) },
-    ],
-  })
-  .render("#myDiv");
-*/
 export { /*Multi*/Switcher };

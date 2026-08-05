@@ -21,7 +21,6 @@ class Card extends Animator {
 		card.style.backgroundColor = "#fff";
 		card.style.fontFamily = "Arial";
 		card.style.width = "100%";
-		// card.style.boxShadow = "3px 3px 10px #111";
 		card.style.overflow = "hidden"
 		this.res = card;	
 		return this;	
@@ -49,7 +48,6 @@ class Card extends Animator {
 		}
 
 		
-		//obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
 
 
 		obj.width && (this.res.style.width = obj.width);
@@ -111,7 +109,6 @@ this.options = obj;
 
       this.chainReact(arr, this.options.id, keep);
 
-        //  this.res.style.border = "1px solid green";
     }
   }
  //22155 snap to change phone screen

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -18,7 +18,6 @@ class Free extends Animator {
         this.options = obj;
         this.attributes = obj;
         this.templateCols = obj.templateCols;
-       // alert(this.templateCols);
 
         if (obj.templateCols) { // condition wrong
             this.res.style.gridTemplateColumns = `repeat(${obj.templateCols.cols}, 1fr)`;
@@ -105,15 +104,9 @@ class Free extends Animator {
    
         //  element.id = attr.attract.slice(1);
         element.style.gridRowStart = row;
-       // element.style.gridRowEnd = row + 3; // Example height of 3 grid cells
         element.style.gridColumnStart = col;
-      //  element.style.gridColumnEnd = col + 5; // Example width of 5 grid cells
 
-      //  element.style.border = `3px solid #${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;//[]
        
-       /*if (element.toString() === "[HTMLParagaphElement]"){
-        element.style.width = "fit-content";
-       }*/
 
         // Optional: Add some content or styles for better visibility
        // element.textContent = `${attr.attract.slice(1)}`
@@ -123,14 +116,11 @@ class Free extends Animator {
         element.style.alignItems = "center";
         element.style.justifyContent = "center";
         element.style.fontWeight = "bold";
-      //  element.style.color = "white";
        // alert(element)
         this.res.appendChild(element);
 
-       // this.res.style.border = "3px solid #1abc9c";
     });
 
-   // document.body.appendChild(container);
    return this;
 }
 
@@ -143,11 +133,9 @@ class Free extends Animator {
             this.res.appendChild(component.render());
            // alert("PP");
        //    console.log("ORAA");
-       //    console.log(this.res.children.length);
         }
 
            //   alert("PP");
-     //  alert(this.res);
 
         if (this.storedPositions){
             this.generateGridPositions(this.storedPositions);
@@ -158,35 +146,9 @@ class Free extends Animator {
         return this;
     }
 
-   /* toCode(){
-        let codeStr = `new Free()`;
-
-        // 16:01:09 09/11/24 What????
-        // Convert attributes to .set({...}) format if there are any attributes
-        if (Object.keys(this.attributes).length > 0) {
-            codeStr += `.set(${JSON.stringify(this.attributes, null, 2).replace(/"([^"]+)":/g, '$1:')})`;
-
-          //  codeStr += `.set(${JSON.stringify(this.attributes, null, 2)})`;
-        } else {
-            codeStr += `.set({})`;
-        }
-    
-        codeStr += `.add([\n`;
-    
-        // Generate the code for each item and join with commas only between items
-        codeStr += this.items
-            .map(item => item.toCode().join("").trim()) // Trim any line breaks or whitespace around the item code
-            .join(",\n"); // Insert commas only between items
-    
-        codeStr += `\n])`;
-    
-
-        return codeStr;
-    }*/
 
         toCode() {
             if (this.excludeFromCodeTrue){
-                // this.code = ["new Text('').set({})"];
                 return [""];
             }
     
@@ -222,7 +184,6 @@ class Free extends Animator {
         
 
      //   alert("PP");
-     //  alert(this.res);
         return this.res;
     }
 }

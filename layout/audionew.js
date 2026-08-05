@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -69,8 +69,5 @@ import {Animator} from "./animator.js";
 
  
 
-
-//var _oldAudio = Audio;
-//Audio = function(...args) { return new _oldAudio(...args) };
 
 export { NAudio };

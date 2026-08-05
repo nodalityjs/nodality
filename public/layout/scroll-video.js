@@ -1,5 +1,3 @@
-import { Animator } from "./animator.js";
-
 class ScrollVideo {
     constructor() {
         this.frameNumber = 0; // Start video at frame 0
@@ -61,7 +59,6 @@ class ScrollVideo {
         setHeight.id = "set-height";
         setHeight.style.display = "block";
         this.sh = setHeight;
-      //  this.res.appendChild(setHeight);
     }
 
     sticky() {

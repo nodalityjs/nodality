@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -23,7 +23,6 @@ class Animator {
 
 		// Auto-subscribe every component to Theme so dark-mode "just works"
 		// even when the user never declared a per-component theme map.
-		// Subclasses set this.res later in their own constructor; we re-apply
 		// in a microtask, by which time the synchronous chain has finished.
 		if (typeof document !== "undefined") {
 			this._themeUnsub = Theme.subscribe((mode) => this._applyTheme(mode));
@@ -400,7 +399,6 @@ class Animator {
 			let w = obj.border.width;
 			this.res.style.border = w ? `${w}px solid transparent` : "1px solid transparent";
 
-			//this.res.style.border = "1px solid transparent";
 		}
 
 
@@ -431,7 +429,6 @@ class Animator {
 			// start snapping instead of easing.
 			this.res.style.transitionProperty =
 				`background-color, color, border, box-shadow, transform`;
-			//  this.transition(obj.animation);
 		}
 
 		// remember the pre-hover transform so scale-on-hover can be undone cleanly
@@ -450,19 +447,12 @@ class Animator {
 		    }
 
 
-
-
-			/*if (obj.border){
-				this.res.style.border = "1px solid transparent";
-			}*/
 			
 			
 			
-			// // // console.log(`OUT: ${this.res.style.backgroundColor}`);
 		}
         
         this.res.onmouseover = () => {
-			//this.res.style.backgroundColor = "#ffffff"; //obj.background; //`#ffffff`;
 			//alert("OJHOIH")
 		//	alert(obj.background);
 			this.res.style.color = obj.color;
@@ -490,11 +480,7 @@ class Animator {
 				this.res.style.boxShadow = obj.boxShadow;
 			}
 
-			//if (this.options && this.options.borderObj){ was here
 				
-				//let o = this.options.borderObj;
-				//this.res.style.border = `${o.width}px solid ${o.color}`;
-				//this.res.style.borderRadius = `${o.radius}`;
 			//}
 
 			// // // console.log(`OVER: ${obj.background}`);
@@ -575,8 +561,6 @@ class Animator {
 	}
 
 
-
-
 	setAny(obj){
 		this[Object.keys(obj)[0]] = [Object.values(obj)[0]];
 	}
@@ -590,9 +574,7 @@ class Animator {
 	}
 
 
-
 	// [{ breakpoint: "sm" , values: [...]}]
-
 
 
 /**
@@ -888,11 +870,6 @@ respad(arr) {
 }
 
 
-
-
-
-
-
 resmar(arr) {
 
     // --- 1. CONFIGURATION & NORMALIZATION ---
@@ -971,8 +948,6 @@ resmar(arr) {
     // Ensure the unified handler is set up and starts listening
     this._setupResponsiveManager(); 
 }
-
-
 
 
 	/**
@@ -1100,7 +1075,6 @@ resmar(arr) {
 	}
 
 
-
 	mar(arr){
 
 		// Shorthand: mar: "center" → margin: 0 auto
@@ -1189,7 +1163,6 @@ resmar(arr) {
 		//alert(obj.col);
 		this.res.style.gridColumn = obj.col;
 		this.res.style.gridRow = obj.row;
-		//this.res.style.border = "1px solid green";
 		return this;
 	  }
 
@@ -1266,7 +1239,6 @@ resmar(arr) {
         }
 
 
-
 		const display6 = "calc(1rem + 0.5vw)"; // calc(1rem + 1.2vw)
         
         if (name === "S6"){
@@ -1297,7 +1269,6 @@ resmar(arr) {
     
 
 
-
 setPref(id){
 	this.preffersId = id;
 }
@@ -1306,9 +1277,6 @@ setPref(id){
 setClass(id){
 	this.class = id;
 }
-
-
-
 
 
   //--------- START OF INDEPENDENT
@@ -1326,7 +1294,6 @@ setTags(obj){
 }
 
   chainReact(queries, id, keep) { // we use this
-	//this.cssGen(queries, id, this.class, this.class !== undefined); // 02/04/2024 10:43:40 Nice!!!
 
 	this.ap = false;
 	this.cta = 0;
@@ -1417,13 +1384,10 @@ setTags(obj){
 	  this.res.style['-webkit-text-fill-color'] = '';
 	  this.res.style['-webkit-text-stroke-color'] = "";
 	  this.res.style['-webkit-text-stroke-width'] = "";
-	//  this.res.style['-webkit-background-clip'] = 'unset';
 	  this.res.style.filter = "";
 	 
-	  //if (operations.includes("gradient")){
 	 
 
-	//  if (operations.includes("gradient")) {
 
 	
  if (this.options.background){
@@ -1432,7 +1396,6 @@ setTags(obj){
 	  } else {
 				//alert("/")
 				//console.log("///-Hello-///")
-		// this.res.style.background = "black"; always set backgrohnd to shapes dangerous affects divs
 	  }
 	 // }
 	  
@@ -1447,7 +1410,6 @@ if (operations.includes("gradient")){
 	  // NO CONITION, ALWAYS!!!!
 	  if (operations.includes("gradient") || operations.includes("shadow")){
 			this.res.style.position = "relative";
-			//this.res.style.zIndex = -1; 
 			// Navigation might go over it give nav higher zIndex
 	  } // FIX 23:31:56 10/11/24
 
@@ -1463,7 +1425,6 @@ if (operations.includes("gradient")){
 
 		if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapperElement"){
 			// alert("///")
-			// this.res.style.opacity = 0.3;
 			//alert(`${w}px solid orange`);
 			this.res.style.border = `${typeof w === 'number' ? w + 'px' : w} solid orange`;
  this.res.style.display = "inline-block"; // or block
@@ -1478,13 +1439,11 @@ if (operations.includes("gradient")){
 			if (this.text){
 
 			
-			//this.res.textContent = this.text; //"a"
 			}
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 	
 			this.res.style['-webkit-text-stroke-color'] =  gl;//"orange";
 			this.res.style['-webkit-text-stroke-width'] = `${w}`;
-		//this.res.style.display = "inline-block"; // important for transform
 			//alert("HIOH")
 		}
 	  }
@@ -1501,7 +1460,6 @@ if (operations.includes("gradient")){
 	 }
 
 	  if (operations.includes("gradient")){
-		// alert(this.getType());
 		// not working with blast
 
 		// Children are cleared when setting gradient to wrap and resizing
@@ -1510,17 +1468,14 @@ if (operations.includes("gradient")){
 		if (this.getType() !== "LayoutWrapperElement" && this.getType() !== "FlexRowLayoutElement"){
 			this.res.style['-webkit-text-fill-color'] = 'transparent';
 		}
-		//alert(this.globalGradient);
 
 		// globalGradient is set in element "set" method
 		this.res.style.background = this.globalGradient;// "linear-gradient(to left, #3498db, #1abc9c)";
 		
 		
 	//	console.log("LGT");
-	//	console.log(this.getType());
 		if (this.getType() !== "LayoutWrapperElement" && this.getType() !== "FlexRowLayoutElement" ){
 		// alert("OJIOJIOIO")
-		//alert(this.getType());
 			this.res.style['background-clip'] = 'text'; // 19:23:05 05/05/2024 -webkit was a problem here!
 		}
 	
@@ -1567,9 +1522,6 @@ if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapp
 }
 
 
-
-
-			//if (this.getType() === "FlexRowLayoutElement"){
 			//} else {
 				
 				
@@ -1589,7 +1541,6 @@ if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapp
 			}
 		}
   }
-
 
 
 	if (operations.includes("spana") || operations.includes("span")) {
@@ -1672,7 +1623,6 @@ if (this.options.animation && !this.hasAnimated && !this.options.animation.op.fi
 
 this.hasAnimated = true;
 let ass = this.options.animation.op;
-//alert(this.openTag);
 
  this._on(window, /*this.openTag*/"sidebar:open", () => {
 		
@@ -1685,18 +1635,13 @@ let ass = this.options.animation.op;
   });
 
 
-
 	this.res.animate(ass.keyframesClose, {
 		duration: 0,
 		fill: "forwards"
 	   });
 
 
-
-		//this.res.animate(ass.keyframesOpen, ass.openOptions);
 	   if (this.openTag && this.closeTag){
-		// alert("ONA" + this.openTag);
-		//alert(this.openTag);
 		
 this._on(window, this.openTag, () => {
 		this.res.animate(ass.keyframesOpen, ass.openOptions);
@@ -1753,8 +1698,6 @@ this._on(window, this.openTag, () => {
 }
 
 
-
-
 	
 		
 	}
@@ -1780,16 +1723,8 @@ this._on(window, this.openTag, () => {
 // 
 
 
-
-
-
 	if (obj.transform || (obj.op /*&& obj.op.transform*/)){
 		
-
-
-
-
-
 
 
 		let transform = obj.op;//transform; 
@@ -1923,7 +1858,6 @@ this._on(window, this.openTag, () => {
 		}
 
 		// 17:37:15 a comma was missing
-		//this.res.style.transform = transformValue;
 		(this.blastTarget || this.res).style.transform = transformValue;
 		this.res.style.opacity = opacity;
 	} else {
@@ -1990,7 +1924,6 @@ this._on(window, this.openTag, () => {
 	
 		// Apply reset transform if any values were provided
 		if (resetTransformValue) {
-		//	this.res.style.transition = "transform 0.5s ease-in-out"; // Reset transition
 			this.res.style.transform = resetTransformValue.trim(); // Remove trailing space
 		}
 	}
@@ -2027,7 +1960,6 @@ if (transform.on){
 	}
 
 
-
 maxWidth(w){
     this.res.style.maxWidth = w;
     return this;
@@ -2038,17 +1970,6 @@ removeQuotesFromFirstWord(jsonString) {
 	return modifiedJSON;
   }
   
-
-
-
-
-
-
-
-
-
-
-
 
 
     

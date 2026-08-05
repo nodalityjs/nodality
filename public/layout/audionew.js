@@ -64,7 +64,4 @@ import {Animator} from "./animator.js";
  
 
 
-//var _oldAudio = Audio;
-//Audio = function(...args) { return new _oldAudio(...args) };
-
 export { NAudio };

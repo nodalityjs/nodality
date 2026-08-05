@@ -1,7 +1,6 @@
 import {Animator} from "./animator.js";
 // import {CustomDivRenderer} from "./navFactor/customDiv.js";
 // CORRECT
-// const { TIS620_THAI_CI } = require("mysql/lib/protocol/constants/charsets");
 class CustomDivRenderer {
     constructor(obj, items) {
         this.obj = obj || {};
@@ -24,7 +23,6 @@ class CustomDivRenderer {
         }
 
       //  console.log("ITEMS ARE ORDERED");
-      //  console.log(this.items);
 
         // Append rendered items to inner div
         for (let i = 0; i < this.items.length; i++) {
@@ -59,7 +57,6 @@ class CustomDivRenderer {
     }
 }
 
-//window.CustomDivRenderer = CustomDivRenderer;
 //export { CustomDivRenderer };
 
 
@@ -79,7 +76,6 @@ class UINavBar extends Animator {
         if (Object.keys(this.attributes).length > 0) {
             codeStr += `.setup(${JSON.stringify(this.attributes, null, 2).replace(/"([^"]+)":/g, '$1:')})`;
 
-          //  codeStr += `.set(${JSON.stringify(this.attributes, null, 2)})`;
         } else {
             codeStr += `.setup({})`;
         }
@@ -126,7 +122,6 @@ class UINavBar extends Animator {
       
 
         let back = document.createElement("div");
-       // back.style.background = "green";
         back.style.position = "absolute";
 
         el.style.margin = "20px";
@@ -141,7 +136,6 @@ class UINavBar extends Animator {
         
         this.addCloseButton = false;
         this.res = wrap;
-      //  console.log(this.res);
 
 
         if (obj.background) {
@@ -229,7 +223,6 @@ class UINavBar extends Animator {
     items(items) {
        
         this.items = items;
-       // alert(this.items);
         let starts = ["Link", "Image", "Spacer", "Dropdown"].some(e => {
             return items[0].__proto__
                 .constructor
@@ -239,7 +232,6 @@ class UINavBar extends Animator {
 
       //  console.log(starts);
       //alert("NEXT");
-      //alert(this.items);
      // alert(starts); //THIS SHOULD BE TRUE;
 
         if (true) { // We are adding class instances to the Area
@@ -249,7 +241,6 @@ class UINavBar extends Animator {
             let outerDiv = rend.render();
 
             this.res.children[0].appendChild(outerDiv);
-
 
 
             let child = this.res.children[0].children[0].children[0];
@@ -274,7 +265,6 @@ class UINavBar extends Animator {
          //   console.log(animation);
 
 
-
             if (animation){
 
 
@@ -286,7 +276,6 @@ class UINavBar extends Animator {
 
             
             for (var i = 0; i < child.children.length; i++){
-                //child.children[i].style.border = "1px solid purple";
 
                 // 1 - SET HIDDEN STATE BY IMMEDIATELLY FIRING ANIM
                 // set hidden state immediatelly on the mobile
@@ -357,7 +346,6 @@ class UINavBar extends Animator {
                     this.res.children[0].appendChild(logo.render());
 
 
-
                     // throws it
 
                     if (this.obj.spacing) {
@@ -405,8 +393,6 @@ class UINavBar extends Animator {
             this.res.children[0].appendChild(div);
             this.adjust();
         }
-
-
 
 
         // Insert hamburger button at the correct place
@@ -461,8 +447,6 @@ class UINavBar extends Animator {
     }
 
 
-
-
     background(obj) {
 
         if (!obj.background){
@@ -476,9 +460,7 @@ class UINavBar extends Animator {
     }
 
 
-
     addHamburger = () => {
-
 
 
         let media2 = window.matchMedia(`(max-device-width: 415px)`);
@@ -528,7 +510,6 @@ class UINavBar extends Animator {
             this.hasAnimatedToWide = false;
 
          //   alert("Hello");
-          // alert(this.res.children[0].children[1].children[0].getAttribute("id"));
 
           // zmenším, otevřu, roztáhnu, zmenším => musím klinout 2x
           // zmenším => kliknu => animace se rozjede 2x
@@ -550,7 +531,6 @@ class UINavBar extends Animator {
           
 
 
-
             const innerItemsWrapper = this.res.children[0].children[1].children[0];
                
             if (animation){
@@ -558,12 +538,8 @@ class UINavBar extends Animator {
               
 
              //   console.log("Why not showing on 600px????");
-             //   console.log(this.isShown);
 
                if (this.isShown){
-
-
-
 
 
                 for (var i = 0; i < innerItemsWrapper.children.length; i++){
@@ -580,15 +556,6 @@ class UINavBar extends Animator {
                         innerItemsWrapper.parentElement.style.display = "block";
                     }
                 }
-
-
-            /*    window.setTimeout(() => {
-                    innerItemsWrapper.parentElement.style.display = "block";
-                }, 50);*/
-
-
-
-
 
 
               
@@ -633,8 +600,6 @@ class UINavBar extends Animator {
             // Hide outerItemsWrapper or animate links
         })
 
-       // let hamb = document.querySelector("#hamburger");
-      //  alert(this.res.children[0].children[0].getAttribute("id"));
 
         return btn;
     }
@@ -648,7 +613,6 @@ class UINavBar extends Animator {
         const adjustFontSize = () => {
             //console.log("IN VIEWPORT");
 
-          //  console.log(this.res);
             for (var i = 0; i < this.res.children[0].children.length; i++) {
                 let el = this.res.children[0].children[i];
                 el.style.fontSize = media2.matches ? (this.mobileSize ? this.mobileSize : "1.2em") : (this.desktopSize ? this.desktopSize : "1em");
@@ -686,21 +650,6 @@ class UINavBar extends Animator {
             let my = this.res.children[0];
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
            
 
 
@@ -723,8 +672,6 @@ class UINavBar extends Animator {
             }
 
 
-
-
             // animate back
 
             let animationObj = this.items[0].options;
@@ -739,10 +686,8 @@ class UINavBar extends Animator {
             
 
 
-
             const covid = this.res.children[0];
             const innerItemsWrapper = covid.children[1].children[0];
-            //findNestedDivWithId(this.res.children, 'innerItemsWrapper');
             ///covid.children[0].children[1].children[0];
 
           //  console.log("KINNERA");
@@ -750,7 +695,6 @@ class UINavBar extends Animator {
 
           //  console.log("COVID");
          //   console.log(covid);
-           // innerItemsWrapper.style.border = "3px solid orange";
             innerItemsWrapper.style.marginTop = "0";
                
             if (animation){
@@ -786,31 +730,7 @@ class UINavBar extends Animator {
 
         } else {
            // alert("/");
-          //   const innerItemsWrapper = this.res.children[0].children[0].children[0];//findNestedDivWithId(this.res.children, 'innerItemsWrapper');
-         //   innerItemsWrapper.style.marginTop = "0";
-           // const innerItemsWrapper = findNestedDivWithId(this.res.children, 'innerItemsWrapper');
-          //  innerItemsWrapper.style.marginTop = "0";
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         }
@@ -840,7 +760,6 @@ class UINavBar extends Animator {
                     } else {
                         this.res.children[0].children[i].style.display = "flex";
                     }
-
 
 
                 } else {
@@ -876,10 +795,7 @@ class UINavBar extends Animator {
             if (media.matches || media2.matches) {
                 doInAdjust();
                 //alert("P")
-                //this.res.children[0].style.opacity = 0.3;
              //   console.log("884A");
-             //   console.warn(this.res);
-             //   console.log(this.res.children[0].children[0]);
             } else {
                 toWideScreen();
             }
@@ -889,8 +805,6 @@ class UINavBar extends Animator {
 
 
         // was double anim once we commented this out
-      //  this.hasAnimatedToWide = false;
-      //  window.addEventListener("resize", adjust);
         return this;
     }
 
@@ -941,7 +855,6 @@ class UINavBar extends Animator {
             }
 
 
-
             if ((media.matches || myMedia.matches) && innerIW != undefined) {
                 //alert("PP")
                 innerIW.style.flexDirection = "column";
@@ -970,14 +883,12 @@ class UINavBar extends Animator {
             }
 
             if (!this.obj.isSide && media.matches) {
-               // this.res.children[0].style.position = "absolute";
             }
 
 
             // my custom
 
             if (this.obj.customStyle){
-              //  this.res.children[0].children[1].children[0].style.width = "200px";
                 this.res.children[0].style.marginTop = "1rem";
                 this.res.children[0].style.position = "absolute";
                 this.res.children[0].style.borderRadius = "1rem";
@@ -988,7 +899,6 @@ class UINavBar extends Animator {
 
             // Add line 700
             if (this.obj.radius){
-                //  this.res.children[0].children[1].children[0].style.width = "200px";
               //  alert("P")
 
               // Both need to be like this

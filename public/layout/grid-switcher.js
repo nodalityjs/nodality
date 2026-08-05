@@ -4,7 +4,6 @@ class AreaSwitcher {
       this.gridContainer = document.createElement("div");
       this.gridContainer.classList.add("grid-container");
       this.gridContainer.style.display = "grid";
-    //  this.gridContainer.style.gridAutoRows = "1fr"; EVIL LINE
     }
 
     set(obj){
@@ -48,10 +47,8 @@ for (var i = 0; i < arr.length - 1; i++){
      const outputString = withSpaceObj.map(row => `"${row}"`).join(" ");
      this.gridContainer.style.gridTemplateAreas = outputString;
  
-    // this.gridContainer.style.border = `3px solid ${arr[i].color}`;
  
     } else if (window.innerWidth > to) {
-    //  this.gridContainer.style.border = `3px solid ${arr[arr.length - 1].color}`;
       //alert("P")
       // This always fires
       let obj = arr[arr.length - 1].template;
@@ -64,7 +61,6 @@ for (var i = 0; i < arr.length - 1; i++){
 
 
 }
-//return this;
       }
       reacta();
      window.addEventListener("resize", reacta);
@@ -73,9 +69,6 @@ for (var i = 0; i < arr.length - 1; i++){
   
      add(items){
   
-   //   let withSpaceObj = obj.map(str => str.split('').join(' '));
-   //   const outputString = withSpaceObj.map(row => `"${row}"`).join(" ");
-   //   this.gridContainer.style.gridTemplateAreas = outputString;//'"a a a" "b b b" "c d d" "c d d"';
      // Function to generate alphabetic sequences
   const generateAlphabeticSequence = (count) => {
     const chars = [];
@@ -96,7 +89,6 @@ for (var i = 0; i < arr.length - 1; i++){
 
   for (let i = 0; i < items.length; i++) {
     let e = items[i].render();
-   // e.style.border = "1px solid gray";
     e.style.gridArea = els[i].toLowerCase(); // e.g., 'a', 'b', 'aa', 'ab', ...
 
     const gridItem = document.createElement("div");
@@ -120,8 +112,6 @@ for (var i = 0; i < arr.length - 1; i++){
   }
   
   // Usage example:
-  //const simpleGrid = new Simple();
-  //document.body.appendChild(simpleGrid.render());
   
   
   class GridSwitcher {
@@ -146,7 +136,6 @@ for (var i = 0; i < arr.length - 1; i++){
               if ((mq || val.at == "default") && mq !== this.lastMq){
                   const update = new Simple().set(val.template, this.dynamicItems).render();
                   this.el = update;
-                //  this.el.style.border  = "1px solid black";
                   this.render(this.domStr);
                   this.lastMq = mq;
               }
@@ -161,14 +150,12 @@ for (var i = 0; i < arr.length - 1; i++){
       this.gridWrap.innerHTML = "";
       this.gridWrap.appendChild(this.el);
 
-   // document.querySelector(div).removeChild(this.el);
   if (div){
     document.querySelector(div).appendChild(this.gridWrap);
   } 
 
   return this.gridWrap;
 
-   // return this.el;
       // Just return this.el it normally
     }
   }

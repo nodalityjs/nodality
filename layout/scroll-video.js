@@ -1,10 +1,8 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
-
-import { Animator } from "./animator.js";
 
 class ScrollVideo {
     constructor() {
@@ -67,7 +65,6 @@ class ScrollVideo {
         setHeight.id = "set-height";
         setHeight.style.display = "block";
         this.sh = setHeight;
-      //  this.res.appendChild(setHeight);
     }
 
     sticky() {

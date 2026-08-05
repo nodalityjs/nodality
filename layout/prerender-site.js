@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -133,7 +133,6 @@ export async function prerenderSite(config) {
   // Child mode? Render exactly one locale and exit.
   const childLocale = process.env[ENV_LOCALE];
   if (childLocale !== undefined) {
-    // The env var carries a string; map the literal "null" sentinel
     // back to a real null so single-locale paths work in the child.
     const locale = childLocale === "__none__" ? null : childLocale;
     return runChild(config, locale);

@@ -9,24 +9,7 @@ class Image extends Animator {
 		this.code = [];
 
 		
-	/*	if (type == "exact" || type == "uncover"){
-			this.image(this.url, mode, type, "a", gcs);
-		} else {
-			this.setup();
-		}
-		
-
-			if (type === "exact"){ // Has to be there
-				const str = `new Image("${this.url}", "exact")`;
-				this.code.push(str);
-			} else if (type === "uncover"){ // Has to be there
-				const str = `new Image("${this.url}", "uncover")`;
-				this.code.push(str);
-			} else {
-				this.code.push(`new Image('${this.url}')`);
-			}*/
 	}
-
 
 
 	setType({url, type, mode}){
@@ -50,22 +33,17 @@ class Image extends Animator {
 	}
 
 
-
 	hand(){
 		this.res.style.cursor = "hand";
 		return this;
 	}
 
 
-
-
 	getHeight(){
-		// // console.log(this.res.height);
 		return this.res.height;
 	}
 
 	getWidth(){
-		// // console.log(this.res.width);
 		return this.res.width;
 	}
 
@@ -73,9 +51,6 @@ class Image extends Animator {
 		return "HTMLImageElement";
 	}
 
-	/*toCode(){
-		return this.code;
-	}*/
 
 	toCode() {
         // Capture the style properties applied to the image
@@ -110,10 +85,6 @@ class Image extends Animator {
 let obj = options;
 
 		obj.onTap && this.onTap(obj.onTap);
-
-
-
-
 
 
 		let type = options.isFull;
@@ -154,32 +125,10 @@ let obj = options;
 
 			if (type === "exact"){ // Has to be there
 				const str = `new Image("${this.url}", "exact")`;
-			//	this.code.push(str);
 			} else if (type === "uncover"){ // Has to be there
 				const str = `new Image("${this.url}", "uncover")`;
-				//this.code.push(str);
 			} else {
-				// this.code.push(`new Image('${this.url}')`);
 			}
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-obj.pad && this.pad(obj.pad);
-// stra +=  // 2345 06/03 other file
-		obj.mar && this.mar(obj.mar);
-		obj.respad && this.respad(obj.respad);
-		obj.resmar && this.resmar(obj.resmar);
-*/
 
 
 	this.commonMethods(obj);
@@ -193,10 +142,6 @@ obj.pad && this.pad(obj.pad);
 		options.index && (this.index = options.index);
 		options.index && (stra += `\n index: "${options.index}",`);
 
-		/*if (options.index === 0){ // condition no fire
-			//alert("not written here");
-			stra += `\n index: "0",`;
-		}*/
 		options.resprop && this.resprop(options.resprop);
 		
 		if (options.centerSelf){
@@ -224,7 +169,6 @@ obj.pad && this.pad(obj.pad);
 		options.as && this.as(options.as);
 		
 		options.onScroll && this.onScroll(options.onScroll);
-	//	options.fitContent && (this.res.style.objectFit = "contain");
 
 		options.class && (this.res.setAttribute("class", options.class));
 		
@@ -237,16 +181,10 @@ obj.pad && this.pad(obj.pad);
 			stra += `\n gpos: ${this.removeQuotesFromFirstWord(JSON.stringify(options.gpos))}, `;
 
 		}
-		// options.gpos && alert(this.gposObject);
 		
-		/*if (Object.keys(options).length > 0){
-		this.code.push(`\n .set({ \n}`);
-		}*/
 		
 		// console.log(options);
 		
-		//const opts = optsa.filter(el => el.op.name === "blast")[0];
-	//	let filterObject = this.options.filtera.filter(a => a.op.name === "filter")[0];
 	//	// console.log(filterObject);
 
 		if (options.filtera){ // smoke
@@ -265,7 +203,6 @@ obj.pad && this.pad(obj.pad);
 			// console.warn(noiseObject);
 			// console.log(noiseObject.op.filter);
 
-			// this.setFilter(noiseObject);
 
 			 let removed =  this.removeQuotesFromFirstWord(JSON.stringify(noiseObject));
 			 (stra += `\n filtera: ${removed}, \n`); // If I comment this out the filter should disappear!
@@ -275,7 +212,6 @@ obj.pad && this.pad(obj.pad);
 			}
 
 		
-		//options.filter && (this.res.style.filter = options.filter);
 		
 
 	
@@ -285,7 +221,6 @@ obj.pad && this.pad(obj.pad);
 
 		options.isBackground && (this.isBackground = options.isBackground);
 
-		//options.zIndex && (this.res.style.zIndex = options.zIndex);
 		options.zIndex && (stra += `\n zIndex: "${options.zIndex}", \n`);
 
 	
@@ -307,18 +242,12 @@ obj.pad && this.pad(obj.pad);
 		options.height && (stra += `height: "${options.height}", `);
 
 
-
-
-
 		options.maxWidth && this.maxWidth(options.maxWidth);
-		// options.maxWidth && this.code.push(`maxWidth: "${options.maxWidth}", \n`);
 
 		options.maxWidth && (stra += `maxWidth: "${options.maxWidth}", \n`);
 		
-		// console.warn(this.res.style.width);
 
 		options.radius && this.cornerRadius(options.radius);
-	//	options.radius && this.code.push(`radius: "${options.radius}"`);
 
 
 	options.radius && (stra += `radius: "${options.radius}", \n`);
@@ -330,7 +259,6 @@ obj.pad && this.pad(obj.pad);
 
 	options.clipPath && this.clipPath(options.clipPath);
 	options.clipPath && (stra += `clipPath: "${options.clipPath}", \n`);
-
 
 
 // console.log("261");
@@ -394,16 +322,6 @@ obj.pad && this.pad(obj.pad);
 					}
 		
 					// Maybe just fill-in dynamically
-					/*let queries = [
-						{
-						  range: obj.gradient[1].range, // This is BLAST
-						  log: "blast"
-						},
-						{
-						  range:  obj.gradient[2].range, // This is GRADIENT
-						  log: "gradient"
-						}
-					  ];*/
 		
 		
 					  // Both only 600-650
@@ -412,15 +330,12 @@ obj.pad && this.pad(obj.pad);
 		
 		
 					  // REDUNDANT?????
-					  // window.addEventListener("resize", () => this.react(arr));
 					  // console.log(arr);
 					 
 					
 					  // UNCOMMENT THIS !!!
-					//  this.protoReact(arr, this.options.id);
 				
 					//console.warn("CALLINGA BETA REACT");
-					// this.betaReact(arr, this.options.id);
 					this.chainReact(arr, this.options.id);
 
 		
@@ -467,10 +382,6 @@ obj.pad && this.pad(obj.pad);
 			ft = ft.filter(el => el != undefined);
 
 
-
-
-		//	let arr = [];
-
 			for (var i = 0; i < ft.length; i++){
 				// console.log("Hello");
 				arr.push({
@@ -486,13 +397,10 @@ obj.pad && this.pad(obj.pad);
 	}
 
 
-
 	setID(id){
 		this.res.setAttribute("id", id);
 		return this;
 	}
-
-
 
 
 	opacity(value){
@@ -501,19 +409,15 @@ obj.pad && this.pad(obj.pad);
 	}
 
 
-
-
 	setArea(area){
 		this.res.style.gridArea = area;
 		return this;
 	}
 
 
-
 	setGrid(){
 		this.res.style.gridRow = "span 2";
 		this.res.style.gridColumn= "span 3";
-		//this.res.style.gridColumn = "span 3";
 		return this;
 	}
 
@@ -568,8 +472,6 @@ obj.pad && this.pad(obj.pad);
     }
 
 
-
-
 	mobileWidth(){
 		let query = window.matchMedia("(max-device-width: 415px)");
 		if (query.matches){
@@ -581,23 +483,14 @@ obj.pad && this.pad(obj.pad);
 	}
 	
 
-	/*
-	if (type == "exact" || type == "uncover"){
-			this.image(this.url, mode);
-		} else {
-			this.setup();
-		}
-	*/
 	image(url, mode, type, vtn, gcs){
 		//alert(gcs);
 		//alert(mode);
 		//alert(value);
-		// this.el = null;
 		let query = window.matchMedia("(max-device-width: 415px)");
 		let back = document.createElement("div");
 		//alert(vtn);
 		back.style.viewTransitionName = vtn;
-		//back.style.backgroundColor = "#ecf0f1";
 		back.style.width = "100%";
 		back.style.height = this.options.height ? this.options.height : "400px";
 
@@ -615,7 +508,6 @@ obj.pad && this.pad(obj.pad);
 		
 		back.style.backgroundImage = `url(${url})`;
 		back.style.backgroundPosition = "center center";
-       // back.style.backgroundRepeatX = "no-repeat";
          back.style.backgroundRepeat = "no-repeat";
        
 		 back.style.backgroundSize = "cover";
@@ -625,12 +517,6 @@ obj.pad && this.pad(obj.pad);
 			
             back.style.backgroundSize = "contain";
         }
-		/*back.style.backgroundSize = "cover";
-
-		
-		if (this.options.cover === false){
-			back.style.backgroundSize = "";
-		}*/
         
         if (mode === "contain"){
 			//alert("J")
@@ -638,28 +524,21 @@ obj.pad && this.pad(obj.pad);
         }
         
         
-		//back.style.borderTopLeftRadius = `${value}px`;
-		//back.style.borderTopRightRadius = `${value}px`;
 	
 		this.res = back;
 		return this;	
 	}
 
 
-
-
-
 	setup() {
 		let img = document.createElement("img");
 	    img.style.width = "100%";
-		//img.style.height = "auto";
 		img.src = this.url;
 		this.res = img;
 
 		
 		return this;
 	}
-
 
 
 	float(dir){
@@ -687,8 +566,6 @@ obj.pad && this.pad(obj.pad);
 	}
 
 
-
-
 	expand(obj){
 
 
@@ -699,14 +576,12 @@ obj.pad && this.pad(obj.pad);
 		const convert = (value) => {
 
 
-
 			var convertedValue = value;
 
 			if ((value.includes("%")) || value.includes("px")){
 				
 				convertedValue = convertedValue.substr(0, 2);
 			}
-
 
 
 			if (value.includes("%")){
@@ -753,21 +628,6 @@ if (mqa.matches){
 		return this;
 	}
 	
-	/*center(w){
-		
-		
-		const adj = () => {
-			if (this.res.style.width != 0){
-			let count = window.innerWidth / 2 - (((w * window.innerWidth) / 100) / 2);
-			this.res.style.marginLeft = `${count}px`;
-		}
-		}
-		
-		
-		adj();
-		window.onresize = adj();
-		return this;
-	}*/
 	
 	width(w){
 		 this.res.style.width = w;
@@ -823,7 +683,6 @@ if (mqa.matches){
 	}
 
 
-
 	
 	
 	
@@ -863,20 +722,6 @@ svg.style.display = "block";
 svg.style.width = "100%";
 svg.style.height = "100%";
 svg.style.overflow = "visible";
-//this.res.style.position = "absolute";
-
-/*
- let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
- path.setAttribute("d", pathData);
- path.setAttribute("fill", "none");
- path.setAttribute("stroke", "black");
- path.setAttribute("stroke-width", "7");
- path.setAttribute("viewBox", "0 0 700 700");
- path.setAttribute("preserveAspectRatio", "xMidYMid meet");
-
- svg.appendChild(path);
- 
-document.body.appendChild(svg);*/
 
 
         return this;
@@ -884,12 +729,8 @@ document.body.appendChild(svg);*/
 
 	render(el) {
 		let ela = this.res;//document.createElement("div");
-		//ela.style.overflowX = "hidden";
-		//ela.style.overflowY = "hidden";
-		//ela.appendChild(this.res); // cannot move while loading
 		// apply to every element maybe through the 
 
-	//	let ela = this.res;
 
 		if (el) {
 			document.querySelector(el).appendChild(/*this.res*/ ela);

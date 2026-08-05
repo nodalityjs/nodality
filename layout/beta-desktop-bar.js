@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -65,7 +65,6 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         // this and overrides it.
         this.navbar.style.padding = '1rem';
         this.navbar.style.backgroundColor = this.obj.background ?? '#333';
-        //this.navbar.style.color = 'white';
 
         this.navbarHeader.style.display = 'flex';
         this.navbarHeader.style.alignItems = 'center';
@@ -86,10 +85,6 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         return this;
     }
 
-    /*addNavItem(navItemElement) {
-        this.navContent.appendChild(navItemElement);
-        return this;
-    }*/
 
     add(ele){
         this.items = ele;
@@ -105,11 +100,6 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         let items = this.items.map(it => it.toCode()).flatMap(x => x);
 
         // console.warn(items.join("").replace(/}\)/g, '}),'));
-      /* console.log(this.items[3]);
-
-        if (this.items[3].toCode().length != 1){
-            alert("Wrong link codegen");
-        }*/
 
         //   ${items.join("")}
         return `new DesktopBar().set(${this.removeQuotesFromFirstWord(JSON.stringify(this.obj))}).add([
@@ -130,7 +120,6 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         }
 
         return this.navbar;
-       // container.appendChild(this.navbar);
     }
 }
 

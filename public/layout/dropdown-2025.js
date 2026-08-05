@@ -166,7 +166,6 @@ class Dropdown extends Animator {
    
     obj.respad && this.respad(obj.respad);
     obj.resmar && this.resmar(obj.resmar);
-       // this.commonMethods(obj); not yet
 
         // Position is always fixed (appended to body), no breakpoint adjustment needed
 
@@ -197,7 +196,6 @@ if (i !== 0){
           const firstChild = children[0];
           if (firstChild && firstChild.res) {
             this.toggleWrap.appendChild(firstChild.res);
-            //  this.toggleWrap.textContent = firstChild.res.textContent || "Dropdown";
           }
       }
   

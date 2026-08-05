@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -21,32 +21,6 @@ class Button extends Animator {
 
 	
 
-/*
-	hover(obj){
-        this.prevColor = this.res.style.backgroundColor;
-		this.foreColor = this.res.style.color;
-        
-        if (obj.animation){
-           
-        this.res.style.transition = `${obj.animation}s ease-in-out`; // stop resize ???
-		this.res.style.transionProperty = `background, color`;
-          //  this.transition(obj.animation);
-        }
-      
-        
-        this.res.onmouseout = () => {
-			this.res.style.backgroundColor = `${this.prevColor}`;
-			this.res.style.color = `${this.foreColor}`;
-		}
-        
-        this.res.onmouseover = () => {
-			this.res.style.backgroundColor = obj.background;
-			this.res.style.color = obj.color;
-		}
-        
-        return this;
-    }
-*/
 	
 
 	set(obj){
@@ -88,18 +62,6 @@ this.options = obj;
 
 	this.commonMethods(obj);
 
-	// obj.hover && this.hover(obj.hover);
-
-	/*	if (obj.url && !obj.img){
-			//let node = document.createElement("img");
-			//node.setAttribute("src", obj.url);
-			//node.style.width = 50;//obj.frame.width; // order?
-			//node.style.height = 50;//obj.frame.height;
-			//btn.appendChild(node);
-		} else {
-			let node = document.createTextNode(this.text.replace("$", this.val));
-			btn.appendChild(node);
-		}*/
 
 		
 
@@ -143,12 +105,9 @@ this.options = obj;
 		obj.resmar && this.resmar(obj.resmar);
 
 
-
-	//this.pad([{"b": "3rem"}]); // add)
 		
 
 		if (obj.centered){
-			// alert(this.res.width / 2);
 			  this.res.style.marginRight = "auto";
 			this.res.style.marginLeft = "auto"; //`${this.res.style.width / 2}px`;
 			
@@ -188,7 +147,6 @@ this.options = obj;
 
 		obj.frame  && this.frame(obj.frame);
 		obj.frame && (stra += `\n frame: "${obj.frame}",`);
-
 
 
 		obj.keySet && this.keySet(obj.keySet); // 165411 22/01/25 Nice!
@@ -291,7 +249,6 @@ this.options = obj;
         }
 
 
-
 		const display6 = "calc(1rem + 0.5vw)"; // calc(1rem + 1.2vw)
         
         if (name === "S6"){
@@ -325,7 +282,6 @@ this.options = obj;
     
    borderRadius(radius){
         this.res.style.borderRadius = radius;
-       // console.warn(this.res);
         return this;
     }
 	
@@ -404,9 +360,7 @@ this.options = obj;
 
 	toCode() {
 		//console.log("OPTIONS ARE");
-		//console.log(this.options);
 
-       // const objString = JSON.stringify(this.options, null, 4);
 
 	   const objString = JSON.stringify(this.options, (key, value) => {
         if (typeof value === "function") {
@@ -426,36 +380,6 @@ this.options = obj;
 		// 22/01/25 09:10:50 thanks for amazing RegEx ChatGPT!
     }
 
-/*	toCoder() {
-		// Initialize the code string with the constructor
-		let code = `new Button("${this.text}", ${this.val})`;
-
-		// Collect the styles applied to the button
-		const style = this.res.style;
-		const setArgs = {};
-		if (style.background) setArgs.background = style.background;
-		if (style.color) setArgs.color = style.color;
-		if (style.padding) setArgs.padding = style.padding;
-		if (style.margin) setArgs.margin = style.margin;
-		if (style.border) setArgs.border = style.border;
-		if (style.borderRadius) setArgs.radius = style.borderRadius;
-		if (style.fontWeight) setArgs.weight = style.fontWeight;
-
-		// Add `set` call if any style properties exist
-		if (Object.keys(setArgs).length > 0) {
-			code += `.set(${JSON.stringify(setArgs)})`;
-		}
-
-		// Add event listeners if they exist
-		if (this.res.onclick) {
-			code += `.onTap(${this.res.onclick.toString()})`;
-		}
-
-		// Add rendering call
-		//code += `.render()`;
-
-		return [code];
-	}*/
 	
 	render(el){
 		if (el){

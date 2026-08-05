@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -20,7 +20,6 @@ class UList extends Animator {
         obj.mar && this.mar(obj.mar);
        
         // CRITICAL
-		// obj.transform && this.reactOnTransform(obj.transform); // remove obj.op.duration
 		this.commonMethods(obj);
         this.callReact(obj);
         return this;
@@ -86,22 +85,12 @@ class UList extends Animator {
 			keep.push("span");
 		}
 
-	/*	if (obj.transform){
-			keep.push("transform");
-		}*/
 
 		// console.log("ARA IS " + arr);
 
 			this.chainReact(arr, this.options.id, keep);
 		}
 	}
-
-
-
-
-
-
-
 
 
     setup() {
@@ -174,7 +163,6 @@ class UList extends Animator {
         this.res.style.border = `${w}px solid ${color}`;
         return this;
     }
-
 
 
 	

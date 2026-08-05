@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -34,7 +34,6 @@ class TextField extends Animator {
 			}
 
 
-	//	div.style.width = "100%";
 		return this;
 	}
     
@@ -72,7 +71,6 @@ class TextField extends Animator {
 		this.commonMethods(obj);
 		return this;
 	}
-
 
 
 		toCode() {

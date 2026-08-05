@@ -1,5 +1,3 @@
-import {Animator} from "./animator.js";
-
 class SideBar {
 	constructor(els, obj){
 		this.ele = null;
@@ -8,7 +6,6 @@ class SideBar {
         
         this.els = els;
        
-		// this.setup(obj);
 		
 		
 	}
@@ -75,7 +72,6 @@ class SideBar {
         
         outer.appendChild(btn);
         
-        //alert(this.width);
         
         
 		let el = document.createElement("div");
@@ -84,7 +80,6 @@ class SideBar {
 		el.style.backgroundColor = "#fff";
         el.style.flexDirection = "column";
 		el.style.display = "flex";
-		// el.style.justifyContent = "space-around";
 		el.style.alignItems = "center";
 		el.style.margin = 0;
         
@@ -94,7 +89,6 @@ class SideBar {
         
 		//-------------DEFAULT STYLING----------
 		el.style.margin = 0;
-       // el.style.zIndex = -1;
          el.style.marginTop = "-10px";
 		el.style.paddingTop = "1em";
 		el.style.paddingBottom = "1em";
@@ -120,9 +114,7 @@ class SideBar {
                      
                 if (this.hidden){
                      el.style.transform = "translateX(0em)";
-                    // el.style.display = "flex";
                 } else {
-                  //  el.style.display = "none";
                      el.style.transform = `translateX(-${this.width})`;
                 }
                      
@@ -134,7 +126,6 @@ class SideBar {
 		this.ele = outer;
         
      
-		// window.addEventListener("resize", this.adjust.bind(this));
         
         
         
@@ -163,7 +154,6 @@ class SideBar {
 			this.ele.children[1].appendChild(items[i].render());
 		}
 		
-		// this.adjust();
 		return this;
 	}
 	

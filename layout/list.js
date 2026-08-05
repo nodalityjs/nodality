@@ -1,10 +1,8 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
-
-import {Animator} from "./animator.js";
 
 // 13:28 07/04/2020 - BEGIN NOTHING GONNA STOP US NOW  Lets go!
 class List {
@@ -25,7 +23,6 @@ class List {
 		this.wrapper.style.margin = 0;
 		this.wrapCopy = this.wrapper;
 		this.tasks = {};
-	//	var copy = this.tasks;
 		return this;
 	}
 
@@ -81,9 +78,6 @@ class List {
 		var me = this;
 		return new Proxy(a, {
 			get(target, property, receiver) { // GETTER FIRES THIS BEFORE WE GET DATA USING (this.items.push())
-				/*
-				me.itemso = a[property].map(t => String(t));
-				return a[property];*/
 
 				return a[property];
 			},
@@ -101,7 +95,6 @@ class List {
 		return this.Proxima(obj);
 	}
 }
-
 
 
 class Cell {

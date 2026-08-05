@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -19,7 +19,6 @@ class Checkbox extends Animator {
 
 	  // Set default clipPath if not provided
         //this.options.clipPath =
-          //  this.options.clipPath; //|| "polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%)";
 
     // Create the container div
     const div = document.createElement("div");
@@ -144,9 +143,6 @@ obj.resmar && this.resmar(obj.resmar);
     }
 
     toCode() {
-       /* let objString = JSON.stringify(this.options, null, 4);
-        objString = objString.replace(/"(\w+)"(?=\s*:)/g, '$1');
-        return [`new Checkbox().set(${objString})`];*/
 
 		const entries = Object.entries(this.options)
         .map(([key, value]) => {

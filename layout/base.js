@@ -1,23 +1,16 @@
 /*!
- * nodality v1.0.217
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-import {Animator} from "./animator.js";
-
 class Base {
 	constructor(/*items*/){
-		//this.items = items ?? [];
 		//Base.prototype.items = items;
 		this.oldLength = 0;
 	}
 	
 	
-	/*set itemso(itemsa) {
-		 this.items = itemsa;// (itemsa);
-		Base.prototype.items = itemsa;
-	}*/
 	
 	
 	observe(obj) {
@@ -104,40 +97,6 @@ class Base {
 		//node.insertBefore(p, node.childNodes[node.childNodes.length]);
 		document.body.appendChild(p);
 	}
-	
-	
-	
-	
-	
-	/*adjustState(newData){
-		
-		let node = document.querySelector(this.el);
-			
-		
-		alert("LENAX " + node.childNodes[0].children.length);
-		
-		
-		var lenax = node.childNodes[0].children.length;
-		
-		//var len = node.childNodes[0];// 1
-		alert(node.childNodes[0]);
-			while (node.firstChild){
-				node.removeChild(node.lastChild);
-			}
-			
-			this.render(this.el).render(this.el);	 // rendra ===> build
-	}*/
-	
-	
-	
-	
-	 toNode(htmlString) {
-  var div = document.createElement('div');
-  div.innerHTML = htmlString.trim();
-
-  // Change this to div.childNodes to support multiple top-level nodes
-  return div.firstChild; 
-}
 
 
 	
@@ -149,9 +108,7 @@ class Base {
 	toCode(){
 		return [""];
 	}
-	
-	toHTML(el){
-		return this.render(el).render(el).innerHTML; // // rendra ===> build
-	}
+
+
 }
 export { Base };

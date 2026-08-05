@@ -6,7 +6,6 @@ class /*Beta*/MobileBar extends Animator {
         super();
        
 
-       // this.setStyles();
     }
 
 
@@ -30,11 +29,7 @@ class /*Beta*/MobileBar extends Animator {
 // I have to call toCode
 // 1st reomve brand key from obj
 
-//delete this.obj.brand;
-//this.obj.brand = this.obj.brand.toCode()[0];//.replace(/^"|"$/g, '');
 let repl = this.removeQuotesFromFirstWord(JSON.stringify(this.obj));
-
-
 
 
 // 23:38:35 Yes!!! 23/04/2025
@@ -62,10 +57,8 @@ radius: ${JSON.stringify(this.obj.radius)},
 //console.log(Object.getPrototypeOf(obj.brand));
 //console.log(obj.brand.render());
 
-    //    console.log(this.obj.brand);
     //    console.log(obj.brand);
 
-   //  console.log(Object.getPrototypeOf(this.obj.brand));
 
    
 
@@ -74,22 +67,17 @@ radius: ${JSON.stringify(this.obj.radius)},
   //  console.log(obj.brand.res); // RES SHOULD BE OK
    // console.log(obj.brand.res); // RES SHOULD BE OK
     
-      //  let t = new Text("A").set({size: "S1"});
       //  console.log(t);
 
         this.obj = obj;
         this.makeNavbar(obj);
-     //   obj.background && (this.res.style.backgroundColor = obj.background);
-      //  obj.brand && this.setBrand(obj.brand);
 
 
       // Has to be the same
-     // obj.background && //(this.res.style.backgroundColor = obj.background);
       obj.mar && super.mar(obj.mar);
 
     //  console.log("BOOA");
     //  console.log(obj.brand);
-    //  obj.brand && this.setBrand(obj.brand);
       // THANK YOU 215756!!!
       obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
 
@@ -114,7 +102,6 @@ radius: ${JSON.stringify(this.obj.radius)},
      //   console.log(obj.brand);
 
         const newTextInstance = obj.brand;
-       // const newTextInstance = new Text(data.text).set({color: "orange"});
        // newTextInstance.res.color = "green";
 /*
 // Restore state and other properties
@@ -135,9 +122,7 @@ console.log(newTextInstance.render());*/
        
 
 
-      //  if (obj.brand && obj.brand instanceof Node) {
        //    console.log("APPENDING")
-          //  let branda = document.createElement("h1");
            // branda.textContent = "h";
             //console.log(obj.brand);
          //   console.log(obj.brand.res);
@@ -147,16 +132,9 @@ console.log(newTextInstance.render());*/
           // typeof obj.brand.res;
       //      console.log(obj.brand.render());
          
-//if (obj.brand.render){
 
-  //  this.brand.appendChild(obj.brand.res);
    // console.log(obj.brand.render());
-//this.brand.style.border = "3px solid orange";
-//this.brand.style.width = "100px";
-//this.brand.style.height = "100px";
-  //  let t = new Text("A").set({size: "S3"});
   //console.log(obj.brand.res);
-        //    this.brand.appendChild(obj.brand.res);
 //} 
 
 if (obj.brand && typeof newTextInstance.render === "function") {
@@ -196,7 +174,6 @@ if (obj.brand && typeof newTextInstance.render === "function") {
         this.navbar.style.flexDirection = 'column';
         this.navbar.style.padding = '1rem';
         this.navbar.style.backgroundColor = obj.background ?? 'orange';
-       // this.navbar.style.color = 'white';
 
         this.navbarHeader.style.display = 'flex';
         this.navbarHeader.style.alignItems = 'center';
@@ -216,21 +193,6 @@ if (obj.brand && typeof newTextInstance.render === "function") {
         
     }
 
-   /* setBrand(brandElement) {
-
-        if (brandElement instanceof Node) {
-            this.brand.innerHTML = '';
-
-            this.navContent.appendChild(brandElement);
-           // this.brand.appendChild(brandElement);
-        }
-
-    }*/
-
-  /*  addNavItem(navItemElement) {
-        this.navContent.appendChild(navItemElement);
-        return this;
-    }*/
 
     add(ele){
         this.items = ele;
@@ -250,7 +212,6 @@ if (obj.brand && typeof newTextInstance.render === "function") {
         if (this.isMobileNavOpen) {
             this.navContent.style.flexDirection = 'column';
             this.navContent.style.gap = '0.5rem';
-           // this.navContent.style.backgroundColor = '#444';
             this.navContent.style.padding = '1rem';
         } else {
             this.navContent.style.flexDirection = '';
@@ -265,7 +226,6 @@ if (obj.brand && typeof newTextInstance.render === "function") {
             document.querySelector(container).appendChild(this.navbar);
         }
         return this.navbar;
-     //   container.appendChild(this.navbar);
     }
 }
 

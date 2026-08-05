@@ -1,6 +1,3 @@
-import {Animator} from "./animator.js";
-
- 
 class Grid {
 	constructor(frs, saveEl) {
 		this.saveEl = saveEl;
@@ -30,7 +27,6 @@ class Grid {
 		this.res = grid;
 		return this;
 	}
-
 
 
 	size(w, h) {
@@ -98,7 +94,6 @@ class Grid {
 		let count = obj.count;
 		let h = obj.width;
 		
-			//let media = window.matchMedia(`(max-width: 600px)`);
 		let query = window.matchMedia("(max-device-width: 415px)");
 		
 		if (window.innerWidth < h || query.matches) {
@@ -138,11 +133,6 @@ class Grid {
 		
 	}
 }
-
-
-
-
-
 
 
 export { Grid };

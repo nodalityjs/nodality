@@ -20,7 +20,6 @@ class Text extends Animator {
 	}
 
 
-
 	
 
 
@@ -28,7 +27,6 @@ class Text extends Animator {
 		this.res.style.gridArea = area;
 		return this;
 	}
-
 
 
 	toCode(){
@@ -60,7 +58,6 @@ class Text extends Animator {
 		this.preffersId ? this.elCSS.unshift(this.res.id + " { \n") : (this.elCSS.unshift("." + this.class + " { \n"));
 		this.elCSS.push(" } \n \n");
 		// console.warn("OI")
-		// console.log(this.elCSS);
 		return this.elCSS; 
 	}
 
@@ -96,12 +93,6 @@ class Text extends Animator {
 	}
 
 
-
-	toHTML(){
-		return this.res;
-	}
-
-
 	onTap(e){
 		this.res.addEventListener("click", e);
 		return this;
@@ -111,7 +102,6 @@ class Text extends Animator {
 		this.res.setAttribute("class", name);
 		return this;
 	}
-
 
 
 	styled(obj) {
@@ -171,12 +161,7 @@ class Text extends Animator {
 		this.commonMethods(obj);
 
 
-	//	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);
-
-		// obj.isHidden && this.isHidden(obj.isHidden);
-
 		//alert(obj.top);
-		//obj.top && (this.res.style.top = obj.top);
 		obj.left && (this.res.style.left = obj.left);
 
 		obj.flex && (this.res.style.display = "flex");
@@ -241,16 +226,10 @@ this.res.style.position = "absolute";
 	
 		super.setClass(this.options.class);
 		obj.clampc && this.clampCopy(obj.clampc);
-		//obj.pad && this.pad(obj.pad);
-	//	obj.respad && this.respad(obj.respad);
-	//	obj.resmar && this.resmar(obj.resmar);
 
 // stra +=  // 2345 06/03
-	//	obj.mar && this.mar(obj.mar);
 	
  
-	//	obj.exact && (this.res.style.fontSize = obj.exact);
-	//	obj.zIndex && (this.res.style.zIndex = obj.zIndex);
 		obj.absolute && (this.res.style.position = "absolute");
 		
 
@@ -260,23 +239,16 @@ this.res.style.position = "absolute";
 			this.fluid(obj.fluid);
 		}
 
-		//obj.font && this.font(obj.font);
 		obj.fluidc && (this.elCSS.push(`font-family: ${obj.font}; \n`));
 		obj.align && (this.res.style.textAlign = obj.align);
 		
-		// obj.weight && (this.res.style.fontWeight = obj.weight);
   //@ breakWord: Allow long words to wrap mid-word (word-wrap: break-word).
 		obj.breakWord && (this.res.style.wordWrap = "break-word");
 		// `center` used to set auto margins here, i.e. centre the Text
 		// ITSELF — the opposite of what it means on every other component
 		// now. That is `mar: "center"`.
 		obj.center && this.deprecatedOption("center on Text", 'mar: "center"');
-		//obj.width && (this.res.style.width = obj.width);
-	//	obj.height && (this.res.style.height = obj.height);
-		//obj.background && (this.res.style.backgroundColor = obj.background);
-		//obj.radius && (this.res.style.borderRadius = obj.radius);
 // width, height, background, radius, resprop, keySet, maxHeight
-  	//	obj.resprop && this.resprop(obj.resprop);
 		obj.italic && this.italic();
 		// stra += 17:01:43 11/11/24
 
@@ -288,17 +260,9 @@ this.res.style.position = "absolute";
 
 		obj.keySet && this.keySet(obj.keySet);
 
-		//obj.maxHeight && (this.res.style.maxHeight = obj.maxHeight);
 
-
-		/*if (obj.transform){
-		}*/
 		// Done by commonMethods
-		//obj.transform && this.reactOnTransform(obj.transform); // remove obj.op.duration
 		
-		/*if (obj.transform.op.values){
-			alert("P");
-		}*/
 
 		
 		
@@ -306,11 +270,9 @@ this.res.style.position = "absolute";
 
 		   
 
-		//this.code.push(str); // 14:04:10 06/03
 
 		return this;
 	} // 114522 you can hit tab 
-
 
 
 	callReact(obj){
@@ -372,9 +334,6 @@ this.res.style.position = "absolute";
 			keep.push("span");
 		}
 
-	/*	if (obj.transform){
-			keep.push("transform");
-		}*/
 
 		// console.log("ARA IS " + arr);
 
@@ -407,42 +366,6 @@ addIcon(obj){
 
     
     
-	/*
-	
-	 between(name){
-        
-        
-        if (name === "S1"){
-             this.res.style.fontSize = "clamp(2rem, 8vw, 2.5rem)";
-        }
-        
-        if (name === "S2"){
-             this.res.style.fontSize = "clamp(4rem, 8vw, 5rem)";
-        }
-        
-        if (name === "S3"){
-             this.res.style.fontSize = "clamp(2rem, 5vw, 2.5rem)";
-        }
-
-
-		if (name === "S4"){
-			this.res.style.fontSize = "clamp(1.5rem, 2vw, 1.6rem)";
-	   }
-        
-         if (name === "S5"){
-             this.res.style.fontSize = "clamp(1.2rem, 2vw, 1.3rem)";
-        }
-
-		if (name === "S6"){
-			this.res.style.fontSize = "clamp(1rem, 2vw, 1.3rem)";
-	   }
-		
-        
-        return this;
-    }
-	
-	
-	*/
     
     between(name){
         
@@ -506,7 +429,6 @@ addIcon(obj){
         // // console.log();
         
         document.styleSheets[0].insertRule(`#${str}::first-letter { color: green; font-size: 3em; padding: 0.1em }`, 0);
-       // this.res.style.initialLetter = n;
         return this;
     }
 
@@ -564,9 +486,6 @@ addIcon(obj){
 		const display5 = "calc(1.1rem + 1.2vw)";
         
         if (name === "S5"){
-			//this.res = document.createElement("p");
-			//let node = document.createTextNode(this.text);
-		//	this.res.appendChild(node);
 	//	alert("K")
              this.res.style.fontSize = display5;
         }
@@ -614,23 +533,6 @@ addIcon(obj){
 	}
 
 
-    
-
-	
-	jumbotron() {
-		const adj = () => {
-			let query = window.matchMedia("(max-device-width: 415px)");
-			if (query.matches) {
-				this.res.style.fontSize = '8rem';
-			} else {
-				this.res.style.fontSize = '6rem';
-			}
-		}
-
-		adj();
-		window.addEventListener("resize", adj);
-		return this;
-	}
 	
 	
 	large() {
@@ -673,8 +575,6 @@ addIcon(obj){
 			this.setB = false;
 			
 			
-			// *Â window.innerWidth);
-			// // console.log(base.baseVW / 100 * window.innerWidth);
 			// CONVERT CURRENT base.VW to pixels
 			
 			if (!this.set){
@@ -689,7 +589,6 @@ addIcon(obj){
 					//alert("ON REFRESH");
 				this.res.style.color = "orange";
 				this.res.style.fontSize = `${base.baseVW / 100 * base.maxw}px`;
-			//this.res.style.fontSize = `${base.maxFont}px`;
 				this.setB = true;
 			}
 			
@@ -704,11 +603,6 @@ addIcon(obj){
 		}
 		
 	
-		/*let query = window.matchMedia(`(max-device-width: ${o.w}px)`);
-			if (query.matches) {
-				alert("joa")
-				this.res.style.fontSize = `${o.size}vw`;
-			}*/
 		
 
 		adapt();
@@ -723,7 +617,6 @@ addIcon(obj){
 		
 		
 		
-		// this.res.style.fontSize = `calc(${base}px + 1vw)`;
 		return this;
 	}
 
@@ -732,9 +625,6 @@ addIcon(obj){
 	medium() {
 		const adj = () => {
 			let query = window.matchMedia("(max-device-width: 415px)");
-			/* let query = window.matchMedia("(max-device-width: 415px)");
-			if (window.innerWidth < h || query.matches) {
-			} */
 
 			if (query.matches) {
 				this.res.style.fontSize = '2.25rem';
@@ -766,9 +656,6 @@ addIcon(obj){
 	small() {
 		const adj = () => {
 			let query = window.matchMedia("(max-device-width: 415px)");
-			/* let query = window.matchMedia("(max-device-width: 415px)");
-			if (window.innerWidth < h || query.matches) {
-			} */
 
 			if (query.matches) {
 				this.res.style.fontSize = '1.5em';
@@ -820,7 +707,6 @@ addIcon(obj){
 			el.setAttribute("id", obj.id);
 
 
-
 			if (obj.type === "span"){
 
 
@@ -832,8 +718,6 @@ addIcon(obj){
 
 				
 				
-				//el = document.createElement("span");
-				//el.style.display = "block";
 			}
 
 		} else {
@@ -863,11 +747,6 @@ addIcon(obj){
 	}
 
 
-	/*size(s) {
-		this.res.style.fontSize = s;
-		return this;
-	}*/
-
 	em(e) {
 		this.res.style.fontSize = `${e}em`;
 		//alert("h")
@@ -876,8 +755,6 @@ addIcon(obj){
 
 	color(color) {
 		this.res.style.color = color;
-		//this.code.push(`.color(${color}),`);
-		//this.code.push(`.color(${color})`);
 		return this;
 	}
 
@@ -901,11 +778,6 @@ addIcon(obj){
 		return this;
 	}
 
-	/*padding(val){
-		this.res.style.padding = val;
-		return this;
-	}*/
-
 
 	
 		width(w, shouldCenter){
@@ -920,9 +792,6 @@ addIcon(obj){
 
 
 	offset(obj){
-		/*this.res.style.marginLeft = "-390px";
-		this.res.style.marginTop = "-360px";
-		this.res.style.color = "green";*/
 
 		
 		this.res.style.gridRow = 2;
@@ -940,7 +809,6 @@ addIcon(obj){
 	}
 
 
-
 	updating(obj, key) {
 
 		var copy = this.res;
@@ -952,7 +820,6 @@ addIcon(obj){
 
 
 				// this.text
-				// let node = document.createTextNode(`Pressed ${newVal}`);
 				let node = document.createTextNode(txt.replace("$", newVal))
 				copy.replaceChild(node, copy.childNodes[0]);
 			}
@@ -996,10 +863,6 @@ addIcon(obj){
 	}
 	
 	// setFirst
-	/*let query = window.matchMedia(`(max-width: ${arr[0].width}px)`);
-		if (!query.matches){
-				Object.assign(this.res.style, arr[0].styles);
-		}*/
 	
 	goThroughStyles();
 	window.addEventListener("resize", goThroughStyles);  // never use "on" here. Will get overrwritten !
@@ -1012,23 +875,9 @@ addIcon(obj){
 	*/
 
 		
-		/*
-		render(el) {
-		Array.from(this.res.children).forEach(e => e.style.padding = 0);
-		Array.from(this.res.children).forEach(e => e.style.margin = 0);
-		
-		if (el) {
-			document.querySelector(el).appendChild(this.res);
-		} else {
-			return this.res;
-		}
-	}
-		*/
 
 
 		
-		//Array.from(this.res.children).forEach(e => e.style.padding = 0);
-		//Array.from(this.res.children).forEach(e => e.style.margin = 0);
 		
 		if (div) {
 			if (this.options && this.options.id){
@@ -1057,8 +906,6 @@ addIcon(obj){
     } 
 			return this.res;
 		}
-
-
 
 
 		
