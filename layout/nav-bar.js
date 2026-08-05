@@ -1,12 +1,17 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-class NavBar {
+import {Animator} from "./animator.js";
+class NavBar extends Animator{
 	constructor(els){
-		this.ele = null;
+		super();
+		// Converted from a standalone class; opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour.
+		this._noTheme = true;
+		this.res = null;
 		this.titleText = "";
 		this.hasHamburger = false;
 		this.setup(); // should nt be eited 2024
@@ -34,7 +39,7 @@ class NavBar {
 		el.style.margin = 0;
 		el.style.paddingTop = "1em";
 		el.style.paddingBottom = "1em";
-		this.ele = el;
+		this.res = el;
 		// EVIL LINE
 		
 		return this;
@@ -51,17 +56,17 @@ class NavBar {
 					
 					let paddingObject = pado;// paddingValues[0]; // Assuming only one object in the array
                     if (paddingObject.hasOwnProperty('top')) {
-                        this.ele.style.marginTop = paddingObject['top'];
+                        this.res.style.marginTop = paddingObject['top'];
                     }
                     if (paddingObject.hasOwnProperty('right')) {
 						//alert("P")
-                        this.ele.style.marginRight = paddingObject['right'];
+                        this.res.style.marginRight = paddingObject['right'];
                     }
                     if (paddingObject.hasOwnProperty('bottom')) {
-                        this.ele.style.marginBottom = paddingObject['bottom'];
+                        this.res.style.marginBottom = paddingObject['bottom'];
                     }
                     if (paddingObject.hasOwnProperty('left')) {
-                        this.ele.style.marginLeft = paddingObject['left'];
+                        this.res.style.marginLeft = paddingObject['left'];
                     }
 				}
 
@@ -74,7 +79,7 @@ class NavBar {
     }
     
 	radius(rad){
-		this.ele.style.borderRadius = rad;
+		this.res.style.borderRadius = rad;
 		return this;
 	}
     
@@ -101,7 +106,7 @@ class NavBar {
             
             
            
-                 this.ele.appendChild(item.render());
+                 this.res.appendChild(item.render());
             
             
        
@@ -125,14 +130,14 @@ class NavBar {
 	
 	
 	sticky(){
-		this.ele.style.position = "fixed";
+		this.res.style.position = "fixed";
 		return this;
 	}
 	
 	font(family){
 		
-		for (var i = 0; i < this.ele.children; i++){
-			this.ele.children[i].style.fontFamily = family;
+		for (var i = 0; i < this.res.children; i++){
+			this.res.children[i].style.fontFamily = family;
 		}
 		
 		return this;
@@ -142,8 +147,8 @@ class NavBar {
     
     
         background(obj){
-            this.ele.style.backgroundColor = obj.color;
-              this.ele.style.opacity = obj.opacity;
+            this.res.style.backgroundColor = obj.color;
+              this.res.style.opacity = obj.opacity;
             return this;
         }
 
@@ -156,10 +161,10 @@ adjust(w) {
 	let media2 = window.matchMedia(`(max-device-width: 415px)`);
 
 	if (media.matches || media2.matches) {
-		this.ele.style.flexDirection = "column";
+		this.res.style.flexDirection = "column";
 	} else {
-		this.ele.style.flexDirection = "row";
-		this.ele.style.marginLeft = 0;
+		this.res.style.flexDirection = "row";
+		this.res.style.marginLeft = 0;
 	}
 
 	const addHamburger = () => {
@@ -180,8 +185,8 @@ adjust(w) {
 	
 	const adjustFontSize = () => {
 	//	alert("NOT USED IN VIEWPORT")
-		for (var i = 0; i < this.ele.children.length; i++) {
-			let el = this.ele.children[i];
+		for (var i = 0; i < this.res.children.length; i++) {
+			let el = this.res.children[i];
 			 el.style.fontSize = media2.matches ? "1.2em" : "1em";
 
             
@@ -209,9 +214,9 @@ adjust(w) {
 	}
 
 	const toWideScreen = () => {
-		for (var i = 0; i < this.ele.children.length; i++) {
+		for (var i = 0; i < this.res.children.length; i++) {
 			
-			let child = this.ele.children[i];
+			let child = this.res.children[i];
 			
 			child.style.marginTop = "0em";
 			child.style.display = "block";
@@ -220,14 +225,14 @@ adjust(w) {
 				child.style.fontSize = "2em";
 			}
 			
-		if (this.ele.childNodes[i].textContent == "☰") {
-			this.ele.removeChild(this.ele.childNodes[i]);
+		if (this.res.childNodes[i].textContent == "☰") {
+			this.res.removeChild(this.res.childNodes[i]);
 		}
 		
 		}
 
 	
-		this.ele.style.flexDirection = "row";
+		this.res.style.flexDirection = "row";
 	}
 	
 
@@ -239,17 +244,17 @@ adjust(w) {
 		var closed = false;
 		var btn = addHamburger();
 		
-		 /*(((this.ele.children.length == this.itemCount + 1)||*/
-		if (this.ele.children.length == this.itemCount) {
-			this.ele.insertBefore(btn, this.ele.firstChild);
+		 /*(((this.res.children.length == this.itemCount + 1)||*/
+		if (this.res.children.length == this.itemCount) {
+			this.res.insertBefore(btn, this.res.firstChild);
 		}
 
-		this.ele.style.flexDirection = "column";
-		for (var i = 0; i < this.ele.children.length; i++) {
-			if (this.ele.children[i].textContent == "☰" || this.ele.children[i].textContent == /*"Lands"*/ this.keepItem){
-				this.ele.children[i].style.display = "block";
+		this.res.style.flexDirection = "column";
+		for (var i = 0; i < this.res.children.length; i++) {
+			if (this.res.children[i].textContent == "☰" || this.res.children[i].textContent == /*"Lands"*/ this.keepItem){
+				this.res.children[i].style.display = "block";
 			} else {
-				this.ele.children[i].style.display = "none";
+				this.res.children[i].style.display = "none";
 			}
 		}
 
@@ -257,21 +262,21 @@ adjust(w) {
 			// alert
 			closed = !closed;
 
-			for (var i = 0; i < this.ele.children.length; i++) {
-				if (i != 0 && this.ele.children[i].textContent != /*"Lands"*/ this.keepItem) {
+			for (var i = 0; i < this.res.children.length; i++) {
+				if (i != 0 && this.res.children[i].textContent != /*"Lands"*/ this.keepItem) {
 
 					if (!closed) {
-						this.ele.children[i].style.display = "none";
-						this.ele.children[i].style.marginTop = "0em";
+						this.res.children[i].style.display = "none";
+						this.res.children[i].style.marginTop = "0em";
 					} else {
                         
                         
-                        if (this.ele.children[i].getAttribute("class") === "innerHider"){
+                        if (this.res.children[i].getAttribute("class") === "innerHider"){
                             // alert("WOW");
-                               this.ele.children[i].style.display = "none";
+                               this.res.children[i].style.display = "none";
                         } else {
-                            this.ele.children[i].style.display = "block";
-							this.ele.children[i].style.marginTop = "3em";
+                            this.res.children[i].style.display = "block";
+							this.res.children[i].style.marginTop = "3em";
                         }
                         
                         
@@ -306,11 +311,11 @@ adjust(w) {
 		if (div){
 			document.querySelector(div).style.padding = 0;
 			document.querySelector(div).style.margin = 0;
-			document.querySelector(div).appendChild(this.ele);
+			document.querySelector(div).appendChild(this.res);
 		} else {
-			return this.ele;
+			return this.res;
 		}
-			return this.ele;
+			return this.res;
 	}
 }
 	 

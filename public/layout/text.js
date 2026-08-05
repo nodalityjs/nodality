@@ -38,13 +38,7 @@ class Text extends Animator {
         return [`new Text("${this.text}").set(${objString})`];
 	}
 
-	toCSS(){
-		return this.css; 
-	}
 
-	toHTMLA(){
-		return this.html;
-	}
 
 	toElCSS(){
 		this.elCSS = this.elCSS.map(el => "    " + el);
@@ -86,10 +80,6 @@ class Text extends Animator {
 	}
 
 
-	onTap(e){
-		this.res.addEventListener("click", e);
-		return this;
-	}
 	
 	setClass(name){
 		this.res.setAttribute("class", name);

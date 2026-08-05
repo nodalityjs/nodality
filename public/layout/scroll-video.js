@@ -1,5 +1,10 @@
-class ScrollVideo {
+import {Animator} from "./animator.js";
+class ScrollVideo extends Animator {
     constructor() {
+		super();
+		// Converted from a standalone class. Opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour; opt in per component.
+		this._noTheme = true;
         this.frameNumber = 0; // Start video at frame 0
         this.res = document.createElement("div");
         this.vid = null;

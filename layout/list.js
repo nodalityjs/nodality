@@ -1,12 +1,17 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
+import {Animator} from "./animator.js";
 // 13:28 07/04/2020 - BEGIN NOTHING GONNA STOP US NOW  Lets go!
-class List {
+class List extends Animator{
 	constructor() {
+		super();
+		// Converted from a standalone class; opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour.
+		this._noTheme = true;
 		this.tasks = [];
 		this.setup();
 	}
@@ -97,8 +102,12 @@ class List {
 }
 
 
-class Cell {
+class Cell extends Animator{
 	constructor(){
+		super();
+		// Converted from a standalone class; opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour.
+		this._noTheme = true;
 		this.res = null;
 		this.setup();
 	}

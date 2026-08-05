@@ -173,24 +173,14 @@ class TextField extends Animator {
 		this.res.style.border = `${w}px solid ${color}`;
 		return this;
 	}
-	
-	
-	width(w){
-		this.res.style.width = w;
-		return this;
-	}
+
+
 	/**
 	 * Corner radius. A number is pixels; a string is passed through, so
 	 * `radius("50%")` and `radius(12)` both work.
 	 */
 
 
-
-	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
-	round(v) {
-		this.deprecatedOption("round()", "radius()");
-		return this.radius(v);
-	}
 
 	
 	onChange(action){

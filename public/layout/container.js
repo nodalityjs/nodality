@@ -491,10 +491,7 @@ code = `${pad}new Wrapper()`;
 		return this;
 	}
 
-	width(perc){
-		this.res.style.width = perc;
-		return this;
-	}
+
 
 	heightNoAuto(perc){
 		this.res.style.height = perc;

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -491,11 +491,8 @@ let stringified = JSON.stringify(options.borderObj);
          
         return this;
     }
-    
-     background(color){
-        this.res.style.background = color;
-        return this;
-    }
+
+
     
     radius(val){
         this.res.style.borderRadius = `${val}px`;
@@ -506,11 +503,8 @@ let stringified = JSON.stringify(options.borderObj);
           this.res.style.boxShadow = "0px 1px 10px 0px rgb(145 145 145)"; //`${x}px ${y}px ${radius}px #000`;
         return this;
     }
-    
-    onTap(e){
-		this.res.addEventListener("click", e);
-		return this;
-	}
+
+
 	
 	
 	items(arr) {

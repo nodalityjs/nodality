@@ -52,13 +52,7 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 
 	}
 
-	toCSS(){
-		return this.css; 
-	}
 
-	toHTMLA(){
-		return this.html;
-	}
 
 	toElCSS(){
 		this.preffersId ? this.elCSS.unshift(this.res.id + " { \n") : (this.elCSS.unshift("." + this.class + " { \n"));
@@ -498,14 +492,7 @@ if (ft.length > 0){
 		return this; // 121550 pbends
 	}
 
-	background(color){
-				// The shorthand, not backgroundColor: it also resets background-image,
-		// so setting a flat colour after a gradient clears the gradient. The
-		// longhand left it in place, so the same call behaved differently
-		// depending on which component you happened to hold.
-		this.res.style.background = color;
-		return this;
-	}
+
 
 	leftAlign(alg){
 		this.res.style.textAlign = alg;
@@ -629,12 +616,6 @@ if (ft.length > 0){
 	 */
 
 
-
-	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
-	round(v) {
-		this.deprecatedOption("round()", "radius()");
-		return this.radius(v);
-	}
 
 
  // 220812 la olympics 2028

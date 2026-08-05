@@ -1,5 +1,10 @@
-class Spacer { 
+import {Animator} from "./animator.js";
+class Spacer extends Animator { 
 	constructor( hide) {
+		super();
+		// Converted from a standalone class. Opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour; opt in per component.
+		this._noTheme = true;
         
         
         

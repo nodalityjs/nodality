@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -218,11 +218,8 @@ if (el != undefined){
 		this.code.push("\n ])");
 		return this;
 	}
-	
-	width(w){
-		this.res.style.width = w;
-		return this;
-	}
+
+
 	
 	
 	border(color, width){

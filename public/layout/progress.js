@@ -1,7 +1,12 @@
+import {Animator} from "./animator.js";
 // changed on 26/12/2020
 
-class Progress {
+class Progress extends Animator {
 	constructor(value){
+		super();
+		// Converted from a standalone class. Opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour; opt in per component.
+		this._noTheme = true;
 		this.res = null;
 		this.value = value;
 		this.setup();

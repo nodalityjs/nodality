@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -132,15 +132,6 @@ this.options = obj;
 	}
 
 
-	
-	background(color){
-				// The shorthand, not backgroundColor: it also resets background-image,
-		// so setting a flat colour after a gradient clears the gradient. The
-		// longhand left it in place, so the same call behaved differently
-		// depending on which component you happened to hold.
-		this.res.style.background = color;
-		return this;
-	}
 
 
 	
@@ -163,12 +154,6 @@ this.options = obj;
 	 */
 
 
-
-	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
-	round(v) {
-		this.deprecatedOption("round()", "radius()");
-		return this.radius(v);
-	}
 
 	
 	render(div){

@@ -1,11 +1,16 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-class Spacer { 
+import {Animator} from "./animator.js";
+class Spacer extends Animator { 
 	constructor( hide) {
+		super();
+		// Converted from a standalone class. Opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour; opt in per component.
+		this._noTheme = true;
         
         
         

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -1010,6 +1010,24 @@ resmar(arr) {
         
         return this;
     }
+
+	round(v) {
+		this.deprecatedOption("round()", "radius()");
+		return this.radius(v);
+	}
+
+	toCSS(){
+		return this.css; 
+	}
+
+	toHTMLA(){
+		return this.html;
+	}
+
+	background(color){
+		this.res.style.background = color;
+		return this;
+	}
 
 	deprecatedOption(name, replacement) {
 		console.error(`nodality: \`${name}\` is deprecated — use \`${replacement}\` instead.`);

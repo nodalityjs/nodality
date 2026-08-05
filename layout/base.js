@@ -1,11 +1,16 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-class Base {
+import {Animator} from "./animator.js";
+class Base extends Animator{
 	constructor(/*items*/){
+		super();
+		// Converted from a standalone class; opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour.
+		this._noTheme = true;
 		//Base.prototype.items = items;
 		this.oldLength = 0;
 	}
@@ -101,7 +106,7 @@ class Base {
 
 	
 	mount(el){
-		this.el = el;
+		this.res = el;
 		this.render(el).render(el); // // this.render === function inside component
 	}
 

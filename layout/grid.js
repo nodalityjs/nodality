@@ -1,11 +1,16 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-class Grid {
+import {Animator} from "./animator.js";
+class Grid extends Animator {
 	constructor(frs, saveEl) {
+		super();
+		// Converted from a standalone class. Opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour; opt in per component.
+		this._noTheme = true;
 		this.saveEl = saveEl;
 		this.frs = frs;
 		this.res = null;

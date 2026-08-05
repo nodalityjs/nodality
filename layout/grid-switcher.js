@@ -1,11 +1,16 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-class AreaSwitcher {
+import {Animator} from "./animator.js";
+class AreaSwitcher extends Animator{
     constructor() {
+		super();
+		// Converted from a standalone class; opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour.
+		this._noTheme = true;
       
       this.gridContainer = document.createElement("div");
       this.gridContainer.classList.add("grid-container");
@@ -120,9 +125,13 @@ for (var i = 0; i < arr.length - 1; i++){
   // Usage example:
   
   
-  class GridSwitcher {
+  class GridSwitcher extends Animator{
     constructor(){
-     this.el = document.createElement("div");
+		super();
+		// Converted from a standalone class; opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour.
+		this._noTheme = true;
+     this.res = document.createElement("div");
      this.gridWrap = document.createElement("div");
     }
 
@@ -141,7 +150,7 @@ for (var i = 0; i < arr.length - 1; i++){
               let mq = window.matchMedia(`(max-width: ${val.at})`).matches;
               if ((mq || val.at == "default") && mq !== this.lastMq){
                   const update = new Simple().set(val.template, this.dynamicItems).render();
-                  this.el = update;
+                  this.res = update;
                   this.render(this.domStr);
                   this.lastMq = mq;
               }
@@ -154,7 +163,7 @@ for (var i = 0; i < arr.length - 1; i++){
   
     render(div){
       this.gridWrap.innerHTML = "";
-      this.gridWrap.appendChild(this.el);
+      this.gridWrap.appendChild(this.res);
 
   if (div){
     document.querySelector(div).appendChild(this.gridWrap);
@@ -162,7 +171,7 @@ for (var i = 0; i < arr.length - 1; i++){
 
   return this.gridWrap;
 
-      // Just return this.el it normally
+      // Just return this.res it normally
     }
   }
   

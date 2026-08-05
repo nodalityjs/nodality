@@ -1,5 +1,10 @@
-class MetaAdder{
-    constructor(){ 
+import {Animator} from "./animator.js";
+class MetaAdder extends Animator{
+    constructor(){
+		super();
+		// Converted from a standalone class. Opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour; opt in per component.
+		this._noTheme = true; 
         this.res = document.createElement("meta");
         this.res.setAttribute("name", "viewport");
         this.res.setAttribute("content", "width=device-width, initial-scale=1");

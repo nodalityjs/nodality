@@ -212,11 +212,8 @@ if (el != undefined){
 		this.code.push("\n ])");
 		return this;
 	}
-	
-	width(w){
-		this.res.style.width = w;
-		return this;
-	}
+
+
 	
 	
 	border(color, width){

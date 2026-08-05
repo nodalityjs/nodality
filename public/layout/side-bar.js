@@ -1,6 +1,11 @@
-class SideBar {
+import {Animator} from "./animator.js";
+class SideBar extends Animator{
 	constructor(els, obj){
-		this.ele = null;
+		super();
+		// Converted from a standalone class; opting out of Theme keeps rendering
+		// byte-identical to the pre-conversion behaviour.
+		this._noTheme = true;
+		this.res = null;
         this.width = "16em";
         this.height = "100vh";
         
@@ -123,7 +128,7 @@ class SideBar {
         })
         
         
-		this.ele = outer;
+		this.res = outer;
         
      
         
@@ -143,15 +148,15 @@ class SideBar {
     // DO NOT CHANGE WIDTH AFTER
     
     background(obj){
-            this.ele.children[1].style.backgroundColor = obj.color;
-              this.ele.children[1].style.opacity = obj.opacity;
+            this.res.children[1].style.backgroundColor = obj.color;
+              this.res.children[1].style.opacity = obj.opacity;
             return this;
         }
 	
 	items(items){
 		this.itemCount = items.length;
 		for (var i = 0; i < items.length; i++){
-			this.ele.children[1].appendChild(items[i].render());
+			this.res.children[1].appendChild(items[i].render());
 		}
 		
 		return this;
@@ -163,11 +168,11 @@ class SideBar {
 		if (div){
 			document.querySelector(div).style.padding = 0;
 			document.querySelector(div).style.margin = 0;
-			document.querySelector(div).appendChild(this.ele);
+			document.querySelector(div).appendChild(this.res);
 		} else {
-			return this.ele;
+			return this.res;
 		}
-			return this.ele;
+			return this.res;
 	}
 }
 	

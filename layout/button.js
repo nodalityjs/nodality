@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.219
+ * nodality v1.0.220
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -265,11 +265,6 @@ this.options = obj;
     }
 
 
-    
-	background(color){
-		this.res.style.background = color;
-		return this;
-	}
 
 
     
@@ -346,11 +341,8 @@ this.options = obj;
 		
 		return this;
 	}
-	
-	onTap(e){
-		this.res.addEventListener("click", e);
-		return this;
-	}
+
+
 
 	toCode() {
 		//console.log("OPTIONS ARE");
