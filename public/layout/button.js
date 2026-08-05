@@ -257,21 +257,15 @@ this.options = obj;
         this.res.setAttribute("class", classa);
         return this;
     }
-    
-    color(color){
-        this.res.style.color = color;
-        return this;
-    }
+
+
     
 	background(color){
 		this.res.style.background = color;
 		return this;
 	}
-	
-	width(percentage){
-		this.res.style.width = percentage;
-		return this;
-	}
+
+
     
     
    borderRadius(radius){

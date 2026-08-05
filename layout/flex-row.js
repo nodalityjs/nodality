@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.218
+ * nodality v1.0.219
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -291,13 +291,7 @@ let stringified = JSON.stringify(options.borderObj);
 		}
 	}
 
-	
 
-
-	setArea(area){
-		this.res.style.gridArea = area;
-		return this;
-	}
 
 	toColumnAt(at){ // THIS IS THE ONE!!!
 

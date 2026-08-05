@@ -55,17 +55,10 @@ code = `${pad}new Wrapper()`;
 	getType(){
 		return "LayoutWrapperElement"; // 224647
 	}
-// 220543§§§§§§§§§§§§§§§§§§§§¨ú
-	setArea(area){
-		this.res.style.gridArea = area;
-		return this;
-	}
 
 
-	  onTap(handler){
-		this.res.addEventListener("click", handler);
-		return this;
-	  }
+
+
 
 
 	set(obj){
@@ -480,10 +473,6 @@ code = `${pad}new Wrapper()`;
 	}
 
 
-	font(font){
-		this.res.style.fontFamily = font;
-		return this;
-	}
 
 	flexAlign(perc){
 		this.res.style.display = "flex";

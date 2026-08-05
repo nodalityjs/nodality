@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.218
+ * nodality v1.0.219
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -26,13 +26,6 @@ class Text extends Animator {
 	}
 
 
-	
-
-
-	setArea(area){
-		this.res.style.gridArea = area;
-		return this;
-	}
 
 
 	toCode(){

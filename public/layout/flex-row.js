@@ -285,13 +285,7 @@ let stringified = JSON.stringify(options.borderObj);
 		}
 	}
 
-	
 
-
-	setArea(area){
-		this.res.style.gridArea = area;
-		return this;
-	}
 
 	toColumnAt(at){ // THIS IS THE ONE!!!
 

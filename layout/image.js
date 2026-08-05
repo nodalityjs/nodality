@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.218
+ * nodality v1.0.219
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -45,13 +45,6 @@ class Image extends Animator {
 	}
 
 
-	getHeight(){
-		return this.res.height;
-	}
-
-	getWidth(){
-		return this.res.width;
-	}
 
 	getType(){ // 114145 anchor
 		return "HTMLImageElement";
@@ -376,31 +369,6 @@ let obj = options;
 	}
 
 
-	setFilter(filter){
-
-		// console.log("ABBAC------------");
-		// console.log(filter);
-		let arr = [];
-
-		let ft = [filter]//obj.gradient.filter(el => el.op.name !== "layout");
-			// console.log(ft);
-
-			ft = ft.filter(el => el != undefined);
-
-
-			for (var i = 0; i < ft.length; i++){
-				// console.log("Hello");
-				arr.push({
-					range: ft[i].range,
-					log: ft[i].op.name,
-					target: ft[i].target
-				});
-			}
-
-			//alert(arr.length);
-
-			//this.protoReact(arr)
-	}
 
 
 	setID(id){
@@ -415,10 +383,6 @@ let obj = options;
 	}
 
 
-	setArea(area){
-		this.res.style.gridArea = area;
-		return this;
-	}
 
 
 	setGrid(){
@@ -443,27 +407,8 @@ let obj = options;
 		this.res.setAttribute("class", name);
 		return this;
 	}
-	
-     scale(obj){
-        
-        let previousWidth = this.res.style.width;
-          
-        this.res.style.transition= "0.5s all";
-      //  alert(previousWidth);
-        
-        this.res.addEventListener("mouseover", () => {
-            let previousWidth = this.res.style.width;
-             this.res.style.transform = "scale(1.04)";
-        });
-        
-         this.res.addEventListener("mouseout", () => {
-            let previousWidth = this.res.style.width;
-              this.res.style.transform = "scale(1.0)";
-        });
-        
-        
-        return this;
-    }
+
+
 
 
 	onTap(e) {

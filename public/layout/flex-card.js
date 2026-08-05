@@ -26,10 +26,7 @@ class Card extends Animator {
 		return this;	
 	}
 
-	onTap(handler){
-		this.res.addEventListener("click", handler);
-		return this;
-	}
+
 
 	set(obj){
 		let stra = "";
@@ -127,27 +124,8 @@ this.options = obj;
 
 			return this;
 	}
-    
-    scale(obj){
-        
-        let previousWidth = this.res.style.width;
-          
-        this.res.style.transition= "0.5s all";
-      //  alert(previousWidth);
-        
-        this.res.addEventListener("mouseover", () => {
-            let previousWidth = this.res.style.width;
-             this.res.style.transform = "scale(1.04)";
-        });
-        
-         this.res.addEventListener("mouseout", () => {
-            let previousWidth = this.res.style.width;
-              this.res.style.transform = "scale(1.0)";
-        });
-        
-        
-        return this;
-    }
+
+
 	
 	background(color){
 				// The shorthand, not backgroundColor: it also resets background-image,
@@ -157,11 +135,8 @@ this.options = obj;
 		this.res.style.background = color;
 		return this;
 	}
-	
-	color(color){
-		this.res.style.color = color;
-		return this;
-	}
+
+
 	
 	
 	items(els){
@@ -180,10 +155,8 @@ this.options = obj;
 	 * Corner radius. A number is pixels; a string is passed through, so
 	 * `radius("50%")` and `radius(12)` both work.
 	 */
-	radius(v) {
-		this.res.style.borderRadius = typeof v === "number" ? `${v}px` : v;
-		return this;
-	}
+
+
 
 	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
 	round(v) {

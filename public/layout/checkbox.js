@@ -3,7 +3,7 @@ import { Animator } from "./animator.js";
 class Checkbox extends Animator {
     constructor() {
         super();
-        this.el = null;
+        this.res = null;
 
 		
     }
@@ -128,12 +128,12 @@ obj.resmar && this.resmar(obj.resmar);
 
     div.appendChild(labelDiv);
 
-    this.el = div;
+    this.res = div;
     return this;
     }
 
     getValue() {
-        return this.el.children[0].checked;
+        return this.res.children[0].checked;
     }
 
     toCode() {
@@ -163,9 +163,9 @@ obj.resmar && this.resmar(obj.resmar);
 
     render(div) {
         if (div) {
-            document.querySelector(div).appendChild(this.el);
+            document.querySelector(div).appendChild(this.res);
         } else {
-            return this.el;
+            return this.res;
         }
     }
 }

@@ -20,13 +20,6 @@ class Text extends Animator {
 	}
 
 
-	
-
-
-	setArea(area){
-		this.res.style.gridArea = area;
-		return this;
-	}
 
 
 	toCode(){

@@ -1,6 +1,4 @@
 import {Animator} from "./animator.js";
-import {Text} from "./text.js";
-
 class /*Beta*/MobileBar extends Animator {
     constructor() {
         super();

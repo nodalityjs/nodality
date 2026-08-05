@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.218
+ * nodality v1.0.219
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -93,10 +93,7 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
         return [`new Link().set(${objString})`];
 	}
 
-	setArea(area){
-		this.res.style.gridArea = area;
-		return this;
-	}
+
 	
 	setup(){
 		let el = document.createElement("a");
@@ -174,13 +171,8 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 		const modifiedJSON = jsonString.replace(/"([^"]+)":/g, '$1:');
 		return modifiedJSON;
 	  }
-	  
 
 
-	onTap(handler){
-		this.res.addEventListener("click", handler);
-		return this;
-	}
 
 	set(obj){ // make it like I would like it
 
@@ -505,10 +497,7 @@ if (ft.length > 0){
   		 this.res.style.position = "relative";      // create stacking context
 	}
 
-	color(e){
-		this.res.style.color = e;
-		return this;
-	}
+
 
 	maxWidth(mw){
 		this.res.style.maxWidth = mw;  // 121339 in flex
@@ -644,10 +633,8 @@ if (ft.length > 0){
 	 * Corner radius. A number is pixels; a string is passed through, so
 	 * `radius("50%")` and `radius(12)` both work.
 	 */
-	radius(v) {
-		this.res.style.borderRadius = typeof v === "number" ? `${v}px` : v;
-		return this;
-	}
+
+
 
 	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
 	round(v) {
@@ -666,11 +653,8 @@ if (ft.length > 0){
 		this.res.style.transionProperty = `background, color`;
 		return this;
 	}
-	
-	width(percentage){
-		this.res.style.width = percentage;
-		return this;
-	}
+
+
 
 	italic(){
 		this.res.style.fontStyle = "italic";

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.218
+ * nodality v1.0.219
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -137,11 +137,8 @@ class TextField extends Animator {
 		//console.log(this.res.value)
 		return this.res.value;
 	}
-	
-	font(font){
-		this.res.style.fontFamily = font;
-		return this;
-	}
+
+
 	
 	size(s){
         this.res.style.fontSize = s;
@@ -152,11 +149,8 @@ class TextField extends Animator {
 		this.res.style.fontSize = `${e}em`;
 		return this;
 	}
-	
-	color(color){
-		this.res.style.color = color;
-		return this;
-	}
+
+
 	
 	weight(weight){
 		this.res.style.fontWeight = weight;
@@ -195,10 +189,8 @@ class TextField extends Animator {
 	 * Corner radius. A number is pixels; a string is passed through, so
 	 * `radius("50%")` and `radius(12)` both work.
 	 */
-	radius(v) {
-		this.res.style.borderRadius = typeof v === "number" ? `${v}px` : v;
-		return this;
-	}
+
+
 
 	//@deprecated round: superseded by `radius()`, which is the same thing under the name the option already uses.
 	round(v) {

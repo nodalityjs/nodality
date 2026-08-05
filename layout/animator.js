@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.218
+ * nodality v1.0.219
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -959,6 +959,58 @@ resmar(arr) {
 	 * ordinary paths and blocked the page for every visitor, and the ban is
 	 * worth more than making this one warning louder.
 	 */
+	color(color){
+		this.res.style.color = color;
+		return this;
+	}
+
+	onTap(handler){
+		this.res.addEventListener("click", handler);
+		return this;
+	}
+
+	setArea(area){
+		this.res.style.gridArea = area;
+		return this;
+	}
+
+
+	font(font){
+		this.res.style.fontFamily = font;
+		return this;
+	}
+
+	radius(v) {
+		this.res.style.borderRadius = typeof v === "number" ? `${v}px` : v;
+		return this;
+	}
+
+	width(percentage){
+		this.res.style.width = percentage;
+		return this;
+	}
+
+    scale(obj){
+        
+        let previousWidth = this.res.style.width;
+          
+        this.res.style.transition= "0.5s all";
+      //  alert(previousWidth);
+        
+        this.res.addEventListener("mouseover", () => {
+            let previousWidth = this.res.style.width;
+             this.res.style.transform = "scale(1.04)";
+        });
+        
+         this.res.addEventListener("mouseout", () => {
+            let previousWidth = this.res.style.width;
+              this.res.style.transform = "scale(1.0)";
+        });
+        
+        
+        return this;
+    }
+
 	deprecatedOption(name, replacement) {
 		console.error(`nodality: \`${name}\` is deprecated — use \`${replacement}\` instead.`);
 		return this;
