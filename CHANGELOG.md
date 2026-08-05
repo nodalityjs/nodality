@@ -2,6 +2,17 @@
 
 Generated per release from the source diff.
 
+## 1.0.218 — 2026-08-04
+
+### Fixed
+
+- Fixed a broken build in `layout/list.js` where malformed syntax left `window.List` and `Cell` incorrectly assigned; now properly sets `window.List` and `window.Cell`, and exports `List, Cell` correctly.
+- Fixed a broken build in `layout/nav-bar.js` where malformed syntax referenced a non-existent `Spacer` export; now correctly sets `window.NavBar` and exports only `NavBar`.
+
+### Breaking
+
+- The `Spacer` export from `layout/nav-bar.js` no longer exists (it was never valid due to the prior syntax error, but any workaround relying on it will no longer apply).
+
 ## 1.0.217 — 2026-08-04
 
 A dead-code release: 85 files changed, 4,734 lines removed. No feature work, no
