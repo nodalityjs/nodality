@@ -2,6 +2,20 @@
 
 Generated per release from the source diff.
 
+## 1.0.219 — 2026-08-05
+
+### Changed
+- `Animator`: internal cleanup only — removed dead/commented-out code and stray console/debug statements. No behavioural changes for consumers.
+- `Base`: removed unused `toHTML(el)` method and unused `toNode(htmlString)` helper.
+- `Text`: removed `toHTML()` method.
+- `Text`: removed `jumbotron()` method.
+- `Audio`, `MetaAdder`, `Modal`, `Progress`, `Row`, `SideBar`, `Stack`, `Switcher`, `Grid`, `HScroller`, `List`, `NavBar`, `Slider`, `Spacer`, `ScrollVideo`: removed unused `Animator` imports and other dead code; internal only, no behavioural change.
+- `FlexRow`: `toColumn(at)` (breakpoint-based version) removed; the parameterless `toColumn()` that unconditionally sets `flexDirection: "column"` remains.
+- `prerender-site.js`, `prerender.js`: comment cleanup only.
+
+### Breaking
+- `FlexRow.set`: the `toColumn` option no longer collapses the row to a column responsively — it now triggers a deprecation warning via `deprecatedOption("toColumn", "colat")`. Use `colat` instead to get breakpoint-based column collapsing.
+
 ## 1.0.218 — 2026-08-04
 
 ### Fixed
