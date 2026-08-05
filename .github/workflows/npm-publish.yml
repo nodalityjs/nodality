@@ -15,6 +15,26 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Serialise releases. Two tags pushed close together would otherwise reach
+# their publish steps at the same time, and `npm publish` is not something
+# to race — nor is the changelog job, which pushes a branch and opens a PR.
+#
+# Every tag run shares one group and NEVER cancels. cancel-in-progress on a
+# release is the precise failure this exists to prevent: a run killed
+# between `npm publish` and the changelog/docs jobs leaves the registry
+# ahead of the repository, which is exactly the divergence onlyPublish.sh
+# already guards against locally.
+#
+# Everything else — branches, pull requests — groups per ref and does
+# cancel, so a force-push supersedes its own in-flight run without ever
+# queueing behind, or interfering with, a release.
+concurrency:
+  group: >-
+    ${{ startsWith(github.ref, 'refs/tags/v')
+        && 'release'
+        || format('{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+
 jobs:
   # Decide in a few seconds whether this push is worth a full pipeline.
   #
@@ -118,7 +138,18 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - run: npm ci
+      # Retried: a registry or DNS blip should not take down a release.
+      # `npm ci` deletes node_modules before it starts, so every attempt
+      # begins from the same clean state — repeating it is always safe.
+      - name: Install dependencies
+        run: |
+          for attempt in 1 2 3; do
+            npm ci && exit 0
+            echo "::warning::npm ci failed (attempt $attempt/3) — retrying in $((attempt * 15))s"
+            sleep $((attempt * 15))
+          done
+          echo "::error::npm ci failed after 3 attempts"
+          exit 1
 
       # dist/ must exist before the suite runs: __tests__/e2e/bundle.spec.js
       # loads public/bundle-smoke.html, which imports ../dist/index.esm.js —
@@ -133,7 +164,26 @@ jobs:
       # which still reports WebGL2 and EXT_color_buffer_float, so the
       # raster ops behave as they do locally.
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        # Azure-backed runners have no IPv6 route, but DNS still returns AAAA
+        # records for cdn.playwright.dev. Node picks the AAAA, the connect
+        # fails instantly with ENETUNREACH, and Playwright retries onto the
+        # same address four times before giving up — a hard release failure
+        # with nothing wrong in the repo (v1.0.217 died here). Preferring A
+        # records keeps the download on the route the runner actually has.
+        #
+        # Retried as well: preferring A records removes the one cause we
+        # diagnosed, not the class. The CDN can still blip, and re-running
+        # the installer is idempotent — it skips a browser already present.
+        env:
+          NODE_OPTIONS: --dns-result-order=ipv4first
+        run: |
+          for attempt in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "::warning::playwright install failed (attempt $attempt/3) — retrying in $((attempt * 15))s"
+            sleep $((attempt * 15))
+          done
+          echo "::error::playwright install failed after 3 attempts"
+          exit 1
 
       # The Playwright config starts its own static server and enables
       # the HTML-in-Canvas origin trial with a launch flag, so the live
@@ -195,7 +245,18 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - run: npm ci
+      # Retried: a registry or DNS blip should not take down a release.
+      # `npm ci` deletes node_modules before it starts, so every attempt
+      # begins from the same clean state — repeating it is always safe.
+      - name: Install dependencies
+        run: |
+          for attempt in 1 2 3; do
+            npm ci && exit 0
+            echo "::warning::npm ci failed (attempt $attempt/3) — retrying in $((attempt * 15))s"
+            sleep $((attempt * 15))
+          done
+          echo "::error::npm ci failed after 3 attempts"
+          exit 1
 
       # Reuse the dist/ built by the test job rather than rebuilding it.
       - name: Download dist from the test job
@@ -351,7 +412,18 @@ jobs:
           cache: 'npm'
 
       # 3. Install dependencies
-      - run: npm ci
+      # Retried: a registry or DNS blip should not take down a release.
+      # `npm ci` deletes node_modules before it starts, so every attempt
+      # begins from the same clean state — repeating it is always safe.
+      - name: Install dependencies
+        run: |
+          for attempt in 1 2 3; do
+            npm ci && exit 0
+            echo "::warning::npm ci failed (attempt $attempt/3) — retrying in $((attempt * 15))s"
+            sleep $((attempt * 15))
+          done
+          echo "::error::npm ci failed after 3 attempts"
+          exit 1
 
       # 6. Reuse the dist/ that the test job built and the pack job
       #    smoke-tested, rather than building a third copy. The build is
@@ -400,6 +472,20 @@ jobs:
     needs: publish
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    # The package is already on npm by the time this job starts, and this
+    # job only drafts a PR — it cannot unpublish or corrupt the release.
+    # Without this, a failure here marks the whole run red: v1.0.217
+    # published successfully and still shows as failed, purely because the
+    # changelog step died. That is worse than a missing entry, because it
+    # trains you to read a red release as "probably just the changelog" —
+    # and that is exactly how a genuine publish failure gets waved through.
+    #
+    # This does NOT hide the failure. The job still reports failed in the
+    # job list and the script's ::error:: annotations still surface in the
+    # run summary; only the RUN conclusion stops being dragged down. The
+    # entry is recoverable at any time by re-running the job or writing it
+    # by hand — the release itself is not.
+    continue-on-error: true
     timeout-minutes: 10
     permissions:
       contents: write

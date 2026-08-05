@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -14,7 +14,6 @@ class Video extends Animator {
 		super();
 		this.url = url;
 		this.res = null;
-		//this.setup(obj);
 		
 		this.setup();
 	}
@@ -41,16 +40,8 @@ class Video extends Animator {
 		size(w/*, h*/) {
 			
 			this.res.style.width = w;
-			//this.res.style.height = w;
 			
 			
-		/*if (w && h) {
-			this.res.style.width = w;
-			this.res.style.height = h;
-		} else {
-			this.res.style.width = w;
-			this.res.style.height = w;
-		}*/
 
 		return this;
 	}
@@ -70,7 +61,5 @@ class Video extends Animator {
 	}
 	
 	
-	//var _oldVideo = Video;
-//Video = function(...args) { return new _oldVideo(...args) };
 	
 export { Video };

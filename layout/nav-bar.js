@@ -1,10 +1,8 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
-
-import {Animator} from "./animator.js";
 
 class NavBar {
 	constructor(els){
@@ -32,14 +30,12 @@ class NavBar {
 		el.style.alignItems = "center";
 		el.style.margin = 0;
 		el.style.padding = 0;
-		//el.style.width = "100%";
 		//-------------DEFAULT STYLING----------
 		el.style.margin = 0;
 		el.style.paddingTop = "1em";
 		el.style.paddingBottom = "1em";
 		this.ele = el;
 		// EVIL LINE
-		// window.addEventListener("resize", this.adjust.bind(this));
 		
 		return this;
 	}
@@ -70,7 +66,6 @@ class NavBar {
 				}
 
 
-
                 }
             }
         }
@@ -89,13 +84,6 @@ class NavBar {
         
         
         
-     /* var itemsa = items.filter(item => item.__proto__
-            .constructor
-            .toString()
-            .startsWith("class Spacer") === false);
-        
-        this.itemCount = itemsa.length;
-        */
        
         
         
@@ -133,15 +121,6 @@ class NavBar {
     }
 	
 	
-	/*items(items){
-		this.itemCount = items.length;
-		for (var i = 0; i < items.length; i++){
-        this.ele.appendChild(items[i].render());
-		}
-		
-		this.adjust();
-		return this;
-	}*/
 	
 	
 	
@@ -158,13 +137,8 @@ class NavBar {
 		
 		return this;
 	}
-	
 
-	
-	openSymbol(symbol){
-		this.symbol = symbol;
-		return this;
-	}
+
     
     
         background(obj){
@@ -172,18 +146,8 @@ class NavBar {
               this.ele.style.opacity = obj.opacity;
             return this;
         }
-    
-    transluescent(){
-        this.ele.style.backgroundColor = "rgba(255,255,255,0.72)";
-        return this;
-        //background-color: rgba(255,255,255,0.72);
-    }
-    
-    
-    keepItem(item){
-        this.keepItem = item;
-        return this;
-    }
+
+
 	
 /*--------------------------------------------------ADJUST--------------------------------------------------*/	
 	// set habmurger icon
@@ -204,9 +168,7 @@ adjust(w) {
 		btn.style.border = "none";
 		btn.style.fontWeight = "bold";
 
-		// alert(this.hamburgerColour);
 		btn.style.color = this.hamburgerColour ?? "#3498db";
-		// btn.style.backgroundColor = "#fff"; nostalgia covid
 		btn.style.fontSize = media2.matches ? "2.2em" : "2em";
 		btn.appendChild(node);
 		 btn.style.marginLeft = "auto";
@@ -221,7 +183,6 @@ adjust(w) {
 		for (var i = 0; i < this.ele.children.length; i++) {
 			let el = this.ele.children[i];
 			 el.style.fontSize = media2.matches ? "1.2em" : "1em";
-			// el.style.fontSize = media2.matches ? "2.4em" : "1em";
 
             
               var isSpacer = el.__proto__
@@ -234,9 +195,6 @@ adjust(w) {
             
             if (el.style.getPropertyValue("flex-grow") == 1){
               // alert("A")
-                // el.style.setProperty("display", "none");
-             //   el.style.marginTop = "0em";
-              //  el.style.flex = "none";
                 
               //  console.log(el.style)
                
@@ -259,7 +217,6 @@ adjust(w) {
 			child.style.display = "block";
 			
 			if (child.textContent === this.titleText && this.titleText.length > 0) {
-                alert(child.textContent)
 				child.style.fontSize = "2em";
 			}
 			
@@ -340,7 +297,6 @@ adjust(w) {
 	}
 
 
-
 	window.addEventListener("resize", adjust);
 	return this;
 }
@@ -358,14 +314,6 @@ adjust(w) {
 	}
 }
 	 
-window.NavBar
-Spacer
-Spacer
-Spacer = NavBar
-Spacer
-Spacer
-Spacer;
-export { NavBar
-Spacer
-Spacer
-Spacer };
+window.NavBar = NavBar;
+
+export { NavBar };

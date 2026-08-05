@@ -1,10 +1,9 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-import { Animator } from "./animator.js";
 import { Button } from "./button.js";
 
 class Slider {

@@ -14,7 +14,6 @@ class UList extends Animator {
         obj.mar && this.mar(obj.mar);
        
         // CRITICAL
-		// obj.transform && this.reactOnTransform(obj.transform); // remove obj.op.duration
 		this.commonMethods(obj);
         this.callReact(obj);
         return this;
@@ -80,22 +79,12 @@ class UList extends Animator {
 			keep.push("span");
 		}
 
-	/*	if (obj.transform){
-			keep.push("transform");
-		}*/
 
 		// console.log("ARA IS " + arr);
 
 			this.chainReact(arr, this.options.id, keep);
 		}
 	}
-
-
-
-
-
-
-
 
 
     setup() {
@@ -169,20 +158,6 @@ class UList extends Animator {
         return this;
     }
 
-
-    headline() {
-        this.em(4);
-        this.font("Arial");
-        this.bold();
-        return this;
-    }
-
-    caption() {
-        this.bold();
-        this.res.style.fontFamily = "Arial";
-        this.res.style.color = "#3498db";
-        return this;
-    }
 
 	
 toCode(indent = 0) {

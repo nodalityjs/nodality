@@ -1,5 +1,3 @@
-import {Animator} from "./animator.js";
-
 class Stack {
     constructor(st){
        this.res = null;

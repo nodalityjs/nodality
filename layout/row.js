@@ -1,10 +1,8 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
-
-import {Animator} from "./animator.js";
 
 class Row {
 	constructor(frs, saveEl) {
@@ -16,7 +14,6 @@ class Row {
 	}
 	
 	center() {
-	//	this.res.style.justifyItems = "center";
 		return this;
 	}
 
@@ -29,7 +26,6 @@ class Row {
 
 		const toCol = () => {
 			let media = window.matchMedia(`(max-width: ${at})`);
-			// let mobileMedia = window.matchMedia(`(max-device-width: 415px)`);
 
 			if (media.matches){
 				this.res.style.gridTemplateColumns = "1fr";
@@ -65,13 +61,7 @@ class Row {
 	}
 
 
-	static test(){
-		alert("Wow")
-	}
-
 	setup(obj) {
-		//let parent = document.createElement("div");
-		//this.parent = parent;
 
 		let flex = document.createElement("div");
         flex.setAttribute("class", "someClass");
@@ -80,9 +70,7 @@ class Row {
 		flex.style.alignItems = "center";
 		flex.style.margin = 0;
 		flex.style.padding = "1em";
-		//flex.style.width = "100%";
 		
-		//flex.style.display = "flex";
 		
 		this.res = flex;
 		return this;
@@ -95,7 +83,6 @@ class Row {
 
 		if (options.align){
 			//alert("K")
-			//this.makeAlign(options.align);
 			 this.setAlign(options.align);
 		}
 
@@ -117,7 +104,6 @@ class Row {
 
 		return this;
 	}
-
 
 
 	setAlign(){
@@ -148,7 +134,6 @@ class Row {
         var frString = "";
         
         
-		//// console.warn(this.res);
 		for (var i = 0; i < arr.length; i++) {
 			
 			
@@ -157,8 +142,6 @@ class Row {
 			
 			
 			let r = arr[i].render();
-		 // r.style.width = "100%";
-			//r.style.flex = 1;
 			this.res.appendChild(r);
 		}
         

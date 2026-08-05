@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -16,11 +16,6 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 		this.constrObj = obj;
 
 		this.code.push("\n new Wrapper() \n");
-	}
-
-	isLasta(){
-		this.isLast = true;
-		return this;
 	}
 
 
@@ -71,29 +66,13 @@ code = `${pad}new Wrapper()`;
 		this.res.style.gridArea = area;
 		return this;
 	}
-	
-	removeQuotesFromFirstWord(jsonString) {
-		const modifiedJSON = jsonString.replace(/"([^"]+)":/g, '$1:');
-		return modifiedJSON;
-	  }
 
-	  clicked(handler){
-		this.res.addEventListener("click", handler);
-		return this;
-	  }
 
 	  onTap(handler){
 		this.res.addEventListener("click", handler);
 		return this;
 	  }
 
-	  gpos(obj){
-		//alert(obj.col);
-		this.res.style.gridColumn = obj.col;
-		this.res.style.gridRow = obj.row;
-		//this.res.style.border = "1px solid green";
-		return this;
-	  }
 
 	set(obj){
 		this.obj = obj;
@@ -113,65 +92,11 @@ code = `${pad}new Wrapper()`;
 		obj.position && (this.res.style.position = obj.position);
 		obj.top !== undefined && (this.res.style.top = obj.top);
 		// ------
-		//obj.mc && (this.res.style.height = "minmax(400px, 1fr)");
-		//obj.mc && (this.res.style.height = "fit-content");
-		//obj.mc && (this.res.style.height = "max-content");
-		//obj.mc && (this.res.style.minHeight = "400px");
 		obj.pad && this.pad(obj.pad);
 		obj.mar && this.mar(obj.mar);
-			//	obj.mar && (stra += `mar: {sides: [${obj.mar.sides.map(x => `"${x}"`).join(", ")}], value: "${obj.arrpad.value}"}, `);
 
   //@ gpos: Grid placement — {col, row}, written to grid-column and grid-row.
 		obj.gpos && this.gpos(obj.gpos);
-
-
-		//const obj = options;
-	/*	if (obj && obj.id && obj.stroke || obj && obj.id &&  obj.gradient || obj && obj.id && obj.span || obj && obj.id && obj.layout ){
-
-
-			// use obj.range and obj.op
-			
-					
-			
-						let first = obj.gradient;
-			
-						if (obj.gradient){
-			
-						
-
-						this.globalGradient = obj.gradient.op.gradient;
-						// console.log(obj.gradient);
-						}
-			
-						
-						if (obj.stroke){
-						super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
-						}
-			
-						// Filter just the elements with layout element
-						let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.layout]//obj.gradient.filter(el => el.op.name !== "layout");
-						// console.log(ft);
-			
-						ft = ft.filter(el => el != undefined);
-			
-			
-			
-			
-						let arr = [];
-			
-						for (var i = 0; i < ft.length; i++){
-							// console.log("Hello");
-							arr.push({
-								range: ft[i].range,
-								log: ft[i].op.name,
-								target: ft[i].target
-							});
-						}
-			
-						this.res.setAttribute("id", obj.id);
-					//	this.betaReact(arr, obj.id);
-					}*/
-
 
 
 		let arr = [];
@@ -242,7 +167,6 @@ code = `${pad}new Wrapper()`;
 		}
 
 		if (obj.blast){
-			//keep.push("blast");
 		}
 
 		// console.log("ARA IS " + arr);
@@ -290,7 +214,6 @@ code = `${pad}new Wrapper()`;
 		//	obj.arrpad && (stra += `arrpad: {sides: ["${obj.arrpad.sides}"], value: "${obj.arrpad.value}"}, `); // 2345 06/03
 		
 		// COMMENTED OUT 08/01/2025
-		// obj.grow && (this.res.style.flexGrow = 1);
 
 
 		obj.simpleCenter && this.deprecatedOption("simpleCenter", 'center: true');
@@ -390,7 +313,6 @@ code = `${pad}new Wrapper()`;
 		// String transforms are handled by commonMethods. Only object-shaped
 		// transform descriptors (with .op / .transform) go to the animation system.
 		(obj.transform && typeof obj.transform === "object") && this.reactOnTransform(obj.transform);
-		// obj.makeResponsiveBehaviour && obj.makeResponsiveBehaviour !== "undefined" && this.makeResponsiveBehaviour(obj.makeResponsiveBehaviour);
 		obj.name && (this.name = obj.name)
 		obj.responsive && this.rsp(obj.responsive);
 
@@ -403,8 +325,6 @@ code = `${pad}new Wrapper()`;
 			let stringified = this.removeQuotesFromFirstWord(JSON.stringify(obj.stretch));
 			stra += `\n stretch: ${stringified},`;
 		}
-
-
 
 
 		for (let prop in obj) {
@@ -431,7 +351,6 @@ code = `${pad}new Wrapper()`;
                         this.res.style.marginLeft = paddingObject['left'];
                     }
 				}
-
 
 
                 }
@@ -473,13 +392,11 @@ code = `${pad}new Wrapper()`;
 
 						if (split[i] === "row"){
 							this.res.style.flexDirection = "row";
-							///this.res.style.alignItems = "flex-end";
 							this.res.style.border = "3px solid green";
 						}
 
 						if (split[i] === "col"){
 							this.res.style.flexDirection = "column";
-						//	this.res.style.justifyContent = "flex-start";
 							this.res.style.border = "3px solid purple";
 						}
 
@@ -490,13 +407,11 @@ code = `${pad}new Wrapper()`;
 
 				if (split[i] === "row"){
 					this.res.style.flexDirection = "row";
-					///this.res.style.alignItems = "flex-end";
 					this.res.style.border = "3px solid green";
 				}
 
 				if (split[i] === "col"){
 					this.res.style.flexDirection = "column";
-				//	this.res.style.justifyContent = "flex-start";
 					this.res.style.border = "3px solid purple";
 				}
 			 }
@@ -558,10 +473,6 @@ code = `${pad}new Wrapper()`;
 	}
 
 
-
-
-
-
 	
 
 	color(cl){
@@ -574,13 +485,6 @@ code = `${pad}new Wrapper()`;
 		return this;
 	}
 
-
-
-
-	maxWidth(w){
-		this.res.style.maxWidth = w;
-		return this;
-	}
 
 	font(font){
 		this.res.style.fontFamily = font;
@@ -624,7 +528,6 @@ code = `${pad}new Wrapper()`;
     }
 
 
-
     
 	add(els){
 		this.items = els;
@@ -653,9 +556,6 @@ code = `${pad}new Wrapper()`;
 	}
 
 	
-
-
-
 
 
     
@@ -708,7 +608,6 @@ code = `${pad}new Wrapper()`;
 				container = document.createElement("div");
 		}
 
-		// let container = options ? document.createElement(options.isLink ? "a" : "div") :document.createElement("div") ;
 		
 
 
@@ -763,7 +662,6 @@ code = `${pad}new Wrapper()`;
 	}
 	
 	
-	// 22:39:02 15/03/2024 window.addEveventListener("resize", () => {}, "immediatelly");
 	
 	
 	height(h){
@@ -815,17 +713,7 @@ code = `${pad}new Wrapper()`;
 		this.res.style.borderRadius = corner;
 		return this;
 	}
-	
-	
-    
-    itemWidth(w){
-		for (var i = 0; i < this.res.childNodes.length; i++){
-			let el = this.res.childNodes[i];
-			el.style.width = w;
-		}
-		
-		return this;
-	}
+
 
 	
 apply(arr) {
@@ -844,9 +732,7 @@ apply(arr) {
 			
 			if (query.matches) {
 				Object.assign(this.res.style, el.styles);
-				// alert(el.style.styles.color);
 			} else {
-					//Object.assign(this.res.style, arr[0].styles);
 			}
 		}
 	}
@@ -883,16 +769,6 @@ apply(arr) {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
 
 
 export { Wrapper };

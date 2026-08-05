@@ -1,6 +1,3 @@
-import {Animator} from "./animator.js";
-
- 
 class Grid {
 	constructor(frs, saveEl) {
 		this.saveEl = saveEl;
@@ -31,46 +28,6 @@ class Grid {
 		return this;
 	}
 
-	freeAreas(){
-		this.res.style.gridTemplateAreas = `"a a a b c"`;
-		return this;
-	}
-	
-	
-	setAreas(areas){
-		this.res.children[0].style.gridArea = "a";
-		this.res.children[1].style.gridArea = "b";
-		this.res.style.gridTemplateAreas = `"a a a b"`;
-		return this;
-	}
-
-	detailView(){
-		let detail = document.createElement("img");
-		detail.setAttribute("src", "https://www.kasandbox.org/programming-images/animals/birds_rainbow-lorakeets.png");
-		detail.style.width = "400px";
-		detail.style.marginLeft = "auto";
-		detail.style.marginRight = "auto";
-
-//this.res.style.zIndex = -1;
-
-		detail.style.zIndex = 2;
-
-
-
-		this.res.appendChild(detail);
-		return this;
-
-	}
-
-
-
-
-	
-	stretchFit() {
-		this.res.style.height = "auto";
-		this.res.style.width = "100%";
-		return this;
-	}
 
 	size(w, h) {
 		if (w === "wide") {
@@ -137,7 +94,6 @@ class Grid {
 		let count = obj.count;
 		let h = obj.width;
 		
-			//let media = window.matchMedia(`(max-width: 600px)`);
 		let query = window.matchMedia("(max-device-width: 415px)");
 		
 		if (window.innerWidth < h || query.matches) {
@@ -177,11 +133,6 @@ class Grid {
 		
 	}
 }
-
-
-
-
-
 
 
 export { Grid };

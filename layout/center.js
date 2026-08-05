@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -39,14 +39,6 @@ if (obj.id){
 		// common methods should be defined in animator
 		// I can use pad in center, because animator class handles it
 
-		/*obj.pad && this.pad(obj.pad);
-		obj.respad && this.respad(obj.respad);
-		obj.resmar && this.resmar(obj.resmar);
-		obj.mar && this.mar(obj.mar);
-		obj.exact && (this.res.style.fontSize = obj.exact);
-		obj.zIndex && (this.res.style.zIndex = obj.zIndex);
-		obj.position && (this.res.style.position = position);
-		obj.top && (this.res.style.top = top);*/
 
 return this;
 	}
@@ -74,50 +66,11 @@ return this;
 		
 		return this;
 	}
-	
-	itemWidth(w){
-		for (var i = 0; i < this.res.childNodes.length; i++){
-			let el = this.res.childNodes[i];
-			el.style.width = w;
-		}
-		
-		return this;
-	}
+
+
 	
 		
 	
-    
-    itemWidth(w){
-		for (var i = 0; i < this.res.childNodes.length; i++){
-			let el = this.res.childNodes[i];
-			el.style.width = w;
-		}
-		
-		return this;
-	}
-	
-		
-	
-	/*arrayPadding(arr, value) {
-		if (arr.includes("left")){
-			this.res.style.paddingLeft = value;
-		}
-		
-		if (arr.includes("right")){
-			this.res.style.paddingRight = value;
-		}
-		
-		if (arr.includes("top")){
-			this.res.style.paddingTop = value;
-		}
-		
-		if (arr.includes("bottom")){
-			this.res.style.paddingBottom = value;
-		}
-			
-		
-		return this;
-	}*/
 	
 	render(el) {
 		if (el) {

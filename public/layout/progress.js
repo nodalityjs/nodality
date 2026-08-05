@@ -1,5 +1,3 @@
-import {Animator} from "./animator.js";
-
 // changed on 26/12/2020
 
 class Progress {

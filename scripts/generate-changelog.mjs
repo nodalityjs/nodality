@@ -139,12 +139,20 @@ const res = await fetch("https://api.anthropic.com/v1/messages", {
   },
   body: JSON.stringify({
     model: MODEL,
-    // Generous, because max_tokens is the ceiling for the WHOLE response,
-    // not just the prose. v1.0.214 hit the old 1500 and came back with no
-    // text block at all — a large release needs more room to answer, and
-    // a changelog entry is a handful of bullets either way, so the ceiling
-    // costs nothing when it is not reached.
-    max_tokens: 8000,
+    // THIS is what broke v1.0.214 and v1.0.217, not the ceiling. Sonnet 5
+    // runs adaptive thinking when `thinking` is omitted, and max_tokens caps
+    // thinking + text TOGETHER. On a large diff the model spent the entire
+    // budget reasoning and emitted no text block at all: v1.0.217 reported
+    // output_tokens 8000 / thinking_tokens 7999, stop_reason max_tokens.
+    // Raising the ceiling only buys a bigger budget to think through — 1500
+    // and 8000 both failed the same way. Summarising a diff into bullets
+    // does not need extended reasoning, so turn it off and every token goes
+    // to the answer.
+    thinking: { type: "disabled" },
+    // Headroom now that the whole budget reaches the prose. A changelog
+    // entry is a handful of bullets, so this ceiling costs nothing unless
+    // a release is genuinely enormous.
+    max_tokens: 16000,
     system: SYSTEM,
     messages: [{ role: "user", content: prompt }],
   }),
@@ -171,7 +179,18 @@ if (!entry) {
   console.error(`  block types: ${(body.content ?? []).map(b => b.type).join(", ") || "(empty content)"}`);
   console.error(`  usage: ${JSON.stringify(body.usage ?? {})}`);
   if (body.stop_reason === "max_tokens") {
-    console.error("  -> the response hit max_tokens; raise it in this script.");
+    const thinking = body.usage?.output_tokens_details?.thinking_tokens ?? 0;
+    if (thinking > 0) {
+      // The trap this script fell into twice: the ceiling looks like the
+      // problem, so you raise it, and the next release fails identically.
+      console.error(
+        `  -> ${thinking} of ${body.usage?.output_tokens ?? "?"} output tokens went to THINKING, ` +
+        "so nothing was left for the answer. Raising max_tokens will not fix this — " +
+        "check that `thinking: { type: \"disabled\" }` is still set on the request."
+      );
+    } else {
+      console.error("  -> the answer itself was truncated; raise max_tokens in this script.");
+    }
   }
   process.exit(1);
 }

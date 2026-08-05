@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -15,13 +15,11 @@ class FlexRow extends Animator {
 		this.res = null;
 		this.setup();
 		this.responsive();
-	//	this.code.push(" new FlexRow()");
 	}
 
 	getType(){
 		return "FlexRowLayoutElement";
 	}
-
 
 
 	set(options){
@@ -40,7 +38,6 @@ class FlexRow extends Animator {
 		obj.top !== undefined && (this.res.style.top = obj.top); 
 
 
-		//if (obj.gradient){
 			// console.log("STAFF");
 			// console.log(obj.id);
 	//	}
@@ -48,8 +45,6 @@ class FlexRow extends Animator {
 //// console.log("MARA");
 //// console.log(obj.mar);
 		
-//obj.pad && this.pad(obj.pad);
-	//	obj.mar && this.mar(obj.mar);
 	
 		
 
@@ -63,13 +58,11 @@ class FlexRow extends Animator {
 		options.id && this.res.setAttribute("id",  options.id);
 		this.commonMethods(obj);
 
-		//this.code.push(`\n .set({`);
 		if (options.padding){
 			this.pad([{a: options.padding}]);
 		}
 
 	//alert(options.opacity);
-		//(options.opacity === 0) && (this.res.style.opacity = 0 /*options.opacity*/);
 
 
 		if (options.background){
@@ -80,23 +73,18 @@ class FlexRow extends Animator {
 		if (options.alignTo){
 			//alert("J")
 			this.res.style.justifyContent = options.alignTo;
-		//	let stringified = JSON.stringify(options.alignTo);
-			//this.code.push(`\n alignTo: "${stringified}",`);
 		}
 
 		
 		
-
 
 
 		if (options.background){
 			this.res.style.backgroundColor = options.background;
-			// this.code.push(`\n background: "${options.background}",`);
 		}
 
 		if (options.justify){
 			this.res.style.justifyContent = options.justify;
-			//this.code.push(`\n justify: "${options.justify}",`);
 		}
 
 		if (options.border) {
@@ -113,26 +101,15 @@ class FlexRow extends Animator {
 
 		
 
-			// this.code.push(`\n border: ["${options.border[0]}", "${options.border[1]}"],`);
 		}
 
 
 		// Give this to animator
 		if (options.borderObj){
 
-		/*	let type = options.borderObj.type ?? "solid";
-
-
-			this.res.style.border = `${options.borderObj.width} ${type} ${options.borderObj.color}`
-			this.res.style.borderRadius = options.borderObj.radius; 
-			
-			let stringified = JSON.stringify(options.borderObj);
-			this.code.push(`\n borderObj: ${stringified},`);
-*/
 
 this.borderObj(options.borderObj);
 let stringified = JSON.stringify(options.borderObj);
-		// this.code.push(`\n borderObj: ${stringified},`);
 			/*borderObj: {
 				side: "all",
 				width: "3px",
@@ -141,10 +118,8 @@ let stringified = JSON.stringify(options.borderObj);
 		}
 
 		options.width && (this.res.style.width = options.width);
-	//	options.width && this.code.push(`\n width: "${options.width}",`);
 
 		options.height && (this.res.style.height = options.height);
-	//	options.height && this.code.push(`\n height: "${options.height}",`);
 
 		options.gap && (this.res.style.gap = options.gap);
 
@@ -152,7 +127,6 @@ let stringified = JSON.stringify(options.borderObj);
 		if (options.align){
 			 let stringified = JSON.stringify(options.align);
 			 this.res.style.alignItems = "flex-start";
-		//	 this.code.push(`\n alignIts: "flex-start",`);
 			 this.res.style.alignItems = "flex-start";
 		}
 	
@@ -164,7 +138,6 @@ let stringified = JSON.stringify(options.borderObj);
 		if (options.alignIts){
 			let stringified = JSON.stringify(options.alignIts);
 			 this.res.style.alignItems = "flex-start";
-		//	this.code.push(`\n alignIts: ${stringified},`);
 		
 	}
 		// options.alignIts && alert("J");
@@ -185,34 +158,26 @@ let stringified = JSON.stringify(options.borderObj);
 
 	//	// console.warn(options);
 
-	//	options.columnAlways && (this.columnAlways = true);
-
-		 options.toColumn && this.toColumn(options.toColumn); // OK
+		 // `toColumn` collapsed to a column unconditionally, ignoring the
+		 // breakpoint it was given. `colat` is the documented option that
+		 // actually honours one, via toColumnAt().
+		 options.toColumn && this.deprecatedOption("toColumn", "colat");
 
 	
 		  options.column && this.makeCol(); // OK
 
 
-
 		if (options.colat){
 			
 			options.colat && this.toColumnAt(options.colat);
-			//this.code.push(`\n colat: "${options.colat}",`);
 		}
 		 
 
 		//alert(options.arrpad);
 
 
-	//options.arrayMargin && this.code.push(`\n arrayMargin: {sides: [${options.arrayMargin.sides.map(m => `"${m}"`).join(", ")}], value: "${options.arrayMargin.value}"},`); // 2345 06/03
-
-
  
 
-		//obj.pad && this.pad(obj.pad);
-		//obj.respad && this.respad(obj.respad);
-		//obj.resmar && this.resmar(obj.resmar);
-		//obj.mar && this.mar(obj.mar);
 
 	//	alert(options.multipad);
 
@@ -221,16 +186,12 @@ let stringified = JSON.stringify(options.borderObj);
 			//alert("K")
 			
 			this.makeJustify(options.justify);
-		//	 this.setAlign(options.align);
 		}
 
 		if (options.justify){
 			
 			this.makeAlign(options.justify);
-		//	 this.setAlign(options.align);
 		}
-		//this.res.style.justifyContent = "flex-start";
-		//alert(this.res.style.justifyContent);
 		if (options.justifo === "flex-start"){
 		
 			this.res.style.justifyContent = "flex-start";
@@ -244,87 +205,9 @@ let stringified = JSON.stringify(options.borderObj);
 		// undefined `borderObj.radius`.
 		options.radius && (this.res.style.borderRadius = options.radius);
 
-		//const obj = options;
 		options.aligns && this.aligns(options.aligns);
 		
 
-		/*if (obj && obj.stroke || obj &&  obj.gradient || obj &&  obj.span){
-
-
-			if (obj.gradient) {
-				this.globalGradient = obj.gradient.op.gradient;
-				// console.log(obj.gradient);
-			}
-			
-						
-						if (obj.stroke){
-							// console.warn("OAP");
-							// console.log(obj.stroke.op.color);
-			
-						super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
-			
-						// console.warn("GBL");
-						// console.warn(super.globalBlast);
-						}
-			
-						// Filter just the elements with layout element
-						let ft = [obj.stroke, obj.gradient, obj.animation, obj.span]//obj.gradient.filter(el => el.op.name !== "layout");
-						// console.log(ft);
-			
-						ft = ft.filter(el => el != undefined);
-			
-						let arr = [];
-			
-						for (var i = 0; i < ft.length; i++){
-							// console.log("Hello");
-							arr.push({
-								range: ft[i].range,
-								log: ft[i].op.name,
-								target: ft[i].target
-							});
-						}
-			
-						  // console.log(arr);
-						  this.protoReact(arr, options.id);
-					}*/
-
-
-
-					/*
-					if (obj && obj.id && obj.stroke || obj && obj.id && obj.gradient || obj && obj.id && obj.span || obj && obj.id && obj.backgroundOp){
-			//alert("P")
-						if (obj.gradient){
-						this.globalGradient = obj.gradient.op.gradient;
-			
-						} // OK
-			
-						if (obj.stroke){
-						super.setAny({globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}`});
-						}
-			
-						// Filter just the elements with layout element
-						let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp]//obj.gradient.filter(el => el.op.name !== "layout");			
-						ft = ft.filter(el => el != undefined);
-			
-						let arr = [];
-			
-						for (var i = 0; i < ft.length; i++){
-							arr.push({
-								range: ft[i].range,
-								log: ft[i].op.name,
-								target: ft[i].target
-							});
-						}
-			
-						  // console.log("-----RDAAA----");
-						  // console.log(arr);
-						  // console.log(obj.id);
-						  this.res.setAttribute("id", obj.id);
-						  this.betaReact(arr, obj.id);
-						 // this.protoReact(arr, obj.id);
-					} // 17:06:00 17/03/2024 Yes!!!
-
-					*/
 
 					 this.callReact(obj);
 
@@ -334,7 +217,6 @@ let stringified = JSON.stringify(options.borderObj);
 			this.res.style.marginRight = "auto";
 		}
 
-	//	this.code.push(`\n })`);
 		return this;
 	}
 
@@ -402,9 +284,6 @@ let stringified = JSON.stringify(options.borderObj);
 			keep.push("span");
 		}
 
-	/*	if (obj.transform){
-			keep.push("transform");
-		}*/
 
 		// console.log("ARA IS " + arr);
 
@@ -424,7 +303,6 @@ let stringified = JSON.stringify(options.borderObj);
 
 
 		if (!this.columnAlways){
-// alert(this.columnAlways);
 
 		
 		const toCol = () => {
@@ -489,34 +367,6 @@ let stringified = JSON.stringify(options.borderObj);
 	}
 
 
-	toColumn(at){
-
-		const toCol = () => {
-			let media = window.matchMedia(`(max-width: ${at})`);
-			let mobileMedia = window.matchMedia(`(max-device-width: 415px)`);
-			// alert(media);
-
-			//// console.log(mobileMedia);
-
-			if (media.matches || mobileMedia.matches){
-				this.res.style.flexDirection = "column";
-			} else {
-				this.res.style.flexDirection = "row";
-
-			}
-		}
-
-		toCol();
-		window.addEventListener("resize", toCol);
-	
-
-		
-	
-
-		return this;
-	}
-
-
 	toCode(){
 		// copy and clean options
     const clean = {};
@@ -540,33 +390,14 @@ let stringified = JSON.stringify(options.borderObj);
         .map(item => (item?.toCode ? item.toCode() : "/* element */"))
         .join(",\n    ");
 
-		//return ["new Text('Hello')"];
 
     return [[
         `new FlexRow().set(${objString})`,
         itemsCode ? `.items([\n    ${itemsCode}\n])` : ""
     ].join("")]; //commented out
 
-/*
-	 const objString = JSON
-        .stringify(this.options, null, 4)
-        .replace(/"([^"]+)":/g, '$1:');
-
-    const itemsCode = this.items.map(item => item.toCode()).join(",\n    ");
-
-    return [
-        `new FlexRow().set(${objString}).items([`,
-        `    ${itemsCode}`,
-        `])`
-    ].join("\n");
-		//return this.code; // 21:40:09*/
 	}
 
-
-	borderAround(data){
-		this.res.style.border = data;
-		return this;
-	}
 
 	
 
@@ -575,7 +406,6 @@ let stringified = JSON.stringify(options.borderObj);
 		return this;
 	}
 	
-
 
 
 	makeJustify(opt){
@@ -604,8 +434,6 @@ let stringified = JSON.stringify(options.borderObj);
 			
 				//alert(opt)
 				this.res.style.justifyContent = opt;
-			//	let stringified = JSON.stringify(options.alignTo);
-				//this.code.push(`\n alignTo: "${stringified}",`);
 		}
 
 		return this;
@@ -618,15 +446,6 @@ let stringified = JSON.stringify(options.borderObj);
  }
 
 
-
-
-
-	
-    
-    toColumn(){
-        this.res.style.flexDirection = "column";
-        return this;
-    }
     
     
     
@@ -641,7 +460,6 @@ let stringified = JSON.stringify(options.borderObj);
 		flex.style.display = "flex";
 		flex.style.justifyContent = "space-around";
         flex.style.alignItems = "center";
-		// flex.style.width = "100%";
 		this.res = flex;
 
 
@@ -653,21 +471,6 @@ let stringified = JSON.stringify(options.borderObj);
 		return this;
 
 		// 19:36:06 Houdini Roger kilimanjaro 06/03 audiovisual
-	}
-
-
-	noSpaceAround(){
-		this.res.style.justifyContent = "";
-		return this;
-	}
-
-
-
-
-	itemAlignCenter(){
-		this.res.style.justifyContent = "center";
-        this.res.style.alignItems = "center";
-		return this;
 	}
 
 
@@ -720,11 +523,9 @@ let stringified = JSON.stringify(options.borderObj);
 		//// console.log("2 images enter flex row")
 		//// console.warn(arr); // 2 images enter flexRow or there is problem in FlexRow code gen
 
-		//// console.warn(this.res);
 
 		this.els = arr;
 		this.items = arr;
-	//	this.code.push(".items([");
 
 /*
 		// console.log("FL ITEM---");
@@ -741,31 +542,12 @@ let stringified = JSON.stringify(options.borderObj);
 		if (arr[i] != undefined){
 		if (arr[i].render instanceof Function){ // 170736
 				let r = arr[i].render();
-				// r.style.width = "100%";
-				   //r.style.flex = 1;
 				   this.res.appendChild(r);
 			} else {
 				this.res.appendChild(arr[i]);
 			}
 		}
 		
-
-
-			//this.code.push("L");
-
-
-		/*	if (arr[i].toCode instanceof Array){
-				// // console.warn(arr[i].toCode().flatMap(x => x));
-				this.code.push(arr[i].toCode().flatMap(x => x));
-			} else {
-				if (arr[i].toCode){
-					this.code.push(arr[i].toCode());
-					
-	
-	
-					
-				}
-			}*/
 
 
 			if (arr[i] != undefined){
@@ -794,17 +576,8 @@ let stringified = JSON.stringify(options.borderObj);
 
 		
 			//// console.log("FREDERICK!");
-			//// console.log(this.code);
 
-			//this.code = this.code.flatMap(x => x).flatMap(x => x);
 		}
-
-
-		//this.code.push("])");
-
-
-		// this.code = this.code.flatMap(x => x);
-	//	// console.log(this.code);
 
 
 		
@@ -812,69 +585,6 @@ let stringified = JSON.stringify(options.borderObj);
 	}
 
 
-
-	/*
-	
-		this.code.push(".add([ \n");
-		for (var i = 0; i < els.length; i++){
-			let item = els[i].render();//.render();
-			this.res.appendChild(item);
-
-
-			if (els[i].toCode !== undefined){
-
-				 this.code.push(els[i].toCode().flatMap(l=>l)); // 20:10:00 Nice!
-			// 12:25:10 Wow!!!
-
-			
-		}
-		}
-		
-		//122616 06/03 Houdini M2 chip
-		this.code.push("])");
-
-
-		return this;
-	*/
-
-
-	
-
-	adjustRatiosForLayout(){
-
-		if (this.els[1].getWidth == undefined){
-			return this;
-		}
-
-		if (this.els[1].getHeight == undefined){
-			return this; // 171653 fix
-		} // 171354
-
-		window.addEventListener("resize", () => {
-			this.resizeValues();
-		});
-
-
-		this.resizeValues();
-
-
-
-
-		// 18:29:04
-		
-		return this;
-	}
-	
-
-	resizeValues(){
-		let newWidth = window.innerWidth * 0.7;
-			let aspect = (this.els[1].getHeight() / this.els[1].getWidth());
-			let goal = newWidth * aspect;
-	
-			this.res.children[0].style.height = `${goal}px`;
-			this.res.children[0].style.width = `30%`;
-			this.res.children[1].style.width = `70%`;
-	}
 	
 	responsive(h){
 		let media = window.matchMedia(`(max-device-width: 415px)`);
@@ -904,7 +614,6 @@ let stringified = JSON.stringify(options.borderObj);
 	
 	
 	render(el) {
-		// // console.log("BORDER:" + this.res.style.border);
 		if (el){
 		document.querySelector(el).appendChild(this.res);
 		} else {

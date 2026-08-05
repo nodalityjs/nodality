@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -106,7 +106,6 @@ class Table extends Animator {
 
       this.chainReact(arr, this.options.id, keep);
 
-        //  this.res.style.border = "1px solid green";
     }
   }
 
@@ -159,16 +158,6 @@ class Table extends Animator {
     }
     return this;
   }
-/*
-  border(borderStyle) {
-    this.res.style.border = borderStyle; // outer border
-    for (let row of this.res.rows) {
-      for (let cell of row.cells) {
-        cell.style.border = "1px solid black"; // inner lines
-      }
-    }
-    return this;
-  }*/
 
     border(borderStyle) {
   // Ensure separate borders so radius works

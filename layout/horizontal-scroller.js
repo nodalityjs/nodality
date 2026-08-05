@@ -1,16 +1,12 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-import {Animator} from "./animator.js";
-
- 
 class HScroller {
     constructor() {
         this.setupa();
-       // this.seto();
       
     }
 
@@ -48,7 +44,6 @@ class HScroller {
     setup() {
 
         
-     //  alert(this.e);
 
   
 
@@ -129,7 +124,6 @@ class HScroller {
 			return this.div;
 		}
 
-       // document.body.appendChild(this.div);
     }
 }
 

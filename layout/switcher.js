@@ -1,12 +1,9 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-import {Animator} from "./animator.js";
-
- 
 class Switcher {
     constructor(obj){
       this.res = null;
@@ -19,7 +16,6 @@ class Switcher {
           this.code.push(`, new Switcher({breakpoint: "${this.obj.breakpoint}", first: ${this.obj.first.toCode()}, second: ${this.obj.second.toCode()}})`);
      
       }
-     // console.log(this.obj.first.toCode());
   
       let area = document.createElement("textarea");
       area.style.fontWeight = "bold";
@@ -86,7 +82,6 @@ this.res.innerHTML = "";
 
   window.addEventListener("resize", innerSwitch);
   // 17:30:22 Nice
-
 
 
   }

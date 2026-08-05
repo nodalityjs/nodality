@@ -35,7 +35,6 @@ class SideNav extends Animator {
                 this.ope.finished.then(() => {
   const event = new CustomEvent(this.obj.tags.close);//("sidebar:closed");
   window.dispatchEvent(event);
-   //alert(this.obj.tags.close);
 });
 
                 let idx = -1;
@@ -66,7 +65,6 @@ class SideNav extends Animator {
 
 
             sideNavWrapper.style.overflowX = "none";
-          //  sideNavWrapper.children[1].style.border = "1px solid orange";
 
 
             let idx = -1;
@@ -101,17 +99,11 @@ class SideNav extends Animator {
                             
                             // Why does duration affect navigation appearing????
                            //THIS BLOCK CONTROLS APPEARING !!!!
-                            /*let protoOps = {
-                                duration: 300,
-                                fill: 'forwards',
-                                delay: 1000 // 1000 why does 3000 work during open but not during close??
-                            };*/
                            
                             child.animate(anna.op.keyframesOpen, opts);
                             }
 
                         }
-
 
 
                     }
@@ -129,7 +121,6 @@ class SideNav extends Animator {
                 this.opeClose.finished.then(() => {
             const event = new CustomEvent(this.obj.tags.open);
             window.dispatchEvent(event);
-          //  alert(this.obj.tags.open);
         });
             } else {
                 sideNavWrapper.style.display = "flex"; // Show navigation immediately
@@ -137,48 +128,6 @@ class SideNav extends Animator {
         }
 
       //  alert("/")
-
-      /*  this.res.children[0].addEventListener("animationend", () => {
-    const event = new CustomEvent("sidebar:opened");
-    window.dispatchEvent(event);
-    alert("//")
-});*/
-
-/*
-if (this.obj.tags && this.opeClose && this.ope){
-
-
-this.opeClose.finished.then(() => {
-  const event = new CustomEvent(this.obj.tags.open);//("sidebar:opened");
-  window.dispatchEvent(event);
-  //alert(this.obj.tags.open);
-});
-
-this.ope.finished.then(() => {
-  const event = new CustomEvent(this.obj.tags.close);//("sidebar:closed");
-  window.dispatchEvent(event);
-  // alert(this.obj.tags.open);
-});
-} else {
-}*/
-
-/*
-if (this.obj.tags) {
-    if (this.opeClose) {
-        this.opeClose.finished.then(() => {
-            const event = new CustomEvent(this.obj.tags.open);
-            window.dispatchEvent(event);
-        });
-    }
-
-    if (this.ope) {
-        this.ope.finished.then(() => {
-            const event = new CustomEvent(this.obj.tags.close);
-            window.dispatchEvent(event);
-        });
-    }
-} else {
-    }*/
 
 
     }
@@ -286,7 +235,6 @@ if (this.obj.tags) {
                     
 
 
-
                      // OPEN KEYFRAMES LOG IS FROM FUNCTION THAT HAS COMMENTE OUT ACXTION!!!
                     // MATCH CLOSE OBJECT
 
@@ -308,10 +256,6 @@ if (this.obj.tags) {
                     // child.animate(anna.op.keyframesOpen, resetDelay);
 
 
-
-
-
-
                     
                     }
                 }
@@ -322,15 +266,6 @@ if (this.obj.tags) {
         return this;
     }
 
-   /* toCode() {
-        let codeStr = `new SideNav().setup(${JSON.stringify(this.obj, null, 2)}, ${this.animate})`;
-        if (this.item) {
-            let itemCode = this.item.toCode ? this.item.toCode().join("") : JSON.stringify(this.item);
-            itemCode = itemCode.replace(/,\s*(\.set\(|\.add\()/g, "\n  $1");
-            codeStr += `.items(${itemCode})`;
-        }
-        return codeStr;
-    }*/
 
         toCode() {
             // Convert object to string with JSON.stringify

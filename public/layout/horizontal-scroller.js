@@ -1,10 +1,6 @@
-import {Animator} from "./animator.js";
-
- 
 class HScroller {
     constructor() {
         this.setupa();
-       // this.seto();
       
     }
 
@@ -42,7 +38,6 @@ class HScroller {
     setup() {
 
         
-     //  alert(this.e);
 
   
 
@@ -123,7 +118,6 @@ class HScroller {
 			return this.div;
 		}
 
-       // document.body.appendChild(this.div);
     }
 }
 

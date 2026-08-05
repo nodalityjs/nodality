@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -40,13 +40,10 @@ class Circle extends Animator {
     return [`new Circle().set(${objString})`];
   }
 
-  // --- Layout helpers ---
-  flexOne() { this.res.style.flex = "1"; return this; }
-  setGridWithoutCode() { this.res.style.border = "1px solid white"; return this; }
+
   setArea(area) { this.res.style.gridArea = area; return this; }
-  rowCol(row, col) { this.res.style.gridRow = row; this.res.style.gridColumn = col; return this; }
-  setGridRow(row) { this.res.style.gridRow = row; return this; }
-  setGridCol(col) { this.res.style.gridColumn = col; return this; }
+
+
 
   // --- Circle-specific API ---
   diameter(px) { this.res.style.width = this.res.style.height = typeof px === "number" ? px + "px" : px; this.res.style.borderRadius = "50%"; return this; }

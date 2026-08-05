@@ -1,11 +1,10 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
-
 
 
 class Code extends Animator {
@@ -17,11 +16,9 @@ class Code extends Animator {
         this.res.style.display = "block";
         this.res.style.width = "auto";
         this.res.style.height = "auto";
-      //  this.res.style.color = "white";
         this.res.style.borderRadius = "1rem";
 
         this.pre.appendChild(this.res);
-      //  this.res.style.marginTop = "20rem";
        
     }
 
@@ -111,16 +108,12 @@ class Code extends Animator {
 			keep.push("span");
 		}
 
-	/*	if (obj.transform){
-			keep.push("transform");
-		}*/
 
 		// console.log("ARA IS " + arr);
 
 			this.chainReact(arr, obj.id, keep);
 		}
 	}
-
 
 
     set(obj){
@@ -141,10 +134,7 @@ class Code extends Animator {
 			this.res.style.border = `${obj.borderObj.width} solid ${obj.borderObj.color}`;
 			this.res.style.borderRadius = `${obj.borderObj.radius}`;
 			
-			//this.res.style.border = `3px solid transparent`;
-			//this.res.style.border = "10px solid yellow";
 
-			//let rem = this.removeQuotesFromFirstWord(JSON.stringify(obj.borderObj));
 			//stra += `\n borderObj: ${rem},`;
 		}
 

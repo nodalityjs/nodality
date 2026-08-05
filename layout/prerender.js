@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.215
+ * nodality v1.0.218
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -47,7 +47,6 @@
 //     mount:    "#mount",                    // selector inside the template
 //     locale:   "de",                        // optional: pre-seeded into localStorage
 //     url:      "https://h7active.com/",     // jsdom base URL (used for relative paths)
-//     build:    async (window) => {
 //       // Runs inside the jsdom-simulated browser. `window.document`,
 //       // `window.localStorage`, etc. are available globally for the
 //       // duration of the call. Import or invoke your page builder

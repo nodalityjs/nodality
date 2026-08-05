@@ -28,7 +28,6 @@ class TextField extends Animator {
 			}
 
 
-	//	div.style.width = "100%";
 		return this;
 	}
     
@@ -66,7 +65,6 @@ class TextField extends Animator {
 		this.commonMethods(obj);
 		return this;
 	}
-
 
 
 		toCode() {
@@ -109,11 +107,8 @@ class TextField extends Animator {
 		window.addEventListener("resize", adj);
 		return this;
 	}
-	
-	listen(value){
-		this.res.addEventListener("input", (e) => this.process(e) /*console.log(this.res.value)*/);
-		return this;
-	}
+
+
 	
 	value(val){
 		 this.res.setAttribute("value", val);
@@ -129,11 +124,8 @@ class TextField extends Animator {
 		this.res.setAttribute("type", "number");
 		return this;
 	}
-	
-	week(){
-		this.res.setAttribute("type", "week");
-		return this;
-	}
+
+
 	
 	process(e){
 		//console.log(this.res.value)

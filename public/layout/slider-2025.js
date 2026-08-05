@@ -1,4 +1,3 @@
-import { Animator } from "./animator.js";
 import { Button } from "./button.js";
 
 class Slider {
