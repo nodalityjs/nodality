@@ -68,6 +68,20 @@ Tagged during CI iteration on the scaffold browser check; neither reached npm.
 
 - Per-side effects for transitions: `side: "old" | "new"` scopes a raster op to one half of a morph, so the outgoing and incoming states can be art-directed separately. Colour-stage ops only — both sides share one sampling coordinate, so a sided warp has no meaning.
 
+## 1.0.220 — 2026-08-05
+
+### Changed
+- `color`, `onTap`, `setArea`, `font`, `radius`, `width`, and `scale` are now defined once on the shared `Animator` base class instead of being duplicated in `Button`, `Card`, `FlexGrid`, `FlexRow`, `Image`, `Link`, `Text`, and `TextField`. Behavior of these methods is unchanged; they are simply inherited now.
+- `Checkbox` now stores its root element on `this.res` instead of `this.el`, matching the convention used by other elements.
+
+### Removed
+- `Image.getHeight()` and `Image.getWidth()` have been removed.
+- `Image.setFilter()` has been removed.
+
+### Breaking
+- Code relying on `Image.getHeight()`, `Image.getWidth()`, or `Image.setFilter()` will break, as these methods no longer exist.
+- Code accessing `Checkbox.el` directly will break, since the property is now named `res`.
+
 ## 1.0.219 — 2026-08-05
 
 ### Changed
