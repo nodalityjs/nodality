@@ -396,16 +396,24 @@ jobs:
       - name: Verify the page RENDERS in a browser
         run: |
           cd "$GITHUB_WORKSPACE"
-          # Pin to the version this repo already develops against, and
-          # drive the LOCAL binary rather than `npx playwright`. The first
-          # attempt used `npx`, which resolved a different playwright than
-          # the one `import { chromium } from "playwright"` then loaded:
-          # the install fetched chromium build 1217 while the runtime
-          # wanted 1234, and the launch failed with "Executable doesn't
-          # exist". Same package for both steps, no ambiguity.
-          PW=$(node -p "require('./package.json').devDependencies.playwright")
-          npm install --no-save "playwright@${PW}"
-          ./node_modules/.bin/playwright install --with-deps chromium
+          # The browser CLI and the imported library MUST be one package.
+          #
+          # Two earlier attempts failed the same way — installed chromium
+          # build 1217, launch wanted 1234:
+          #   `npx playwright install`      resolved some other playwright
+          #   `./node_modules/.bin/playwright` is @playwright/test's CLI,
+          #                                 a DIFFERENT package from the
+          #                                 `playwright` this script imports
+          # and asking for `playwright@^1.54.1` explicitly floated that one
+          # package past the lockfile while @playwright/test stayed pinned,
+          # which is precisely how the two builds diverged.
+          #
+          # So: install exactly what the lockfile says (both land on the
+          # same version), and run playwright's OWN cli.js.
+          npm ci
+          node ./node_modules/playwright/cli.js install --with-deps chromium
+          echo "playwright library: $(node -p "require('playwright/package.json').version")"
+          echo "playwright cli:     $(node ./node_modules/playwright/cli.js --version)"
           node packaging/scaffold-browser-check.mjs /tmp/scaffold/smoke-app/upload
 
   publish:
