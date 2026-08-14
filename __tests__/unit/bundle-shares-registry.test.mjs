@@ -35,7 +35,7 @@
 
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const root = new URL("../../", import.meta.url);
@@ -91,7 +91,25 @@ test("the webpack config marks lib/raster-ops.js external for ESM builds", async
 	// silently inline the registry again — the fix reintroducing the bug.
 	const libDir = fileURLToPath(new URL("lib", root));
 	const swapped = libDir.replace(/\/([a-z])(?=[^/]*\/lib$)/, (m, c) => `/${c.toUpperCase()}`);
-	if (swapped !== libDir) {
+
+	// ...but only where casing genuinely does not distinguish files.
+	//
+	// `canonical()` resolves real casing via realpathSync.native, which
+	// works on macOS and Windows. On a CASE-SENSITIVE filesystem (Linux,
+	// and therefore CI) the swapped path names a different location that
+	// does not exist — realpathSync throws, and declining to treat it as
+	// raster-ops is the CORRECT answer, not a regression. Asserting the
+	// macOS behaviour unconditionally failed every Linux run and blocked
+	// a release on a green codebase.
+	const caseInsensitiveFs = (() => {
+		try {
+			return realpathSync.native(swapped) === realpathSync.native(libDir);
+		} catch (e) {
+			return false;
+		}
+	})();
+
+	if (swapped !== libDir && caseInsensitiveFs) {
 		const mixed = await new Promise((res) => fn(
 			{ context: swapped, request: "./raster-ops.js" }, (_e, v) => res(v)));
 		assert.equal(mixed, "module ../lib/raster-ops.js",
