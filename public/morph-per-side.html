@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Declare the scheme the components are styled for. A page that declares
+     none is a candidate for forced inversion (Chrome auto-dark, OS
+     settings, extensions), which repaints a light card dark. -->
+<meta name="color-scheme" content="light">
+<style>:root { color-scheme: light; }</style>
+<title>Nodality — per-side morph effects</title>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<script type="module">
+import { Des } from "../lib/designer.js";
+
+// The image is a DATA URI, and that is a requirement rather than a
+// convenience. The morph freezes each side into an SVG foreignObject and
+// loads it through a data: URL — which cannot fetch subresources. An
+// <img src="https://..."> renders on the page and then comes out BLANK in
+// the still, so the card would lose its image for the whole transition and
+// gain it back at t=1. Inlining is what makes the two sides agree.
+//
+// It also keeps this fixture offline, so the spec never depends on a
+// network fetch.
+const ART =
+  "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220">` +
+    `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="#1abc9c"/><stop offset="0.55" stop-color="#2b6cb0"/>` +
+    `<stop offset="1" stop-color="#0b1420"/></linearGradient></defs>` +
+    `<rect width="400" height="220" fill="url(#g)"/>` +
+    `<circle cx="300" cy="60" r="34" fill="#ffffff" opacity="0.85"/>` +
+    `<path d="M0 168 L120 120 L220 170 L320 132 L400 176 L400 220 L0 220 Z" fill="#0b1420" opacity="0.55"/>` +
+    `</svg>`);
+
+// ─── E · the elements ────────────────────────────────────────────────
+const E = [
+  // The SOURCE is a button. It has no links inside it, so the morph node
+  // treats the control itself as the trigger — anchors take priority only
+  // when a source has them (a navbar's hamburger must stay a disclosure).
+  { id: "cta", type: "button", text: "Open project",
+    background: "#0b1420", color: "#e8eef5", radius: "10px" },
+
+  // The DESTINATION: a card whose first child is a real {type:"img"}.
+  { id: "shot", type: "wrap", background: "#e8eef5", radius: "16px",
+    pad: [{ a: 16 }], width: "min(420px, 92vw)", color: "#0b1420",
+    children: [
+      { id: "shot-img", type: "img", url: ART, width: "100%", radius: "10px" },
+      { id: "shot-t", type: "h3", text: "Harbour, 2026", color: "#0b1420" },
+      { id: "shot-b", type: "p", text: "Mixed media · 120×80 cm", color: "#4a5b6d" },
+      { id: "shot-back", type: "button", text: "← back",
+        background: "#0b1420", color: "#e8eef5", radius: "8px" },
+    ] },
+];
+
+// ─── N · the nodes ───────────────────────────────────────────────────
+const N = [
+  { op: { name: "shadow" }, target: ["shot"] },
+
+  // A single destination, so there is nothing to disambiguate: the
+  // button goes there whatever it is labelled. `t-bloom` keyframes a
+  // halftone through the middle and returns to identity at both ends,
+  // so the handover to the real card is seamless.
+  // PER-SIDE. `t-split` scopes one op to the outgoing state and another
+  // to the incoming one, so the two halves of the morph are art-directed
+  // separately rather than sharing a treatment applied after the blend.
+  { op: "morph", from: "cta", to: "shot",
+    effect: "t-split", duration: 900, back: true },
+];
+
+new Des().nodes(N).add(E).set({ mount: "#stage", code: false });
+
+// Fixtures signal readiness so a spec can waitForFunction rather than
+// guess at a timeout — the morph does two async captures after mount.
+window.__ready = true;
+</script>
+</body>
+</html>

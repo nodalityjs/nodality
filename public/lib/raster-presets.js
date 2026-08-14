@@ -64,6 +64,21 @@ const PRESETS = {
 				ease: "in-out" },
 		],
 	},
+	// The first preset that treats the two halves of a morph as separate
+	// things: the outgoing state burns to ink while the incoming one
+	// resolves out of a screen. A crossfade decorated after the blend
+	// cannot express this — both ends would get the same treatment.
+	"t-split": {
+		summary: "Per-side morph: the old state posterises to duotone while " +
+			"the new one resolves through a halftone screen.",
+		nodes: [
+			{ op: "duotone", side: "old", amount: [0, 1, 1],
+				dark: "#0B1B2B", light: "#1abc9c" },
+			{ op: "halftone", side: "new", size: [10, 6, 2], amount: [1, 1, 0],
+				softness: 0.35, angle: 15 },
+		],
+	},
+
 	"t-bloom": {
 		summary: "A soft halftone bloom through the middle of the morph.",
 		nodes: [

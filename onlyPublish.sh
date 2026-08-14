@@ -199,16 +199,38 @@ echo "✅ Packaged tarball is sound."
 # ----------------------------
 # Commit, tag, and push
 # ----------------------------
-# Bump patch version in package.json (e.g. 1.0.121 -> 1.0.122)
-node -e "
+# Bump the version in package.json.
+#
+# PATCH by default; `--minor` / `--major` for releases that earn it.
+# This was hardcoded to patch, which is why a release adding a whole new
+# node family (`{op:"morph"}`) and two previously-unreachable exports
+# (`nodality/designer`, `nodality/transition`) shipped as 1.0.224. New
+# backwards-compatible API is a MINOR under semver, and a version number
+# that never says so stops carrying information.
+BUMP="patch"
+for arg in "$@"; do
+  case "$arg" in
+    --minor) BUMP="minor" ;;
+    --major) BUMP="major" ;;
+    --patch) BUMP="patch" ;;
+  esac
+done
+echo "🔢 Bump kind: $BUMP"
+
+BUMP="$BUMP" node -e "
 const fs = require('fs');
 const path = './package.json';
 const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
-const parts = pkg.version.split('.').map(Number);
-parts[2] += 1;
-pkg.version = parts.join('.');
+const [maj, min, pat] = pkg.version.split('.').map(Number);
+const kind = process.env.BUMP;
+// A minor resets patch, a major resets both — otherwise 1.0.224 --minor
+// would give 1.1.224, which is not a version anyone means.
+const next = kind === 'major' ? [maj + 1, 0, 0]
+           : kind === 'minor' ? [maj, min + 1, 0]
+           : [maj, min, pat + 1];
+pkg.version = next.join('.');
 fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
-console.log('🔖 Version bumped to ' + pkg.version);
+console.log('🔖 Version bumped to ' + pkg.version + ' (' + kind + ')');
 "
 
 VERSION=$(node -p "require('./package.json').version")

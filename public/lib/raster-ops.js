@@ -2025,6 +2025,14 @@ const FRAMEWORK_DOC = {
         default: null, unit: "name",
         summary: "element ids this node applies to, e.g. [\"#hero\"]",
     },
+    side: {
+        default: null, unit: "name", structural: true,
+        summary: "\"old\" or \"new\" — scope this op to ONE half of a morph " +
+            "instead of the blended result, so the outgoing and incoming " +
+            "states can be art-directed differently. Colour-stage ops only: " +
+            "both sides share one sampling coordinate, so a sided warp has " +
+            "no meaning. Ignored outside a transition.",
+    },
     by: {
         default: "static", unit: "name", structural: true,
         summary: `what steers the effect: ${DRIVER_NAMES.join(", ")}. ` +
@@ -2216,8 +2224,71 @@ function buildFragmentShader(recs, flat, probe, transition) {
         if (def) decls += def.decl(`u${i}_`, node) + "\n";
     });
 
+    // PER-SIDE effects. A node may carry `side: "old" | "new"`, which
+    // scopes it to one half of a morph instead of the blended result.
+    //
+    // Everything else in a transition chain decorates the CROSSFADE — it
+    // runs after old and new have already been mixed, so both ends get
+    // the same treatment. That cannot express "the outgoing state burns
+    // out while the incoming one develops", which is the thing a designer
+    // actually reaches for. A sided op runs on its own side's colour
+    // BEFORE nodBlend sees it.
+    //
+    // Colour stage only, and deliberately: warp/displace ops rewrite the
+    // sampling coordinate, and there is one coordinate shared by both
+    // sides — honouring `side` there would mean two independent
+    // coordinate pipelines. A sided warp is rejected loudly rather than
+    // silently ignored.
+    const sideOf = (rec) => {
+        const v = rec && rec.node && rec.node.side;
+        if (v !== "old" && v !== "new") return null;
+        const def = REGISTRY[rec.node.op];
+        const stages = def ? (Array.isArray(def.stage) ? def.stage : [def.stage]) : [];
+        if (!stages.every((st) => st === "color")) {
+            console.warn(`[nodality] "${rec.node.op}" is a ${stages.join("+")} op, ` +
+                `so side:"${v}" cannot apply to it — a sided op must be colour-only, ` +
+                `because both sides share one sampling coordinate. Running it on ` +
+                `the blended result instead.`);
+            return null;
+        }
+        if (!transition) {
+            console.warn(`[nodality] side:"${v}" has no meaning without a ` +
+                `transition — there is only one image. Ignoring it.`);
+            return null;
+        }
+        return v;
+    };
+    const mainRecs = recs.filter((r) => !sideOf(r));
+    const oldRecs = recs.filter((r) => sideOf(r) === "old");
+    const newRecs = recs.filter((r) => sideOf(r) === "new");
+
     const buckets = emptyBuckets();
-    emitStages(recs, buckets);
+    emitStages(mainRecs, buckets);
+
+    // One scope per side, with the colour stage variables declared local
+    // so an op that touches edgeCol/ovA compiles here exactly as it does
+    // in main(). `frag` is the sample position, which is what a sided op
+    // means by "where am I".
+    const sideBlock = (list, src) => {
+        if (!list.length) return "";
+        const b = emptyBuckets();
+        emitStages(list, b);
+        if (!b.color) return "";
+        const decls = STAGE_VARS.color
+            .filter((v) => v !== "col")
+            .map((v) => `        ${glslType(v)} ${v} = ${glslType(v) === "vec3"
+                ? "vec3(0.0)" : "0.0"};`).join("\n");
+        return `    {
+        vec2 frag = p;
+        vec3 col = ${src}.rgb;
+${decls}
+${b.color}
+        ${src}.rgb = col;
+    }
+`;
+    };
+    const oldSideCode = sideBlock(oldRecs, "o");
+    const newSideCode = sideBlock(newRecs, "n");
     const { field, warp, cell, displace, color } = buckets;
     const nodes = flat;
     // Compositing, in three layers (all straight-alpha):
@@ -2275,6 +2346,12 @@ uniform vec2 u_res;
 uniform vec2 u_mouse;
 uniform float u_time;
 uniform float u_t;          // phase T1: transition progress, 0..1
+
+// Op uniforms are declared HERE, above the transition helpers, because a
+// per-side op's code is emitted inside nodSampleAt. GLSL requires
+// declaration before use, and with the declarations further down every
+// sided op failed to compile with "'u0_amount' : undeclared identifier".
+${probeDecl}${decls}
 ${transition ? `
 // ── phase T2: transition mode ──────────────────────────────────────
 // Two captures instead of one. u_tex is the NEW element, u_old the
@@ -2367,6 +2444,7 @@ vec4 nodSampleAt(vec2 p) {
                        clamp(un, 0.001, 0.999));
     o.a *= nodInBox(uo);
     n.a *= nodInBox(un);
+${oldSideCode}${newSideCode}
     // The threshold each pixel flips at. Mostly a COHERENT ramp down the
     // box with a little grain on top — pure white noise chooses correctly
     // (never two legible images at once) but reads as television static
@@ -2377,7 +2455,6 @@ vec4 nodSampleAt(vec2 p) {
     float d = ramp * 0.82 + grain * 0.18;
     return nodBlend(o, n, u_t, d);
 }` : ""}
-${probeDecl}${decls}
 void main() {
     vec2 fc = ${fragCoord};
     vec2 frag = vec2(fc.x, u_res.y - fc.y);
