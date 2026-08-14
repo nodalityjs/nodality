@@ -56,6 +56,11 @@ const clickLink = (page, label) => page.evaluate(async (l) => {
   return true;
 }, label);
 
+// Poll budgets are 20s, not 12s. A morph runs TWO awaited captures
+// before its timeline starts, so the wall-clock cost is capture +
+// duration, and under full-suite load 12s was not enough — `back returns
+// to the source` reached t=0.394 and failed a release on a green
+// codebase. The morph-button-card spec already used 20s; this matches it.
 /** Read progress without importing anything into the page under test. */
 async function progress(page) {
   return page.evaluate(async () => {
@@ -112,7 +117,7 @@ test('a link morphs to ITS OWN destination and completes', async ({ page, baseUR
   await load(page, baseURL);
   await openMenu(page);
   expect(await clickLink(page, 'About')).toBe(true);
-  await expect.poll(() => progress(page), { timeout: 12000 }).toBe(1);
+  await expect.poll(() => progress(page), { timeout: 20000 }).toBe(1);
   expect(await heading(page)).toBe('About');
 });
 
@@ -148,7 +153,7 @@ test('back returns to the source', async ({ page, baseURL }) => {
   await load(page, baseURL);
   await openMenu(page);
   await clickLink(page, 'Contact');
-  await expect.poll(() => progress(page), { timeout: 12000 }).toBe(1);
+  await expect.poll(() => progress(page), { timeout: 20000 }).toBe(1);
 
   // Assert the control was actually there. Silently clicking nothing
   // would surface as a progress timeout and read like a morph bug.
@@ -159,7 +164,7 @@ test('back returns to the source', async ({ page, baseURL }) => {
     return true;
   });
   expect(clickedBack, 'no back button in the destination').toBe(true);
-  await expect.poll(() => progress(page), { timeout: 12000 }).toBe(0);
+  await expect.poll(() => progress(page), { timeout: 20000 }).toBe(0);
   // POLLED, not read once. Who presents is applied by the morph's rAF
   // loop, so it lands a frame AFTER progress reaches 0 — reading it in
   // the same tick as the progress assertion caught the previous frame
@@ -187,7 +192,7 @@ test('the mapping survives a breakpoint swap, without a reload',
       `links lost their wiring after the swap (before: ${before.join(', ')})`).toEqual([]);
 
     expect(await clickLink(page, 'Services')).toBe(true);
-    await expect.poll(() => progress(page), { timeout: 12000 }).toBe(1);
+    await expect.poll(() => progress(page), { timeout: 20000 }).toBe(1);
     expect(await heading(page)).toBe('Selected work');
   });
 

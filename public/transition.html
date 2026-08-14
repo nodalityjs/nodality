@@ -78,7 +78,7 @@
     const pipe = window.__pipe;
     if (pipe) {
       const raw = pipe.setProgress.bind(pipe);
-      pipe.setProgress = (t) => { const v = raw(t); window.__trace.push(v); return v; };
+      pipe.setProgress = (t) => { const v = raw(t); window.__trace.push([v, performance.now()]); return v; };
     }
     // No branch on null: progressTimeline tolerates a missing pipeline,
     // which is exactly the reduced-motion case — the morph completes, it

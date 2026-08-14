@@ -37,16 +37,41 @@ test('T4 DoD: reversing mid-flight is continuous — no jump, no restart',
     expect(r.atInterrupt).toBeLessThan(0.95);
     expect(r.end).toBeCloseTo(0, 3);
 
-    // No discontinuity: the largest single-frame step is small. A restart
-    // would show a jump straight back to the interrupt point's mirror.
+    // No discontinuity — judged per unit TIME, not per frame.
+    //
+    // The frame-delta version of this assertion failed a release: under
+    // full-suite load a dropped frame produced a 0.49 step against a 0.2
+    // budget. That is a stalled frame, not a restart; the animation was
+    // continuous in value the whole way. Rate is the property that
+    // actually distinguishes the two — a restart is an instantaneous jump
+    // (huge rate), a stall is a normal rate observed over a long gap.
+    //
+    // A restart is INSTANTANEOUS; a stalled frame is not. So judge the
+    // step only across pairs that are close in time — a 400ms gap with a
+    // big delta is a dropped frame under load, and cannot demonstrate a
+    // restart no matter how large the jump looks.
+    //
+    // (A rate budget was tried first and is the wrong tool: `in-out`
+    // easing peaks well above the mean rate, and `to()` scales the span
+    // by distance, so any fixed units-per-ms figure is either too tight
+    // or too loose to mean anything.)
+    const NORMAL_FRAME_MS = 50;
     let maxStep = 0;
+    let judged = 0;
     for (let i = 1; i < r.trace.length; i++) {
-      maxStep = Math.max(maxStep, Math.abs(r.trace[i] - r.trace[i - 1]));
+      const [v0, t0] = r.trace[i - 1];
+      const [v1, t1] = r.trace[i];
+      if (t1 - t0 > NORMAL_FRAME_MS) continue;   // dropped frame, not a jump
+      judged++;
+      maxStep = Math.max(maxStep, Math.abs(v1 - v0));
     }
-    expect(maxStep, `largest single-frame progress step was ${maxStep}`).toBeLessThan(0.2);
+    expect(judged, 'every frame was a stall — nothing to judge').toBeGreaterThan(3);
+    expect(maxStep,
+      `largest step across a normal (<=${NORMAL_FRAME_MS}ms) frame was ${maxStep}`)
+      .toBeLessThan(0.2);
 
     // And it never snapped to 0 or 1 before easing back down.
-    const peak = Math.max(...r.trace);
+    const peak = Math.max(...r.trace.map(([v]) => v));
     expect(peak).toBeLessThan(0.99);
   });
 

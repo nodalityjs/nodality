@@ -89,6 +89,11 @@ const createConfig = (
     libraryExport: libraryName,
     globalObject: libraryTarget === 'umd' ? 'this' : undefined,
     ...(outputModule && { module: true }),
+    // Namespaces runtime GLOBALS (chunk loading) so two webpack builds
+    // on one page do not fight. Note this does NOT rename the internal
+    // runtime identifiers — `__webpack_module_cache__` and friends keep
+    // their names, which is why scripts/namespaceRuntime.mjs exists.
+    uniqueName: 'nodality',
   },
   experiments: outputModule ? { outputModule: true } : undefined,
   resolve: {

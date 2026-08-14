@@ -1,6 +1,6 @@
 {
   "name": "nodality",
-  "version": "1.0.223",
+  "version": "1.0.224",
   "description": "A lightweight library for declarative UI elements.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -38,7 +38,7 @@
     "provenance": true
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js && node scripts/generate-types.mjs",
+    "build": "webpack --config webpack.config.js && node scripts/namespaceRuntime.mjs && node scripts/generate-types.mjs",
     "test:playwright": "playwright test",
     "test:unit": "node --test \"__tests__/unit/*.test.mjs\"",
     "test": "npm run test:unit && playwright test",
