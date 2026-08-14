@@ -318,6 +318,11 @@ jobs:
       contents: read
 
     steps:
+      # The browser check below lives in this repo, so the job needs the
+      # source. It previously ran without a checkout because every step
+      # worked out of /tmp/scaffold.
+      - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -376,6 +381,24 @@ jobs:
           grep -q 'font-family: Arial' upload/index.html \
             || { echo "::error::set() styling did not reach the prerendered output"; exit 1; }
           echo "prerender output verified"
+
+      # OPEN THE PAGE. Everything above this point inspects artefacts that
+      # are produced without ever evaluating the client bundle: the build
+      # does not run its own output, prerender runs in jsdom against the
+      # SOURCES, and the greps read HTML written before any script does.
+      #
+      # 1.1.0 shipped with `export const Image=…` in the ESM bundle. Image
+      # is a DOM constructor, so a consumer's webpack renamed the colliding
+      # declaration while the export clause still named it, and every
+      # scaffolded site died on load with "Export 'Image' is not defined in
+      # module". All of the checks above passed. A user found it by running
+      # `npm create nodality` and opening the page.
+      - name: Verify the page RENDERS in a browser
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          npm install --no-save playwright@^1.54
+          npx playwright install --with-deps chromium
+          node packaging/scaffold-browser-check.mjs /tmp/scaffold/smoke-app/upload
 
   publish:
     name: Publish to NPM
