@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -165,5 +165,5 @@ obj.name && input.setAttribute("name", obj.name);
     }
     
     // 31/01/25 22:06:50 works
-window.FloatingInput = FloatingInput;
+if (typeof window !== "undefined") window.FloatingInput = FloatingInput;
 export { FloatingInput };

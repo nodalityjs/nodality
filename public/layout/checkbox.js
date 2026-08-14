@@ -171,5 +171,5 @@ obj.resmar && this.resmar(obj.resmar);
 }
 
 // Export the class
-window.Checkbox = Checkbox;
+if (typeof window !== "undefined") window.Checkbox = Checkbox;
 export { Checkbox };

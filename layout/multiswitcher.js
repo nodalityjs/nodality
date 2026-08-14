@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -16,9 +16,14 @@ class /*Multi*/Switcher extends Animator {
     this.resizeListener = null;
   }
 
-  set({ breakpoints }) {
+  //@ id: DOM id for the switcher's own box. The views are swapped in and out, so an id belongs here rather than on a view that may not be mounted.
+  //@ area: The switcher's grid-area — the name of a cell declared in the parent's `areas`. It goes here because the switcher's box IS the grid item; the views live inside it, so an area set on a view would never reach the grid.
+  set({ breakpoints, id, area }) {
 
     this.options = {breakpoints: breakpoints};
+    // Applied in render(): the box does not exist until then.
+    this._id = id;
+    this._area = area;
 
     if (!Array.isArray(breakpoints)) {
       throw new Error("Breakpoints should be an array of objects with 'at' and 'view' properties.");
@@ -64,7 +69,10 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
       //alert(val)
       // Create an internal div for switching content
       this.internalDiv = document.createElement("div");
-    
+      this.res = this.internalDiv;
+      if (this._id) this.internalDiv.setAttribute("id", this._id);
+      if (this._area) this.internalDiv.style.gridArea = this._area;
+
       // Apply the initial view
       this.applyView();
     

@@ -1,6 +1,8 @@
 import {Animator} from "./animator.js";
 
 
+import { toObjectSource } from "../lib/codegen.js";
+import { keyPattern } from "../lib/codegen.js";
 class Link extends Animator {
 	constructor(text, link, stopEM){
 		super();
@@ -74,9 +76,7 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
    		 Object.entries(this.options).filter(([key, value]) => value !== null)
 		);
 
-		const objString = JSON
-			.stringify(cleanedObj, null, 4)
-			.replace(/"([^"]+)":/g, '$1:');
+		const objString = toObjectSource(cleanedObj, 4);
 
         return [`new Link().set(${objString})`];
 	}
@@ -156,7 +156,7 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 		if (!jsonString){
 			return;
 		}
-		const modifiedJSON = jsonString.replace(/"([^"]+)":/g, '$1:');
+		const modifiedJSON = jsonString.replace(keyPattern(), "$1:");
 		return modifiedJSON;
 	  }
 

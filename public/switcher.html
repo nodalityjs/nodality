@@ -11,9 +11,17 @@
 
 import { Des } from '../lib/designer.js';
 
+// The multiswitcher mapper used to hardcode these three breakpoints, so
+// every switcher everywhere showed First/Nice/Best. The views belong to
+// the page; the spec still checks the breakpoint behaviour itself.
 let elements = [
   {
-    type: "multiswitcher"
+    type: "multiswitcher",
+    breakpoints: [
+      { at: "0px",   view: { type: "p", text: "First" } },
+      { at: "700px", view: { type: "p", text: "Nice" } },
+      { at: "800px", view: { type: "p", text: "Best" } }
+    ]
   }
 ];
 

@@ -11,9 +11,18 @@
 
 import { Des } from '../lib/designer.js';
 
+// The three lines below used to be supplied by ElementMapper.mapWrap,
+// which appended `new Text("Hello")` three times to EVERY wrap element in
+// every page. That placeholder was removed in phase P3 so a wrap can carry
+// its own content; this page now declares the content it always rendered.
 let elements = [
   {
-    type: "wrap"
+    type: "wrap",
+    children: [
+      { type: "p", text: "Hello" },
+      { type: "p", text: "Hello" },
+      { type: "p", text: "Hello" }
+    ]
   }
 ];
 

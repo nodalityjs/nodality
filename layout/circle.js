@@ -1,11 +1,12 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import { Animator } from "./animator.js";
 
+import { toObjectSource } from "../lib/codegen.js";
 class Circle extends Animator {
   constructor() {
     super();
@@ -36,7 +37,7 @@ class Circle extends Animator {
       Object.entries(this.options || {}).filter(([, v]) => v != null)
     );
 
-    const objString = JSON.stringify(cleanedObj, null, 4).replace(/"([^"]+)":/g, "$1:");
+    const objString = toObjectSource(cleanedObj, 4);
     return [`new Circle().set(${objString})`];
   }
 

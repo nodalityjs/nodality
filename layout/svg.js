@@ -1,11 +1,12 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import { Wrapper } from "./container.js";
 
+import { toObjectSource } from "../lib/codegen.js";
 /**
  * Svg — a Nodality primitive for inline SVG icons.
  *
@@ -99,9 +100,7 @@ class Svg extends Wrapper {
 			const cleanedObj = Object.fromEntries(
 				Object.entries(this.obj).filter(([k, v]) => v !== null)
 			);
-			const objString = JSON
-				.stringify(cleanedObj, null, 2)
-				.replace(/"([^"]+)":/g, "$1:");
+			const objString = toObjectSource(cleanedObj, 2);
 			code += `\n${pad}  .set(${objString})`;
 		}
 		code += `\n${pad}`;

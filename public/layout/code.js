@@ -1,6 +1,7 @@
 import {Animator} from "./animator.js";
 
 
+import { keyPattern } from "../lib/codegen.js";
 class Code extends Animator {
     constructor(){
         super();
@@ -28,7 +29,7 @@ class Code extends Animator {
 
     // pretty JSON, but keep functions/nested objects readable
     const str = JSON.stringify(obj, null, 2)
-        .replace(/"([^"]+)":/g, '$1:')   // remove quotes from keys
+        .replace(keyPattern(), "$1:")   // remove quotes from identifier keys
         .replace(/"([^"]+)"/g, (m, p1) => {
             // keep colors and class names quoted, but escape code safely
             if (p1.includes("\n") || p1.includes("'") || p1.includes('"')) {

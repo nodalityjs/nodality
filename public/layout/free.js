@@ -1,5 +1,6 @@
 import {Animator} from "./animator.js";
 
+import { toObjectSource } from "../lib/codegen.js";
 class Free extends Animator {
     constructor(){
         super();
@@ -146,9 +147,7 @@ class Free extends Animator {
                 return [""];
             }
     
-            const objString = JSON
-                .stringify(this.options, null, 4)
-                .replace(/"([^"]+)":/g, '$1:');
+            const objString = toObjectSource(this.options, 4);
     
 
                 var codeStr = "";

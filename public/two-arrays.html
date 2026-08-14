@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Declare the scheme the components are actually styled for. A page
+     that declares none is a candidate for forced inversion (Chrome
+     auto-dark, OS settings, extensions), which repaints the light
+     cards dark and the dark text light. The full demo carried this in
+     its stylesheet; stripping the CSS took it with it. -->
+<meta name="color-scheme" content="light">
+<style>:root { color-scheme: light; }</style>
+<title>Nodality — two arrays, one call</title>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<script type="module">
+import { Des } from "../lib/designer.js";
+
+// ─── E · the elements ──────────────────────────────────
+//
+// `type` picks the component, `id` is the handle N aims at, and every
+// other key is forwarded to that component's own set(). `wrap` takes
+// `children`, which are themselves element descriptors.
+// The width has to be fluid because the TYPE is: Nodality sizes text with
+// calc(1.375rem + 3.525vw), so on a wide window the h3 computes near 90px
+// and simply cannot fit inside a fixed 300px card — the heading spills out
+// of its own box.
+const CARD = { type: "wrap", background: "#e8eef5", radius: "14px",
+               pad: [{ a: 18 }], width: "min(560px, 92vw)", color: "#0b1420" };
+const INK  = { color: "#0b1420" };
+const SUB  = { color: "#4a5b6d" };
+const BACK = { type: "button", text: "\u2190 back", background: "#0b1420",
+               color: "#e8eef5", radius: "8px" };
+
+const E = [
+  { id: "topnav", type: "nav" },
+
+  { id: "work", ...CARD, children: [
+      { id: "work-t", type: "h3", text: "Selected work", ...INK },
+      { id: "work-b", type: "p",  text: "18 projects · 2019–2026", ...SUB },
+      { id: "work-back", ...BACK },
+  ]},
+  { id: "about", ...CARD, children: [
+      { id: "about-t", type: "h3", text: "About", ...INK },
+      { id: "about-b", type: "p",  text: "Designer & engineer · Prague", ...SUB },
+      { id: "about-back", ...BACK },
+  ]},
+  { id: "contact", ...CARD, children: [
+      { id: "contact-t", type: "h3", text: "Contact", ...INK },
+      { id: "contact-b", type: "p",  text: "filipvabrousek1@gmail.com", ...SUB },
+      { id: "contact-back", ...BACK },
+  ]},
+];
+
+// ─── N · the nodes ────────────────────────────────────
+//
+// Two families in one array, told apart by the TYPE of `op`:
+//   op: {name:"shadow"}   a design node  — filtero()
+//   op: "dither"          a RASTER node  — filteroRaster()
+//
+// Nothing in E names an effect and nothing in N names a component; they
+// meet only through `target`. Several raster nodes aimed at one element
+// form one chain, compiled into a single shader pass in array order.
+const N = [
+  { op: { name: "shadow" }, target: ["work", "about", "contact"] },
+  { op: "dither", target: ["topnav"], levels: 6, size: 2, amount: 0.35 },
+
+  // Which element BECOMES which, and on what interaction. Link i in
+  // `from` goes to destination i; the destinations start hidden, so only
+  // the nav is on screen until you choose one. `back` wires the
+  // destination's own button to return.
+  { op: "morph", from: "topnav",
+    // Keyed by the link's LABEL, not its position: this nav renders a
+    // different set of links per breakpoint, so index i is not the same
+    // link at two window sizes.
+    to: { About: "about", Services: "work", Contact: "contact" },
+    effect: "t-vhs", duration: 900, back: true },
+];
+
+// ─── the call ──────────────────────────────────────
+// set() is terminal — it returns undefined, not the instance.
+new Des().nodes(N).add(E).set({ mount: "#stage", code: false });
+
+// Fixtures signal readiness so a spec can waitForFunction
+// instead of guessing at a timeout.
+window.__ready = true;
+</script>
+</body>
+</html>

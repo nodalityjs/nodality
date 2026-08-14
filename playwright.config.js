@@ -1,6 +1,45 @@
+// THE config. `playwright test` runs from the repo root and resolves this
+// file; `scripts/generatePlaywright.js` writes a second one that nothing
+// reads (see its header) — edit this.
+//
+// Port 3001 is fixed rather than searched for. On CI the runner is clean so
+// it is always free; locally `reuseExistingServer` means an already-running
+// `npx serve . -l 3001` is reused instead of collided with. If 3001 is
+// occupied by something that is NOT this server, change it here.
 module.exports = {
         testDir: './__tests__/e2e',
         timeout: 30000,
+
+        // Retries and workers, CI only.
+        //
+        // This suite has a residual flake rate of a few percent across
+        // ~300 tests: measured over repeated full runs, raster-probe,
+        // transition-timeline and transition-pass have each failed once
+        // and passed on re-run, and none has a known cause. Most involve
+        // WebGL timing or screenshot equality, which is exactly the class
+        // that gets worse on slower hardware with a software rasteriser.
+        //
+        // That matters more than usual here because `npm run test` guards
+        // TWO gates: onlyPublish.sh runs it before tagging, and the
+        // workflow runs it again on the tag push, with publish depending
+        // on it. A flake at the first gate costs a re-run; a flake at the
+        // second lands AFTER the version bump and tag are pushed, leaving
+        // a tag in the repo with nothing published and a manual unwind
+        // (git tag -d / git reset --soft HEAD~1).
+        //
+        // Retries are deliberately CI-only. Locally a flake should stay
+        // visible and get root-caused — the last one turned out to be a
+        // real race between a progress assertion and the frame that
+        // applies it, and retries would have hidden it. Playwright still
+        // reports a retried test as "flaky" rather than silently green,
+        // so CI keeps telling you the rate rather than burying it.
+        retries: process.env.CI ? 2 : 0,
+
+        // One worker on CI. Every flake seen so far appeared only under
+        // parallel load; ubuntu-latest has few cores, so the default
+        // (half of them) buys little and costs contention. Local runs keep
+        // the default.
+        workers: process.env.CI ? 1 : undefined,
         webServer: {
           command: "npx serve . -l 3001",
           port: 3001,

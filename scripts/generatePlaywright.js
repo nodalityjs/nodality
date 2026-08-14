@@ -1,3 +1,20 @@
+// NOT WIRED IN — kept as a manual utility, not part of `npm run test`.
+//
+// This writes `scripts/playwright.config.js`, and nothing reads it:
+// `playwright test` runs from the repo root and resolves the ROOT
+// `playwright.config.js`, which is committed and hardcodes port 3001. So
+// the free-port search below has never had any effect on a test run, while
+// `npm run test` paid for it on every invocation and the presence of two
+// config files suggested the generated one was authoritative. Removed from
+// the test script in phase P5 (2026-08-12).
+//
+// The root config is the one to edit. Run this by hand only if you
+// genuinely want a generated config on a free port, and point Playwright
+// at it explicitly:
+//
+//     node scripts/generatePlaywright.js
+//     npx playwright test --config scripts/playwright.config.js
+
 const fs = require('fs');
 const net = require('net');
 const path = require('path');

@@ -1,0 +1,202 @@
+{
+  "elements": [
+    {
+      "type": "wrap",
+      "name": "page",
+      "id": "nod-page",
+      "disp": "grid",
+      "cols": "var(--nod-cols-0) var(--nod-cols-1)",
+      "rows": "auto 1fr",
+      "areas": "\"nav nav\" \"main main\"",
+      "vars": {
+        "--nod-split": 0.2,
+        "--nod-density": 0.5,
+        "--nod-radius": 0.6,
+        "--nod-motion": 0.4,
+        "--nod-cols-0": "240px",
+        "--nod-gap": "28px",
+        "--nod-cols-1": "932px"
+      },
+      "children": [
+        {
+          "type": "nav",
+          "id": "nod-nav",
+          "name": "nav",
+          "area": "nav",
+          "children": [
+            {
+              "type": "h3",
+              "id": "nod-nav-brand",
+              "size": "S5",
+              "text": "Nodality"
+            }
+          ],
+          "breakpoint": "1200px",
+          "maxHeight": "100px",
+          "mar": [
+            {
+              "a": "12px"
+            }
+          ],
+          "radius": "calc(0px + 24px * var(--nod-radius))"
+        },
+        {
+          "type": "wrap",
+          "id": "nod-main",
+          "name": "main",
+          "area": "main",
+          "children": [
+            {
+              "type": "wrap",
+              "kind": "section",
+              "id": "nod-main-hero",
+              "name": "main.hero",
+              "children": [
+                {
+                  "type": "h1",
+                  "id": "nod-main-hero-title",
+                  "size": "S1",
+                  "text": "Layouts you can hold"
+                },
+                {
+                  "type": "p",
+                  "id": "nod-main-hero-sub",
+                  "size": "S4",
+                  "text": "One spec. Every variation."
+                }
+              ],
+              "pad": [
+                {
+                  "a": "calc(8px + 40px * var(--nod-density))"
+                }
+              ],
+              "raster": [
+                {
+                  "op": "flow",
+                  "seed": 50271532,
+                  "by": "mouse"
+                }
+              ]
+            },
+            {
+              "type": "wrap",
+              "kind": "section",
+              "id": "nod-main-cta",
+              "name": "main.cta",
+              "children": [
+                {
+                  "type": "a",
+                  "id": "nod-main-cta-button",
+                  "size": "S6",
+                  "text": "Get started",
+                  "url": "/docs",
+                  "radius": "calc(0px + 24px * var(--nod-radius))",
+                  "pad": [
+                    {
+                      "a": "calc(8px + 40px * var(--nod-density))"
+                    }
+                  ]
+                }
+              ],
+              "pad": [
+                {
+                  "a": "calc(8px + 40px * var(--nod-density))"
+                }
+              ],
+              "center": true
+            }
+          ],
+          "kind": "main"
+        }
+      ],
+      "gap": "var(--nod-gap)"
+    }
+  ],
+  "nodes": [],
+  "slots": [
+    {
+      "id": "nav.brand",
+      "kind": "nav"
+    },
+    {
+      "id": "main.hero.title",
+      "kind": "hero"
+    },
+    {
+      "id": "main.hero.sub",
+      "kind": "hero"
+    },
+    {
+      "id": "main.cta.button",
+      "kind": "cta"
+    }
+  ],
+  "meta": {
+    "rootId": "nod-page",
+    "vars": {
+      "--nod-split": 0.2,
+      "--nod-density": 0.5,
+      "--nod-radius": 0.6,
+      "--nod-motion": 0.4,
+      "--nod-cols-0": "240px",
+      "--nod-gap": "28px",
+      "--nod-cols-1": "932px"
+    },
+    "tracks": {
+      "cols": {
+        "container": 1200,
+        "list": [
+          {
+            "id": "cols-0",
+            "size": "@split",
+            "axis": "split",
+            "fr": null,
+            "min": 240,
+            "max": null,
+            "priority": null,
+            "constrained": true
+          },
+          {
+            "id": "gap",
+            "size": "@density",
+            "axis": "density",
+            "fr": null,
+            "min": 8,
+            "max": null,
+            "priority": 0,
+            "constrained": true,
+            "span": 1
+          },
+          {
+            "id": "cols-1",
+            "size": "1fr",
+            "axis": null,
+            "fr": 1,
+            "min": 0,
+            "max": null,
+            "priority": 0,
+            "constrained": false
+          }
+        ]
+      }
+    },
+    "slots": [
+      {
+        "id": "nav.brand",
+        "kind": "nav"
+      },
+      {
+        "id": "main.hero.title",
+        "kind": "hero"
+      },
+      {
+        "id": "main.hero.sub",
+        "kind": "hero"
+      },
+      {
+        "id": "main.cta.button",
+        "kind": "cta"
+      }
+    ]
+  }
+}

@@ -24,6 +24,44 @@ test.describe('built bundle (dist/index.esm.js)', () => {
     await page.waitForFunction(() => window.__ready === true, null, { timeout: 15000 });
   });
 
+  // The consumer scenario, in a real browser: `nodality` resolves to the
+  // bundle, `nodality/raster` to the source module. Those used to be two
+  // module instances with two op registries, so an op registered through
+  // the public surface was accepted and then never ran — and the shipped
+  // inspector, importing the source module too, reported no pipelines on
+  // a page full of them. Both silent.
+  //
+  // Fixed by marking lib/raster-ops.js external in the ESM builds, so the
+  // bundle imports it rather than inlining a second copy. This is the
+  // browser half of the proof; the Node half is in
+  // __tests__/unit/bundle-shares-registry.test.mjs.
+  test('an op registered through the source module reaches the bundled mapper',
+    async ({ page }) => {
+      const seen = await page.evaluate(async () => {
+        const { ElementMapper } = await import('/dist/index.esm.js');
+        const { registerRasterOp, RASTER_OP_NAMES } = await import('/lib/raster-ops.js');
+        const chain = [{ op: 'probe', target: ['#x'] }];
+
+        const before = ElementMapper.filteroRaster('#x', chain) !== undefined;
+        registerRasterOp('probe', { stage: 'color', decl: () => '', code: () => '' });
+        return {
+          before,
+          after: ElementMapper.filteroRaster('#x', chain) !== undefined,
+          sourceKnows: RASTER_OP_NAMES.includes('probe'),
+          // The built-ins reach the bundle through the same import, so a
+          // broken external would show up as an empty routing list.
+          builtinsVisible: ElementMapper.filteroRaster(
+            '#y', [{ op: 'halftone', target: ['#y'] }]) !== undefined,
+        };
+      });
+      expect(seen.before).toBe(false);
+      expect(seen.sourceKnows).toBe(true);
+      expect(seen.builtinsVisible).toBe(true);
+      expect(seen.after,
+        'the bundle did not see an op registered through the source module ' +
+        '— dist/ is inlining its own registry again').toBe(true);
+    });
+
   test('the bundle loads and exposes its public names', async ({ page }) => {
     // A missing name here means tree-shaking or a webpack config change
     // dropped it from the shipped artefact.

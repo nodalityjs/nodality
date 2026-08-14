@@ -1,10 +1,11 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
+import { toObjectSource } from "../lib/codegen.js";
 // import {CustomDivRenderer} from "./navFactor/customDiv.js";
 // CORRECT
 class CustomDivRenderer {
@@ -80,7 +81,7 @@ class UINavBar extends Animator {
         // 16:01:09 09/11/24 What????
         // Convert attributes to .set({...}) format if there are any attributes
         if (Object.keys(this.attributes).length > 0) {
-            codeStr += `.setup(${JSON.stringify(this.attributes, null, 2).replace(/"([^"]+)":/g, '$1:')})`;
+            codeStr += `.setup(${toObjectSource(this.attributes, 2)})`;
 
         } else {
             codeStr += `.setup({})`;
@@ -95,8 +96,14 @@ class UINavBar extends Animator {
     
         codeStr += `\n])`;
 
-        return codeStr;
-    
+        // An ARRAY, like every other class's toCode(). Returning a bare
+        // string meant a bar could never be a child of a Wrapper at all:
+        // Wrapper.add() does `el.toCode().flatMap(...)`, and a string has
+        // no flatMap, so building the tree threw. Consumers that push the
+        // result and flatten later (designer.js) are unaffected, and a
+        // one-element array concatenates to exactly what the string did.
+        return [codeStr];
+
     }
 
     styled(obj) {

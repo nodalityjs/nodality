@@ -313,6 +313,5 @@ adjust(w) {
 	}
 }
 	 
-window.NavBar = NavBar;
-
+if (typeof window !== "undefined") window.NavBar = NavBar;
 export { NavBar };

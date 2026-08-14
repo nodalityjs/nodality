@@ -56,5 +56,5 @@ class CustomDivRenderer {
     }
 }
 
-window.CustomDivRenderer = CustomDivRenderer;
+if (typeof window !== "undefined") window.CustomDivRenderer = CustomDivRenderer;
 export { CustomDivRenderer };

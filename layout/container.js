@@ -1,11 +1,12 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
 
+import { toObjectSource } from "../lib/codegen.js";
 class Wrapper extends Animator { // 12:10:02 found grep 06/03
 	constructor(obj) {
         super();
@@ -40,9 +41,7 @@ code = `${pad}new Wrapper()`;
             Object.entries(this.obj).filter(([key, value]) => value !== null)
         );
 
-        const objString = JSON
-            .stringify(cleanedObj, null, 2)
-            .replace(/"([^"]+)":/g, '$1:');
+        const objString = toObjectSource(cleanedObj, 2);
 
         code += `\n${pad}  .set(${objString})`;
     }

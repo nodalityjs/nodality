@@ -867,6 +867,70 @@ async function runStage(args) {
       fs.mkdirSync(path.dirname(dst), { recursive: true });
       fs.copyFileSync(src, dst);
       console.log(`[nodality] stage: bundle → ${path.relative(cwd, dst)}`);
+
+      // 1b. The bundle does not contain everything it needs. The build
+      //     externalises raster-ops (so every entry shares ONE op
+      //     registry) and the layout components, so the bundle emits real
+      //     `import "../lib/..."` / `"../layout/..."` statements resolved
+      //     relative to wherever it is SERVED from.
+      //
+      //     Inside the installed package those resolve. Copy the bundle
+      //     somewhere else — which is exactly what this command does — and
+      //     every one of them 404s. The failure is silent: the module
+      //     graph aborts, nothing renders, and the library itself reports
+      //     no error. A real site (gesos) is how this was found.
+      //
+      //     Walk the graph rather than keep a hand-written list: the first
+      //     version of this fix listed two filenames and missed the nine
+      //     ../layout/* externals entirely.
+      const readIfExists = (f) => {
+        try { return fs.readFileSync(f, "utf8"); } catch (e) { return null; }
+      };
+      const relSpecs = (code) => {
+        const out = [];
+        const re = /(?:import|export)[^'"]*?from\s*["'](\.[^"']+)["']|import\s*\(\s*["'](\.[^"']+)["']\s*\)|import\s*["'](\.[^"']+)["']/g;
+        let m;
+        while ((m = re.exec(code))) out.push(m[1] || m[2] || m[3]);
+        return out;
+      };
+
+      // Specifiers in the bundle are relative to dist/, which is where the
+      // staged copy sits too — so the same relative path works verbatim.
+      const distDir = path.join(pkgRoot, "dist");
+      const seen = new Set();
+      const queue = relSpecs(fs.readFileSync(src, "utf8"))
+        .map((spec) => path.resolve(distDir, spec));
+      let copied = 0;
+      let missing = 0;
+      while (queue.length) {
+        const abs = queue.pop();
+        if (seen.has(abs)) continue;
+        seen.add(abs);
+        const rel = path.relative(pkgRoot, abs);
+        if (rel.startsWith("..") || path.isAbsolute(rel)) continue;
+        const code = readIfExists(abs);
+        if (code === null) {
+          console.warn(`[nodality] stage: ${rel} missing — the bundle's ` +
+            `import of it will 404 at runtime`);
+          missing++;
+          continue;
+        }
+        const dest = path.join(uploadDir, rel);
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        fs.writeFileSync(dest, code);
+        copied++;
+        for (const spec of relSpecs(code)) {
+          queue.push(path.resolve(path.dirname(abs), spec));
+        }
+      }
+      if (copied) {
+        console.log(`[nodality] stage: ${copied} externalised module(s) → ` +
+          `${path.relative(cwd, uploadDir)}/`);
+      }
+      if (missing) {
+        console.warn(`[nodality] stage: ${missing} module(s) could not be ` +
+          `staged — the page will 404 on them`);
+      }
     }
   }
 

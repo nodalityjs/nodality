@@ -1,4 +1,5 @@
 import {Animator} from "./animator.js";
+import { keyPattern } from "../lib/codegen.js";
 class /*Beta*/MobileBar extends Animator {
     constructor() {
         super();
@@ -13,7 +14,7 @@ class /*Beta*/MobileBar extends Animator {
 		if (!jsonString){
 			return;
 		}
-		const modifiedJSON = jsonString.replace(/"([^"]+)":/g, '$1:');
+		const modifiedJSON = jsonString.replace(keyPattern(), "$1:");
 		return modifiedJSON;
 	  }
 

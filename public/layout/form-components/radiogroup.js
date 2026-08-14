@@ -221,5 +221,5 @@ class RadioGroup /*extends Animator*/ {
 
 
 
-window.RadioGroup = RadioGroup;
+if (typeof window !== "undefined") window.RadioGroup = RadioGroup;
 export { RadioGroup };

@@ -154,5 +154,5 @@ class Range {
 
 
 
-window.Range = Range;
+if (typeof window !== "undefined") window.Range = Range;
 export { Range };

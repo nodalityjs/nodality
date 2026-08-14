@@ -11,9 +11,18 @@
 
 import { Des } from '../lib/designer.js';
 
+// The Stack mapper used to hardcode this image and a "Samuel Suresh"
+// caption, so every stack on every page rendered the same thing. The
+// content belongs to the page; the spec below still checks what it
+// always checked — that Stack layers its children in one grid area.
 let elements = [
   {
-    type: "stack"
+    type: "stack",
+    children: [
+      { type: "img", url: "https://pbs.twimg.com/media/DwYvbCBVAAEKY_R.jpg" },
+      { type: "h2", text: "Samuel Suresh", color: "#00ae56",
+        font: "SF Pro Display", pad: {sides: ["top", "left"], value: 20} }
+    ]
   }
 ];
 

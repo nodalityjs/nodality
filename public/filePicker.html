@@ -11,7 +11,10 @@
 
 import { Des } from '../lib/designer.js';
 
-const elements = [{ type: 'filePicker'}];
+// The filePicker mapper used to hardcode `id: "A"` and a
+// "Add profile picture" title, so two pickers on one page produced
+// duplicate DOM ids. The id and title belong to the element.
+const elements = [{ type: 'filePicker', id: 'A', title: 'Add profile picture' }];
 const nodes = [];
 
 new Des()

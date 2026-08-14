@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" />
+<title>Transition test page</title>
+<style>
+  body { margin:0; background:#0d1520; font-family: Helvetica, Arial, sans-serif; }
+  #stage { position:relative; width:820px; height:260px; }
+  .old { position:absolute; left:20px; top:20px; width:600px; height:60px;
+         background:#1abc9c; color:#06202e; font-size:28px; font-weight:800;
+         display:flex; align-items:center; padding:0 18px; box-sizing:border-box; }
+  .new { position:absolute; left:200px; top:60px; width:320px; height:180px;
+         background:#e67e22; color:#2b1400; font-size:22px; font-weight:800;
+         display:flex; align-items:center; padding:0 18px; box-sizing:border-box; }
+</style></head>
+<body>
+  <div id="stage"><div class="old" id="oldEl">OLD NAVBAR</div></div>
+  <script type="module">
+    import { applyRasterPipeline } from '../lib/raster-ops.js';
+    import { preset } from '../lib/raster-presets.js';
+    import { progressTimeline } from '../lib/transition.js';
+    window.__errors = [];
+    window.addEventListener('error', (e) => window.__errors.push(String(e.message)));
+
+    // Capture the OLD element, swap in the NEW one, then run a transition
+    // pipeline over the stage. This is the sequence a Morpher automates.
+    const stage = document.getElementById('stage');
+    const oldEl = document.getElementById('oldEl');
+    const oldRect = { x: 20, y: 20, w: 600, h: 60 };
+    const newRect = { x: 200, y: 60, w: 320, h: 180 };
+
+    async function capture(el, w, h) {
+      const clone = el.cloneNode(true);
+      clone.style.position = 'static'; clone.style.left = '0'; clone.style.top = '0';
+      const s = new XMLSerializer().serializeToString(clone);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">` +
+        `<foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${s}</div></foreignObject></svg>`;
+      const img = new Image();
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej;
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
+      return img;
+    }
+
+    const key = new URLSearchParams((location.hash || '').replace(/^#/, '')).get('ops') || 'plain';
+    const CHAINS = {
+      plain: [],
+      vhs:   [{ op: 'aberration', amount: [0, 14, 0] },
+              { op: 'flow', strength: [0, 30, 0], scale: 70, speed: 0 }],
+      abOnly:   [{ op: 'aberration', amount: [0, 14, 0] }],
+      flowOnly: [{ op: 'flow', strength: [0, 30, 0], scale: 70, speed: 0 }],
+      abZero:   [{ op: 'aberration', amount: 0 }],
+      flowZero: [{ op: 'flow', strength: 0, scale: 70, speed: 0 }],
+      split:    [],
+      // phase T3
+      tvhs:     preset('t-vhs'),
+      tdis:     preset('t-dissolve'),
+      staggerA: [{ op: 'flow', strength: [0, 30, 0], scale: 70, speed: 0, window: [0.0, 0.5] }],
+      staggerB: [{ op: 'flow', strength: [0, 30, 0], scale: 70, speed: 0, window: [0.5, 1.0] }],
+    };
+
+    // Gap 2 fixture: independent per-side motion. The old element exits
+    // left, the new one enters from the right, instead of both marching
+    // along one shared box.
+    const SPLIT = key === 'split' ? {
+      oldTo:   { x: -640, y: 20, w: 600, h: 60 },
+      newFrom: { x: 860, y: 60, w: 320, h: 180 },
+    } : {};
+
+    const oldImage = await capture(oldEl, oldRect.w, oldRect.h);
+    oldEl.remove();
+    const newEl = document.createElement('div');
+    newEl.className = 'new'; newEl.id = 'newEl'; newEl.textContent = 'NEW CARD';
+    stage.appendChild(newEl);
+
+    window.__pipe = applyRasterPipeline(stage, CHAINS[key] || [],
+      { transition: { oldImage, oldRect, newRect, ...SPLIT } });
+    // Phase T4: a timeline over the pipeline, plus a trace of every
+    // progress value it produces so a test can look for discontinuities.
+    window.__trace = [];
+    const pipe = window.__pipe;
+    if (pipe) {
+      const raw = pipe.setProgress.bind(pipe);
+      pipe.setProgress = (t) => { const v = raw(t); window.__trace.push(v); return v; };
+    }
+    // No branch on null: progressTimeline tolerates a missing pipeline,
+    // which is exactly the reduced-motion case — the morph completes, it
+    // just has no pixels.
+    window.__tl = progressTimeline(pipe, { duration: 400 });
+    window.__ready = true;
+  </script>
+</body></html>

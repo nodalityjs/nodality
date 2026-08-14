@@ -214,5 +214,5 @@ addNode(value, text){
 
 
 
-window.Picker = Picker;
+if (typeof window !== "undefined") window.Picker = Picker;
 export { Picker };

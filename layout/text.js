@@ -1,11 +1,13 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
 
+import { toObjectSource } from "../lib/codegen.js";
+import { keyPattern } from "../lib/codegen.js";
 // 13:28 07/04/2020 - BEGIN NOTHING GONNA STOP US NOW  Lets go!
 
 // 22:29:11
@@ -37,9 +39,7 @@ class Text extends Animator {
    		 Object.entries(this.options).filter(([key, value]) => value !== null)
 		);
 
-		const objString = JSON
-			.stringify(cleanedObj, null, 4)
-			.replace(/"([^"]+)":/g, '$1:');
+		const objString = toObjectSource(cleanedObj, 4);
 
         return [`new Text("${this.text}").set(${objString})`];
 	}
@@ -99,7 +99,7 @@ class Text extends Animator {
 	}
 
 	 removeQuotesFromFirstWord(jsonString) {
-		const modifiedJSON = jsonString.replace(/"([^"]+)":/g, '$1:');
+		const modifiedJSON = jsonString.replace(keyPattern(), "$1:");
 		return modifiedJSON;
 	  }
 	  

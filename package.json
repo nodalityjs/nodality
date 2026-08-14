@@ -1,6 +1,6 @@
 {
   "name": "nodality",
-  "version": "1.0.221",
+  "version": "1.0.222",
   "description": "A lightweight library for declarative UI elements.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -11,27 +11,39 @@
     "lib/",
     "layout/",
     "dist/",
-    "bin/"
+    "bin/",
+    "API.md",
+    "examples/"
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "require": "./dist/index.cjs.js",
       "import": "./dist/index.esm.js"
     },
     "./ssg": "./layout/prerender.js",
     "./ssg-site": "./layout/prerender-site.js",
     "./seo": "./lib/seo.js",
-    "./data": "./lib/data.js"
+    "./data": "./lib/data.js",
+    "./morph": "./layout/morph.js",
+    "./presets": "./lib/raster-presets.js",
+    "./raster": "./lib/raster-ops.js",
+    "./inspect": "./lib/raster-inspect.js",
+    "./examples/*": "./examples/*.js",
+    "./transition": "./lib/transition.js",
+    "./designer": "./lib/designer.js"
   },
   "publishConfig": {
     "access": "public",
     "provenance": true
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.js && node scripts/generate-types.mjs",
     "test:playwright": "playwright test",
-    "test": "node scripts/generatePlaywright.js && playwright test",
-    "inject-license": "node scripts/injectLicense.js"
+    "test:unit": "node --test \"__tests__/unit/*.test.mjs\"",
+    "test": "npm run test:unit && playwright test",
+    "inject-license": "node scripts/injectLicense.js",
+    "types": "node scripts/generate-types.mjs"
   },
   "license": "MIT",
   "repository": {
@@ -73,5 +85,6 @@
     "playwright": "^1.54.1",
     "serve": "^14.2.6",
     "webpack-cli": "^6.0.1"
-  }
+  },
+  "types": "dist/index.d.ts"
 }

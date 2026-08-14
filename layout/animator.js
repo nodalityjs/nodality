@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -9,6 +9,7 @@
 import { Theme } from "../lib/theme.js";
 import { applyRasterPipeline } from "../lib/raster-ops.js";
 
+import { keyPattern } from "../lib/codegen.js";
 // 22/08/2020 - 16:30
 class Animator {
     
@@ -171,6 +172,17 @@ class Animator {
 		}
 	}
 
+	// Custom properties. `style[name]` does not work for them — the CSSOM
+	// only reaches a `--*` property through setProperty — which is why an
+	// axis default written like every other style silently did nothing.
+	vars(map){
+		if (!map || typeof map !== "object") return this;
+		for (const name in map) {
+			this.res.style.setProperty(name, String(map[name]));
+		}
+		return this;
+	}
+
 	keySet(obj){
 		this.temporaryVal = 1;
 		if (Array.isArray(obj)) {
@@ -258,6 +270,20 @@ class Animator {
         gridTemplateRows: "gridTemplateRows",
         rowGap: "rowGap",
         columnGap: "columnGap",
+        // Extended 2026-08-11 — the shell vocabulary `bones` speaks, so a
+        // generated grid needs no keySet. `cols`/`rows` are short names for
+        // the two above; `areas` had no option at all, and `area` existed
+        // only on the three components that happened to dispatch it
+        // themselves (Wrapper, Text, Image) — those now set the same
+        // property to the same value, and everything else gains it.
+        //@ cols: grid-template-columns, verbatim — e.g. "240px 1fr".
+        cols: "gridTemplateColumns",
+        //@ rows: grid-template-rows, verbatim.
+        rows: "gridTemplateRows",
+        //@ areas: grid-template-areas, verbatim — e.g. '"nav main" "nav main"'.
+        areas: "gridTemplateAreas",
+        //@ area: This element's grid-area — the name of a cell declared in the parent's `areas`.
+        area: "gridArea",
 
         // ── Typography (extended) ──────────────────────────────────────
         letterSpacing: "letterSpacing",
@@ -351,6 +377,8 @@ class Animator {
     obj.size && this.fluidCopy(obj.size);
     //@ resprop: Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size.
     obj.resprop && this.resprop(obj.resprop, obj);
+    //@ vars: Custom CSS properties on this element — {"--nod-split": 0.2}. Custom properties inherit, so writing them on a root drives its whole subtree with one declaration; that is how the morph axes reach every generated element without a stylesheet.
+    obj.vars && this.vars(obj.vars);
     //@ keySet: Escape hatch — {key, value} written straight to element.style, or an array of them.
     obj.keySet && this.keySet(obj.keySet);
     //@ noTheme: Opt this element out of Theme.setDefaults light/dark colouring.
@@ -2036,7 +2064,7 @@ maxWidth(w){
 }
 
 removeQuotesFromFirstWord(jsonString) {
-	const modifiedJSON = jsonString.replace(/"([^"]+)":/g, '$1:');
+	const modifiedJSON = jsonString.replace(keyPattern(), "$1:");
 	return modifiedJSON;
   }
   

@@ -1,6 +1,7 @@
 // CORE
 import { Animator } from "../layout/animator.js";
 import { RASTER_OP_NAMES } from "../lib/raster-ops.js";
+import { didYouMean } from "../lib/suggest.js";
 import { Base } from "../layout/base.js";
 import { Text } from "../layout/text.js";
 import { Image } from "../layout/image.js";
@@ -64,6 +65,17 @@ import { AreaSwitcher } from "../layout/grid-switcher.js";
 import { Polygon } from "../layout/polygon.js";
 import { Circle } from "../layout/circle.js";
 
+
+// The closed set of `type:` values mapType understands, in the order it
+// tests them. Kept beside the dispatch so a new branch without a new entry
+// is visible in review — the vocabulary and the router should not drift.
+const ELEMENT_TYPES = [
+    "h1", "h2", "h3", "h4", "h5", "h6", "p",
+    "img", "a", "cards", "free", "nav", "sideNav", "row", "dropdown",
+    "radio", "input", "labelInput", "filePicker", "picker", "video",
+    "audio", "multiswitcher", "button", "form", "checkbox", "stack",
+    "simple", "copy", "wrap", "circle", "polygon", "code", "table", "ulist",
+];
 
 class ElementMapper { // 22:09:58 04/11/2024
    static mapType(obj) {
@@ -140,6 +152,13 @@ class ElementMapper { // 22:09:58 04/11/2024
          } else if (obj.el.type === "ulist"){
             return this.mapUList(obj);
          }
+
+        // Everything above returned. Falling through used to return
+        // `undefined`, which the caller then treated as an element —
+        // surfacing much later, and far from the cause, as
+        // "Cannot read properties of undefined (reading 'toCode')".
+        // A closed vocabulary should say so at the point of the typo.
+        throw new Error("[nodality] " + didYouMean(obj.el.type, ELEMENT_TYPES, "element type"));
     }
 
     static mapTable(obj){
@@ -259,6 +278,12 @@ new Text("row.").set({
   const customOptions = obj.customOptions;
   const ft = customOptions.filter(l => l.op === "copy")[0];
   const count = ft?.count ?? 3;
+  // Any OTHER raster nodes aimed at this element. `copy` itself is
+  // consumed above to build the wheel, so it is excluded — leaving it in
+  // would attach a GPU copy pass on top of the DOM copies this mapper
+  // already emits, and the element would be duplicated twice.
+  const copyRaster = (this.filteroRaster(obj.el.id, customOptions) || [])
+      .filter((n) => n !== ft);
 
   const minSize = 300;           // size of whole wheel
   const cardSize = 30;           // width/height of text wrapper
@@ -320,7 +345,12 @@ animation: {
   position: "absolute",
   id: "#first",
   scale: 0.3,
-  ${ft?.animation ? animation : ""}
+  ${ft?.animation ? animation : ""}${
+    // Wrapper routes its options through commonMethods(), so a raster
+    // chain serialised here reaches rasterize() when the emitted source
+    // runs. Plain data, so JSON.stringify round-trips it.
+    copyRaster.length ? `,\n  raster: ${JSON.stringify(copyRaster)}` : ""
+  }
 })
 .add(
   Array.from({ length: ${count} }).map((_, i) => {
@@ -379,101 +409,139 @@ animation: {
     // referenced an undefined `radius`, so any call was a guaranteed
     // ReferenceError. Kept in git history if the ring layout is wanted back.
 
-    static button(){
-       return new Button("Submit")
+    // Took NO arguments at all, so `{type: "button", text: "Buy now"}`
+    // rendered a hardcoded "Submit" with a demo onTap that logged to the
+    // console and a keySet forcing a 3px green border on every button in
+    // every page. The label, the handler and the styling are the caller's.
+    static button(obj){
+        const el = obj.el;
+        return new Button(el.text ?? "Button")
         .set({
             fluidc: "S6",
-            color: "white",
-            background: "#1abc9c",
-            arrpad: {sides: ["all"], value: ".3rem"},
-            radius: ".3rem",
-            onTap: () => { console.log("[nodality] demo button tapped"); },
-            keySet: {key: "border", value: "3px solid green"}
+            ...this.elOpts(el),
+            raster: this.filteroRaster(el.id, obj.customOptions),
         });
     }
 
-    static multiswitcher(){
+    static multiswitcher(obj){
       
 
-        let r = new Switcher()
-        .set({breakpoints:[
-              { at: "0px", view: new Text("First").set({}) }, 
-      
-              { at: "700px", view: new Text("Nice").set({}) }, 
-       
-              { at: "800px", view: new Text("Best").set({}) }, 
-      ]}); // undefined must be passed to render method
-
-     // console.log("ROD");
-    //  console.log(r.toCode().join(""));
-
-     // return new Text("MS").set({});
-
-     return r;
+        // Ignored obj: every switcher showed First/Nice/Best. Each
+        // breakpoint's `view` is an ELEMENT SPEC now, mapped like any
+        // other subtree, so a switcher can hold real content.
+        //
+        //   { type: "multiswitcher", breakpoints: [
+        //       { at: "0px",   view: { type: "h2", text: "Small" } },
+        //       { at: "700px", view: { type: "h1", text: "Large" } } ]}
+        //
+        // Switcher DOES extend Animator, so it has rasterize(); its set()
+        // just does not accept a `raster:` key, which is why the chain is
+        // attached directly rather than passed through.
+        const bps = Array.isArray(obj.el.breakpoints) ? obj.el.breakpoints : null;
+        if (!bps || !bps.length) {
+            throw new Error('[nodality] a "multiswitcher" element needs a non-empty ' +
+                "`breakpoints` array of { at, view }.");
+        }
+        return new Switcher().set({
+            id: obj.el.id,
+            area: obj.el.area,
+            breakpoints: bps.map((bp) => ({
+                at: bp.at,
+                // Already a component (someone built it by hand) or a spec.
+                view: bp.view && typeof bp.view.render === "function"
+                    ? bp.view
+                    : this.mapType({ ...obj, el: bp.view }),
+            })),
+        });
     }
 
+    // REMOVED: the old multiswitcher body — a hardcoded
+    // First/Nice/Best fixture that ignored obj entirely. Kept in git
+    // history; the version above takes its views from the element.
 
-    static video(){
-        return new Video("https://www.w3schools.com/html/mov_bbb.mp4").set({});
+
+    // Hardcoded to a w3schools Big Buck Bunny URL. A missing `url` now
+    // says so: silently playing someone else's sample reel is worse than
+    // an error, because it looks like it worked.
+    static video(obj){
+        const el = obj.el;
+        if (!el.url) throw new Error('[nodality] a "video" element needs a `url`.');
+        // Video defines its own set() and never calls commonMethods(), so
+        // `raster:` there would be a dead key.
+        return this.attachRaster(
+            new Video(el.url).set(this.elOpts(el)), el, obj.customOptions);
     }
 
-    static audio(){
-        return new Audio("rouska.mp3").set({background: "#1abc9c"});
+    // This one did not merely ignore its input, it THREW: Audio defines
+    // no set() and Animator has none to inherit, so the old
+    // `.set({background})` was a TypeError on every `{type: "audio"}`.
+    // Options go to the constructor; styling belongs to the element.
+    static audio(obj){
+        const el = obj.el;
+        if (!el.url) throw new Error('[nodality] an "audio" element needs a `url`.');
+        return this.attachRaster(new Audio(el.url), el, obj.customOptions);
     }
 
+    // Ignored obj: every radio group asked Male/Female/Other, and
+    // `multiple: true` on a RADIO group was wrong on its face — that is a
+    // checkbox. Defaults to single-select now, as radios are.
+    //
+    // RadioGroup is not an Animator (`class RadioGroup /*extends
+    // Animator*/`), so it has no rasterize() and cannot carry raster ops.
     static radio(obj){
-      //  alert("PP")
+        const el = obj.el;
         return new RadioGroup()
         .set({
-            items: ["Male", "Female", "Other"],
-            multiple: true // wrnóng
+            items: Array.isArray(el.items) ? el.items : [],
+            multiple: el.multiple ?? false,
+            ...this.elOpts(el),
         });
     }
 
+    // Ignored obj: every input on every page read "Enter swimming time".
+    // `inputType` rather than `type`, because `type` is already the
+    // ELEMENT type ("input") — see elOpts.
     static input(obj){
-        //  alert("PP")
-          return new TextField().set({
-            type: "text",
-            placeholder: "Enter swimming time",
-            arrayMargin: {sides: ["all"], value: "1rem"}
-           });
+        const el = obj.el;
+        return new TextField().set({
+            type: el.inputType ?? "text",
+            ...this.elOpts(el),
+            raster: this.filteroRaster(el.id, obj.customOptions),
+        });
       }
 
+      // Ignored obj: every labelled input was titled "Your name".
       static floatInput(obj){
-        //  alert("PP")
-          return new FloatingInput()
+        const el = obj.el;
+        return this.attachRaster(new FloatingInput()
           .set({
-                  title: "Your name",
-                  type: "input"
-              });
+                  type: el.inputType ?? "input",
+                  ...this.elOpts(el),
+              }), el, obj.customOptions);
       }
 
+      // Ignored obj, including a hardcoded `id: "A"` — two file pickers
+      // on one page produced duplicate DOM ids.
       static filePicker(obj){
-        //  alert("PP")
-          return new FilePickera()
+        const el = obj.el;
+        return this.attachRaster(new FilePickera()
           .set({
-              id: "A",
-              title: "Add profile picture",
-              background: "#3498DB",
-              color: "white",
-              font: "Arial",
-              radius: "3rem",
-              accept: "application/pdf"
-          });
+              title: el.title ?? "Choose a file",
+              ...this.elOpts(el),
+          }), el, obj.customOptions);
       }
 
+      // Ignored obj: every picker offered Tesla and Audi.
       static picker(obj){
-
-        let items = [["none", "select a car---"], ["tesla", "Tesla"], ["audi", "Audi"]];
-   
-        
-          return new Picker()
+        const el = obj.el;
+        return new Picker()
           .set({
-              items: items,
-              font: "Arial",
+              items: Array.isArray(el.items) ? el.items : [],
               arrayPadding: ({sides: ["all"], value: "0.5rem"}),
-              rounded: true
-          })
+              rounded: true,
+              ...this.elOpts(el),
+              raster: this.filteroRaster(el.id, obj.customOptions),
+          });
       }
 
    
@@ -500,8 +568,12 @@ animation: {
        
         }));
 
-        return new Dropdown()
-        .set({ 
+        // Bound rather than returned inline, so the raster chain can be
+        // attached below. Dropdown defines its own set() which handles
+        // only its own keys and never calls commonMethods(), so a
+        // `raster:` option here would be silently dropped.
+        const dd = new Dropdown()
+        .set({
           behaviour: "click", // click otherwise
           //width: "120px",
         
@@ -537,13 +609,18 @@ animation: {
       
           new Wrapper().set({border: "1px solid green", background: "#1abc9c", radius: "0.7rem", socenter: true})
           .add(items.slice(1)
-        
+
          /* new Text("Option 1o").set({font: "Arial",  pad: [{a: 10}],}),
           new Text("Option 2").set({font: "Arial",  pad: [{a: 10}],}),
           new Text("Option 3").set({font: "Arial",  pad: [{a: 10}],}),
         */
         )
-        ])
+        ]);
+
+        const ddRaster = this.filteroRaster(obj.el.id, obj.customOptions);
+        ddRaster && dd.rasterize(ddRaster);
+
+        return dd;
     }
 
   /*  static row(obj){
@@ -749,7 +826,7 @@ if (obj.el.dropdown){
 
 
 
-       return new Switcher()
+       const navBar = new Switcher()
            .set({
                breakpoints: [ // 172800 almost
                    {
@@ -944,7 +1021,19 @@ new Wrapper().set({
        //  { at: "700px", view: Object.assign(document.createElement("h1"), { textContent: "Medium View" }) },
        //  { at: "800px", view: Object.assign(document.createElement("h1"), { textContent: "Large View" }) },
        ],
-     })
+     });
+
+        // A raster chain aimed at this element reaches the component here.
+        // Switcher DOES extend Animator (layout/multiswitcher.js) and so it
+        // has rasterize() — the comment that said otherwise was wrong, and
+        // the real gap was simply that protoNav never forwarded the chain.
+        // Its own set() destructures {breakpoints, id, area}, so a `raster:`
+        // key would be dropped; attachRaster calls rasterize() directly.
+        //
+        // Nothing changes for a nav with no raster nodes aimed at it:
+        // filteroRaster returns undefined and attachRaster is a no-op, so
+        // what {type:"nav"} produces today is untouched.
+        return this.attachRaster(navBar, obj.el, customOptions);
 
        // return new Text("A").set({})
     }
@@ -1202,6 +1291,19 @@ if (obj.el.dropdown){
        // console.log("PPPP");
       //  console.log(obj.el.offcanvas);
       // console.log(rt.toCode());
+
+        // Raster ops, like every other rasterable element.
+        //
+        // NOT `raster:` in the options above: SideNav configures itself
+        // through `setup()`, which builds `this.res` directly and never
+        // reaches Animator.commonMethods() — where `obj.raster &&
+        // this.rasterize(...)` lives. A `raster` key there would be
+        // accepted, ignored, and report nothing, which is the exact bug
+        // this is fixing. SideNav extends Animator, so the inherited
+        // attach point is called directly instead.
+        const rtRaster = this.filteroRaster(obj.el.id, obj.customOptions);
+        rtRaster && rt.rasterize(rtRaster);
+
         return rt;
 
        // return new Text("A").set({})
@@ -1269,6 +1371,12 @@ if (obj.el.dropdown){
                          //zIndex: -3
                         })
                 ]);
+
+                // Same wiring, same reason as sideNav: Free defines its own
+                // set(), which handles only its own keys and never calls
+                // commonMethods(), so a `raster:` option would be dead.
+                const elaRaster = this.filteroRaster(obj.el.id, obj.customOptions);
+                elaRaster && ela.rasterize(elaRaster);
 
                 return ela;
                // console.log("ETC");
@@ -1356,11 +1464,12 @@ let elo = new Polygon({ id: "hex" })
                 transform: this.filtero("transform", el.id, obj.customOptions),
                 filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
-                resprop: el.resprop ? [
-	{ breakpoint: "1400px", background: "orange", width: "200px", height: "200px" },
-	{ breakpoint: "900px", background: "green", height: "100px", width: "100px" }
-] : null//this.filtero("resprop", el.id, obj.customOptions),
-             //   copy: this.filtero("copy", el.id, obj.customOptions),
+                // The caller's own breakpoints. This used to REPLACE them
+                // with a two-breakpoint orange/green demo fixture whenever
+                // `resprop` was merely present — so asking for responsive
+                // styling got you someone else's debugging boxes, and the
+                // option appeared to work while doing something unrelated.
+                resprop: el.resprop ?? null,
             });
     }
 
@@ -1426,6 +1535,13 @@ let elo = new Polygon({ id: "hex" })
                     re["gradient"] = this.filtero("gradient", obj.el.id, obj.customOptions),
                       re["blast"] = this.filtero("blast", obj.el.id, obj.customOptions),
                     re["backgroundOp"] = this.filtero("background", obj.el.id, obj.customOptions),//customOptions.filter(l => l.op.name === "background")[0];
+                    // Raster ops. Every CSS-level op above was forwarded and
+                    // this was not, so a raster node targeting a link was
+                    // accepted, matched nothing, and silently did nothing —
+                    // the same class of dead option phase P3 removed from
+                    // mapWrap. Link takes `raster` through commonMethods like
+                    // every other component; only the wiring was missing.
+                    re["raster"] = this.filteroRaster(obj.el.id, obj.customOptions);
                     re["pad"] = [{ "a": 10 }];
 
                 if (bst.length > 0) {
@@ -1463,6 +1579,9 @@ const animation = this.filtero("animation", el.id, obj.customOptions);
 const shadow   = this.filtero("shadow", el.id, obj.customOptions);
 const marginOp = this.filtero("margin", el.id, obj.customOptions);
 const filtera  = this.filtero("filter", el.id, obj.customOptions);
+// Raster nodes carry `op` as a plain string, so `filtero`'s `l.op.name`
+// matching never sees them — they need their own selector.
+const gridRaster = this.filteroRaster(el.id, obj.customOptions);
 const blast    = this.filtero("blast", el.id, obj.customOptions);
 
 
@@ -1550,6 +1669,14 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
         filtera !== undefined ? `,\n      filtera: ${JSON.stringify(filtera)}` : ""
       }${
         blast !== undefined ? `,\n      blast: ${JSON.stringify(blast)}` : ""
+      }${
+        // Raster ops, emitted like every other op above. This mapper
+        // returns SOURCE rather than an instance, so the chain is
+        // serialised into the generated `.set({...})` instead of being
+        // attached to an object. FlexGrid routes its options through
+        // commonMethods(), so the emitted code reaches rasterize().
+        // Raster nodes are plain data, so JSON.stringify round-trips them.
+        gridRaster !== undefined ? `,\n      raster: ${JSON.stringify(gridRaster)}` : ""
       }
     })
     .items(
@@ -1569,162 +1696,93 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
     // commented out for a long time and the body referenced undefined
     // `rta`, `el` and `i`, so wiring it back up would have thrown.
 
+// Ignored obj: every checkbox was named "acceptTerms" and labelled
+// "Check it out!". `label` accepts a plain string — the component wants a
+// component, so a string is wrapped here rather than making every caller
+// construct a Text.
 static checkbox(obj){
-    return new Checkbox().set({
-    name: "acceptTerms",
-    label: new Text("Check it out!").set({size: "S6", color: "#1abc9c", font: "Arial"}),
-    mar: "10px",
-   // size: "100px",
-   // customStyle: true,
-   // checkedBackgroundColor: "#1abc9c",
-   // clipPath: "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
-});
-  
+    const el = obj.el;
+    const label = typeof el.label === "string"
+        ? new Text(el.label).set({size: "S6"})
+        : el.label;
+    return this.attachRaster(new Checkbox().set({
+        ...this.elOpts(el, ["label"]),
+        ...(label !== undefined ? {label} : {}),
+    }), el, obj.customOptions);
 }
 
+// Ignored obj: every stack rendered the same photo and "Samuel Suresh".
+// Children come from the element now, mapped like any other subtree —
+// the same fix mapWrap got in phase P3.
 static stack(obj){
-    return new Stack()
-    .set({})
-       // .setup({})
-        .add([
-            new Image().set({url: "https://pbs.twimg.com/media/DwYvbCBVAAEKY_R.jpg"}),
-          
-         
-     
-            new Text("Samuel Suresh")
-            .set({
-                color: "#00ae56",
-                font: "SF Pro Display",
-                fluidc: "S2",
-                pad: {sides: ["top", "left"], value: 20}
-            }),
-    ]);
-
+    const el = obj.el;
+    const st = new Stack().set(this.elOpts(el));
+    const kids = Array.isArray(el.children) ? el.children : null;
+    if (kids) st.add(kids.map((child) => this.mapType({ ...obj, el: child })));
+    return this.attachRaster(st, el, obj.customOptions);
 }
 
-static form(obj){ 
-
-    // php -S localhost:8000
-    // open http://localhost:8000/designertest/1-pagesample.html
-   return new Form()
-   .set({action:"file.php"}) // 12:45:53 Nice! 21/04/2025
-   .add([
-        new FloatingInput().set({
-             title: "Your name",
-             type: "input",
-             name: "name"
-        }),
-
-        new FloatingInput().set({
-            title: "Your email",
-            type: "input",
-            name: "email",
-            color: "#3498db",
-            font: "Arial",
-            mar: [{"a": "1rem"}]
-       }), 
-
-       new RadioGroup()
-        .set({
-            name: "gender",
-            items: ["Male", "Female", "Other"],
-            multiple: false,
-            tint: "#1abc9c",
-            font: "Arial",
-            exact: "3rem"
-        }),
-
-        new Picker()
-          .set({
-             name: "car",
-              items: [
-                ["none", "select a car---"],  // Placeholder option
-                ["tesla", "Tesla"],          // Tesla as a selectable option
-                ["audi", "Audi"]             // Audi as a selectable option
-            ],
-              font: "Arial",
-              arrayPadding: ({sides: ["all"], value: "0.5rem"}),
-              radius: "1rem",
-              background: "#1abc9c"
-          }),
-
-         new FilePickera()
-          .set({
-              id: "A",
-              name: "image",
-              title: "Add profile picture",
-              background: "#3498DB",
-              color: "white",
-              font: "Arial",
-              radius: "3rem",
-             // accept: "application/pdf"
-          }),
-
-        // datalist, range, filepicker, picker
-
-       // add radio and read it in PHP
-
-        new Button("Submit form").set({ // 174915 If I dont serve it, it downloads the php file
-            type: "submit",
-            background: "#3498db",
-            color: "white",
-            weight: "bold",
-            radius: "1rem",
-            pad: [{"a": "1rem"}], // add
-            mar: [{"b": "1rem"}] // add
-        })
-    ]);
+// Ignored obj: every form posted to "file.php" and contained the same
+// five demo fields (a name, an email, a gender radio, a car picker and a
+// profile-picture upload), whatever the caller asked for. Fields come
+// from `children` now, mapped like any other subtree.
+//
+//   { type: "form", action: "/subscribe", method: "post", children: [
+//       { type: "labelInput", title: "Your email", name: "email" },
+//       { type: "button", text: "Subscribe" } ]}
+//
+// Form is not an Animator (`class Form {`), so it has no rasterize() and
+// cannot carry raster ops.
+static form(obj){
+    const el = obj.el;
+    const form = new Form().set({
+        action: el.action ?? "",
+        ...(el.method !== undefined ? { method: el.method } : {}),
+    });
+    const kids = Array.isArray(el.children) ? el.children : null;
+    if (kids) form.add(kids.map((child) => this.mapType({ ...obj, el: child })));
+    return form;
 }
 
-static simple(obj){
-    // Chain the methods of the Simple class
-return `new AreaSwitcher()
-  .set({ gap: "10px", height: "700px" })
-  .react([
-    {
-      at: "0", // Default size
-      color: "red",
-      template: [
-        "aaaaaa",
-        "bbbbbb",
-        "cccccc",
-        "dddddd",
-        "eeeeee",
-      ],
-    },
-    {
-      at: "768", // Medium screen size
-      color: "blue",
-      template: [
-        "aa bbb",
-        "aa bbb",
-        "cc ddd",
-        "ee ddd",
-      ],
-    },
-    {
-      at: "1024", // Large screen size
-      color: "green",
-      template: [
-        "aaa bbb",
-        "ccc ddd",
-        "eee ddd",
-      ],
-    },
-  ])
+    // REMOVED: the old form body — a hardcoded five-field demo. Kept in
+    // git history; the version above builds from `children`.
+    // Ignored obj: every "simple" element emitted the same AreaSwitcher —
+    // three fixed breakpoints of a/b/c/d/e templates and five "Hello A…E"
+    // texts. The regions and the children are the caller's now.
+    //
+    //   { type: "simple", gap: "10px", height: "700px",
+    //     react: [{ at: "0", template: ["aa", "bb"] },
+    //             { at: "768", template: ["ab"] }],
+    //     children: [{ type: "h1", text: "A" }, { type: "p", text: "B" }] }
+    //
+    // Emits SOURCE rather than an instance, like mapGrid and mapCopy, so
+    // children are mapped and then serialised through their own toCode().
+    static simple(obj){
+        const el = obj.el;
+        const react = Array.isArray(el.react) ? el.react : [];
+        if (!react.length) {
+            throw new Error('[nodality] a "simple" element needs a non-empty `react` ' +
+                "array of { at, template }.");
+        }
+        const kids = Array.isArray(el.children) ? el.children : [];
+        const kidSrc = kids
+            .map((child) => {
+                const code = this.mapType({ ...obj, el: child }).toCode();
+                return Array.isArray(code) ? code.join("") : String(code);
+            })
+            .join(",\n    ");
+
+        return `new AreaSwitcher()
+  .set(${JSON.stringify({
+        gap: el.gap ?? "10px",
+        height: el.height ?? "700px",
+        ...(el.id !== undefined ? { id: el.id } : {}),
+    })})
+  .react(${JSON.stringify(react, null, 2)})
   .add([
-    new Text("Hello A").set({size: "S1"}),
-    new Text("Hello B").set({size: "S1"}),
-    new Text("Hello C").set({size: "S1"}),
-    new Text("Hello D").set({size: "S1"}),
-    new Text("Hello E").set({size: "S1"})
+    ${kidSrc}
   ])`;
-
-
-    // return new Simple().set({}).react([]);
-}
-
-
+    }
 
     static mapWrap(obj) {
         let el = obj.el;
@@ -1734,17 +1792,20 @@ return `new AreaSwitcher()
 
         let kind = obj.el.kind ?? "";
 
-
-
-        return new Wrapper(kind)
+        // The caller's own options, then the node-derived ones. Everything
+        // the element declares reaches the Wrapper — this used to forward a
+        // fixed allowlist (id/class/color/size/font/keySet + the op slots)
+        // and drop the rest, so a `wrap` element could not carry a width, a
+        // background, or a grid.
+        //
+        // `size` is NOT defaulted here any more. It used to be
+        // `getElType(el.type)`, which for type "wrap" produced the string
+        // "Srap" — getElType slices the digit off h1…h6 and has nothing to
+        // slice on a word. A caller-supplied `size` still passes through.
+        const wrapper = new Wrapper(kind)
             .set({
-                id: el.id,
-                class: el.class,
-                color: el.color,
-                size: this.getElType(el.type), // update 23/07/2025
+                ...el,
                 font: el.font ?? "Arial",
-                keySet: el.keySet,
-               // keySet: {key: "border", value: "3px solid green"},
                 stroke: this.filtero("blast", el.id, obj.customOptions),
                 gradient: this.filtero("gradient", el.id, obj.customOptions),
                 animation: this.filtero("animation", el.id, obj.customOptions),
@@ -1752,12 +1813,18 @@ return `new AreaSwitcher()
                 transform: this.filtero("transform", el.id, obj.customOptions),
                 filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
-            }).add([
-                new Text("Hello").set({}),
-                 new Text("Hello").set({}),
-                  new Text("Hello").set({}),
+            });
 
-            ]);
+        // Children come from the element. There used to be three
+        // `new Text("Hello")` here unconditionally, so every `wrap` in
+        // every page rendered the same placeholder content and no page
+        // could put anything of its own inside one.
+        const kids = Array.isArray(el.children) ? el.children : null;
+        if (kids) {
+            wrapper.add(kids.map((child) =>
+                this.mapType({ ...obj, el: child })));
+        }
+        return wrapper;
     }
 
 
@@ -1772,15 +1839,13 @@ return `new AreaSwitcher()
 
 
 
-        return new UList(kind)
+        // Same two fixes as mapWrap: the element's own options reach the
+        // component, and `size` is not defaulted to the "Srap"-shaped
+        // output of getElType on a non-heading type.
+        const list = new UList(kind)
             .set({
-                id: el.id,
-                class: el.class,
-                color: el.color,
-                size: this.getElType(el.type), // update 23/07/2025
+                ...el,
                 font: el.font ?? "Arial",
-                keySet: el.keySet,
-               // keySet: {key: "border", value: "3px solid green"},
                 stroke: this.filtero("blast", el.id, obj.customOptions),
                 gradient: this.filtero("gradient", el.id, obj.customOptions),
                 animation: this.filtero("animation", el.id, obj.customOptions),
@@ -1788,11 +1853,17 @@ return `new AreaSwitcher()
                 transform: this.filtero("transform", el.id, obj.customOptions),
                 filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
-            }).setItems([
-               new Text("First").set({}),
-               new Text("Second").set({}),
-               new Text("Third").set({})
-            ]);
+            });
+
+        // `items` are the list's own; the hardcoded First/Second/Third
+        // placeholders they replace made every ulist identical.
+        const items = Array.isArray(el.items) ? el.items : null;
+        if (items) {
+            list.setItems(items.map((item) => (typeof item === "string"
+                ? new Text(item).set({})
+                : this.mapType({ ...obj, el: item }))));
+        }
+        return list;
     }
 
 
@@ -1841,6 +1912,39 @@ return `new AreaSwitcher()
     // invisible to filtero's `l.op.name` matching and never collide with
     // the CSS-level ops. Returns undefined when nothing applies so the
     // property is dropped from the generated code.
+    /**
+     * The element's own options, minus the keys that belong to the mapper
+     * rather than to the component.
+     *
+     * `type` is always dropped: it is the ELEMENT type ("input"), not an
+     * `<input type>`, and spreading it into a field component would set
+     * type="input" on the DOM node. Components that want an HTML type read
+     * `inputType` instead.
+     */
+    static elOpts(el, drop = []) {
+        const skip = new Set(["type", "children", "items", "breakpoints",
+            "inputType", "text", "url", ...drop]);
+        const out = {};
+        for (const k of Object.keys(el)) if (!skip.has(k)) out[k] = el[k];
+        return out;
+    }
+
+    /**
+     * Attach a raster chain to a component whose own `set()` bypasses
+     * Animator.commonMethods() — where `obj.raster && this.rasterize(...)`
+     * lives. Passing `raster:` to those would be a silently dropped key.
+     *
+     * Returns the instance so it can be used inline. Components that are
+     * not Animators at all (Form, RadioGroup, Switcher) have no
+     * `rasterize`; they are skipped rather than crashed, and the gap is
+     * recorded in the element-mapper tests.
+     */
+    static attachRaster(inst, el, customOptions) {
+        const chain = this.filteroRaster(el.id, customOptions);
+        if (chain && inst && typeof inst.rasterize === "function") inst.rasterize(chain);
+        return inst;
+    }
+
     static filteroRaster(id, customOptions) {
         const list = (customOptions || []).filter((l) =>
             l && typeof l.op === "string" && RASTER_OP_NAMES.includes(l.op) &&

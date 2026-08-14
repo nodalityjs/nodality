@@ -136,6 +136,42 @@ if ! npm run build; then
 fi
 npm run inject-license || true
 
+# ----------------------------
+# Type definitions must be in the tarball
+# ----------------------------
+# `npm run build` now chains scripts/generate-types.mjs, which reads the freshly
+# built bundle and emits dist/index.d.ts. That chaining is what makes types
+# reach consumers: dist/ is gitignored, so the .d.ts is never committed, and the
+# tarball that actually gets published is built by GitHub Actions from the tag —
+# which runs `npm run build` and nothing else. Generating types HERE alone would
+# give a locally correct package and a published one with no types at all, with
+# every check green.
+#
+# This block is the guard for that arrangement. If the generator is removed from
+# the build script, or throws, or the DOM stub stops satisfying the bundle, the
+# release aborts here instead of publishing a package whose `types` field points
+# at a file that does not exist — which is worse than having no types, because
+# editors and tsc report the package as broken rather than untyped.
+#
+# Checked before `npm pack` on purpose, so the smoke test below exercises a
+# tarball that genuinely contains the declarations.
+echo "🔤 Checking type definitions…"
+if [ ! -s dist/index.d.ts ]; then
+  echo "❌ dist/index.d.ts is missing or empty after the build."
+  echo "   package.json declares \"types\": \"dist/index.d.ts\", so publishing now"
+  echo "   would ship a broken type entry point. Check that npm run build still"
+  echo "   chains scripts/generate-types.mjs, then re-run."
+  pack_cleanup; exit 1
+fi
+if ! grep -q "export class Des" dist/index.d.ts; then
+  echo "❌ dist/index.d.ts exists but does not declare Des."
+  echo "   The generator loads the bundle with a minimal DOM stub; if that stub"
+  echo "   no longer satisfies it, the export list comes back empty and the"
+  echo "   declarations are silently useless. Aborting."
+  pack_cleanup; exit 1
+fi
+echo "✅ dist/index.d.ts present ($(grep -c "^export class" dist/index.d.ts) classes)."
+
 # Absolute, because the install runs from inside the fixture directory.
 # $PWD rather than $0's directory: npm pack writes to the current working
 # directory, so that is the only place the tarball is guaranteed to be.

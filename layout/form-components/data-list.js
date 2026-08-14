@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -182,5 +182,5 @@ import {Animator} from "../animator.js";
    DataList = function(...args) { return new _oldDataList(...args) };
     
     
-window.DataList = DataList;
+if (typeof window !== "undefined") window.DataList = DataList;
 export { DataList };

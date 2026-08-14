@@ -21,6 +21,9 @@
     import { Des } from '../lib/designer.js';
     import { RASTER_OP_NAMES, DRIVER_NAMES, isHTMLInCanvasAvailable, applyRasterPipeline,
              resolveSwitches } from '../lib/raster-ops.js';
+    // Registers `pixelate` as a side effect — the same thing a user's
+    // own op file does. Nothing else in this page knows it is not built in.
+    import '../examples/custom-raster-op.js';
 
     // Exposed so the spec can assert on the module surface directly.
     window.__raster = { RASTER_OP_NAMES, DRIVER_NAMES, isHTMLInCanvasAvailable, applyRasterPipeline,
@@ -61,6 +64,27 @@
                   { op: 'halftone', size: 5, angle: 15, masked: 'centre' }],
       noiseField:[{ op: 'noise', as: 'turb', scale: 4, speed: 0.3 },
                   { op: 'offset', by: 'time', strength: 20, masked: 'turb' },
+                  { op: 'halftone', size: 5, angle: 15 }],
+      // ── flow (phase H2) ────────────────────────────────────────────
+      // Warp stage, curl of a value-noise potential. `strength` is large
+      // and `scale` small here so the displacement is unmistakable on a
+      // headline that only fills the first ~40% of the box.
+      flowFull:  [{ op: 'flow', strength: 40, scale: 90, speed: 0.3 }],
+      // With a driver the current is local; `static` puts the focus at the
+      // element centre, and a wide radius keeps it over the glyphs (the
+      // same reason the warp chains above use static, not time).
+      flowDriver:[{ op: 'flow', by: 'static', strength: 40, scale: 90, radius: 900 }],
+      // Two seeds, same everything: proves `seed` selects a field rather
+      // than being decorative.
+      flowSeeded:[{ op: 'flow', strength: 40, scale: 90, seed: 7 }],
+      // Maskable FOR FREE — flow knows nothing about fields; the generic
+      // wrapper snapshots `warped` and lerps it back. This is the whole
+      // composability claim, so it is a chain rather than a comment.
+      flowMasked:[{ op: 'mask', as: 'band', from: 'horizontal', remap: [0.0, 0.4] },
+                  { op: 'flow', strength: 40, scale: 90, masked: 'band' }],
+      // Composed with a downstream colour op: flow is upstream of the cell
+      // and colour stages, so the screen lands on the warped content.
+      flowPrint: [{ op: 'flow', strength: 30, scale: 90 },
                   { op: 'halftone', size: 5, angle: 15 }],
       copyRing:  [{ op: 'copy', by: 'mouse', count: 4, radius: 60, scale: 0.4 }],
       copyPoints:[{ op: 'copy', points: [[0.3, 0.5], [0.7, 0.5]], scale: 0.35 }],
@@ -106,6 +130,47 @@
         { op: 'mask', as: 'centre', from: 'radial', radius: 200 },
         { op: 'copy', count: 3, radius: 50, scale: 0.4, masked: 'centre' },
       ],
+      // ── phase H4: a THIRD-PARTY op, registered at runtime ──────────
+      // These four are the composability claim, stated as chains rather
+      // than prose. `pixelate` lives in examples/, is registered by the
+      // import above, and knows nothing about masking or drivers.
+      custom:         [{ op: 'pixelate', size: 16 }],
+      // First-party mask, third-party op. The op does not opt in — the
+      // pipeline snapshots the warp stage's `warped` and lerps back, so
+      // maskability came from declaring stage: "warp" and nothing else.
+      customMasked:   [{ op: 'mask', as: 'spot', from: 'horizontal', remap: [0.0, 0.4] },
+                       { op: 'pixelate', size: 16, masked: 'spot' }],
+      // First-party driver steering a third-party op.
+      customDriven:   [{ op: 'pixelate', size: 16, by: 'mouse', radius: 200 }],
+      // Both orders, to prove composition is not one-way: a first-party
+      // colour op downstream of a third-party warp, and the reverse.
+      customThenFirst: [{ op: 'pixelate', size: 16 },
+                        { op: 'halftone', size: 5, angle: 15 }],
+      firstThenCustom: [{ op: 'hexalize', size: 18 },
+                        { op: 'pixelate', size: 10 }],
+      // ── phase I3: a chain that displaces a hit target ─────────────
+      // `offset` with by:"static" pushes the space away from the element
+      // centre by a fixed amount, so the link is DRAWN well away from
+      // where its DOM node sits. Deterministic — no pointer dependency.
+      // Static driver: focus is the element centre, amount pinned at 1, so
+      // the displacement is deterministic and needs no pointer. `offset`
+      // samples TOWARD the centre, so content appears pushed outward —
+      // far enough that the left link is DRAWN over the right link's box.
+      displaced: [{ op: 'offset', by: 'static', strength: 200, radius: 4000,
+                    target: ['#hitrow'] }],
+      // The negative control for I3: identical chain, retargeting opted
+      // out. Clicking where the LEFT link is drawn must activate RIGHT —
+      // i.e. the bug, reproduced on demand.
+      displacedInert: [{ op: 'offset', by: 'static', strength: 200, radius: 4000,
+                         target: ['#hitrow'], interactive: false }],
+      // Same chain with hover mirroring opted in (phase I3c).
+      displacedHover: [{ op: 'offset', by: 'static', strength: 200, radius: 4000,
+                         target: ['#hitrow'], hoverAttr: true }],
+      // ── phase T1: keyframed params over transition progress ───────
+      // `strength` peaks at mid-t and returns to 0, so t=0 and t=1 must
+      // render identically to the same chain with strength 0.
+      kfFlow:   [{ op: 'flow', strength: [0, 40, 0], scale: 90, speed: 0 }],
+      kfZero:   [{ op: 'flow', strength: 0, scale: 90, speed: 0 }],
       none: [],
     };
 
@@ -115,8 +180,23 @@
 
     new Des()
       .nodes(CHAINS[key] || [])
-      .add([{ type: 'h1', id: '#hero', text: 'Raster' }])
+      .add(key === 'displaced' || key === 'displacedInert' || key === 'displacedHover'
+        ? [{ type: 'wrap', id: '#hitrow', disp: 'flex', gap: '20px', width: '620px',
+             children: [
+               { type: 'a', id: '#left', text: 'LEFT LINK', url: '#l',
+                 width: '300px', background: '#1abc9c' },
+               { type: 'a', id: '#right', text: 'RIGHT LINK', url: '#r',
+                 width: '300px', background: '#e67e22' }] }]
+        : [{ type: 'h1', id: '#hero', text: 'Raster' }])
       .set({ mount: '#mount', code: false });
+
+    // Phase I3: record link activations, so the spec asserts on the
+    // element that actually received the click rather than on navigation.
+    window.__hits = [];
+    document.addEventListener('click', (e) => {
+      const a = e.target && e.target.closest && e.target.closest('a');
+      if (a) { e.preventDefault(); window.__hits.push(a.id || a.textContent); }
+    });
 
     // Signal readiness once the pipeline has had a chance to attach.
     window.__ready = false;

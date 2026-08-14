@@ -1,11 +1,12 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import { Animator } from "./animator.js";
 
+import { toObjectSource } from "../lib/codegen.js";
 class Polygon extends Animator {
   constructor(obj = {}) {
     super();
@@ -32,9 +33,7 @@ class Polygon extends Animator {
    toCode(){
    const codeObj = this.options || {};
   // stringify with indentation
-  let str = JSON.stringify(codeObj, null, 2);
-  // remove quotes around keys
-  str = str.replace(/"([^"]+)":/g, '$1:');
+  let str = toObjectSource(codeObj, 2);
   return `new Polygon().set(${str})`;
   }
 

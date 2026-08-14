@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -227,5 +227,5 @@ class RadioGroup /*extends Animator*/ {
 
 
 
-window.RadioGroup = RadioGroup;
+if (typeof window !== "undefined") window.RadioGroup = RadioGroup;
 export { RadioGroup };

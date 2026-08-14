@@ -1,5 +1,5 @@
 /*!
- * nodality v1.0.220
+ * nodality v1.0.221
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -128,7 +128,6 @@ class Cell extends Animator{
 		return this.res;
 	}
 }
-window.List = List;
-window.Cell = Cell;
-
+if (typeof window !== "undefined") window.List = List;
+if (typeof window !== "undefined") window.Cell = Cell;
 export { List, Cell };

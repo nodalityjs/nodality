@@ -130,6 +130,7 @@ test.describe('DOM contract', () => {
 test.describe('ops compile and attach', () => {
   for (const ops of ['inplace', 'overlay', 'halftone', 'aberration', 'all',
                      'dither', 'ditherMono', 'ditherDriver',
+                     'flowFull', 'flowDriver', 'flowSeeded', 'flowMasked', 'flowPrint',
                      'mask', 'maskAt', 'noiseField', 'copyRing', 'copyPoints',
                      'mergeMode', 'mergeWarp', 'warpFull', 'solverInMerge',
                      'switchOn', 'switchOff']) {
@@ -415,6 +416,106 @@ async function shot(page, baseURL, ops) {
   return page.locator('#mount').screenshot();
 }
 
+test.describe('live backend: the host box', () => {
+  // Two bugs, one symptom: a host that grew without bound on load.
+  //
+  //   1. The live wrapper hardcoded `display: block` for anything that was
+  //      not flex, so a GRID host lost its columns, its children stacked,
+  //      and they overflowed the fixed-height wrapper.
+  //   2. The ResizeObserver measured the HOST to size the canvas — but in
+  //      live mode the host's children have moved inside the canvas, so the
+  //      canvas is the host's only in-flow child and the host's height is
+  //      padding + canvas + padding. Each observation added the padding
+  //      back and re-fired. A 98px two-column panel reached ~4000px.
+  //
+  // Both are live-only, which is why the whole suite stayed green: the
+  // snapshot backend never restructures the subtree.
+  const build = async (page) => page.evaluate(async () => {
+    const { Wrapper } = await import('/layout/container.js');
+    const { Text } = await import('/layout/text.js');
+    const host = new Wrapper().set({
+      id: 'grid-host', disp: 'grid', cols: '1fr 1fr', gap: '18px', pad: [{ a: 22 }],
+    }).add([
+      new Text('Ops are data').set({ size: 'S3' }),
+      new Text('A second cell, long enough that it would wrap if stacked.').set({ size: 'S6' }),
+    ]);
+    document.getElementById('mount').appendChild(host.render());
+    const before = Math.round(document.getElementById('grid-host').getBoundingClientRect().height);
+    host.set({ raster: [{ op: 'hexalize', size: 14 }] });
+    await new Promise((r) => setTimeout(r, 900));
+    return before;
+  });
+
+  test('a grid host keeps its size and its columns', async ({ page, baseURL }) => {
+    await page.goto(`${baseURL}${PAGE}#ops=none`);
+    await page.waitForTimeout(300);
+    const before = await build(page);
+
+    const state = await page.evaluate(() => {
+      const el = document.getElementById('grid-host');
+      const wrap = el.querySelector('canvas') && el.querySelector('canvas').firstElementChild;
+      return {
+        backend: el.querySelector('canvas').getAttribute('data-nodality-raster'),
+        after: Math.round(el.getBoundingClientRect().height),
+        wrapperDisplay: wrap ? getComputedStyle(wrap).display : null,
+        wrapperCols: wrap ? getComputedStyle(wrap).gridTemplateColumns : null,
+      };
+    });
+
+    // Only meaningful on the live backend; snapshot never restructures.
+    test.skip(state.backend !== 'live', 'needs the HTML-in-Canvas origin trial');
+    expect(state.after).toBe(before);
+    expect(state.wrapperDisplay).toBe('grid');
+    expect(state.wrapperCols).toMatch(/px .*px/);
+  });
+
+  test('the host does not grow across repeated resizes', async ({ page, baseURL }) => {
+    await page.goto(`${baseURL}${PAGE}#ops=none`);
+    await page.waitForTimeout(300);
+    const before = await build(page);
+
+    const heights = await page.evaluate(async () => {
+      const out = [];
+      for (let i = 0; i < 6; i++) {
+        window.dispatchEvent(new Event('resize'));
+        await new Promise((r) => setTimeout(r, 300));
+        out.push(Math.round(document.getElementById('grid-host').getBoundingClientRect().height));
+      }
+      return out;
+    });
+    // Every sample identical to the pre-raster height: no drift, no growth.
+    expect(heights).toEqual(new Array(6).fill(before));
+  });
+});
+
+test.describe('flow', () => {
+  // Compiling is not working. A warp op that resolved to a zero field, or
+  // whose `amt` came out 0, would attach cleanly and render the untouched
+  // element — green on every "builds without a shader error" test above.
+  test('flow displaces the content', async ({ page, baseURL }) => {
+    const none = await shot(page, baseURL, 'halftone');
+    const flowed = await shot(page, baseURL, 'flowPrint');
+    expect(flowed.equals(none)).toBe(false);
+  });
+
+  test('seed selects a different field', async ({ page, baseURL }) => {
+    // Same strength, same scale, different seed. If the hash ignored the
+    // seed uniform the two would be pixel-identical.
+    const a = await shot(page, baseURL, 'flowFull');
+    const b = await shot(page, baseURL, 'flowSeeded');
+    expect(b.equals(a)).toBe(false);
+  });
+
+  test('flow is maskable without knowing about fields', async ({ page, baseURL }) => {
+    // The composability claim: the generic masking wrapper snapshots
+    // `warped` and lerps it back, so a band-masked flow must differ from
+    // the same flow unconstrained.
+    const full = await shot(page, baseURL, 'flowFull');
+    const banded = await shot(page, baseURL, 'flowMasked');
+    expect(banded.equals(full)).toBe(false);
+  });
+});
+
 test.describe('fields', () => {
   test('a masked op renders differently from the same op unmasked',
     async ({ page, baseURL }) => {
@@ -555,5 +656,100 @@ test.describe('switch', () => {
     const on = await shot(page, baseURL, 'switchOn');
     const off = await shot(page, baseURL, 'switchOff');
     expect(on.equals(off)).toBe(false);
+  });
+});
+
+// ── phase H4: a third-party op is a first-class citizen ──────────────
+//
+// `pixelate` lives in examples/custom-raster-op.js, is registered at
+// runtime via the public registerRasterOp, and knows nothing about
+// masking, drivers, or any op it might be chained with. Everything below
+// is a property it gets from declaring `stage: "warp"` and nothing else.
+//
+// This is the phase's actual claim. A plugin slot that only runs your op
+// standalone is not what Houdini means; if any of these fail, the
+// extension surface is decoration.
+test.describe('third-party ops', () => {
+  test('a runtime-registered op appears in the registry and routing list',
+    async ({ page, baseURL }) => {
+      await load(page, baseURL, 'none');
+      const seen = await page.evaluate(async () => {
+        const { REGISTRY } = await import('/lib/raster-ops.js');
+        return {
+          routed: window.__raster.RASTER_OP_NAMES.includes('pixelate'),
+          registered: !!REGISTRY.pixelate,
+          stage: REGISTRY.pixelate.stage,
+          documented: !!REGISTRY.pixelate.doc,
+          params: Object.keys(REGISTRY.pixelate.doc.params),
+        };
+      });
+      expect(seen.routed).toBe(true);
+      expect(seen.registered).toBe(true);
+      expect(seen.stage).toBe('warp');
+      // Documented on the same terms as a built-in, so the inspector
+      // shows it with real defaults rather than guessing.
+      expect(seen.documented).toBe(true);
+      expect(seen.params).toEqual(['size', 'amount', 'radius']);
+    });
+
+  test('it compiles, attaches and changes the picture', async ({ page, baseURL }) => {
+    const plain = await shot(page, baseURL, 'none');
+    const pixelated = await shot(page, baseURL, 'custom');
+    expect(await backendOf(page)).not.toBeNull();
+    expect(pixelated.equals(plain)).toBe(false);
+    // A shader that failed to compile logs and falls back; nothing should.
+    expect(await logs(page)).not.toMatch(/shader|compile|error/i);
+  });
+
+  test('FIRST-PARTY masking constrains it, without the op opting in',
+    async ({ page, baseURL }) => {
+      // The op contains no reference to `masked`. The pipeline snapshots
+      // the warp stage's `warped` before the op runs and lerps back
+      // toward it afterwards, so the mask is applied around the op.
+      const full = await shot(page, baseURL, 'custom');
+      const masked = await shot(page, baseURL, 'customMasked');
+      expect(masked.equals(full)).toBe(false);
+    });
+
+  test('a FIRST-PARTY driver steers it', async ({ page, baseURL }) => {
+    const undriven = await shot(page, baseURL, 'custom');
+    const driven = await shot(page, baseURL, 'customDriven');
+    expect(driven.equals(undriven)).toBe(false);
+  });
+
+  test('it composes with first-party ops in BOTH directions',
+    async ({ page, baseURL }) => {
+      // Order matters for a reason: a warp upstream of a colour op feeds
+      // it blocky coordinates, and a cell op upstream of a warp has
+      // already fixed its lattice. Both must run, and neither may render
+      // as the first-party op alone.
+      const halftoneOnly = await shot(page, baseURL, 'halftone');
+      const hexOnly = await shot(page, baseURL, 'inplace');
+      const customThenFirst = await shot(page, baseURL, 'customThenFirst');
+      const firstThenCustom = await shot(page, baseURL, 'firstThenCustom');
+
+      expect(customThenFirst.equals(halftoneOnly)).toBe(false);
+      expect(firstThenCustom.equals(hexOnly)).toBe(false);
+      // And the two orders are not the same image, which is what proves
+      // the third-party op really is inside the stage ordering rather
+      // than being run somewhere convenient.
+      expect(customThenFirst.equals(firstThenCustom)).toBe(false);
+      expect(await logs(page)).not.toMatch(/shader|compile|error/i);
+    });
+
+  test('setParam tunes it live, like any built-in', async ({ page, baseURL }) => {
+    await load(page, baseURL, 'custom');
+    await page.waitForTimeout(250);
+    const before = await page.locator('#mount').screenshot();
+    const how = await page.evaluate(async () => {
+      const { activeRasterPipelines } = await import('/lib/raster-ops.js');
+      const p = activeRasterPipelines()[0];
+      return p.setParam(p.nodes.findIndex((n) => n.op === 'pixelate'), 'size', 40);
+    });
+    await page.waitForTimeout(250);
+    const after = await page.locator('#mount').screenshot();
+    // `size` is a uniform, not compiled in, so this is an upload.
+    expect(how).toBe('uniform');
+    expect(after.equals(before)).toBe(false);
   });
 });

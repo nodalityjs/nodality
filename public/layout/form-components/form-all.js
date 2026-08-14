@@ -149,5 +149,5 @@ let dataList = DataList()
 }
 
 new Wrappera().mount("#res");
-window.Wrappera = Wrappera;
+if (typeof window !== "undefined") window.Wrappera = Wrappera;
 export { Wrappera };
