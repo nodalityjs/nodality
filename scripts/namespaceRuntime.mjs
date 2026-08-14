@@ -54,12 +54,42 @@ for (const file of readdirSync(dist)) {
 	// whole family (rather than just the one Terser happened to report)
 	// matters: fixing only __webpack_module_cache__ moves the error to
 	// __webpack_require__ on the next build.
-	const out = src.replace(/\b__webpack_/g, PREFIX);
+	let out = src.replace(/\b__webpack_/g, PREFIX);
+
+	// 2. Don't let an exported binding SHADOW a browser global.
+	//
+	// The bundle ends with `export const Image=…; export const Text=…;`
+	// and three of those names — Image, Range, Text — are DOM
+	// constructors. When a consumer's webpack concatenates this module
+	// into its own scope, the colliding declaration gets renamed while
+	// the emitted `export{…Image…}` clause still names the original, and
+	// the browser rejects the module before a line of it runs:
+	//
+	//   Uncaught SyntaxError: Export 'Image' is not defined in module
+	//
+	// Nothing catches this before a real page loads: the package imports
+	// fine in Node, the scaffold BUILDS fine, and prerender runs in
+	// jsdom against the sources rather than the bundled output.
+	//
+	// So give every export a private binding and alias it on the way out.
+	// The public name is unchanged; only the internal one moves.
+	const exported = [];
+	out = out.replace(/export const (\w+)=([^;]+);/g, (m, name, expr) => {
+		exported.push(name);
+		return `const ${PREFIX}x_${name}=${expr};`;
+	});
+	if (exported.length) {
+		out += "\nexport{" +
+			exported.map((n) => `${PREFIX}x_${n} as ${n}`).join(",") + "};\n";
+	}
+
 	if (out === src) continue;
 
 	writeFileSync(path, out);
 	const n = (src.match(/\b__webpack_/g) || []).length;
-	console.log(`  ${file}: ${n} runtime identifier(s) namespaced → ${PREFIX}*`);
+	const e = (src.match(/export const \w+=/g) || []).length;
+	console.log(`  ${file}: ${n} runtime identifier(s) namespaced, ` +
+		`${e} export(s) aliased away from global names`);
 	touched++;
 }
 
