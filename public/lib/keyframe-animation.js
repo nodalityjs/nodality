@@ -153,7 +153,7 @@ class KeyframeAnim {
 
     preloadImages = () => {
         for (let i = 1; i < this.frameCount; i++) {
-            const img = new Image();
+            const img = document.createElement("img");
             this.img.src = this.currentFrame(i);
         }
     };
@@ -288,7 +288,10 @@ maska(data){
 
     
        
-        this.img = new Image();
+        // Not `new Image()`: the exported `Image` component shadows the
+        // DOM constructor wherever a consumer assigns the exports onto
+        // globalThis, and onload would then never fire.
+        this.img = document.createElement("img");
 
         this.img.onload = () => {
                 if (this.data.halfHeight){

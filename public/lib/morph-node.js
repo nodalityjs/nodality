@@ -91,7 +91,16 @@ async function capture(el, w, h) {
         `<div xmlns="http://www.w3.org/1999/xhtml">` +
         new XMLSerializer().serializeToString(clone) +
         `</div></foreignObject></svg>`;
-    const img = new Image();
+    // createElement, NOT `new Image()`. This library EXPORTS a component
+    // called `Image`, and the standard way to consume it is
+    // `Object.assign(globalThis, N)` — which overwrites the DOM
+    // constructor with the component on every page that does it. The
+    // failure is silent and total: `new Image()` returns a component,
+    // `onload`/`src` become inert properties, the promise below never
+    // settles, and the awaiting morph hangs forever with no error, no
+    // canvas and no rejected promise to log. See also `toImage` in
+    // raster-ops.js, which had the same bug.
+    const img = document.createElement("img");
     await new Promise((res, rej) => {
         img.onload = res;
         img.onerror = rej;

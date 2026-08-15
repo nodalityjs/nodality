@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<style>:root { color-scheme: light; }</style>
+<title>Nodality — two arrays, with the exports on globalThis</title>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<script type="module">
+// ─── the consumer configuration that broke a live site ───────────────
+//
+// The documented way to consume this package from plain pages is a
+// globals bridge:
+//
+//     import * as N from "nodality";
+//     Object.assign(globalThis, N);          // <- _globals.js
+//
+// `npm create nodality` scaffolds exactly that, and gesos.cz runs it.
+// The package exports components named `Image`, `Text` and `Range` —
+// which are also DOM constructors — so that one line REPLACES them for
+// the whole page.
+//
+// Library code that reached for the global `new Image()` then got a
+// component instead: `onload` and `src` became inert properties, the
+// capture promise never settled, and the morph hung forever — no error,
+// no rejected promise, no canvas, nothing in the console. The page just
+// did not respond to clicks.
+//
+// This fixture stands in for that page. The shadowing is written out
+// rather than imported so the test states its own premise: whatever the
+// export list happens to be on any given day, a page MAY have replaced
+// these three globals, and the library still has to work.
+globalThis.Image = class Image { constructor(url) { this.url = url; } };
+globalThis.Text  = class Text  { constructor(s)   { this.s = s; } };
+globalThis.Range = class Range {};
+
+import { Des } from "../lib/designer.js";
+
+const CARD = { type: "wrap", background: "#e8eef5", radius: "14px",
+               pad: [{ a: 18 }], width: "min(560px, 92vw)", color: "#0b1420" };
+const INK  = { color: "#0b1420" };
+const SUB  = { color: "#4a5b6d" };
+const BACK = { type: "button", text: "← back", background: "#0b1420",
+               color: "#e8eef5", radius: "8px" };
+
+const E = [
+  { id: "topnav", type: "nav" },
+
+  { id: "work", ...CARD, children: [
+      { id: "work-t", type: "h3", text: "Selected work", ...INK },
+      { id: "work-b", type: "p",  text: "18 projects · 2019–2026", ...SUB },
+      { id: "work-back", ...BACK },
+  ]},
+  { id: "about", ...CARD, children: [
+      { id: "about-t", type: "h3", text: "About", ...INK },
+      { id: "about-b", type: "p",  text: "Designer & engineer · Prague", ...SUB },
+      { id: "about-back", ...BACK },
+  ]},
+  { id: "contact", ...CARD, children: [
+      { id: "contact-t", type: "h3", text: "Contact", ...INK },
+      { id: "contact-b", type: "p",  text: "filipvabrousek1@gmail.com", ...SUB },
+      { id: "contact-back", ...BACK },
+  ]},
+];
+
+// Both capture-based paths are exercised on purpose: the dither node
+// goes through raster-ops' snapshot backend, the morph node through its
+// own capture(). Both used the shadowed global; both had to be fixed.
+const N = [
+  { op: { name: "shadow" }, target: ["work", "about", "contact"] },
+  { op: "dither", target: ["topnav"], levels: 6, size: 2, amount: 0.35 },
+  { op: "morph", from: "topnav",
+    to: { About: "about", Services: "work", Contact: "contact" },
+    effect: "t-vhs", duration: 900, back: true },
+];
+
+new Des().nodes(N).add(E).set({ mount: "#stage", code: false });
+
+window.__ready = true;
+</script>
+</body>
+</html>

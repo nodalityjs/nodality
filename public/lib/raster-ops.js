@@ -2710,7 +2710,11 @@ function snapshotToImage(el, w, h, dpr) {
             `<foreignObject width="100%" height="100%">` +
             `<div xmlns="http://www.w3.org/1999/xhtml">${serialized}</div>` +
             `</foreignObject></svg>`;
-        const img = new Image();
+        // createElement, NOT `new Image()` — this library exports a
+        // component named `Image`, and consumers publish the exports onto
+        // globalThis. Where they do, the DOM constructor is gone and this
+        // promise never settles: the snapshot backend hangs with no error.
+        const img = document.createElement("img");
         img.onload = () => resolve(img);
         img.onerror = reject;
         img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
