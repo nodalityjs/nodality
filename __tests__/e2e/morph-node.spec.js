@@ -224,7 +224,15 @@ test('a transition uses SNAPSHOT even where HTML-in-Canvas is available',
     }
   });
 
-test('`live: true` opts back in, and the controls inside go dead — the trade',
+// The controls inside a live pipeline USED to go dead, and this test was
+// named for that. They no longer do: the retarget path hit-tests the
+// canvas-hosted boxes itself (see live-hit-testing.spec.js). What remains
+// true, and is what this test pins, is that live still MOVES the content
+// into the canvas — which is why a morph does not opt in by default: it
+// samples two frozen stills and gains nothing from a live upload, it pays
+// a GPU readback per pointer event, and CSS :hover/:active still follow
+// the undisplaced layout because a synthetic event cannot move them.
+test('`live: true` opts back in, and moves the content into the canvas',
   async ({ page, baseURL }) => {
     await load(page, baseURL, PAGE_LIVE);
     const info = await page.evaluate(async () => {
@@ -242,9 +250,11 @@ test('`live: true` opts back in, and the controls inside go dead — the trade',
     if (info.api) {
       // The opt-in is honoured...
       expect(info.backend).toBe('live');
-      // ...and this is exactly why it is not the default.
+      // ...and the content really does move into the canvas. Native hit
+      // testing cannot reach it there; retargeting is what makes the
+      // controls work anyway.
       expect(info.contentInsideCanvas,
-        'live moves the content into the canvas, which is what kills hit-testing')
+        'live moves the content into the canvas — the condition retargeting exists for')
         .toBe(true);
     } else {
       // No API: the pipeline falls back on its own rather than failing.
