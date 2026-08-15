@@ -219,6 +219,50 @@ test("a morph node missing `from` is reported rather than ignored", async () => 
   } finally { c.kill(); }
 });
 
+test("a typo'd MORPH parameter is caught, not silently ignored", async () => {
+  // Found by driving the published server end to end. The raster branch
+  // checked unknown parameters; the morph branch did not, so `duraton`
+  // produced a transition at the default speed and reported nothing —
+  // the exact silent failure this server exists to remove, in the one
+  // node an agent is most likely to be writing.
+  const c = await ready();
+  try {
+    const { result } = await c.send("tools/call", {
+      name: "validate_nodes",
+      arguments: {
+        nodes: [{ op: "morph", from: "topnav", to: { About: "about" }, duraton: 900 }],
+        elements: ELEMENTS,
+      },
+    });
+    const report = payload(result);
+    assert.equal(report.ok, false, "an unknown morph parameter must not validate");
+    const err = report.errors.find((e) => e.path === "nodes[0].duraton");
+    assert.ok(err, `expected an error on .duraton, got ${JSON.stringify(report.errors)}`);
+    assert.ok(err.suggestions.includes("duration"),
+      `expected a suggestion of "duration", got ${JSON.stringify(err.suggestions)}`);
+  } finally { c.kill(); }
+});
+
+test("every real morph field is still accepted — the fix must not over-reject",
+  async () => {
+    const c = await ready();
+    try {
+      const { result } = await c.send("tools/call", {
+        name: "validate_nodes",
+        arguments: {
+          nodes: [{
+            op: "morph", from: "topnav", to: { About: "about" },
+            effect: "t-vhs", duration: 900, back: true, live: true, fade: "morph",
+          }],
+          elements: ELEMENTS,
+        },
+      });
+      const report = payload(result);
+      assert.equal(report.ok, true,
+        `a fully-specified morph was rejected: ${JSON.stringify(report.errors)}`);
+    } finally { c.kill(); }
+  });
+
 test("preview writes an HTML file and states what has NOT run", async () => {
   const c = await ready();
   try {

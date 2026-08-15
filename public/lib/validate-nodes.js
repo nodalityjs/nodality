@@ -25,6 +25,15 @@ import {
 } from "./raster-ops.js";
 import { didYouMean, suggest } from "./suggest.js";
 
+/**
+ * Every key a morph node reads. Anything else on the node is ignored by
+ * the runtime, which is why it has to be reported here.
+ */
+const MORPH_FIELDS = [
+    "op", "target", "from", "to",
+    "effect", "duration", "back", "live", "fade",
+];
+
 /** Node families, told apart exactly the way the runtime tells them apart. */
 const familyOf = (node) => {
     if (!node || typeof node !== "object") return "invalid";
@@ -136,6 +145,17 @@ export function validateNodes(nodes, elements) {
                 typeof node.effect !== "string" && !Array.isArray(node.effect)) {
                 push("BAD_FIELD", `${path}.effect`, node.effect, [],
                     ["a preset name, or an inline array of raster nodes"]);
+            }
+            // Unknown keys, checked here for the same reason they are
+            // checked on a raster node: a morph silently ignores what it
+            // does not recognise, so `duraton: 900` produces a transition
+            // that runs at the default speed and reports nothing. Found by
+            // driving the published server end to end, which is precisely
+            // the mistake an agent makes.
+            for (const key in node) {
+                if (MORPH_FIELDS.includes(key)) continue;
+                push("UNKNOWN_PARAM", `${path}.${key}`, key,
+                    suggest(key, MORPH_FIELDS), MORPH_FIELDS);
             }
             return;
         }

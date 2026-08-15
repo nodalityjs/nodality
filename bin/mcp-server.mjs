@@ -245,13 +245,32 @@ async function handle(msg) {
     try {
       return reply(id, await impl(args));
     } catch (e) {
-      // A throw here is a bug in this server or an unreachable filesystem,
-      // not bad user input — bad user input became a report above. Report
-      // it as a tool error so the agent sees it rather than hanging.
-      return reply(id, {
-        content: [{ type: "text", text: String((e && e.stack) || e) }],
-        isError: true,
-      });
+      // A throw here is an environment problem, not bad input — bad input
+      // became a report above. It still has to arrive as JSON in the same
+      // report shape as everything else: an agent parses every result the
+      // same way, and handing it a stack trace where it expects an object
+      // breaks it as surely as a crash would. Found end-to-end, where a
+      // clean install had no jsdom and this path returned prose.
+      const message = String((e && e.message) || e);
+      const missing = /Cannot find package '([^']+)'|(jsdom) is required/.exec(message);
+      const errors = missing
+        ? [{
+            code: "MISSING_PEER_DEPENDENCY",
+            path: name,
+            got: missing[1] || missing[2],
+            suggestions: [`npm install --save-dev ${missing[1] || missing[2]}`],
+            valid: [],
+            // The tool that needs it, said plainly, so the agent can
+            // decide whether to install or to stop calling this tool.
+            detail: `\`${name}\` renders through the build-time ` +
+              `prerenderer, which needs this package in the project it ` +
+              `runs in. The library does not bundle it: it is required ` +
+              `only for prerendering, and bundling it would put a large ` +
+              `dependency into every browser install that never uses it.`,
+          }]
+        : [{ code: "TOOL_FAILED", path: name, got: message,
+             suggestions: [], valid: [] }];
+      return reply(id, { ...reportAsError({ ok: false, errors }) });
     }
   }
 
