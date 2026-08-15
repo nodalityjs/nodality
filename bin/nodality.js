@@ -48,6 +48,13 @@ function showUsage() {
                                               # version into upload/_nodality-version.js.
                                               # Run from consumer upgrade.sh after
                                               # \`npm install nodality@latest\`.
+  nodality mcp                                # Model Context Protocol server over stdio,
+                                              # exposing the morph core to agent IDEs:
+                                              # validate_spec, expand_spec, preview.
+                                              # Not run by hand — registered with a host:
+                                              #   { "mcpServers": { "nodality": {
+                                              #       "command": "npx",
+                                              #       "args": ["nodality", "mcp"] } } }
   nodality help
 
 Compile flags:
@@ -795,6 +802,15 @@ async function main() {
     await runFanoutStandalone(rest);
   } else if (command === "stage") {
     await runStage(rest);
+  } else if (command === "mcp") {
+    // Lazily imported so that prerender/compile/stage pay nothing for a
+    // subcommand they never touch, and so a broken morph core cannot
+    // take the rest of the CLI down at import time.
+    const { serve } = await import("./mcp-server.mjs");
+    serve();
+    // serve() returns immediately; the process stays alive on stdin and
+    // exits when the host closes it.
+    await new Promise(() => {});
   } else {
     console.error(`[nodality] Unknown command: ${command}`);
     showUsage();
