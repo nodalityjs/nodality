@@ -3658,7 +3658,25 @@ function applyRasterPipeline(el, rasterNodes, opts) {
         // the old capture, which is the right default for a morph that is
         // about to run.
         const atStart = transition.standDownAtStart && progress <= 0;
-        const wantVis = (done || atStart) && !hostsContent ? "hidden" : "visible";
+        // The two endpoints are NOT symmetric once content is hosted, and
+        // treating them alike stranded every live morph.
+        //
+        // At t=1 the hosted side IS the destination, so hiding the canvas
+        // would hide the thing just handed over — it has to stay up, and
+        // pointer retargeting is what keeps the controls inside it alive.
+        //
+        // At t=0 the element being handed back to is the CALLER'S, and by
+        // construction it lives outside this canvas: `standDownAtStart` is
+        // opt-in precisely because the caller owns that element and puts
+        // it back itself. The hosted side is the destination, which should
+        // not be on screen at t=0 anyway. So the canvas can stand down
+        // here even while hosting.
+        //
+        // Without this a live morph never gives the source back: the
+        // canvas stays up showing the transition's frozen first frame, the
+        // real source stays display:none, and the nav looks perfectly
+        // normal while being completely dead to a second click.
+        const wantVis = ((done && !hostsContent) || atStart) ? "hidden" : "visible";
         if (canvas.style.visibility !== wantVis) canvas.style.visibility = wantVis;
         if (done) {
             if (inkSaved) showHostInk();

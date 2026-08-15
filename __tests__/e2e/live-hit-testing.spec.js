@@ -109,6 +109,77 @@ test('a REAL click on the back button returns a live morph to its source',
     expect(back, 'the back button did not respond to a real click').toBeTruthy();
   });
 
+test('the source is CLICKABLE again after a live morph returns',
+  async ({ page, baseURL }) => {
+    // The morph ran, it came back, and then the page was dead: the nav
+    // looked perfectly normal and no longer responded to anything.
+    //
+    // Two endpoints, not symmetric. At t=1 the canvas must stay up — it
+    // hosts the destination. At t=0 it must stand down, because what
+    // presents there is the caller's own element, outside the canvas.
+    // The pipeline hid the canvas only when it hosted nothing, so a live
+    // morph kept the canvas up at BOTH ends; morph-node keys its handover
+    // on the canvas standing down, so the source layer stayed
+    // display:none and its links measured 0x0. What you saw at t=0 was
+    // the shader's frozen first frame — a picture of a working navbar.
+    await load(page, baseURL);
+    const state = await morphIn(page);
+    test.skip(!state.api, 'HTML-in-Canvas is not available in this browser');
+
+    await page.mouse.click(state.box.x, state.box.y);
+    await page.evaluate(() =>
+      window.__until(() => window.__pipe() && window.__pipe().progress === 0, 20000));
+
+    // The source layer has to come back on its own...
+    const shown = await page.evaluate(() => window.__until(() =>
+      document.querySelector('.nod-morph-live').style.display !== 'none' ? true : null, 6000));
+    expect(shown, 'the source layer never came back — it is still display:none').toBeTruthy();
+
+    // The nav is collapsed at this viewport, so the hamburger has to open
+    // it — with a REAL click, which is the interaction that was reported
+    // dead. `disclosed` proves the source is genuinely live again and not
+    // merely visible: a picture of a navbar cannot expand.
+    const disclosed = await page.evaluate(async () => {
+      const live = document.querySelector('.nod-morph-live');
+      const laidOut = () => [...live.querySelectorAll('a')]
+        .some((a) => a.getBoundingClientRect().width > 0);
+      if (laidOut()) return 'already open';
+      const burger = live.querySelector('button, [class*=toggle]');
+      if (!burger) return null;
+      const r = burger.getBoundingClientRect();
+      if (!r.width) return null;
+      window.__burger = { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+      return 'needs click';
+    });
+    expect(disclosed, 'no hamburger with a box — the source layer is not laid out')
+      .toBeTruthy();
+    if (disclosed === 'needs click') {
+      const b = await page.evaluate(() => window.__burger);
+      await page.mouse.click(b.x, b.y);
+      const opened = await page.evaluate(() => window.__until(() =>
+        [...document.querySelectorAll('.nod-morph-live a')]
+          .some((a) => a.getBoundingClientRect().width > 0) ? true : null, 5000));
+      expect(opened, 'the hamburger did not expand the menu after the morph returned')
+        .toBeTruthy();
+    }
+
+    // ...with links that have real boxes, and a REAL click has to morph
+    // again. A 0x0 link is the failure: present, wired, unclickable.
+    const link = await page.evaluate(() => {
+      const a = [...document.querySelectorAll('.nod-morph a')]
+        .find((x) => x.dataset.nodMorphTo && x.getBoundingClientRect().width > 0);
+      if (!a) return null;
+      const r = a.getBoundingClientRect();
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    });
+    expect(link, 'no source link has a clickable box after the morph returned').toBeTruthy();
+
+    await page.mouse.click(link.x, link.y);
+    const again = await page.evaluate(() =>
+      window.__until(() => window.__pipe() && window.__pipe().progress === 1, 20000));
+    expect(again, 'a second real click did not start a new morph').toBeTruthy();
+  });
+
 test('the source becomes ordinary DOM again once a live morph has returned',
   async ({ page, baseURL }) => {
     // The handover moves the children back OUT of the canvas, so the nav
