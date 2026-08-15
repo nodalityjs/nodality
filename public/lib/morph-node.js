@@ -522,39 +522,33 @@ function setUpMorph(mount, m, resolve) {
     /** The reversal that cannot reuse the live pipeline: build it. */
     const reverseRebuild = async (targetId, targetEl, fromEl) => {
 
-        // Otherwise rebuild, with the roles reversed: the state being
-        // returned to is the OLD side and the one being left is the NEW
-        // side, so the effect plays backwards exactly as an uninterrupted
-        // reversal would, rather than as a forward transition that
-        // happens to end up somewhere earlier.
-        // Take the host first. A forward hop destroys the live pipeline
-        // before building its own; a rebuilt reversal did not, so the
-        // previous transition's canvas stayed in the host with the new
-        // one stacked behind it — the old canvas kept presenting a stale
-        // frame, and the effect that was in fact running underneath it
-        // was never seen. `pipe` is cleared so the frame loop treats the
-        // gap as "no pipeline" and keeps the current state on screen
-        // while the captures are taken.
-        for (const p of activeRasterPipelines()) {
-            if (stage.contains(p.canvas)) p.destroy();
-        }
-        pipe = null; tl = null;
+        // The old pipeline is kept ALIVE across the measuring phase and
+        // retired only once its replacement exists. It is what covers the
+        // stage while the state being returned to is revealed underneath
+        // it, and that ordering is what lets the reveal use `display`
+        // alone — no `visibility: hidden` anywhere.
+        //
+        // That matters beyond flicker. HTML-in-Canvas uploads an element
+        // through its PAINT RECORD, and a hidden element has none:
+        // `texElementImage2D` then throws "No cached paint record for
+        // element" and the pipeline falls back to snapshot mid-flight.
+        // Measuring something while hiding it is not an option on the
+        // live backend — it has to be painted, and merely covered.
+        //
+        // Retiring it too early is the other failure: destroying it
+        // before the replacement exists leaves a gap with nothing
+        // presenting, and never retiring it leaves its canvas stacked in
+        // the host showing a stale frame over the real transition.
+        const stale = [...activeRasterPipelines()].filter(
+            (p) => stage.contains(p.canvas));
 
         const edge = edgeFrom(targetId) || {};
         if (targetEl === rootEl) {
-            // Laid out but not shown: display so it has a box, visibility
-            // hidden so it cannot flash. `capture` paints its clone
-            // regardless, which is how destinations are captured too.
+            // Revealed, not shown: it needs a box to be measured and a
+            // paint record to be uploaded. The stale canvas above covers
+            // it until the transition takes over.
             measuring = true;
             live.style.display = "";
-            // Hide the LAYER, not the element. Laying the root out is the
-            // whole point — display:none gives it no box and the capture
-            // comes back empty — but it must not appear while it is being
-            // measured, or it simply pops into place and the transition
-            // that follows has nothing left to reveal. Setting visibility
-            // on the element itself is not enough: the layer is what the
-            // frame loop drives, so it is the layer that has to hide.
-            live.style.visibility = "hidden";
         } else if (targetEl.parentNode !== rhost) {
             // A later hop swept it out of the host; it has to be back in
             // the document to be measured and captured.
@@ -569,8 +563,8 @@ function setUpMorph(mount, m, resolve) {
         }
 
         await buildTransition(targetEl, fromEl, edge);
+        for (const p of stale) p.destroy();
         measuring = false;
-        if (targetEl === rootEl) live.style.visibility = "";
         if (!tl) return;
         pipeOld = targetId; pipeNew = current;
         outgoing = targetEl;
