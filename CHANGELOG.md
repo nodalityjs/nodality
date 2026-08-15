@@ -2,6 +2,72 @@
 
 Generated per release from the source diff.
 
+## 1.1.10 — 2026-08-15
+
+### Fixed
+
+- `validateNodes`: a misspelled parameter on a `{ op: "morph" }` node is now reported. Unknown keys were checked on raster nodes but not on morph nodes, so `duraton: 900` produced a transition at the default duration and reported nothing — the silent failure the validator exists to remove, in the node most likely to be hand-written.
+- MCP server: every tool result is now JSON in the standard report shape. A thrown error — a missing `jsdom` in the consuming project, most commonly — previously returned a prose stack trace where every other result returns an object, which breaks any caller that parses results uniformly. A missing peer dependency now returns `MISSING_PEER_DEPENDENCY` with the install command in `suggestions`.
+
+## 1.1.9 — 2026-08-15
+
+### Added
+
+- `nodality mcp`: a Model Context Protocol server over stdio, exposing the two-array API to agent IDEs. Three tools — `list_ops` (the op registry as data: stages, parameters, units, drivers, easings), `validate_nodes` (a machine-readable report with did-you-mean suggestions), and `preview` (render an `(E, N)` pair to a self-contained HTML file through the prerenderer). Zero dependencies: the JSON-RPC framing is hand-rolled rather than taking the MCP SDK.
+- `nodality/validate` → `validateNodes(nodes, elements)` and `describeOps()`. The library validated an op *definition* at registration but never a node *instance*, so an unknown op, an unknown parameter, or a target naming an element that does not exist were all silent no-ops.
+
+### Fixed
+
+- MCP server: all console output is redirected to stderr before serving. In a stdio server stdout carries the protocol, and the component layer prints while rendering — a single log line landed mid-frame and killed the connection with a JSON parse error that named JSON rather than the component that spoke.
+
+## 1.1.8 — 2026-08-15
+
+### Fixed
+
+- Live-backend transitions now hand the source back at `t = 0`. The pipeline stood the canvas down only when it hosted no content, which is right at the end of a morph (the canvas hosts the destination) but wrong at the start (the source is the caller's own element, outside the canvas). A live morph therefore kept the canvas up at both ends: the source layer stayed `display: none`, its links measured 0×0, and what remained on screen was the shader's frozen first frame — a convincing picture of a working interface that ignored every click.
+
+## 1.1.7 — 2026-08-15
+
+### Added
+
+- Pointer retargeting now reaches content hosted inside a canvas. `document.elementFromPoint` cannot see canvas fallback content — it is laid out but never painted, so the browser's hit test walks past it — which left every control inside a live pipeline dead, including a morph's own back button. Hit testing is reconstructed from the layout the engine still computes, deepest match winning.
+
+### Fixed
+
+- Retargeting no longer takes its "nothing moved, defer to the browser" shortcut when the content is canvas-hosted. A settled morph presents 1:1, so the displacement is zero and every event took that early return.
+
+## 1.1.6 — 2026-08-15
+
+No library changes. Identical to 1.1.5 apart from the version banner: an interrupted release had already tagged 1.1.5, and the retry tagged 1.1.6. Both published.
+
+## 1.1.5 — 2026-08-15
+
+### Fixed
+
+- Both foreground capture paths — `morph-node.js` and `raster-ops.js` `toImage()` — now use `document.createElement("img")` instead of `new Image()`. The package exports a component named `Image`, and the documented globals bridge (`Object.assign(globalThis, N)`, which `npm create nodality` scaffolds) replaces the DOM constructor with it page-wide. `new Image()` then returned a component whose `onload` and `src` were inert, so the capture promise never settled and the caller hung with no error and nothing to log. This disabled the snapshot raster backend, not only morphs, on every site using the globals bridge.
+
+## 1.1.4 — 2026-08-14
+
+### Added
+
+- The scaffold CI job launches the generated project in a real browser and asserts that it renders — that the mount refills, the text is correct, and the outline is actually applied. A bundler does not evaluate its output and prerender runs against sources, so a bundle that fails on load passed every prior check.
+
+## 1.1.3 / 1.1.2 — 2026-08-14
+
+Tagged during CI iteration on the scaffold browser check; neither reached npm.
+
+## 1.1.1 — 2026-08-14
+
+### Fixed
+
+- The ESM bundle no longer declares exported bindings that shadow browser globals. It ended with `export const Image=…`, `Text` and `Range`; a consumer's bundler concatenates the module, renames the colliding declaration, and the emitted export clause still names the original, so every scaffolded site died on load with `Export 'Image' is not defined in module`. A post-build pass now routes each export through a private binding, leaving the public names unchanged.
+
+## 1.1.0 — 2026-08-14
+
+### Added
+
+- Per-side effects for transitions: `side: "old" | "new"` scopes a raster op to one half of a morph, so the outgoing and incoming states can be art-directed separately. Colour-stage ops only — both sides share one sampling coordinate, so a sided warp has no meaning.
+
 ## 1.0.219 — 2026-08-05
 
 ### Changed
