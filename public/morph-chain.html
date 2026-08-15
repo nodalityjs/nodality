@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<style>:root { color-scheme: light; }</style>
+<title>Nodality — a morph chain</title>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<script type="module">
+import { Des } from "../lib/designer.js";
+
+// A chain: three edges, so three hops deep from the nav.
+//
+//   topnav ──About──▶ work ──Detail──▶ work-detail ──Contact──▶ contact
+//
+// `work-detail` is deliberately a card whose ONLY controls are buttons,
+// with a single-destination edge leaving it. That combination is the
+// double-wire hazard: `triggersOf` falls through to buttons, and a
+// single destination wires any trigger — so without the guard, its back
+// button would be a forward trigger too and one click would fire both.
+const CARD = { type: "wrap", background: "#e8eef5", radius: "14px",
+               pad: [{ a: 18 }], width: "min(560px, 92vw)", color: "#0b1420" };
+const INK  = { color: "#0b1420" };
+const SUB  = { color: "#4a5b6d" };
+const BACK = { type: "button", text: "← back", background: "#0b1420",
+               color: "#e8eef5", radius: "8px" };
+
+const E = [
+  { id: "topnav", type: "nav" },
+
+  { id: "work", ...CARD, children: [
+      { id: "work-t", type: "h3", text: "Selected work", ...INK },
+      { id: "work-b", type: "p",  text: "18 projects · 2019–2026", ...SUB },
+      // The forward trigger out of `work`. It is a button, and the edge
+      // leaving `work` has one destination, so label matching does not
+      // apply — any trigger goes there.
+      { id: "work-more", type: "button", text: "Detail",
+        background: "#0f53a8", color: "#fff", radius: "8px" },
+      { id: "work-back", ...BACK },
+  ]},
+
+  { id: "work-detail", ...CARD, children: [
+      { id: "wd-t", type: "h3", text: "Project detail", ...INK },
+      { id: "wd-b", type: "p",  text: "Case study · 2026", ...SUB },
+      { id: "wd-next", type: "button", text: "Contact",
+        background: "#0f53a8", color: "#fff", radius: "8px" },
+      { id: "wd-back", ...BACK },
+  ]},
+
+  { id: "contact", ...CARD, children: [
+      { id: "contact-t", type: "h3", text: "Contact", ...INK },
+      { id: "contact-b", type: "p",  text: "hello@example.com", ...SUB },
+      { id: "contact-back", ...BACK },
+  ]},
+];
+
+// The graph, as data. Defaults are written once at node level; only the
+// third edge differs, which is the whole point of hoisting them.
+const N = [
+  { op: { name: "shadow" }, target: ["work", "work-detail", "contact"] },
+  { op: "dither", target: ["topnav"], levels: 6, size: 2, amount: 0.35 },
+
+  { op: "morph",
+    effect: "t-vhs", duration: 400, back: true,
+    chain: [
+      { from: "topnav",      to: { About: "work", Services: "work", Contact: "contact" } },
+      { from: "work",        to: { Detail: "work-detail" } },
+      { from: "work-detail", to: { Contact: "contact" }, duration: 300 },
+    ] },
+];
+
+new Des().nodes(N).add(E).set({ mount: "#stage", code: false });
+
+window.__ready = true;
+</script>
+</body>
+</html>

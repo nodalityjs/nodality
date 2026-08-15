@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Nodality — a navigation graph as data</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: #0b0f14; color: #e8eef5;
+         font-family: ui-sans-serif, system-ui, -apple-system, Arial, sans-serif; }
+  header { max-width: 62ch; margin: 0 auto; padding: 40px 24px 8px; }
+  h1 { font-size: 15px; letter-spacing: .14em; text-transform: uppercase;
+       color: #7f9bb8; margin: 0 0 10px; font-weight: 600; }
+  p.lede { margin: 0 0 6px; line-height: 1.6; color: #b9c9d9; font-size: 15px; }
+  code { font-family: ui-monospace, Menlo, monospace; color: #7fd1ff; font-size: 13px; }
+  .graph { max-width: 62ch; margin: 0 auto; padding: 4px 24px 20px;
+           font-family: ui-monospace, Menlo, monospace; font-size: 12.5px;
+           color: #6d8399; line-height: 1.9; }
+  #stage { max-width: 62ch; margin: 0 auto; padding: 0 24px 80px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>A navigation graph, as data</h1>
+  <p class="lede">
+    The views are built imperatively — <code>new Wrapper()</code>,
+    <code>new Text()</code> — and the graph between them is one
+    <code>{ op: "morph" }</code> node that names them <em>by id</em>. The
+    node never holds a component; it holds ids, so it stays serialisable
+    data while the views keep the full expressive surface of the classes.
+  </p>
+</header>
+
+<div class="graph">
+  home ──Work──▶ work ──Aurora──▶ aurora ──Contact──▶ contact<br>
+  &nbsp;&nbsp;└──Contact──────────────────────────────▶ contact
+</div>
+
+<div id="stage"></div>
+
+<script type="module">
+import { Des } from "../lib/designer.js";
+import { Wrapper } from "../layout/container.js";
+import { Text } from "../layout/text.js";
+import { Button } from "../layout/button.js";
+
+// ─── the views, built with the classes ─────────────────────────────
+//
+// Descriptors are the usual way in, and they stay the better default:
+// they serialise, so a whole page is one artefact. Where a view needs
+// more than the descriptor vocabulary reaches, this is the escape
+// hatch — build it with the components directly.
+//
+// The ONLY contract the graph needs is an `id` that lands in the DOM,
+// because that is what the morph node resolves against. Everything else
+// about how the view was made is invisible to N.
+const CARD = { background: "#121a24", radius: "18px", pad: [{ a: 26 }],
+               width: "min(560px, 92vw)", color: "#e8eef5" };
+
+const title = (t) => new Text(t).set({ size: "S3", color: "#ffffff" });
+const body  = (t) => new Text(t).set({ size: "S6", color: "#93a9bf" });
+const go    = (t) => new Button(t).set({ background: "#1d6fe0", color: "#ffffff",
+                                         radius: "10px" });
+const back  = () => new Button("← back").set({ background: "#1b2733",
+                                               color: "#93a9bf", radius: "10px" });
+
+const view = (id, kids) =>
+  new Wrapper().set({ id, ...CARD }).add(kids);
+
+const views = [
+  view("home", [
+    title("Nodality Studio"),
+    body("Interfaces described as two arrays: what exists, and what happens to it."),
+    go("Work"), go("Contact"),
+  ]),
+  view("work", [
+    title("Selected work"),
+    body("Aurora · Meridian · Halftone — 18 projects between 2019 and 2026."),
+    go("Aurora"), back(),
+  ]),
+  view("aurora", [
+    title("Aurora"),
+    body("A live-DOM shader pipeline for a broadcast client. Composable effect chains, applied to running markup."),
+    go("Contact"), back(),
+  ]),
+  view("contact", [
+    title("Contact"),
+    body("studio@example.com · Zlín, CZ"),
+    back(),
+  ]),
+];
+
+// Mount them into the stage the graph will own. `render()` with no
+// argument hands back the component's DOM node; once it is in the mount
+// it is ordinary DOM, which is all the morph node requires.
+const stage = document.querySelector("#stage");
+for (const v of views) stage.appendChild(v.render());
+
+// ─── N · the graph, still pure data ────────────────────────────────
+//
+// Nothing here is a component or a reference to one — only ids and
+// options. That is what keeps the node serialisable, diffable, and
+// checkable by `validate_nodes`, exactly as it is when E is descriptors.
+const N = [
+  { op: { name: "shadow" }, target: ["home", "work", "aurora", "contact"] },
+
+  { op: "morph",
+    duration: 620, back: true, effect: "t-vhs",
+    // HTML-in-Canvas, where the browser has it. A request, not a
+    // guarantee: without the API the pipeline falls back to the snapshot
+    // backend on its own and the page behaves exactly as before. Where it
+    // DOES engage, the views move inside the canvas — which is why the
+    // controls only keep working because pointer input is retargeted and
+    // hit testing is reconstructed from the layout the engine still
+    // computes. A chain is the harder case: every intermediate state is
+    // canvas-hosted, not just the last one.
+    live: true,
+    chain: [
+      { from: "home",   to: { Work: "work", Contact: "contact" } },
+      { from: "work",   to: { Aurora: "aurora" },  effect: "t-split" },
+      { from: "aurora", to: { Contact: "contact" }, effect: "t-bloom" },
+    ] },
+];
+
+// E is empty: every element already exists in the mount. The nodes find
+// them by id, the same lookup used when Des renders the elements itself.
+new Des().nodes(N).add([]).set({ mount: "#stage", code: false });
+
+window.__ready = true;
+</script>
+</body>
+</html>
