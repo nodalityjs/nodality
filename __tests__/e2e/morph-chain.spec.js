@@ -44,16 +44,26 @@ async function load(page, baseURL) {
   });
 }
 
-/** The nav collapses at this viewport; open it so its links lay out. */
+/**
+ * The nav collapses at this viewport; open it so its links lay out.
+ *
+ * Polled rather than three fixed tries: under full-suite load the bar
+ * had not finished its own layout when the third click went out, so the
+ * menu stayed shut and the FIRST assertion of the test failed ~2s in —
+ * which reads like a morph bug and is really a disclosure that never
+ * happened.
+ */
 const openMenu = (page) => page.evaluate(async () => {
   const live = document.querySelector('.nod-morph-live');
   const laidOut = () => [...live.querySelectorAll('a')]
     .some((a) => a.getBoundingClientRect().width > 0);
-  const burger = live.querySelector('button, [class*=toggle]');
-  for (let i = 0; i < 3 && !laidOut() && burger; i++) {
-    burger.click();
-    await new Promise((r) => setTimeout(r, 300));
+  const t0 = performance.now();
+  while (!laidOut() && performance.now() - t0 < 10000) {
+    const burger = live.querySelector('button, [class*=toggle]');
+    if (burger && burger.getBoundingClientRect().width > 0) burger.click();
+    await new Promise((r) => setTimeout(r, 250));
   }
+  return laidOut();
 });
 
 /** Click a control by its text, wherever it currently lives. */
@@ -165,16 +175,25 @@ test('a state returned to is INKED, not merely present', async ({ page, baseURL 
   expect(await page.evaluate(() => window.__arrived('Project detail'))).toBeTruthy();
 
   // back one step, onto a state that lives inside the raster host
-  const clicked = await page.evaluate(() => {
+  // Wait for the control, then click. Asserting its presence in the same
+  // tick as the landing raced the frame that presents it.
+  const clicked = await page.evaluate(() => window.__until(() => {
     const b = [...document.querySelectorAll('.nod-morph button')]
-      .find((x) => x.dataset.nodMorphBack && x.getBoundingClientRect().width > 0);
-    if (!b) return false;
+      .find((x) => x.dataset.nodMorphBack && x.getBoundingClientRect().width > 0
+                && getComputedStyle(x).visibility !== 'hidden');
+    if (!b) return null;
     b.click();
     return true;
-  });
-  expect(clicked, 'no back control to click').toBe(true);
+  }, 15000));
+  expect(clicked, 'no back control became clickable').toBe(true);
+  // Landing destroys the pipeline — that IS the handover — so wait for
+  // the state to be painted rather than for a progress value that no
+  // longer exists by the time it has arrived.
   await expect.poll(() => page.evaluate(() =>
-    window.__pipe() ? window.__pipe().progress : null), { timeout: 20000 }).toBe(0);
+    [...document.querySelectorAll('.nod-morph h3')]
+      .some((h) => h.getBoundingClientRect().width > 0 &&
+                   getComputedStyle(h).visibility !== 'hidden')),
+    { timeout: 20000 }).toBe(true);
 
   const ink = await page.evaluate(() => window.__until(() => {
     const h = [...document.querySelectorAll('.nod-morph h3')]

@@ -104,8 +104,14 @@ test('a REAL click on the back button returns a live morph to its source',
     // The actual assertion: a real mouse click, at the pixel where the
     // button appears, drives the morph home.
     await page.mouse.click(state.box.x, state.box.y);
-    const back = await page.evaluate(() =>
-      window.__until(() => window.__pipe() && window.__pipe().progress === 0, 20000));
+    // A landed reversal destroys its pipeline: the DOM is handed back so
+    // the source is painted again, which on this backend is the only way
+    // it is visible at all — canvas-hosted content stops being painted
+    // the moment the canvas stands down. So the arrival is asserted on
+    // the source presenting, not on a pipeline that is meant to be gone.
+    const back = await page.evaluate(() => window.__until(() =>
+      document.querySelector('.nod-morph-live').style.display !== 'none' ? true : null,
+      20000));
     expect(back, 'the back button did not respond to a real click').toBeTruthy();
   });
 

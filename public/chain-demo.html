@@ -108,14 +108,11 @@ const N = [
 
   { op: "morph",
     duration: 620, back: true, effect: "t-vhs",
-    // HTML-in-Canvas, where the browser has it. A request, not a
-    // guarantee: without the API the pipeline falls back to the snapshot
-    // backend on its own and the page behaves exactly as before. Where it
-    // DOES engage, the views move inside the canvas — which is why the
-    // controls only keep working because pointer input is retargeted and
-    // hit testing is reconstructed from the layout the engine still
-    // computes. A chain is the harder case: every intermediate state is
-    // canvas-hosted, not just the last one.
+    // HTML-in-Canvas. This is the path under active development, and the
+    // one that still has an open bug on Chrome 151 (signature form 0):
+    // partway through a chain the canvas can stop swapping what it
+    // presents. Chromium 147 (form 1) does not show it, so it is being
+    // chased against a real browser rather than a test harness.
     live: true,
     chain: [
       { from: "home",   to: { Work: "work", Contact: "contact" } },

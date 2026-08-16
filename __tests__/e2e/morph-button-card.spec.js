@@ -145,9 +145,14 @@ test('back returns to the button', async ({ page, baseURL }) => {
     return true;
   });
   expect(clickedBack, 'no back control in the card').toBe(true);
-  await expect.poll(() => progress(page), { timeout: 20000 }).toBe(0);
+  // No progress assertion here: a landed reversal DESTROYS its pipeline,
+  // handing the DOM back so the source is painted again — on the live
+  // backend that handover is the only thing that makes it visible at
+  // all. `progress` therefore reads null on arrival, and the assertion
+  // that matters is the one below: the source is presenting.
+  //
   // Polled: who presents is applied by the morph's rAF loop, a frame
-  // after progress lands.
+  // after the landing.
   await expect.poll(() => page.evaluate(() =>
     document.querySelector('.nod-morph-live').style.display !== 'none'),
     { timeout: 5000 }).toBe(true);

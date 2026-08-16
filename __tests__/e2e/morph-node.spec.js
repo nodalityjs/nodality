@@ -164,7 +164,14 @@ test('back returns to the source', async ({ page, baseURL }) => {
     return true;
   });
   expect(clickedBack, 'no back button in the destination').toBe(true);
-  await expect.poll(() => progress(page), { timeout: 20000 }).toBe(0);
+  // The pipeline is GONE once a reversal lands, not parked at zero: the
+  // landing hands the DOM back, which on the live backend is the only
+  // way the returned-to state is painted at all (canvas-hosted content
+  // dies when the canvas stands down). So the arrival is asserted on the
+  // source being presented, which is the thing a user can see.
+  await expect.poll(() => page.evaluate(() =>
+    document.querySelector('.nod-morph-live').style.display !== 'none'),
+    { timeout: 20000 }).toBe(true);
   // POLLED, not read once. Who presents is applied by the morph's rAF
   // loop, so it lands a frame AFTER progress reaches 0 — reading it in
   // the same tick as the progress assertion caught the previous frame

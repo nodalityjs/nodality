@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Nodality — chain diagnosis</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: #0b0f14; color: #e8eef5;
+         font-family: ui-sans-serif, system-ui, Arial, sans-serif; }
+  .wrap { max-width: 74ch; margin: 0 auto; padding: 28px 24px 60px; }
+  h1 { font-size: 14px; letter-spacing: .14em; text-transform: uppercase;
+       color: #7f9bb8; margin: 0 0 8px; }
+  p { color: #b9c9d9; font-size: 14px; line-height: 1.6; margin: 0 0 14px; }
+  button.run { background: #1d6fe0; color: #fff; border: 0; border-radius: 8px;
+               padding: 10px 16px; font-size: 14px; cursor: pointer; }
+  button.copy { background: #1b2733; color: #93a9bf; border: 0; border-radius: 8px;
+                padding: 10px 16px; font-size: 14px; cursor: pointer; margin-left: 8px; }
+  pre { background: #070b10; border: 1px solid #1b2733; border-radius: 10px;
+        padding: 14px; font-size: 12px; line-height: 1.5; color: #a9c4dc;
+        white-space: pre-wrap; word-break: break-word; margin-top: 16px; }
+  #stage { margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chain diagnosis</h1>
+  <p>
+    Runs the chain forward three hops and back three, sampling what is on
+    screen at every landing. It reports which backend engaged, which
+    <code>texElementImage2D</code> signature your build takes, and — at
+    the step that goes blank — exactly which element was supposed to be
+    presenting and what its computed state was. Nothing is sent anywhere;
+    copy the report back.
+  </p>
+  <button class="run" id="run">Run diagnosis</button>
+  <button class="copy" id="copy">Copy report</button>
+  <pre id="out">idle.</pre>
+  <div id="stage"></div>
+</div>
+
+<script type="module">
+import { Des } from "../lib/designer.js";
+import { Wrapper } from "../layout/container.js";
+import { Text } from "../layout/text.js";
+import { Button } from "../layout/button.js";
+import { activeRasterPipelines, isHTMLInCanvasAvailable } from "../lib/raster-ops.js";
+
+// ── capture the library's own console output ───────────────────────
+const captured = [];
+for (const m of ["warn", "error", "log"]) {
+  const orig = console[m].bind(console);
+  console[m] = (...a) => {
+    const t = a.map((x) => (typeof x === "string" ? x : String(x))).join(" ");
+    if (/nodality|texElement|paint record|backend/i.test(t)) captured.push(m + ": " + t);
+    orig(...a);
+  };
+}
+
+const CARD = { background: "#121a24", radius: "18px", pad: [{ a: 22 }],
+               width: "min(520px, 92vw)", color: "#e8eef5" };
+const title = (t) => new Text(t).set({ size: "S3", color: "#ffffff" });
+const body  = (t) => new Text(t).set({ size: "S6", color: "#93a9bf" });
+const go    = (t) => new Button(t).set({ background: "#1d6fe0", color: "#fff", radius: "10px" });
+const back  = () => new Button("← back").set({ background: "#1b2733", color: "#93a9bf", radius: "10px" });
+const view  = (id, kids) => new Wrapper().set({ id, ...CARD }).add(kids);
+
+const views = [
+  view("home",    [title("Home"),    body("root state"),   go("Work"), go("Contact")]),
+  view("work",    [title("Work"),    body("second state"), go("Aurora"), back()]),
+  view("aurora",  [title("Aurora"),  body("third state"),  go("Contact"), back()]),
+  view("contact", [title("Contact"), body("leaf state"),   back()]),
+];
+const stage = document.querySelector("#stage");
+for (const v of views) stage.appendChild(v.render());
+
+// Per-edge effects, deliberately all different: the report shows which
+// ops each hop compiles, so "everything looks the same" can be checked
+// against what was actually built rather than against how it looked.
+const N = [{ op: "morph", duration: 500, back: true, effect: "t-vhs", live: true,
+  chain: [
+    { from: "home",   to: { Work: "work", Contact: "contact" } },
+    { from: "work",   to: { Aurora: "aurora" },   effect: "t-split" },
+    { from: "aurora", to: { Contact: "contact" }, effect: "t-bloom" },
+  ] }];
+new Des().nodes(N).add([]).set({ mount: "#stage", code: false });
+
+// ── the probe ──────────────────────────────────────────────────────
+const out = document.querySelector("#out");
+const lines = [];
+const say = (s) => { lines.push(s); out.textContent = lines.join("\n"); };
+
+const host  = () => document.querySelector(".nod-morph-host");
+const liveL = () => document.querySelector(".nod-morph-live");
+const pipe  = () => [...activeRasterPipelines()].filter((x) => host() && host().contains(x.canvas)).pop();
+const until = async (f, ms) => { const t0 = performance.now();
+  while (performance.now() - t0 < ms) { const v = f(); if (v) return v;
+    await new Promise((r) => setTimeout(r, 60)); } return null; };
+
+/** Everything that could explain a blank screen, in one line per state. */
+const snapshot = () => {
+  const cv = host() && host().querySelector("canvas");
+  const states = ["home", "work", "aurora", "contact"].map((id) => {
+    const el = document.getElementById(id);
+    if (!el) return `${id}=absent`;
+    const cs = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    const where = el.closest("canvas") ? "in-canvas"
+      : el.parentNode === liveL() ? "live-layer"
+      : el.parentNode === host() ? "host" : "detached?";
+    return `${id}[${where} vis=${cs.visibility} op=${cs.opacity} ` +
+           `box=${Math.round(r.width)}x${Math.round(r.height)}]`;
+  });
+  const p = pipe();
+  // What the pipeline actually COMPILED, and what the canvas is hosting.
+  // If the ops are identical across hops the per-edge effect never
+  // reached the compiler; if the hosted child never changes, the canvas
+  // is presenting a stale element whatever the ops say.
+  const ops = p && p.nodes
+    ? p.nodes.map((n) => (typeof n.op === "string" ? n.op : (n.op && n.op.name) || "?")).join("+")
+    : "—";
+  const hosted = cv
+    ? [...cv.children].map((c) => c.id || c.tagName.toLowerCase() +
+        "(" + [...c.children].map((g) => g.id || g.tagName.toLowerCase()).join(",") + ")").join(" ")
+    : "—";
+  return `    pipe=${p ? p.backend + "@" + p.progress.toFixed(2) : "none"} ` +
+         `ops=${ops} canvas=${cv ? (cv.style.visibility || "visible") : "none"}\n` +
+         `    canvasHosts=[${hosted}] liveLayer=${liveL() ? (liveL().style.display || "shown") : "?"}\n` +
+         `    ${states.join(" ")}`;
+};
+
+const clickText = async (t) => {
+  const el = [...document.querySelectorAll(".nod-morph a, .nod-morph button")]
+    .find((e) => e.textContent.trim().toLowerCase() === t.toLowerCase()
+              && e.getBoundingClientRect().width > 0);
+  if (!el) return false;
+  el.click();
+  return true;
+};
+
+/** Is a state painted in the page (not merely hosted inside a canvas)? */
+const painted = (id) => {
+  const el = document.getElementById(id);
+  if (!el || el.closest("canvas")) return false;
+  const cs = getComputedStyle(el);
+  if (cs.visibility === "hidden" || cs.display === "none") return false;
+  if (parseFloat(cs.opacity || "1") < 0.05) return false;
+  return el.getBoundingClientRect().width > 0;
+};
+
+// Forward hops settle on a pipeline at 1. A reversal does NOT leave one
+// behind — landing destroys it to hand the DOM back — so those wait for
+// the state to be painted instead.
+const step = async (label, text, endpoint, expectPainted) => {
+  const clicked = await clickText(text);
+  const done = expectPainted
+    ? await until(() => painted(expectPainted) ? true : null, 12000)
+    : await until(() => { const p = pipe();
+        return p && Math.abs(p.progress - endpoint) < 0.001 ? true : null; }, 12000);
+  await new Promise((r) => setTimeout(r, 700));
+  say(`${done ? "OK " : "!! "}${label}  clicked=${clicked} reached=${done ? endpoint : "TIMEOUT"}`);
+  say(snapshot());
+};
+
+document.querySelector("#run").addEventListener("click", async () => {
+  lines.length = 0;
+  say("user agent: " + navigator.userAgent);
+  say("HTML-in-Canvas available: " + isHTMLInCanvasAvailable());
+  say("--- forward ---");
+  await step("home → work",      "Work",    1);
+  await step("work → aurora",    "Aurora",  1);
+  await step("aurora → contact", "Contact", 1);
+  say("--- back ---");
+  await step("back (→aurora)",   "← back",  0, "aurora");
+  await step("back (→work)",     "← back",  0, "work");
+  await step("back (→home)",     "← back",  0, "home");
+  say("--- library console ---");
+  for (const c of captured) say("  " + c);
+  say("--- end ---");
+});
+
+document.querySelector("#copy").addEventListener("click", () => {
+  navigator.clipboard.writeText(out.textContent);
+});
+</script>
+</body>
+</html>

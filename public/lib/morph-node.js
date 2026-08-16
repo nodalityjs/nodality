@@ -1,4 +1,10 @@
 /*!
+ * nodality v1.1.13
+ * (c) 2026 Filip Vabrousek
+ * License: MIT
+ */
+
+/*!
  * morph-node.js — `{ op: "morph" }`, the (E,N) form of a transition.
  *
  * Everything else in N describes how an element LOOKS. A morph node
@@ -578,6 +584,26 @@ function setUpMorph(mount, m, resolve) {
     const landBack = (targetId) => {
         if (history[history.length - 1] === targetId) history.pop();
         current = targetId;
+
+        // Hand the DOM back before presenting.
+        //
+        // On the live backend the state being returned to is INSIDE the
+        // canvas — that is how the backend samples it — and the canvas
+        // stands down at t=0. So the moment a reversal completes, the
+        // thing it returned to stops being painted at all: canvas hidden,
+        // content hosted, nothing on screen. A forward landing has no
+        // such problem, because there the canvas stays up and presents
+        // the destination itself.
+        //
+        // `destroy()` is precisely the handover needed: it moves hosted
+        // children back out into the host and restores the suppressed
+        // ink. The cost is that the next transition rebuilds rather than
+        // reusing, which is the right trade for a state that would
+        // otherwise be invisible.
+        for (const p of activeRasterPipelines()) {
+            if (stage.contains(p.canvas)) p.destroy();
+        }
+        pipe = null; tl = null; pipeOld = null; pipeNew = null;
         lastFrom = history.length ? history[history.length - 1] : null;
         wireState(targetId);
     };
