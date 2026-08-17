@@ -263,6 +263,117 @@ test("every real morph field is still accepted — the fix must not over-reject"
     } finally { c.kill(); }
   });
 
+// ── the chain form ──────────────────────────────────────────────────
+//
+// `chain` shipped in 1.1.14 and the validator was never taught it, so the
+// tool server rejected the multi-edge node the library actually documents:
+// UNKNOWN_PARAM on `chain`, plus MISSING_FIELD on the `from`/`to` that a
+// chain node correctly does not have. An agent following the reference
+// would have been told the reference is wrong.
+
+const CHAIN_ELEMENTS = [
+  { id: "topnav", type: "nav" },
+  { id: "work", type: "wrap", children: [{ id: "work-t", type: "h3", text: "Work" }] },
+  { id: "aurora", type: "wrap", children: [{ id: "aurora-t", type: "h3", text: "Aurora" }] },
+  { id: "contact", type: "wrap", children: [{ id: "contact-t", type: "h3", text: "Contact" }] },
+];
+
+/** The chain exactly as the documentation and the dissertation print it. */
+const CHAIN_NODE = {
+  op: "morph", effect: "t-vhs", duration: 620, back: true,
+  chain: [
+    { from: "topnav", to: { Work: "work", Contact: "contact" } },
+    { from: "work", to: { Aurora: "aurora" }, effect: "t-split" },
+    { from: "aurora", to: { Contact: "contact" }, effect: "t-bloom" },
+  ],
+};
+
+const validate = async (nodes, elements = CHAIN_ELEMENTS) => {
+  const c = await ready();
+  try {
+    const { result } = await c.send("tools/call",
+      { name: "validate_nodes", arguments: { nodes, elements } });
+    return payload(result);
+  } finally { c.kill(); }
+};
+
+test("the documented chain node validates", async () => {
+  const report = await validate([CHAIN_NODE]);
+  assert.equal(report.ok, true,
+    `the shipped chain form was rejected: ${JSON.stringify(report.errors)}`);
+});
+
+test("an id in selector form is accepted, because the runtime accepts it", async () => {
+  // `bareId` in morph-node.js reduces "#work" and "work" to one key, so
+  // both spellings resolve. The validator has to agree: while it accepted
+  // "#work" and the runtime did not, this reported ok on a node that
+  // silently never morphed.
+  const report = await validate([{
+    op: "morph", chain: [
+      { from: "#topnav", to: { Work: "#work" } },
+      { from: "work", to: { Aurora: "aurora" } },
+    ],
+  }]);
+  assert.equal(report.ok, true,
+    `selector-form ids were rejected: ${JSON.stringify(report.errors)}`);
+});
+
+test("a typo inside a chain EDGE is caught, at the edge's own path", async () => {
+  const report = await validate([{
+    op: "morph",
+    chain: [{ from: "topnav", to: { Work: "work" }, duraton: 620 }],
+  }]);
+  assert.equal(report.ok, false, "an unknown edge parameter must not validate");
+  const err = report.errors.find((e) => e.path === "nodes[0].chain[0].duraton");
+  assert.ok(err, `expected an error on the edge, got ${JSON.stringify(report.errors)}`);
+  assert.ok(err.suggestions.includes("duration"),
+    `expected a suggestion of "duration", got ${JSON.stringify(err.suggestions)}`);
+});
+
+test("a dead id inside a chain edge is caught, with the id it meant", async () => {
+  const report = await validate([{
+    op: "morph",
+    chain: [
+      { from: "topnav", to: { Work: "work" } },
+      { from: "wrok", to: { Aurora: "aurora" } },
+    ],
+  }]);
+  assert.equal(report.ok, false, "an unresolvable edge source must not validate");
+  const err = report.errors.find((e) => e.path === "nodes[0].chain[1].from");
+  assert.ok(err, `expected an error on chain[1].from, got ${JSON.stringify(report.errors)}`);
+  assert.ok(err.suggestions.includes("work"),
+    `expected a suggestion of "work", got ${JSON.stringify(err.suggestions)}`);
+});
+
+test("`from`/`to` written beside a chain are reported as ignored", async () => {
+  // `normalizeEdges` takes a non-empty chain and never reads the
+  // node-level pair, so the page works — using the chain — while the
+  // ignored pair looks as though it took effect.
+  const report = await validate([{
+    op: "morph", from: "topnav", to: { Work: "work" },
+    chain: [{ from: "topnav", to: { Work: "work" } }],
+  }]);
+  assert.equal(report.ok, false, "a dead from/to pair must be reported");
+  for (const path of ["nodes[0].from", "nodes[0].to"]) {
+    const err = report.errors.find((e) => e.path === path);
+    assert.ok(err, `expected ${path} to be reported, got ${JSON.stringify(report.errors)}`);
+    assert.equal(err.code, "IGNORED_FIELD");
+  }
+});
+
+test("a flag written as a string is caught, not silently dropped", async () => {
+  // `live` is compared by identity — `opt("live") === true` — so
+  // `live: "true"` leaves the live backend off, the snapshot backend
+  // renders a perfectly good transition, and nothing reports anything.
+  const report = await validate([{
+    op: "morph", from: "topnav", to: { Work: "work" }, live: "true",
+  }]);
+  assert.equal(report.ok, false, 'live: "true" must not validate');
+  const err = report.errors.find((e) => e.path === "nodes[0].live");
+  assert.ok(err, `expected an error on .live, got ${JSON.stringify(report.errors)}`);
+  assert.deepEqual(err.valid, ["true", "false"]);
+});
+
 test("preview writes an HTML file and states what has NOT run", async () => {
   const c = await ready();
   try {

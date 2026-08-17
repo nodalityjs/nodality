@@ -76,9 +76,19 @@ const NODES_SCHEMA = {
     "array order); `{ op: { name: \"shadow\" }, target: [...] }` is a " +
     "design node; `{ op: \"morph\", from: \"topnav\", to: { \"About\": " +
     "\"about\" }, effect: \"t-vhs\", duration: 900, back: true }` is a " +
-    "transition — one element becomes another on interaction. Nothing in " +
-    "N names a component; the two arrays meet only through `target`, " +
-    "`from` and `to`. Call list_ops first for the exact vocabulary.",
+    "transition — one element becomes another on interaction. A morph " +
+    "describes a whole navigation graph by carrying `chain` instead of one " +
+    "`from`/`to`: `{ op: \"morph\", effect: \"t-vhs\", duration: 620, " +
+    "back: true, chain: [ { from: \"home\", to: { \"Work\": \"work\" } }, " +
+    "{ from: \"work\", to: { \"Detail\": \"detail\" }, effect: \"t-split\" } " +
+    "] }`. The entries are EDGES, not keyframes: edge two is reachable " +
+    "FROM the state edge one lands on, so a landed state becomes a source. " +
+    "Settings on the node are defaults each edge may override, and `chain` " +
+    "wins outright — node-level `from`/`to` are not read beside it. " +
+    "Nothing in N names a component; the two arrays meet only through " +
+    "`target`, `from` and `to`, each of which names an element id, written " +
+    "either bare (\"work\") or in selector form (\"#work\"). Call list_ops " +
+    "first for the exact vocabulary.",
   items: { type: "object" },
 };
 

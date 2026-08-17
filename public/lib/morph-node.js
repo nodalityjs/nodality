@@ -124,6 +124,25 @@ const chainFor = (effect) => {
 const norm = (t) => String(t || "").replace(/\s+/g, " ").trim().toLowerCase();
 
 /**
+ * An id as written, reduced to the id itself.
+ *
+ * A node may name a state bare (`"home"`) or in selector form
+ * (`"#home"`). Both are accepted and both mean the same thing, because
+ * this is an element IDENTIFIER rather than a selector: the lookup is
+ * `getElementById`, plus a positional fallback against `E`, so `"#home"`
+ * would otherwise match nothing and the morph would fail with a console
+ * warning and no visible effect.
+ *
+ * Normalised HERE, once, rather than at the point of lookup: the states
+ * are keyed by this string, so a chain whose first edge writes `"#home"`
+ * and whose second writes `"home"` must arrive at ONE key. Stripping at
+ * lookup time would resolve both to the same element while keeping two
+ * entries in the map, and the second edge would then be unreachable.
+ */
+const bareId = (id) =>
+    typeof id === "string" && id.startsWith("#") ? id.slice(1) : id;
+
+/**
  * A morph node, in one shape: a list of EDGES.
  *
  * A node is written either as a single hop —
@@ -170,19 +189,22 @@ const normalizeEdges = (m) => {
         // Labels are what the user is actually reading and clicking.
         const byLabel = e.to && !Array.isArray(e.to) && typeof e.to === "object"
             ? e.to : null;
+        // Deduplicated on the label side only. The array form is POSITIONAL
+        // — `toIds[triggers.indexOf(a)]` below — so collapsing a repeated
+        // id there would shift every later link onto the wrong destination.
         const toIds = byLabel
-            ? [...new Set(Object.values(e.to))]
-            : (Array.isArray(e.to) ? e.to : [e.to]);
+            ? [...new Set(Object.values(e.to))].map(bareId)
+            : (Array.isArray(e.to) ? e.to : [e.to]).map(bareId);
 
         const labelToId = new Map();
         if (byLabel) {
             for (const [label, id] of Object.entries(e.to)) {
-                labelToId.set(norm(label), id);
+                labelToId.set(norm(label), bareId(id));
             }
         }
 
         return {
-            from: e.from, byLabel, toIds, labelToId,
+            from: bareId(e.from), byLabel, toIds, labelToId,
             effect: opt("effect"),
             duration: opt("duration", 900),
             // Written as `!== false` rather than a truthy test: the
@@ -212,9 +234,13 @@ function applyMorphNodes(mount, elements, nodes) {
     // page. Position is what Des actually guarantees.
     const rendered = [...mount.children];
     const resolve = (id) => {
-        const byId = document.getElementById(id);
+        // `bareId` again, and not only for symmetry: the descriptor in E
+        // may itself be written with a leading "#", so both sides are
+        // reduced before they are compared.
+        const want = bareId(id);
+        const byId = document.getElementById(want);
         if (byId && mount.contains(byId)) return byId;
-        const i = (elements || []).findIndex((e) => e && e.id === id);
+        const i = (elements || []).findIndex((e) => e && bareId(e.id) === want);
         return i >= 0 ? rendered[i] : null;
     };
 
