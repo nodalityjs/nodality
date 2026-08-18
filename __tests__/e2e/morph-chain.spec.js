@@ -361,3 +361,46 @@ test('the single-hop form still behaves exactly as before',
     });
     expect(progress).toBe(1);
   });
+
+test('a placed state is not relaid out — both ends of a hop are the same size',
+  async ({ page, baseURL }) => {
+    // The morph positions a destination; it must not restyle it. Placement
+    // used to force `box-sizing: border-box`, so a card authored as
+    // `width: min(560px, 92vw)` with padding rendered 612px wide at rest
+    // (content-box) and 560px once the morph owned it. The two ends of the
+    // transition were then different sizes, and the handover from the
+    // shader to real DOM snapped by the padding — a jump at the end of
+    // every hop, measured at ~12x the frame-to-frame delta of the
+    // animation around it.
+    //
+    // Checked against the element's OWN natural layout rather than against
+    // a remembered number: a clone with the morph's positioning stripped
+    // is what the page would have rendered, so any relayout imposed by
+    // placement shows up as a width difference.
+    await load(page, baseURL);
+    await openMenu(page);
+    await clickByText(page, 'About');
+    expect(await page.evaluate(() => window.__arrived('Selected work'))).toBeTruthy();
+
+    const m = await page.evaluate(() => {
+      const el = document.getElementById('work');
+      const placed = Math.round(el.getBoundingClientRect().width);
+
+      const probe = el.cloneNode(true);
+      probe.removeAttribute('id');
+      for (const k of ['position', 'top', 'left', 'boxSizing', 'visibility']) {
+        probe.style[k] = '';
+      }
+      probe.style.visibility = 'hidden';
+      el.parentElement.appendChild(probe);
+      const natural = Math.round(probe.getBoundingClientRect().width);
+      probe.remove();
+
+      return { placed, natural, box: getComputedStyle(el).boxSizing };
+    });
+
+    expect(m.placed, `placed ${m.placed}px vs natural ${m.natural}px — the morph relaid the element out`)
+      .toBe(m.natural);
+    expect(m.box, "the morph imposed a box model on the author's element")
+      .not.toBe('border-box');
+  });
