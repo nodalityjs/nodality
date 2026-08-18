@@ -46,6 +46,11 @@ class Form {
     this.obj = obj;
     obj.action && this.setAction(obj.action);
     obj.method && this.setMethod(obj.method);
+    // The id reaches the rendered <form>. Without it the element the
+    // descriptor named could not be found again from outside — by a
+    // test, by a script, or by the derived agent surface, which locates
+    // a form by the id its descriptor declared.
+    obj.id && (this.formElement.id = obj.id);
     return this;
   }
 

@@ -1738,6 +1738,7 @@ static form(obj){
     const form = new Form().set({
         action: el.action ?? "",
         ...(el.method !== undefined ? { method: el.method } : {}),
+        ...(el.id !== undefined ? { id: el.id } : {}),
     });
     const kids = Array.isArray(el.children) ? el.children : null;
     if (kids) form.add(kids.map((child) => this.mapType({ ...obj, el: child })));

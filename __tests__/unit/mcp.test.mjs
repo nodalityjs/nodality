@@ -407,6 +407,56 @@ test("preview refuses invalid nodes with the report, not a crash", async () => {
   } finally { c.kill(); }
 });
 
+test("preview reports the surface an operating agent would be handed", async () => {
+  // The two loops meet in one artefact: the model WRITING the page sees
+  // the tools a model USING the page will get, and can tell before
+  // shipping that the form it meant to expose derived nothing.
+  const c = await ready();
+  try {
+    const { result } = await c.send("tools/call", {
+      name: "preview",
+      arguments: {
+        elements: [
+          { id: "home", type: "wrap", children: [{ id: "h", type: "h3", text: "Home" }] },
+          { id: "about", type: "wrap" },
+          { id: "cf", type: "form", children: [
+            { id: "cf-mail", type: "input", inputType: "email", name: "email",
+              required: true }] },
+        ],
+        nodes: [
+          { op: "morph", chain: [{ from: "home", to: { About: "about" } }] },
+          { op: "agent-surface", name: "demo", forms: ["cf"] },
+        ],
+      },
+    });
+    assert.notEqual(result.isError, true, result.content[0].text);
+    const out = payload(result);
+    assert.ok(out.surface, `no surface reported: ${JSON.stringify(out)}`);
+    assert.deepEqual(out.surface.tools.map((t) => t.name).sort(),
+      ["demo_go_back", "demo_navigate", "demo_read_view", "demo_submit_cf"]);
+    assert.equal(out.surface.views.root, "home");
+    assert.match(out.note, /operating this page/);
+  } finally { c.kill(); }
+});
+
+test("a surface node naming a form that does not exist is refused", async () => {
+  const c = await ready();
+  try {
+    const { result } = await c.send("tools/call", {
+      name: "validate_nodes",
+      arguments: {
+        nodes: [{ op: "agent-surface", forms: ["contat"] }],
+        elements: [{ id: "contact", type: "form" }],
+      },
+    });
+    const report = payload(result);
+    assert.equal(report.ok, false);
+    const err = report.errors.find((e) => e.code === "UNKNOWN_FORM");
+    assert.ok(err, JSON.stringify(report.errors));
+    assert.ok(err.suggestions.includes("contact"));
+  } finally { c.kill(); }
+});
+
 test("an unknown tool is a protocol error, and the server keeps serving", async () => {
   const c = await ready();
   try {

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Nodality — the derived agent surface</title>
+<style>:root { color-scheme: light; } body { margin: 0; font-family: system-ui, sans-serif; }
+  #stage { max-width: 60ch; margin: 0 auto; padding: 24px; }</style>
+<script>
+// A minimal stand-in for the browser registry, so the surface can be
+// exercised everywhere and not only under an origin trial. It
+// implements exactly what the adapter touches — registerTool /
+// unregisterTool — plus the agent-side getTools/executeTool the specs
+// drive. Deliberately NOT a full polyfill: a fake that did more than
+// the real thing would let a spec pass against behaviour no browser
+// offers.
+(function () {
+  const tools = new Map();
+  document.modelContext = {
+    registerTool(t) { tools.set(t.name, t); },
+    unregisterTool(name) { tools.delete(name); },
+    getTools() { return [...tools.values()].map(({ execute, ...d }) => d); },
+    executeTool(name, args) {
+      const t = tools.get(name);
+      if (!t) throw new Error("no such tool: " + name);
+      return t.execute(typeof args === "string" ? JSON.parse(args) : (args || {}));
+    },
+  };
+  window.__submissions = [];
+})();
+</script>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<script type="module">
+import { Des } from "../lib/designer.js";
+
+// Two forms on purpose. Only ONE is named by the node, so the fixture
+// proves the allowlist gates rather than merely that a form can be
+// derived: a framework that exposed every form it found would be
+// deciding, for every site that upgraded, that agents may act.
+const CONTACT = {
+  id: "contact-form", type: "form", action: "/inquiry", method: "post",
+  children: [
+    { id: "cf-name", type: "input", inputType: "text", name: "name",
+      placeholder: "Your name", required: true },
+    { id: "cf-mail", type: "input", inputType: "email", name: "email",
+      label: "Email address", required: true },
+    { id: "cf-topic", type: "picker", name: "topic", items: ["Sales", "Support"] },
+    { id: "cf-optin", type: "checkbox", name: "optin", label: "Keep me posted" },
+  ],
+};
+
+const NEWSLETTER = {
+  id: "newsletter-form", type: "form", action: "/subscribe", method: "post",
+  children: [
+    { id: "nf-mail", type: "input", inputType: "email", name: "email",
+      placeholder: "Email", required: true },
+  ],
+};
+
+const CARD = { type: "wrap", background: "#eef2f7", radius: "14px",
+               pad: [{ a: 18 }], width: "min(520px, 92vw)", color: "#0b1420" };
+const BACK = { type: "button", text: "← back", background: "#0b1420",
+               color: "#eef2f7", radius: "8px" };
+
+const E = [
+  { id: "home", ...CARD, children: [
+      { id: "home-t", type: "h3", text: "Studio" },
+      { id: "home-b", type: "p", text: "Interfaces described as two arrays." },
+      { id: "home-work", type: "button", text: "Work",
+        background: "#0f53a8", color: "#fff", radius: "8px" },
+      { id: "home-contact", type: "button", text: "Contact",
+        background: "#0f53a8", color: "#fff", radius: "8px" },
+  ]},
+  { id: "work", ...CARD, children: [
+      { id: "work-t", type: "h3", text: "Selected work" },
+      { id: "work-b", type: "p", text: "18 projects between 2019 and 2026." },
+      { id: "work-detail", type: "button", text: "Aurora",
+        background: "#0f53a8", color: "#fff", radius: "8px" },
+      { id: "work-back", ...BACK },
+  ]},
+  { id: "aurora", ...CARD, children: [
+      { id: "aurora-t", type: "h3", text: "Aurora" },
+      { id: "aurora-b", type: "p", text: "A live-DOM shader pipeline." },
+      { id: "aurora-back", ...BACK },
+  ]},
+  { id: "contact", ...CARD, children: [
+      { id: "contact-t", type: "h3", text: "Contact" },
+      CONTACT,
+      NEWSLETTER,
+      { id: "contact-back", ...BACK },
+  ]},
+];
+
+const N = [
+  { op: "morph", effect: "t-vhs", duration: 300, back: true,
+    chain: [
+      { from: "home", to: { Work: "work", Contact: "contact" } },
+      { from: "work", to: { Aurora: "aurora" } },
+    ] },
+  { op: "agent-surface", forms: ["contact-form"] },
+];
+
+new Des().nodes(N).add(E).set({ mount: "#stage", code: false });
+
+// The stub endpoint. A real submit would navigate; the fixture records
+// the payload instead, so a spec can assert what an agent actually sent
+// without a server and without leaving the page.
+addEventListener("submit", (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  window.__submissions.push({ form: e.target.id || null, data: Object.fromEntries(fd) });
+}, true);
+
+window.__ready = true;
+</script>
+</body>
+</html>

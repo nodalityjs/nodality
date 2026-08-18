@@ -5,6 +5,7 @@ ElementMapper
 // CORE
 import { ElementMapper } from "../lib/element-mapper.js";
 import { applyMorphNodes } from "../lib/morph-node.js";
+import { installAgentSurface } from "../lib/webmcp-adapter.js";
 import { Animator } from "../layout/animator.js";
 import { Base } from "../layout/base.js";
 import { Text } from "../layout/text.js";
@@ -1398,6 +1399,26 @@ const components = {
             this._morphs = applyMorphNodes(host, this._elements, this.protoOptions);
         } catch (e) {
             console.warn("[nodality] morph node skipped:", e);
+        }
+
+        // The agent surface runs after the morphs because it needs their
+        // handles: a derived `navigate` calls the controller's own
+        // `goToState`, so an agent's traversal is the user's traversal
+        // and inherits every rule that path already enforces.
+        //
+        // Opt-in — absent `{ op: "agent-surface" }` this is a no-op, and
+        // it must stay that way: turning a page's interaction structure
+        // into callable tools is the page's decision, never the
+        // framework's, and least of all a side effect of upgrading.
+        try {
+            this._agentSurface = installAgentSurface({
+                mount: document.querySelector((obj && obj.mount) || "#mount"),
+                elements: this._elements,
+                nodes: this.protoOptions,
+                morphs: this._morphs,
+            });
+        } catch (e) {
+            console.warn("[nodality] agent surface skipped:", e);
         }
     }
 }

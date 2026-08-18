@@ -596,6 +596,67 @@ async function runPrerender(rawArgs) {
   }
 
   await prerenderSite(config);
+  writeAgentManifest(config);
+}
+
+/**
+ * Lift the agent surface out of the prerendered pages into one file.
+ *
+ * Nothing derives anything here. The declaration was written into each
+ * document by the SAME code that registers the tools at runtime, so by
+ * the time prerendering has finished it is already serialised inside the
+ * static HTML — this only gathers it up, so that a consumer which wants
+ * capability without parsing pages has one URL to fetch. That is the
+ * half of the agent story that needs no browser support, no origin
+ * trial and no standard: a crawler, an indexer, or an agent deciding
+ * whether the site is worth visiting reads it without executing
+ * anything.
+ *
+ * Byte-stability matters and is asserted in the suite: the file ships
+ * from a build, so it inherits the determinism the whole model rests on
+ * — pages are visited in sorted order and nothing here is timestamped.
+ */
+function writeAgentManifest(config) {
+  const uploadDir = path.resolve(config.uploadDir || "upload");
+  const MANIFEST_ID = "nodality-agent-manifest";
+  const pages = {};
+
+  const scan = (dir, prefix = "") => {
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      const abs = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (["node_modules", "dist", "lib", "layout", "assets", "p"].includes(e.name)) continue;
+        scan(abs, prefix + e.name + "/");
+        continue;
+      }
+      if (!e.name.endsWith(".html")) continue;
+      const html = fs.readFileSync(abs, "utf8");
+      // Located by id rather than parsed: the file is emitted by us, and
+      // a dependency-free substring read cannot be broken by whatever a
+      // page happens to contain elsewhere.
+      const open = html.indexOf(`id="${MANIFEST_ID}"`);
+      if (open < 0) continue;
+      const start = html.indexOf(">", open);
+      const end = html.indexOf("</script>", start);
+      if (start < 0 || end < 0) continue;
+      try {
+        pages[prefix + e.name] = JSON.parse(html.slice(start + 1, end));
+      } catch { /* a page that did not finish rendering is simply absent */ }
+    }
+  };
+  scan(uploadDir);
+
+  const out = path.join(uploadDir, "agent-manifest.json");
+  if (!Object.keys(pages).length) {
+    // No page declared a surface: remove a stale file rather than leave
+    // one claiming capabilities the site no longer offers.
+    if (fs.existsSync(out)) fs.unlinkSync(out);
+    return;
+  }
+  fs.writeFileSync(out, JSON.stringify({ origin: config.origin || null, pages }, null, 2) + "\n");
+  console.log(`✅ Agent manifest — ${Object.keys(pages).length} page(s) → agent-manifest.json`);
 }
 
 // ─── compile subcommand ────────────────────────────────────────

@@ -38,6 +38,18 @@ class TextField extends Animator {
 		this.res.setAttribute("type", obj.type ?? "text");
 		//@ placeholder: Placeholder text shown while the field is empty.
 		obj.placeholder && (this.res.placeholder = obj.placeholder);
+		//@ name: Form field name. What a submitted form actually SENDS.
+		//@ id: DOM id on the input.
+		//@ required: Marks the field required for native validation.
+		// These were dropped, and `name` is not cosmetic: a field without
+		// one contributes nothing to FormData, so every text input in
+		// every Nodality form submitted an empty payload — for a human
+		// filling it in, not only for an agent. Forwarded here rather
+		// than through the style map because they are attributes, not
+		// styles.
+		obj.name && this.res.setAttribute("name", obj.name);
+		obj.id && this.res.setAttribute("id", obj.id);
+		obj.required && this.res.setAttribute("required", "");
 		//@ arrayPadding: Padding on named sides. {sides: ["left","top"], value: "1rem"}.
 		//@ arrayMargin: Margin on named sides. {sides: ["left"], value: "1rem"}.
 		obj.pad && this.pad(obj.pad);

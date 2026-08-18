@@ -209,13 +209,39 @@ const IMPL = {
       },
     });
 
-    const bytes = (await readFile(out)).length;
+    const html = await readFile(out, "utf8");
+    const bytes = Buffer.byteLength(html);
+
+    // The surface this pair would give an OPERATING agent, reported to
+    // the GENERATING one. The two loops meet here: a model writing the
+    // page can see the tools a model using the page will be handed, and
+    // can tell before shipping that a form it meant to expose derived
+    // nothing. Lifted out of the rendered page rather than derived a
+    // second time, so what is reported is what the build emitted.
+    let surface;
+    const at = html.indexOf('id="nodality-agent-manifest"');
+    if (at >= 0) {
+      const s = html.indexOf(">", at);
+      const e = html.indexOf("</script>", s);
+      if (s >= 0 && e > s) {
+        try {
+          const m = JSON.parse(html.slice(s + 1, e));
+          surface = {
+            tools: m.tools.map((x) => ({ name: x.name, description: x.description })),
+            views: m.views || null,
+          };
+        } catch { /* a malformed declaration is simply not reported */ }
+      }
+    }
+
     return ok({
       path: out, bytes,
+      ...(surface ? { surface } : {}),
       // Said plainly, because an agent cannot see the result and would
       // otherwise report a shader that never ran as working.
       note: "Prerendered DOM only. Raster effects and morph transitions " +
-            "need a GPU and run when this file is opened in a browser.",
+            "need a GPU and run when this file is opened in a browser." +
+            (surface ? " `surface` is what an agent operating this page would be offered." : ""),
     });
   },
 };

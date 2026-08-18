@@ -837,6 +837,13 @@ function setUpMorph(mount, m, resolve) {
         get active() { return active; },
         goTo, goToState,
         back() { if (tl) tl.to(0); },
+        // The control's own entry point, published for the agent surface.
+        // `back()` above reverses a RUNNING timeline and does nothing at
+        // rest; `goBack` is what the back button calls — queued, one
+        // press one level, reusing the live pipeline or rebuilding it.
+        // A derived go_back tool has to be the same action as the button
+        // or the two would unwind differently from the same state.
+        goBack,
         destroy() {
             if (tl) tl.destroy();
             for (const p of activeRasterPipelines()) {
@@ -847,4 +854,10 @@ function setUpMorph(mount, m, resolve) {
     };
 }
 
-export { applyMorphNodes };
+// `normalizeEdges` is exported for DERIVATION, not for use: the agent
+// surface reads the same edge list the controller runs, so the two can
+// never describe different graphs. Reimplementing the normalisation
+// there would have drifted the first time either side changed — which
+// is precisely how the validator came to accept a `#id` the runtime
+// refused to resolve.
+export { applyMorphNodes, normalizeEdges };

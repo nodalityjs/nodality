@@ -195,23 +195,28 @@ test('a state returned to is INKED, not merely present', async ({ page, baseURL 
                    getComputedStyle(h).visibility !== 'hidden')),
     { timeout: 20000 }).toBe(true);
 
+  // The state RETURNED TO, by name — not every heading that happens to
+  // be laid out. The departing state lingers for the last frames of the
+  // handover with its ink still suppressed, which is correct behaviour
+  // and not what this test is about; sampling all of them caught
+  // "Project detail" roughly one run in three and reported it as the
+  // product having come back transparent.
   const ink = await page.evaluate(() => window.__until(() => {
     const h = [...document.querySelectorAll('.nod-morph h3')]
-      .filter((x) => x.getBoundingClientRect().width > 0 &&
-                     getComputedStyle(x).visibility !== 'hidden');
-    if (!h.length) return null;
-    return h.map((x) => ({ text: x.textContent.trim(),
-                           color: getComputedStyle(x).color,
-                           opacity: getComputedStyle(x).opacity }));
+      .find((x) => x.textContent.trim() === 'Selected work' &&
+                   x.getBoundingClientRect().width > 0 &&
+                   getComputedStyle(x).visibility !== 'hidden');
+    if (!h) return null;
+    return { text: h.textContent.trim(),
+             color: getComputedStyle(h).color,
+             opacity: getComputedStyle(h).opacity };
   }, 6000));
 
-  expect(ink, 'nothing was laid out after going back').toBeTruthy();
-  for (const h of ink) {
-    expect(h.color, `"${h.text}" came back with transparent ink`)
-      .not.toMatch(/rgba\([^)]*,\s*0(\.0+)?\)$/);
-    expect(parseFloat(h.opacity), `"${h.text}" came back fully transparent`)
-      .toBeGreaterThan(0.05);
-  }
+  expect(ink, 'the state gone back to was never laid out').toBeTruthy();
+  expect(ink.color, `"${ink.text}" came back with transparent ink`)
+    .not.toMatch(/rgba\([^)]*,\s*0(\.0+)?\)$/);
+  expect(parseFloat(ink.opacity), `"${ink.text}" came back fully transparent`)
+    .toBeGreaterThan(0.05);
 });
 
 test('back unwinds the PATH TAKEN, one level per press', async ({ page, baseURL }) => {
@@ -230,14 +235,20 @@ test('back unwinds the PATH TAKEN, one level per press', async ({ page, baseURL 
   expect(await page.evaluate(() => window.__arrived('Project detail'))).toBeTruthy();
 
   const back = async () => {
-    const clicked = await page.evaluate(() => {
+    // POLLED, not sampled once. The control is painted a frame or more
+    // after the landing this test already waited for, and under
+    // full-suite load that gap widens past a single read — which failed
+    // as "no back control was reachable" and looked like the control
+    // was never wired. The same correction the menu opener and the ink
+    // assertion in this file already carry.
+    const clicked = await page.evaluate(() => window.__until(() => {
       const b = [...document.querySelectorAll('.nod-morph button')]
         .find((x) => x.dataset.nodMorphBack && x.getBoundingClientRect().width > 0
                   && getComputedStyle(x).visibility !== 'hidden');
-      if (!b) return false;
+      if (!b) return null;
       b.click();
       return true;
-    });
+    }, 15000));
     expect(clicked, 'no back control was reachable').toBe(true);
     // Wait for the landing, not merely for progress: `current` moves a
     // tick after the endpoint, and pressing inside that tick used to
