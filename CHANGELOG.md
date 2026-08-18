@@ -2,6 +2,80 @@
 
 Generated per release from the source diff.
 
+## 1.2.3 — 2026-08-18
+
+### Added
+
+- `list_ops` returns `presets` and `elementTypes`. The transition effects a morph's `effect` may name were never published, so an agent had to guess them from an example in the tool description; the element vocabulary of `E` was likewise undiscoverable. Both halves of the pair can now be learned from one call.
+- `validateNodes` checks the `E` array when it is given one. An element whose `type` names nothing is not a silent no-op but a THROW from the mapper at render time, which reaches a generator as a stack trace rather than as a report it can repair from. Reported as `UNKNOWN_ELEMENT_TYPE`, with children walked.
+- `{ op: "agent-surface" }` is described in the MCP tool schema. It shipped in 1.2.0 but was invisible to a generator — the same gap that hid `chain` until 1.1.15.
+
+### Fixed
+
+- A morph `effect` naming no preset now reports `UNKNOWN_EFFECT` with a suggestion. `chainFor` swallows the failed lookup and returns an empty chain, so `effect: "t-vhss"` validated clean, rendered, and did nothing: the exact silent omission the validator exists to remove, sitting in its own blind spot.
+- A node with both a misspelled op and a misspelled parameter now reports both in one call. Parameter checking used to stop dead at an unknown op, so the op error hid the parameter error until it was fixed and the repair took two round-trips. Where the op is a near miss its parameters are checked against the op that was MEANT and reported with an `assuming` field naming that assumption; where there is no near miss, only the op is reported and nothing is invented.
+
+## 1.2.2 — 2026-08-18
+
+### Fixed
+
+- Placing a morph destination no longer imposes `box-sizing: border-box` on it. That is not positioning — it relaid the author's element out: a card written as `width: min(560px, 92vw)` with padding renders 612px wide in normal flow and 560px once the morph owned it, so the two ends of a transition were different sizes and the handover from the shader to real DOM snapped by the padding. Measured on the chain demo by differencing consecutive frames: the handover frame carried a mean delta of 17.61 against ~1–3 for the animation around it, and 1.46 after the fix, with the frames following it at 0.00.
+
+## 1.2.1 — 2026-08-18
+
+### Fixed
+
+- `read_view` on a derived agent surface returned empty content on precisely the pages that use the live capture backend. Content hosted inside the canvas is deliberately `visibility: hidden` because the canvas is what paints it, so a readback that asked which elements were visible found none while navigation worked perfectly. The current view is now known from the controller rather than inferred from paint.
+
+## 1.2.0 — 2026-08-18
+
+### Added
+
+- `{ op: "agent-surface" }` — one node exposes the page to an AI agent as callable tools: traversing the morph graph, submitting a form named in `forms`, and reading what is on screen. The tools are DERIVED from the pair rather than authored a second time, so they cannot drift from the interface they describe. Opt-in, and no form is exposed unless it is listed, because a derived submit tool is an agent acting.
+- Tool registration through the WebMCP browser API where it exists, feature-detecting both `document.modelContext` and the older `navigator.modelContext`. Where the API is absent nothing registers, nothing warns, and the page behaves identically.
+- A static declaration either way: prerendering writes the surface into each page as `<script type="application/json" id="nodality-agent-manifest">` and gathers every page's declaration into `agent-manifest.json`. A consumer that executes no JavaScript can read what the site can do — which no script-based registration can offer.
+- Validation for the new family (`UNKNOWN_FORM`, `UNKNOWN_STATE`, `EMPTY_SURFACE`), and `preview` now reports the surface a pair would give an operating agent, so a model writing the page sees the tools a model using the page will get.
+
+### Fixed
+
+- `TextField` forwards `name`, `id` and `required` to the input. `name` is not cosmetic: a field without one contributes nothing to `FormData`, so every text input in every Nodality form submitted an empty value — for a person filling it in, not only for an agent.
+- `Form` forwards its `id` to the rendered `<form>`, so the element a descriptor named can be found again from outside.
+
+## 1.1.15 — 2026-08-17
+
+### Added
+
+- Element ids may be written bare (`"work"`) or in selector form (`"#work"`) anywhere a morph names one. Both are reduced to one key before anything is resolved, so a chain whose first edge writes `"#home"` and whose second writes `"home"` arrives at ONE state rather than two.
+
+### Fixed
+
+- `validateNodes` learns the `chain` form. It had rejected the multi-edge node the library documents — `UNKNOWN_PARAM` on `chain`, plus `MISSING_FIELD` for the `from`/`to` a chain node correctly does not have — so an agent following the reference was told the reference was wrong. Each edge is now validated at its own path, so a typo reports as `nodes[0].chain[0].duraton → duration`.
+- The validator accepted `"#home"` while the runtime resolved only `"home"`, so it passed a node that silently never morphed. The two now agree.
+- `from`/`to` written beside a `chain` report `IGNORED_FIELD`. The runtime reads the chain and ignores them, so the page works while the dead pair looks as though it took effect.
+- A flag written as a string is caught. `live: "true"` is not `=== true`, so the live backend silently stayed off while the snapshot backend rendered a perfectly good transition.
+
+## 1.1.14 — 2026-08-16
+
+### Fixed
+
+- A live chain hands the DOM back when a reversal lands. The pipeline was left alive after `back` reached its endpoint, so the canvas kept presenting a state the document had already taken over, and the interface went blank part-way through a chain on Chrome 151. Landing now destroys the pipelines the stage owns, which IS the handover.
+
+## 1.1.13 — 2026-08-15
+
+### Fixed
+
+- Reversal geometry and state bookkeeping in a chain: a rebuilt reversal is constructed with the sides swapped so the effect plays backwards rather than playing forwards into an earlier state, and the pipeline is reused only when it is exactly the hop being unwound.
+
+## 1.1.12 — 2026-08-15
+
+### Added
+
+- `chain` on a morph node: one node describes a whole navigation graph. The entries are EDGES, not keyframes — edge two is reachable FROM the state edge one lands on, so a landed state becomes a source in its turn. Settings on the node are defaults each edge may override, and `back` unwinds the path actually traversed rather than looking up an edge. The single-hop form is normalised into a chain of length one, so there is one code path and the older form is not a special case of anything.
+
+## 1.1.11 — 2026-08-15
+
+Documentation only. Identical to 1.1.10 in library code; the release carries a README and changelog update.
+
 ## 1.1.10 — 2026-08-15
 
 ### Fixed
