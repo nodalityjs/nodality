@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>A user interface is two arrays: what exists, and what is done to it.</strong><br>
-  Both are plain data — so the pipeline that builds your page is inspectable,
+  Both are plain data – so the pipeline that builds your page is inspectable,
   diffable, and executable at build time <em>and</em> in the browser.
 </p>
 
@@ -32,7 +32,7 @@
 ```
 
 That is the entire source of the transitions above. The entries are
-**edges, not keyframes** — edge two is reachable *from* the state edge one
+**edges, not keyframes** – edge two is reachable *from* the state edge one
 lands on, so a landed view becomes a source in its turn. Settings on the
 node are defaults each edge may override, and `back` unwinds the path the
 user actually took rather than looking up an edge.
@@ -53,7 +53,7 @@ const nodes = [
 
 Two raster nodes aimed at one element compose into a **single** shader
 pass, in array order. The source is your live DOM, not an image you
-exported — and the links underneath still work: pointer input is inverted
+exported – and the links underneath still work: pointer input is inverted
 through the compiled transformation and re-dispatched, so a click lands
 where the user aimed rather than where the layout still thinks the link
 is. In the recording above, the pointer drives the warp and then clicks
@@ -65,7 +65,7 @@ is. In the recording above, the pointer drives the warp and then clicks
 npm create nodality@latest my-app
 ```
 
-Or drop it into a page — no build step, no dependencies:
+Or drop it into a page – no build step, no dependencies:
 
 ```html
 <div id="mount"></div>
@@ -87,7 +87,7 @@ new Des().nodes(nodes).add(elements).set({ mount: "#mount" });
 ```
 
 `elements` says what exists. `nodes` says what is done to it. Nothing in
-`elements` names an effect and nothing in `nodes` names a component — the
+`elements` names an effect and nothing in `nodes` names a component – the
 two meet only through `target`, so either can be written, stored or
 generated without the other.
 
@@ -97,7 +97,7 @@ generated without the other.
 a simulated DOM, so `npx nodality prerender` emits crawlable HTML that a
 consumer running no JavaScript can read, plus a sitemap, `hreflang`
 alternates and JSON-LD. The browser then re-reads the same pair and
-rebuilds on top — the pair is shipped, not consumed.
+rebuilds on top – the pair is shipped, not consumed.
 [Docs →](https://nodalityjs.github.io/docs/ssg/prerender/)
 
 **Transitions and navigation graphs.** `{ op: "morph" }` in one hop or a
@@ -110,8 +110,8 @@ pointer, scroll or time, composed into one pass.
 [Docs →](https://nodalityjs.github.io/docs/raster/ops/)
 
 **An agent-operable surface, derived.** One node exposes your page to an
-AI agent as callable tools — traversing views, submitting a form you
-allowed, reading what is on screen — derived from the graph you already
+AI agent as callable tools – traversing views, submitting a form you
+allowed, reading what is on screen – derived from the graph you already
 wrote rather than authored a second time, and also written into the
 prerendered HTML as a static manifest.
 [Docs →](https://nodalityjs.github.io/docs/raster/agent-surface/)
@@ -125,7 +125,7 @@ generator writes against the real vocabulary instead of guessing at it:
 { "mcpServers": { "nodality": { "command": "npx", "args": ["nodality", "mcp"] } } }
 ```
 
-Three tools. `list_ops` returns the op registry as data — every op with
+Three tools. `list_ops` returns the op registry as data – every op with
 its stage, parameters, units and defaults. `validate_nodes` checks a node
 array and returns a machine-readable report with did-you-mean
 suggestions, so `{ op: "dithr" }` comes back as `UNKNOWN_OP` suggesting
@@ -142,7 +142,7 @@ import { validateNodes, describeOps } from "nodality/validate";
 
 ## What this is not
 
-Nodality targets **static, content-shaped sites** — marketing pages,
+Nodality targets **static, content-shaped sites** – marketing pages,
 storefronts, documentation, brochure sites. It is not a replacement for a
 component framework with client-side state management, and it does not
 try to be one.
@@ -151,14 +151,14 @@ Two honest caveats. The HTML-in-Canvas capture backend is **experimental
 and flag-gated**: where it is unavailable the pipeline falls back to
 snapshot capture on its own, so a page authored against it degrades to
 stills rather than breaking. And determinism is a property of the
-compiled artefact — the same pair always produces the same output — not
+compiled artefact – the same pair always produces the same output – not
 of the pixels a particular GPU eventually paints.
 
 ## Links
 
-- **Docs** — [nodalityjs.github.io](https://nodalityjs.github.io/)
-- **Live demos** — [a navigation graph](http://www.gesos.cz/chain-demo.html) · [a morph in production](http://www.gesos.cz/morph.html)
-- **Built with it** — [blue70.cz](https://www.blue70.cz) · [sls3.cz](https://www.sls3.cz) · [gesos.cz](http://www.gesos.cz) · [relays.app](https://relays.app)
-- **Releases** — [changelog and release notes](https://github.com/nodalityjs/nodality/releases)
+- **Docs** – [nodalityjs.github.io](https://nodalityjs.github.io/)
+- **Live demos** – [a navigation graph](http://www.gesos.cz/chain-demo.html) · [a morph in production](http://www.gesos.cz/morph.html)
+- **Built with it** – [blue70.cz](https://www.blue70.cz) · [sls3.cz](https://www.sls3.cz) · [gesos.cz](http://www.gesos.cz) · [relays.app](https://relays.app)
+- **Releases** – [changelog and release notes](https://github.com/nodalityjs/nodality/releases)
 
 MIT © Filip Vabroušek
