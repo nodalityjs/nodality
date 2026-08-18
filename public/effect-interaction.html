@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Nodality — an effect you can still click through</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: #0b0f14; color: #e8eef5;
+         font-family: ui-sans-serif, system-ui, -apple-system, Arial, sans-serif; }
+  #stage { max-width: 720px; margin: 0 auto; padding: 34px 24px 60px; }
+  .note { max-width: 720px; margin: 0 auto; padding: 0 24px 8px;
+          color: #6d8399; font-size: 12.5px; font-family: ui-monospace, Menlo, monospace; }
+</style>
+</head>
+<body>
+<div class="note">a raster node over live DOM — the links underneath still work</div>
+<div id="stage"></div>
+
+<script type="module">
+import { Des } from "../lib/designer.js";
+
+// A bar of real links, and a warp driven by the pointer sitting on top of
+// it. The point of the demo is the second array: the effect is a node,
+// and the links under it stay clickable because pointer input is
+// inverted through the compiled transformation rather than being blocked
+// by it.
+const CARD = { type: "wrap", background: "#121a24", radius: "16px",
+               pad: [{ a: 22 }], width: "min(660px, 92vw)", color: "#e8eef5" };
+
+const E = [
+  { id: "bar", ...CARD, children: [
+      { id: "bar-t", type: "h3", text: "Nodality Studio" },
+      { id: "l-work",    type: "button", text: "Work",
+        background: "#1d6fe0", color: "#fff", radius: "10px" },
+      { id: "l-contact", type: "button", text: "Contact",
+        background: "#1b2733", color: "#93a9bf", radius: "10px" },
+  ]},
+  { id: "work", ...CARD, children: [
+      { id: "work-t", type: "h3", text: "Selected work" },
+      { id: "work-b", type: "p", text: "Aurora · Meridian · Halftone" },
+      { id: "work-back", type: "button", text: "← back",
+        background: "#1b2733", color: "#93a9bf", radius: "10px" },
+  ]},
+  { id: "contact", ...CARD, children: [
+      { id: "contact-t", type: "h3", text: "Contact" },
+      { id: "contact-b", type: "p", text: "studio@example.com" },
+      { id: "contact-back", type: "button", text: "← back",
+        background: "#1b2733", color: "#93a9bf", radius: "10px" },
+  ]},
+];
+
+const N = [
+  // steady-state effects on the bar, composed into ONE shader pass
+  { op: "flow", target: ["bar"], by: "mouse", amount: 0.32 },
+  { op: "dither", target: ["bar"], levels: 10, size: 2, amount: 0.14 },
+
+  // and the bar is still a navigation source
+  { op: "morph", effect: "t-vhs", duration: 520, back: true,
+    chain: [{ from: "bar", to: { Work: "work", Contact: "contact" } }] },
+];
+
+new Des().nodes(N).add(E).set({ mount: "#stage", code: false });
+window.__ready = true;
+</script>
+</body>
+</html>
