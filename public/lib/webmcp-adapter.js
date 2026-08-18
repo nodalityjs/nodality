@@ -65,14 +65,26 @@ const esc = (s) => {
     return str.replace(/([^a-zA-Z0-9_-])/g, "\\$1");
 };
 
-/** Text an agent can read, from the subtree that is actually on screen. */
+/**
+ * Text an agent can read, from the subtree being presented.
+ *
+ * `visibility: hidden` is NOT treated as absent, and that is the whole
+ * subtlety. Under the live backend the presented state is hosted inside
+ * the canvas: it has real layout and real text, and the DOM copy is
+ * hidden precisely BECAUSE the canvas is painting it. Filtering on
+ * visibility — the correct test for "can this be clicked" — made
+ * `read_view` return nothing at all on exactly the pages that use the
+ * feature, while navigation worked perfectly. So the caller passes the
+ * subtree it knows is current, and this reads it; `display: none` still
+ * counts as absent, because that element is not laid out at all.
+ */
 function readSubtree(root) {
     if (!root) return { text: "", actions: [] };
     const visible = (el) => {
-        const r = el.getBoundingClientRect();
-        if (!(r.width > 0 && r.height > 0)) return false;
         const cs = getComputedStyle(el);
-        return cs.visibility !== "hidden" && cs.display !== "none" && cs.opacity !== "0";
+        if (cs.display === "none" || cs.opacity === "0") return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
     };
     const lines = [];
     for (const el of root.querySelectorAll("h1,h2,h3,h4,h5,h6,p,li")) {
@@ -112,6 +124,21 @@ export function installAgentSurface({ mount, elements, nodes, morphs }) {
     const { tools, manifest } = derived;
     const handles = Array.isArray(morphs) ? morphs.filter(Boolean) : [];
     const graphFor = (id) => handles.find((h) => h.states && h.states.has(id)) || null;
+
+    /**
+     * The subtree to read: the state the graph is actually in.
+     *
+     * Known, not inferred. Asking "what is painted" cannot answer this
+     * on a live morph, where the painting is done by a canvas and the
+     * DOM behind it is deliberately hidden.
+     */
+    const currentSubtree = () => {
+        for (const h of handles) {
+            const el = h.states && h.current != null ? h.states.get(h.current) : null;
+            if (el) return el;
+        }
+        return mount;
+    };
 
     /**
      * The rendered form a descriptor id names, wherever it currently is.
@@ -197,6 +224,11 @@ export function installAgentSurface({ mount, elements, nodes, morphs }) {
         return run;
     };
 
+    const currentView = () => {
+        for (const h of handles) if (h.current != null) return h.current;
+        return null;
+    };
+
     const execute = {
         navigate: ({ destination } = {}) => serial(async () => {
             const h = graphFor(destination);
@@ -215,17 +247,17 @@ export function installAgentSurface({ mount, elements, nodes, morphs }) {
                 return refuse("UNREACHABLE_FROM_HERE", destination,
                     edge.filter((id) => id !== from));
             }
-            return { ok: true, view: h.current, ...readSubtree(h.stage || mount) };
+            return { ok: true, view: h.current, ...readSubtree(h.states.get(h.current) || mount) };
         }),
 
         back: () => serial(async () => {
             const h = handles.find((x) => x.history && x.history.length);
             if (!h) return refuse("NO_HISTORY", null, []);
             await h.goBack();
-            return { ok: true, view: h.current, ...readSubtree(h.stage || mount) };
+            return { ok: true, view: h.current, ...readSubtree(h.states.get(h.current) || mount) };
         }),
 
-        read: async () => ({ ok: true, ...readSubtree(mount) }),
+        read: async () => ({ ok: true, view: currentView(), ...readSubtree(currentSubtree()) }),
 
         submit: async (args = {}, tool) => {
             const form = findForm(tool.formId);

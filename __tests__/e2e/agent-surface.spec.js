@@ -188,3 +188,24 @@ test('the manifest is declared IN the document, needing no API', async ({ page, 
     .toEqual((await tools(page)).map((t) => t.name).sort());
   for (const t of m.tools) expect(t.kind).toBeUndefined();
 });
+
+test('read_view reports content that a CANVAS is painting', async ({ page, baseURL }) => {
+  // The live backend hosts the presented state inside the canvas and
+  // hides the DOM copy, because the canvas is what paints it. Reading
+  // "what is visible" therefore returned nothing at all on precisely
+  // the pages that use the feature — navigation worked, and the agent
+  // was told the page was empty.
+  await page.goto(`${baseURL}/public/agent-surface?live=1`);
+  await page.waitForFunction(() => window.__ready === true, null, { timeout: 15000 });
+  await page.waitForFunction(
+    () => document.modelContext.getTools().length > 0, null, { timeout: 15000 });
+
+  const res = await call(page, 'navigate', { destination: 'work' });
+  expect(res.ok, JSON.stringify(res)).toBe(true);
+  expect(res.view).toBe('work');
+  expect(res.text, 'the landed view read as empty').toContain('Selected work');
+
+  const read = await call(page, 'read_view');
+  expect(read.view).toBe('work');
+  expect(read.text).toContain('Selected work');
+});

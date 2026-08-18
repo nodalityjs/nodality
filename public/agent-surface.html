@@ -97,7 +97,12 @@ const E = [
 ];
 
 const N = [
+  // `?live=1` runs the same graph on the HTML-in-Canvas backend, where
+  // the presented state is hosted INSIDE the canvas and its DOM copy is
+  // hidden. Same fixture, so a spec can assert that reading the view
+  // does not depend on which backend is painting it.
   { op: "morph", effect: "t-vhs", duration: 300, back: true,
+    live: new URLSearchParams(location.search).get("live") === "1",
     chain: [
       { from: "home", to: { Work: "work", Contact: "contact" } },
       { from: "work", to: { Aurora: "aurora" } },
