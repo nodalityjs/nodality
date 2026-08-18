@@ -23,6 +23,8 @@ import {
     REGISTRY, RASTER_OP_NAMES, DRIVER_NAMES, RASTER_UNITS,
     FRAMEWORK_DOC, EASING_NAMES,
 } from "./raster-ops.js";
+import { presetNames, presetInfo } from "./raster-presets.js";
+import { ELEMENT_TYPES } from "./element-mapper.js";
 import { didYouMean, suggest } from "./suggest.js";
 
 /**
@@ -124,6 +126,34 @@ export function validateNodes(nodes, elements) {
             }
         });
     };
+
+    // ── the E array ─────────────────────────────────────────────────
+    //
+    // Checked here because half the pair was previously unvalidated: an
+    // element whose `type` names nothing is not a silent no-op but a THROW
+    // from the mapper at render time, which reaches a generator as a stack
+    // trace rather than as a report it can repair from.
+    if (idsKnown) {
+        const walkEls = (list, at) => {
+            if (!Array.isArray(list)) return;
+            list.forEach((el, i) => {
+                const p = `${at}[${i}]`;
+                if (!el || typeof el !== "object" || Array.isArray(el)) {
+                    push("BAD_ELEMENT", p, el, [], ["{ type: \"<element type>\", ... }"]);
+                    return;
+                }
+                if (typeof el.type !== "string") {
+                    push("MISSING_FIELD", `${p}.type`, el.type, [],
+                        ["an element type, e.g. \"h1\", \"wrap\", \"nav\""]);
+                } else if (!ELEMENT_TYPES.includes(el.type)) {
+                    push("UNKNOWN_ELEMENT_TYPE", `${p}.type`, el.type,
+                        suggest(el.type, ELEMENT_TYPES), ELEMENT_TYPES);
+                }
+                walkEls(el.children, `${p}.children`);
+            });
+        };
+        walkEls(elements, "elements");
+    }
 
     nodes.forEach((node, i) => {
         const path = `nodes[${i}]`;
@@ -250,6 +280,15 @@ export function validateNodes(nodes, elements) {
                     typeof o.effect !== "string" && !Array.isArray(o.effect)) {
                     push("BAD_FIELD", `${at}.effect`, o.effect, [],
                         ["a preset name, or an inline array of raster nodes"]);
+                } else if (typeof o.effect === "string" &&
+                           !presetNames().includes(o.effect)) {
+                    // A preset that does not exist resolves to an EMPTY chain
+                    // and the transition runs with no effect at all: it
+                    // validates, renders, and does nothing. That is the silent
+                    // omission this validator exists to remove, and it sat
+                    // inside the validator's own blind spot until 1.2.3.
+                    push("UNKNOWN_EFFECT", `${at}.effect`, o.effect,
+                        suggest(o.effect, presetNames()), presetNames());
                 }
                 for (const flag of ["back", "live"]) {
                     if (o[flag] !== undefined && typeof o[flag] !== "boolean") {
@@ -327,9 +366,31 @@ export function validateNodes(nodes, elements) {
         // ── raster nodes ────────────────────────────────────────────
         const def = REGISTRY[node.op];
         if (!def) {
-            push("UNKNOWN_OP", `${path}.op`, node.op,
-                suggest(node.op, RASTER_OP_NAMES), RASTER_OP_NAMES);
-            return;   // parameters cannot be judged without a definition
+            const guesses = suggest(node.op, RASTER_OP_NAMES);
+            push("UNKNOWN_OP", `${path}.op`, node.op, guesses, RASTER_OP_NAMES);
+
+            // Parameters cannot be judged without a definition — but where the
+            // op is a near miss, they can be judged against the op that was
+            // MEANT, and reported as provisional. Without this a node with a
+            // misspelled op AND a misspelled parameter takes two round-trips:
+            // the op error hides the parameter error until it is fixed. The
+            // `assuming` field says which definition the check used, so a
+            // consumer can tell a certain finding from a conditional one.
+            const meant = guesses.length ? REGISTRY[guesses[0]] : null;
+            if (meant) {
+                const known = Object.keys((meant.doc && meant.doc.params) || {});
+                const shared = Object.keys(FRAMEWORK_DOC);
+                for (const key in node) {
+                    if (key === "op" || shared.includes(key) || known.includes(key)) continue;
+                    errors.push({
+                        code: "UNKNOWN_PARAM", path: `${path}.${key}`, got: key,
+                        suggestions: suggest(key, known.concat(shared)),
+                        valid: known.concat(shared),
+                        assuming: guesses[0],
+                    });
+                }
+            }
+            return;
         }
 
         const params = (def.doc && def.doc.params) || {};
@@ -390,6 +451,16 @@ export function describeOps() {
     });
     return {
         ops,
+        // The transition presets a morph's `effect` may name. Absent from
+        // this reply until 1.2.3, which left an agent to guess them from an
+        // example in the tool description.
+        presets: presetNames().map((name) => {
+            const info = presetInfo(name) || {};
+            return { name, summary: info.summary || "", live: info.live };
+        }),
+        // The vocabulary of E, so both halves of the pair are discoverable
+        // from one call rather than only the half that is transformed.
+        elementTypes: ELEMENT_TYPES,
         shared: Object.keys(FRAMEWORK_DOC).map((k) => ({
             name: k,
             default: FRAMEWORK_DOC[k].default,

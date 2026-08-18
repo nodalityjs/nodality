@@ -1955,4 +1955,9 @@ static form(obj){
 }
 
 
-export {ElementMapper};
+// ELEMENT_TYPES is exported so the validator can check the E array against
+// the same vocabulary the mapper dispatches on. Without it the two would
+// drift, and a validator that accepted a type the mapper rejects would be
+// worse than none: it would promise an agent that a page is well-formed
+// and then throw when it rendered.
+export {ElementMapper, ELEMENT_TYPES};

@@ -87,8 +87,14 @@ const NODES_SCHEMA = {
     "wins outright — node-level `from`/`to` are not read beside it. " +
     "Nothing in N names a component; the two arrays meet only through " +
     "`target`, `from` and `to`, each of which names an element id, written " +
-    "either bare (\"work\") or in selector form (\"#work\"). Call list_ops " +
-    "first for the exact vocabulary.",
+    "either bare (\"work\") or in selector form (\"#work\"). A fourth family, " +
+    "`{ op: \"agent-surface\", name, forms, exclude }`, exposes the page to an AI " +
+    "agent as callable tools — traversing the morph graph, submitting a form " +
+    "named in `forms`, and reading what is on screen — derived from the pair " +
+    "rather than authored separately; it is opt-in, and no form is exposed " +
+    "unless listed. Call list_ops first for the exact vocabulary: it returns " +
+    "the transition presets a morph's `effect` may name and the element types " +
+    "E may use, as well as the raster ops.",
   items: { type: "object" },
 };
 
@@ -102,7 +108,9 @@ const TOOLS = [
       "(target, by, side, ease...), the driver names, the easing names " +
       "and the unit names. Read this before writing nodes — it is " +
       "assembled from the live registry, so it cannot drift from what " +
-      "the pipeline accepts.",
+      "the pipeline accepts. Also returns `presets` (the transition effects a " +
+      "morph may name) and `elementTypes` (the vocabulary of E), so both halves " +
+      "of the pair are discoverable from one call.",
     inputSchema: { type: "object", properties: {} },
   },
   {
@@ -115,7 +123,12 @@ const TOOLS = [
       "position — enough to repair without re-reading the docs. Pass " +
       "elements too and targets are checked against real ids, which " +
       "catches the other silent failure: a correctly spelled op aimed at " +
-      "an element that does not exist.",
+      "an element that does not exist. Passing elements also validates E " +
+      "itself, so an element type that names nothing is reported rather than " +
+      "throwing at render time. Where an op is a near miss its parameters are " +
+      "checked against the op that was meant and reported with an `assuming` " +
+      "field, so one call returns every error rather than revealing them one " +
+      "round-trip at a time.",
     inputSchema: {
       type: "object",
       properties: { nodes: NODES_SCHEMA, elements: ELEMENTS_SCHEMA },
