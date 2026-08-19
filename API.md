@@ -198,13 +198,13 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
 
 ### raster
 
-- **Agent surface — the page, as tools** — An `agent-surface` node lets an AI agent operate the page: move between morph views, submit a form you have allowed, and read what is on screen.
+- **Agent surface – the page, as tools** — An `agent-surface` node lets an AI agent operate the page: move between morph views, submit a form you have allowed, and read what is on screen.
   https://nodalityjs.github.io/docs/raster/agent-surface
 - **Raster basics** — Raster ops run your element through a WebGL shader.
   https://nodalityjs.github.io/docs/raster/basics
 - **Composing a pipeline** — A chain is not a list of passes.
   https://nodalityjs.github.io/docs/raster/composition
-- **Morph — transitions as nodes** — A morph node describes which element *becomes* which, and on what interaction.
+- **Morph – transitions as nodes** — A morph node describes which element *becomes* which, and on what interaction.
   https://nodalityjs.github.io/docs/raster/morph
 - **Raster ops** — Every node has an `op` and a set of options.
   https://nodalityjs.github.io/docs/raster/ops

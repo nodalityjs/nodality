@@ -165,7 +165,7 @@ this.res.style.position = "absolute";
   //@ cursor: Show a pointer cursor. Any truthy value; the cursor style itself is fixed.
 		obj.cursor && (this.res.style.cursor = "hand");
 		
-  //@ gpos: Grid placement — {col, row}, written to grid-column and grid-row.
+  //@ gpos: Grid placement – {col, row}, written to grid-column and grid-row.
 		obj.gpos && this.gpos(obj.gpos);
 
 		obj.vtn && (this.res.style.viewTransitionName = obj.vtn);
