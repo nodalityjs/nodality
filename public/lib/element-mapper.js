@@ -1611,7 +1611,7 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
             })
             .items([
                 new Image(item.img).set({isFull: true, url: item.img}),
-                new Text(item.title).set({ size: "S5", color: "orange" }),
+                new Text(item.title).set({ size: "S5", color: "#f97316" }),
                 new Link("Link").set({
                     text: item.title, 
                     url: item.link, 
@@ -1634,7 +1634,7 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
                 useBrightness: true
             })
             .items([
-                new Text(item.title).set({ fluidc: "S6", color: "orange" }),
+                new Text(item.title).set({ fluidc: "S6", color: "#f97316" }),
                 new Link("Link").set({
                     text: item.title, 
                     url: item.link, 
