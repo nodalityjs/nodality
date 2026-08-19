@@ -104,9 +104,9 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/elements/polygon
 - **Elements** — Elements are used to create UI.
   https://nodalityjs.github.io/docs/elements/readme
-- **Responsive wrapper** — The `Wrapper` class allows you to create a responsive element that can dynamically switch its layout between row and column orientations based on specified brea
+- **Responsive wrapper** — The `Wrapper` class allows you to create a responsive element that can dynamically switch its layout between row and column orientations based on specified…
   https://nodalityjs.github.io/docs/elements/responsive-wrapper
-- **Complex** — The `Wrapper` class allows you to create a responsive element that can dynamically switch its layout between row and column orientations based on specified brea
+- **Complex** — The `Wrapper` class allows you to create a responsive element that can dynamically switch its layout between row and column orientations based on specified…
   https://nodalityjs.github.io/docs/elements/responsive
 - **Row** — Row creates a simple  element to allow you to organise children in a row.
   https://nodalityjs.github.io/docs/elements/row
@@ -166,7 +166,7 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/guides/testing
 - **Tooling** — Create Nodality package allows you to quickly bootstrap a new Nodality application.
   https://nodalityjs.github.io/docs/guides/tooling
-- **Transitions** — This library supports the **CSS View Transition API** to enable smooth animations when navigating between pages.\
+- **Transitions** — This library supports the **CSS View Transition API** to enable smooth animations when navigating between pages.\ For example, you can build a carousel where…
   https://nodalityjs.github.io/docs/guides/transitions
 
 ### nodes
@@ -198,10 +198,14 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
 
 ### raster
 
+- **Agent surface — the page, as tools** — An `agent-surface` node lets an AI agent operate the page: move between morph views, submit a form you have allowed, and read what is on screen.
+  https://nodalityjs.github.io/docs/raster/agent-surface
 - **Raster basics** — Raster ops run your element through a WebGL shader.
   https://nodalityjs.github.io/docs/raster/basics
 - **Composing a pipeline** — A chain is not a list of passes.
   https://nodalityjs.github.io/docs/raster/composition
+- **Morph — transitions as nodes** — A morph node describes which element *becomes* which, and on what interaction.
+  https://nodalityjs.github.io/docs/raster/morph
 - **Raster ops** — Every node has an `op` and a set of options.
   https://nodalityjs.github.io/docs/raster/ops
 
@@ -209,7 +213,7 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
 
 - **Basics** — To create smooth scroll animations you can use the following:
   https://nodalityjs.github.io/docs/scrollanimation/basics
-- **Scroll Animation** — Create engaging scroll animation
+- **Scroll Animation** — Create engaging scroll animation Continue to [Basics](basics.md) to get started.
   https://nodalityjs.github.io/docs/scrollanimation/index
 - **ScrollVideo** — Play video as you scroll.
   https://nodalityjs.github.io/docs/scrollanimation/scrollvideo
