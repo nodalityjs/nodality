@@ -25,8 +25,8 @@ class Center extends Animator {
 
 	set(obj){
 
-if (obj.id){
-		this.res.setAttribute("id", id);
+if (obj.id !== undefined && obj.id !== null){
+		this.res.setAttribute("id", obj.id);
 		}
 
 		this.commonMethods(obj);

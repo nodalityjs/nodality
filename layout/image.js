@@ -372,7 +372,7 @@ let obj = options;
 
 
 	setID(id){
-		this.res.setAttribute("id", id);
+		if (id !== undefined && id !== null) this.res.setAttribute("id", id);
 		return this;
 	}
 

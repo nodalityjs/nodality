@@ -687,7 +687,7 @@ addIcon(obj){
 		if (obj){
 			// alert(obj.type);
 			el = document.createElement(obj.type);
-			el.setAttribute("id", obj.id);
+			if (obj.id !== undefined && obj.id !== null) el.setAttribute("id", obj.id);
 
 
 			if (obj.type === "span"){

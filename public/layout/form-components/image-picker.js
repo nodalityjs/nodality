@@ -28,7 +28,7 @@ class FilePickera extends Animator {
 	    card.setAttribute("type", "file");
         card.setAttribute("name", obj.name);
         obj.accept && (card.accept = obj.accept);
-        card.setAttribute("id", obj.id);
+        if (obj.id !== undefined && obj.id !== null) card.setAttribute("id", obj.id);
         card.style.visibility = "hidden";
         card.style.display = "none";
         
