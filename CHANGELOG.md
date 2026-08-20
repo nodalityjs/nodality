@@ -2,6 +2,17 @@
 
 Generated per release from the source diff.
 
+## 1.2.8 — 2026-08-20
+
+### Added
+
+- `copy` operation now has an `animation` param (`default: false`, `unit: "bool"`) — DOM path only, read by the element mapper for an element of type `"copy"`; ignored by the shader path.
+
+### Changed
+
+- Updated `count` param's summary text to note that its default of 5 is the shader's default, while the DOM path (element of type `"copy"`) uses 3 instead.
+- Internal: `animation` param is marked with `readBy: "element-mapper"` so the doc-consistency validator checks `element-mapper` instead of `raster-ops.js` for its usage, fixing a false-positive "unknown parameter" report for a param the mapper already read and the docs already documented.
+
 ## 1.2.7 — 2026-08-20
 
 ### Fixed
