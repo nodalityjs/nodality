@@ -78,7 +78,8 @@ const elements = [
 ];
 
 const nodes = [
-  { op: { name: "gradient" }, target: ["hero"], colors: ["#1d6fe0", "#7fd1ff"] },
+  { op: { name: "gradient", gradient: "linear-gradient(90deg, #1d6fe0, #7fd1ff)" },
+    target: ["hero"] },
   { op: "dither", target: ["hero"], levels: 6, size: 2 },
 ];
 
@@ -117,6 +118,19 @@ prerendered HTML as a static manifest.
 [Docs →](https://nodalityjs.github.io/docs/raster/agent-surface/)
 
 ## For AI agents
+
+One command sets up an agent IDE end to end:
+
+```bash
+npx nodality skill
+```
+
+It installs the `/nodality` skill – the authoring workflow, the node
+families, and the house rules the schema cannot encode – into Claude
+Code (`.claude/skills/`) and Cursor (`.cursor/rules/`), and registers
+the MCP server below in the project's config. Flags: `--claude`,
+`--cursor`, `--global`, `--dir=<path>` for any other agent, `--no-mcp`.
+Re-run it after upgrading nodality to refresh the skill in place.
 
 `nodality mcp` runs a Model Context Protocol server over stdio, so a
 generator writes against the real vocabulary instead of guessing at it:

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.2
+ * nodality v1.2.5
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -276,13 +276,13 @@ class Animator {
         // only on the three components that happened to dispatch it
         // themselves (Wrapper, Text, Image) — those now set the same
         // property to the same value, and everything else gains it.
-        //@ cols: grid-template-columns, verbatim – e.g. "240px 1fr".
+        //@ cols: grid-template-columns, verbatim — e.g. "240px 1fr".
         cols: "gridTemplateColumns",
         //@ rows: grid-template-rows, verbatim.
         rows: "gridTemplateRows",
-        //@ areas: grid-template-areas, verbatim – e.g. '"nav main" "nav main"'.
+        //@ areas: grid-template-areas, verbatim — e.g. '"nav main" "nav main"'.
         areas: "gridTemplateAreas",
-        //@ area: This element's grid-area – the name of a cell declared in the parent's `areas`.
+        //@ area: This element's grid-area — the name of a cell declared in the parent's `areas`.
         area: "gridArea",
 
         // ── Typography (extended) ──────────────────────────────────────
@@ -345,7 +345,7 @@ class Animator {
     obj.pad && this.pad(obj.pad);
     //@ mar: Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: "center"` sets left and right to auto, as does `{a: "auto"}` or `{center: true}`.
     obj.mar && this.mar(obj.mar);
-    //@ respad: Responsive padding – per-breakpoint overrides of `pad`, in the same form.
+    //@ respad: Responsive padding — per-breakpoint overrides of `pad`, in the same form.
     obj.respad && this.respad(obj.respad);
 
     // `borderObj` was never dispatched from here, so a component with no
@@ -369,21 +369,21 @@ class Animator {
     // idempotent for them.
     //@ borderObj: Border as {width, color, type?, radius?}. Width carries its unit, e.g. "1px".
     obj.borderObj && obj.borderObj.width && this.borderObj(obj.borderObj);
-    //@ resmar: Responsive margin – per-breakpoint overrides of `mar`, in the same form.
+    //@ resmar: Responsive margin — per-breakpoint overrides of `mar`, in the same form.
     obj.resmar && this.resmar(obj.resmar);
     //@ hover: Styles applied on hover, e.g. {color, background, animation: "0.2s ease"}.
     obj.hover && this.hover(obj.hover);
-    //@ size: Fluid type scale step (S1…S6) – font size that scales with the viewport.
+    //@ size: Fluid type scale step (S1…S6) — font size that scales with the viewport.
     obj.size && this.fluidCopy(obj.size);
-    //@ resprop: Per-breakpoint style overrides – [{breakpoint, ...css}]. `exact` is font size.
+    //@ resprop: Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size.
     obj.resprop && this.resprop(obj.resprop, obj);
-    //@ vars: Custom CSS properties on this element – {"--nod-split": 0.2}. Custom properties inherit, so writing them on a root drives its whole subtree with one declaration; that is how the morph axes reach every generated element without a stylesheet.
+    //@ vars: Custom CSS properties on this element — {"--nod-split": 0.2}. Custom properties inherit, so writing them on a root drives its whole subtree with one declaration; that is how the morph axes reach every generated element without a stylesheet.
     obj.vars && this.vars(obj.vars);
-    //@ keySet: Escape hatch – {key, value} written straight to element.style, or an array of them.
+    //@ keySet: Escape hatch — {key, value} written straight to element.style, or an array of them.
     obj.keySet && this.keySet(obj.keySet);
     //@ noTheme: Opt this element out of Theme.setDefaults light/dark colouring.
     obj.noTheme && (this._noTheme = true);
-    //@ theme: Explicit light/dark overrides – {light: {...}, dark: {...}}.
+    //@ theme: Explicit light/dark overrides — {light: {...}, dark: {...}}.
     obj.theme && this.theme(obj.theme);
     //@ hide: Hide the element without removing it from the tree.
     obj.hide && this.isHidden(obj.hide);

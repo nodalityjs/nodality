@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.2
+ * nodality v1.2.5
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -87,7 +87,7 @@ code = `${pad}new Wrapper()`;
 		obj.pad && this.pad(obj.pad);
 		obj.mar && this.mar(obj.mar);
 
-  //@ gpos: Grid placement – {col, row}, written to grid-column and grid-row.
+  //@ gpos: Grid placement — {col, row}, written to grid-column and grid-row.
 		obj.gpos && this.gpos(obj.gpos);
 
 
@@ -277,16 +277,16 @@ code = `${pad}new Wrapper()`;
 		obj.column && (stra += `\n column: "${obj.column}",`);
 
 
-  //@deprecated alignIts: obsolete. Its body sets background:"gray" and hardcodes alignItems/justifyItems to flex-start with the argument commented out – debugging left in. Use `customAlign` / `customJustify`.
+  //@deprecated alignIts: obsolete. Its body sets background:"gray" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`.
 		obj.alignIts && (this.res.style.background = "gray");
 		obj.alignIts && (this.res.style.alignItems = "flex-start"/*obj.alignIts*/);
 		obj.alignIts && (this.res.style.justifyItems = "flex-start"/*obj.alignIts*/);
 		
-  //@ customAlign: align-items, verbatim – for values `align` does not cover.
+  //@ customAlign: align-items, verbatim — for values `align` does not cover.
 		obj.customAlign && (this.res.style.alignItems = obj.customAlign);
   //@ customJustify: justify-items, verbatim.
 		obj.customJustify && (this.res.style.justifyItems = obj.customJustify);
-  //@ disp: CSS display, verbatim – "block", "grid", "inline-flex".
+  //@ disp: CSS display, verbatim — "block", "grid", "inline-flex".
 		obj.disp && (this.res.style.display = obj.disp);
   //@ flexDir: Flex direction. Also sets display:flex, so it is enough on its own.
 		obj.flexDir && (this.res.style.flexDirection = obj.flexDir);

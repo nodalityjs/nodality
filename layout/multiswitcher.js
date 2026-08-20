@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.2
+ * nodality v1.2.5
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -17,7 +17,7 @@ class /*Multi*/Switcher extends Animator {
   }
 
   //@ id: DOM id for the switcher's own box. The views are swapped in and out, so an id belongs here rather than on a view that may not be mounted.
-  //@ area: The switcher's grid-area – the name of a cell declared in the parent's `areas`. It goes here because the switcher's box IS the grid item; the views live inside it, so an area set on a view would never reach the grid.
+  //@ area: The switcher's grid-area — the name of a cell declared in the parent's `areas`. It goes here because the switcher's box IS the grid item; the views live inside it, so an area set on a view would never reach the grid.
   set({ breakpoints, id, area }) {
 
     this.options = {breakpoints: breakpoints};

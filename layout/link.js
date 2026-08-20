@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.2
+ * nodality v1.2.5
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -365,7 +365,7 @@ obj.pad && (stra += `\n pad: ${rempad},`);
   //@ rounded: Apply the default corner radius. Use `radius` for a specific value.
 		obj.rounded && this.round();
 
-  //@ new: Open in a new tab – sets target="_blank" and rel="noopener noreferrer".
+  //@ new: Open in a new tab — sets target="_blank" and rel="noopener noreferrer".
 		if (obj.new){
 			this.res.setAttribute("target", "_blank");
    			this.res.setAttribute("rel", "noopener noreferrer"); // security best practice

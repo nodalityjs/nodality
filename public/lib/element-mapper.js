@@ -1611,6 +1611,10 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
             })
             .items([
                 new Image(item.img).set({isFull: true, url: item.img}),
+                // #f97316 rather than the CSS keyword orange (rgb 255,165,0), a legacy
+                // value that reads yellow beside modern palettes. No backticks here:
+                // this block lives inside a template literal and is evaluated as
+                // source, so module scope is not visible either.
                 new Text(item.title).set({ size: "S5", color: "#f97316" }),
                 new Link("Link").set({
                     text: item.title, 

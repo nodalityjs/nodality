@@ -55,6 +55,15 @@ function showUsage() {
                                               #   { "mcpServers": { "nodality": {
                                               #       "command": "npx",
                                               #       "args": ["nodality", "mcp"] } } }
+  nodality skill [flags]                      # Install the /nodality skill into agent
+                                              # IDEs. No flags: interactive (or full
+                                              # default install when not a TTY).
+                                              #   --claude --cursor   pick agents
+                                              #   --global            Claude Code: user-wide
+                                              #                       (default: this project)
+                                              #   --dir=<path>        copy SKILL.md anywhere
+                                              #   --no-mcp            skip MCP registration
+                                              # Re-run after upgrading to refresh in place.
   nodality help
 
 Compile flags:
@@ -863,6 +872,9 @@ async function main() {
     await runFanoutStandalone(rest);
   } else if (command === "stage") {
     await runStage(rest);
+  } else if (command === "skill") {
+    const { runSkillInstall } = await import("./install-skill.mjs");
+    await runSkillInstall(rest);
   } else if (command === "mcp") {
     // Lazily imported so that prerender/compile/stage pay nothing for a
     // subcommand they never touch, and so a broken morph core cannot
