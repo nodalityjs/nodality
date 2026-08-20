@@ -2,6 +2,21 @@
 
 Generated per release from the source diff.
 
+## 1.2.7 — 2026-08-20
+
+### Fixed
+
+- `gradient` operation no longer renders the target element invisible when a design node names the `gradient` op but supplies no gradient string (no `op.gradient` and no `op.direction`). The gradient effect is now skipped entirely rather than applying a transparent text-fill with nothing behind it.
+- `validateNodes` now checks design nodes instead of skipping them outright. It reports:
+  - `UNKNOWN_DESIGN_OP` for an object-form design op whose `name` isn't recognized.
+  - `UNKNOWN_PARAM` for top-level keys a design node doesn't read, with a hint pointing inside `op.*` when the key is likely misplaced there instead of a typo.
+  - `MISSING_FIELD` for an object-form `gradient` op that has neither `op.gradient` nor `op.direction`.
+- Bare-string design ops (e.g. `"gradient"`, `"blast"`, `"shadow"`) are now recognized as the `"design"` family instead of being misclassified as `"raster"` and flagged as unknown.
+
+### Changed
+
+- Internal: added `BARE_DESIGN_OPS`, `DESIGN_OP_NAMES`, `DESIGN_FIELDS`, and `BARE_DESIGN_FIELDS` tables in `lib/validate-nodes.js` to drive the new design-node validation. No public API surface.
+
 ## 1.2.3 — 2026-08-18
 
 ### Added
