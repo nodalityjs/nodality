@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.5
+ * nodality v1.2.6
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -1557,10 +1557,21 @@ if (operations.includes("gradient")){
 		this.res.style.backgroundColor = "green";
 	 }
 
-	  if (operations.includes("gradient")){
+	  if (operations.includes("gradient") && this.globalGradient){
 		// not working with blast
 
 		// Children are cleared when setting gradient to wrap and resizing
+
+		// FAIL CLOSED on `this.globalGradient`. It is read from the node's
+		// `op.gradient`, so a design node that names the op but carries no
+		// gradient string leaves it undefined — and the transparent
+		// text-fill below then paints the element out with NOTHING behind
+		// it, so the target goes invisible rather than merely unstyled.
+		// That is not hypothetical: the README's own install example wrote
+		// the colours as a top-level `colors:` key, which nothing reads,
+		// and so rendered its own headline invisible through several
+		// releases. Leaving the element untouched makes the same mistake
+		// visible as "no gradient" instead of as a blank page.
 
 	    // Set gradient to text
 		if (this.getType() !== "LayoutWrapperElement" && this.getType() !== "FlexRowLayoutElement"){

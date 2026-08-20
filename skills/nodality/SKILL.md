@@ -68,10 +68,18 @@ Told apart by the shape of `op`:
 
 | Family | Shape | Example |
 |---|---|---|
-| Design | `op` is an object | `{ op: { name: "shadow" }, target: ["card"] }` |
-| Raster | `op` is a string | `{ op: "dither", target: ["hero"], levels: 6 }` |
+| Design | `op` is an object, or one of seven shorthand strings | `{ op: { name: "shadow" }, target: ["card"] }` |
+| Raster | `op` is any other string | `{ op: "dither", target: ["hero"], levels: 6 }` |
 | Morph | `op: "morph"` | one transition, or a whole graph via `chain` |
 | Agent surface | `op: "agent-surface"` | exposes the page to AI agents as tools |
+
+**The design family has two shapes.** The object form takes its options
+inside `op`. The seven shorthand names – `blast`, `gradient`, `shadow`,
+`filter`, `animation`, `transform`, `span` – expand against a table of
+defaults, so `{ op: "gradient" }` is a whole valid node. Only the
+shorthand accepts `gradient`, `filter`, `color` and `width` as top-level
+keys, because its expansion lifts them into the op it substitutes. Any
+other string is a raster op.
 
 Rules that are not obvious from the schema:
 
@@ -111,14 +119,17 @@ A complete navigation graph is one node:
 - **Every element that a node targets needs an `id`.** Short and stable
   (`"hero"`, `"topnav"`); ids are the joint between the two arrays and
   appear in generated code.
-- **Do not invent options.** An unknown option is silently ignored, not
-  an error. If `list_ops` does not name it, it does not exist. And know
-  where options live: raster-op options sit on the node (`levels: 6`),
-  but design-node options sit INSIDE the `op` object
-  (`op: { name: "gradient", gradient: "linear-gradient(...)" }`). As of
-  1.2.5 the validator checks raster options, targets and element types
-  but NOT design-node options, so a misplaced design option fails
-  silently – the gradient renders its target invisible, for instance.
+- **Know where options live.** Raster-op options sit on the node
+  (`levels: 6`); design-node options sit INSIDE the `op` object
+  (`op: { name: "gradient", gradient: "linear-gradient(...)" }`).
+  Putting a design option at the top level is the single most common
+  mistake with this library – the project's own README shipped
+  `colors: [...]` there and rendered its headline invisible. Since 1.2.7
+  `validate_nodes` reports it and tells you where it belongs, so run the
+  validator rather than trusting the shape by eye.
+- **Do not invent options.** An option that no op declares is ignored in
+  silence rather than reported. If `list_ops` does not name it, it does
+  not exist.
 - **Codegen:** the on-page panel showing the imperative equivalent of
   the pair is on by default; pass `code: false` (and `elements: false`)
   to `.set()` to hide it on a production page. From the CLI,
