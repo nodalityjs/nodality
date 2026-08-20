@@ -224,7 +224,16 @@ test("C: no op documents a param that nothing reads", () => {
 	const everything = reads(SRC);
 	const phantoms = [];
 	for (const [name, def] of Object.entries(REGISTRY)) {
-		for (const key of Object.keys(def.doc.params)) {
+		for (const [key, meta] of Object.entries(def.doc.params)) {
+			// A param that names another reader is checked against THAT
+			// source instead. `copy` is two implementations behind one op
+			// name — a shader, and the DOM builder an element of type
+			// "copy" takes — and only the shader half lives in this file,
+			// so a key the mapper reads would read as a phantom here.
+			// The check is relocated, not dropped:
+			// copy-op-declares-what-it-reads.test.mjs asserts the named
+			// source really does read it.
+			if (meta.readBy) continue;
 			if (!everything.has(key)) phantoms.push(`${name}.${key}`);
 		}
 	}
