@@ -28,6 +28,35 @@ Generated per release from the source diff.
 
 - Internal: added `BARE_DESIGN_OPS`, `DESIGN_OP_NAMES`, `DESIGN_FIELDS`, and `BARE_DESIGN_FIELDS` tables in `lib/validate-nodes.js` to drive the new design-node validation. No public API surface.
 
+## 1.2.6 — 2026-08-20
+
+### Added
+
+- `npx nodality skill` installs the `/nodality` skill into agent IDEs — Claude Code (`.claude/skills/`) and Cursor (`.cursor/rules/`) — and registers the MCP server in the project's config. Flags: `--claude`, `--cursor`, `--global`, `--dir=<path>` for any other agent, and `--no-mcp`. Re-running upgrades in place. The MCP already gave a generator the vocabulary; the skill gives it the workflow and the rules the schema cannot encode.
+- `skills/` ships inside the package, so an agent reading `node_modules/nodality/` has the authoring workflow to hand offline, beside `API.md`.
+
+### Fixed
+
+- Generated code was a syntax error on any page with more than one element. The Designer joined its statements with `""`, producing `})new Text(` at every boundary, so the output of the code panel could not be pasted anywhere. Joined with `";\n\n"` now — each entry is a complete expression.
+- The README's install example rendered its own headline invisible. It wrote a gradient's colours as a top-level `colors:` key, which nothing reads: the gradient string stayed undefined while the gradient path still applied a transparent text-fill, so the example produced a blank line and no error. Corrected to `op: { name: "gradient", gradient: "linear-gradient(...)" }`.
+
+## 1.2.5 — 2026-08-19
+
+### Changed
+
+- Card titles default to `#f97316` rather than the CSS keyword `orange` (`rgb(255, 165, 0)`), a legacy value that reads yellow beside a modern palette. Applied to both the `size`- and `fluidc`-styled title variants in the card generator.
+
+## 1.2.4 — 2026-08-19
+
+### Fixed
+
+- Elements without an id no longer ship `id="undefined"`. Five call sites wrote `setAttribute("id", x)` without checking that `x` existed, and `setAttribute` stringifies, so a missing id neither threw nor showed up in any test. It is invisible until two of them meet: duplicate ids are a conformance error, and the four production deployments were carrying 1, 1, 2 and 15 of them, the last failing the WHATWG checker on 14 counts of `Duplicate ID "undefined"` alone. Guarded in `layout/center.js`, `layout/text.js`, `layout/image.js`, `layout/form-components/image-picker.js` and `lib/keyframe-animation.js`.
+- `Center` guarded on `obj.id` and then wrote a bare `id`, which is not in scope. That path threw a `ReferenceError` for every caller who DID supply an id, so the guard could not have worked in either direction.
+
+### Added
+
+- `__tests__/unit/no-undefined-id.test.mjs` covers all three cases, verified against a negative control.
+
 ## 1.2.3 — 2026-08-18
 
 ### Added
