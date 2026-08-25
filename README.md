@@ -168,6 +168,88 @@ stills rather than breaking. And determinism is a property of the
 compiled artefact – the same pair always produces the same output – not
 of the pixels a particular GPU eventually paints.
 
+## Requirements
+
+Nodality has **zero runtime dependencies**. What you need depends on how you use it.
+
+**The preferred way to start is the scaffolder**, which creates a working project
+with the pipeline, the prerender step and the example pair already wired up:
+
+```bash
+npm create nodality@latest my-app
+```
+
+It needs only Node.js 20 or newer. Everything below is for adding Nodality to
+something that already exists.
+
+| Use | Requires |
+|---|---|
+| In a browser | Any browser with ES modules. No build step, no bundler. |
+| `npm install nodality` | Node.js 20 or newer. TypeScript declarations ship in `dist/index.d.ts`. |
+| `npx nodality prerender` (static generation) | Node.js 20 or newer. The prerender path runs the same pipeline inside `jsdom`. |
+| Running the test suite | `npm install` (pulls Playwright, jsdom, webpack, Babel as dev dependencies), then `npx playwright install`. |
+
+The published measurements were produced on Node.js v25.6.0.
+
+## Code information
+
+| Path | Contains |
+|---|---|
+| `layout/` | Element definitions — the *what exists* half of the pair. |
+| `lib/` | Transformation nodes and the pipeline — the *what is done to it* half. |
+| `dist/` | Built bundles: `index.cjs.js` (CommonJS), `index.esm.js` (ES module), `index.d.ts`. |
+| `bin/` | The command-line entry points, including `prerender`. |
+| `__tests__/` | Playwright regression tests that assert deterministic output. |
+| `examples/` | Runnable pairs, smallest first. |
+| `API.md` | Full API reference. |
+| `CHANGELOG.md` | Version history. |
+
+## Reproducing the published measurements
+
+The quantitative results are **not** in this repository. Harnesses, raw data and
+per-measurement READMEs are deposited separately under CC0:
+
+- **Repository:** [github.com/nodalityjs/benchmarks](https://github.com/nodalityjs/benchmarks)
+- **Archived deposit:** [10.5281/zenodo.21610251](https://doi.org/10.5281/zenodo.21610251)
+
+That deposit covers authoring cost in language-model tokens, compiler scaling
+from 10 to 1 000 elements, crawlability and first-paint timing, model
+properties, determinism, accessibility, and WHATWG validity. Each has its own
+README and run command. The benchmark harnesses pin `nodality` to an exact
+version rather than a range, so a fresh install reproduces the published figures
+against the artefact that produced them.
+
+## Methodology
+
+Nodality compiles two plain arrays — `elements` (what exists) and `nodes` (what
+is done to it) — into rendered output. The two meet only through `target`, so
+neither names the other and either can be authored, stored or generated
+independently. The same pair is interpreted twice: at build time inside a
+simulated DOM to emit crawlable static HTML, and in the browser to attach
+behaviour. Determinism is a property of the compiled artefact: the same pair
+always compiles to a byte-identical result, which is asserted by the regression
+suite rather than proved formally.
+
+## Citing
+
+If you use Nodality in research, please cite the paper rather than this
+repository:
+
+> Vabroušek, F. Nodality: a node-based declarative transformation pipeline for
+> static UI generation. *PeerJ Computer Science*. (Under review.)
+
+For the measurements specifically, cite the data deposit:
+
+> Vabroušek, F. 2026. *Nodality benchmarks*. Zenodo. DOI 10.5281/zenodo.21610251.
+
+## License and contributing
+
+Nodality is released under the [MIT License](LICENSE). The benchmark deposit is
+released separately under CC0 1.0.
+
+Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md) for the
+development setup and the expectations for a pull request.
+
 ## Links
 
 - **Docs** – [nodalityjs.github.io](https://nodalityjs.github.io/)
