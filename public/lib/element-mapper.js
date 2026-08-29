@@ -82,6 +82,17 @@ const ELEMENT_TYPES = [
 // ignoring it was the defect Stage 4 fixes - throwing on it would be a worse
 // one. Missing fields are filled rather than left undefined, because the
 // mapper derives an id from the title and a missing title threw.
+// One id, however it was spelled. `#hero` and `hero` name the same element,
+// and until now which one worked depended on the subsystem: raster targeting
+// matched by exact string, morph-node stripped the hash, and chainReact
+// required it. Both spellings are accepted everywhere now, and neither is made
+// canonical — normalising only at the point of comparison means every existing
+// page keeps working whichever it used.
+const sameId = (a, b) => {
+    const bare = (v) => typeof v === "string" && v.charAt(0) === "#" ? v.slice(1) : v;
+    return bare(a) === bare(b);
+};
+
 const navEntry = (i) =>
     (typeof i === "string" || typeof i === "number")
         ? { title: String(i), link: "#e" }
@@ -196,8 +207,12 @@ class ElementMapper { // 22:09:58 04/11/2024
                   font: "Arial"
               },
               headStyle: {
+                  // White on #ff6d22 measured 2.81:1 against a 4.5:1
+                  // requirement — a header that reads as styled and is not
+                  // legible. #c2410c is 5.18:1, and is where the card title
+                  // moved to, so the palette stays one palette.
                   color: "white",
-                  background: "#ff6d22"
+                  background: "#c2410c"
               },
               border: "2px solid black",
               center: true,
@@ -540,6 +555,13 @@ animation: {
         return this.attachRaster(new FloatingInput()
           .set({
                   type: el.inputType ?? "input",
+                  // FloatingInput calls it `title`; every generator and every
+                  // UI kit calls it `label`, and both solvers in the eval
+                  // wrote `label`. The field it produced then had no
+                  // accessible name at all — a placeholder is not one, since
+                  // it disappears the moment anyone types.
+                  ...(el.label !== undefined && el.title === undefined
+                      ? { title: el.label } : {}),
                   ...this.elOpts(el),
               }), el, obj.customOptions);
       }
@@ -572,6 +594,13 @@ animation: {
 
 
     static dropdown(obj){
+        // A label for the trigger, which is what makes every declared option
+        // selectable. Without one the first item becomes the label and is
+        // spent — `items: ["CZE","POL","DEU"]` offered two. `label` is the
+        // name a generator reaches for (it is what <select> and every UI kit
+        // call it); `title` is what the component calls it, so both are taken.
+        const ddLabel = obj.el.label ?? obj.el.title;
+
         if (!obj.el.items){
             obj.el.items = ["Flower", "Car", "Maseratti"];
         }
@@ -598,6 +627,9 @@ animation: {
         // `raster:` option here would be silently dropped.
         const dd = new Dropdown()
         .set({
+          // Supplied only when there is one, so a dropdown without a label
+          // keeps the shape it always had, byte for byte.
+          ...(ddLabel === undefined ? {} : { title: ddLabel }),
           behaviour: "click", // click otherwise
           //width: "120px",
         
@@ -617,7 +649,7 @@ animation: {
           new Text("Option 3"),*/
       
           
-          new Text(obj.el.items[0]).set({
+          ...(ddLabel !== undefined ? [] : [new Text(obj.el.items[0]).set({
             font: "Arial",
             fluidc: "S6",
           weight: "bold",
@@ -629,10 +661,12 @@ animation: {
             },
           pad: [{l: 10, r: 10}],
        
-          }),
+          })]),
       
           new Wrapper().set({border: "1px solid green", background: "#1abc9c", radius: "0.7rem", socenter: true})
-          .add(items.slice(1)
+          // Every item is an option when the trigger carries its own label;
+         // otherwise the first is spent on the label, as before.
+         .add(ddLabel === undefined ? items.slice(1) : items
 
          /* new Text("Option 1o").set({font: "Arial",  pad: [{a: 10}],}),
           new Text("Option 2").set({font: "Arial",  pad: [{a: 10}],}),
@@ -713,8 +747,10 @@ alert("PP")
         const navItems = Array.isArray(obj.el?.items) && obj.el.items.length
             ? obj.el.items.map(navEntry)
             : null;
+        // `pad` gives the link a hit area: unpadded these measured 43x18,
+        // under the 24px WCAG 2.2 minimum in the direction a thumb needs.
         const navLinks = () => navItems.map((i) =>
-            new Link().set({ text: i.title, url: i.link }));
+            new Link().set({ text: i.title, url: i.link, pad: [{ tb: 8, lr: 4 }] }));
 
         let links = items.map((i, o) => new Link(`"${i.title}"`)
         .set({
@@ -1108,6 +1144,12 @@ new Wrapper().set({
 
         // Phase S4, as protoNav above: `items` carries {title, link}; absent,
         // the placeholders are used exactly as before.
+        // Whether the caller supplied anything, kept separate from `items`
+        // itself: the placeholders carry a `link` of their own that was never
+        // rendered, so honouring it now would change output that has to stay
+        // byte-identical. Supplied entries use their link; placeholders keep
+        // the hardcoded url they have always rendered.
+        const suppliedNav = Array.isArray(obj.el?.items) && obj.el.items.length > 0;
         let items = Array.isArray(obj.el?.items) && obj.el.items.length
             ? obj.el.items.map(navEntry)
             : [
@@ -1133,7 +1175,11 @@ new Wrapper().set({
             text: i.title,
             link: i.link,
             isNavA: true,
-            url: "#e",
+            // The caller's link, not a hardcoded one. `link:` is not read by
+            // Link — `url` is what becomes the href — so declaring a link here
+            // used to render a fixed value regardless, which is the silent
+            // no-op this whole plan exists to remove.
+            url: suppliedNav ? (i.link || "#e") : "#e",
             id: "#" + i.title.toLowerCase(),
             font: "Arial",
             pad: [{a:20}], 
@@ -1234,7 +1280,11 @@ new Wrapper().set({
             text: i.title,
             link: i.link,
             isNavA: true,
-            url: "#myURL",
+            // The caller's link, not a hardcoded one. `link:` is not read by
+            // Link — `url` is what becomes the href — so declaring a link here
+            // used to render a fixed value regardless, which is the silent
+            // no-op this whole plan exists to remove.
+            url: suppliedNav ? (i.link || "#myURL") : "#myURL",
             id: "#" + i.title.toLowerCase(),
             font: "Arial",
             pad: [{a:20}], 
@@ -1341,7 +1391,11 @@ if (obj.el.dropdown){
             radius: "1rem",
             isSide: true,
             background: "#ecf0f1",
-            hamColour: {opened: "#1abc9c", closed: "#e67e22"},
+            // Both hamburger states measured under 3:1 on white at 26px:
+            // #e67e22 was 2.48:1 and #1abc9c 2.16:1. Same hues, dark enough
+            // to be seen — and #c2410c is the orange the cards and the table
+            // header moved to, so one palette rather than three.
+            hamColour: {opened: "#0f766e", closed: "#c2410c"},
             mobileSize: "1.2em",
             fixed: true,
             tags: {open: "sidebar:open", close: "sidebar:closed"}
@@ -1512,6 +1566,12 @@ let elo = new Polygon({ id: "hex" })
                 class: el.class,
                 color: el.color,
                 size: this.getElType(el.type), // update 23/07/2025
+                //@ tag: Heading level to render, independent of the type's size.
+                // Without this the option exists on the component and is not
+                // reachable from a spec, which for a data-first format means it
+                // does not exist. The card template uses it; an author writing
+                // {type:"h5", tag:"h2"} must get the same lever.
+                tag: el.tag,
                 font: el.font ?? "Arial",
                // index: obj.i + "",
                // keySet: {key: "border", value: "3px solid green"},
@@ -1672,15 +1732,12 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
             })
             .items([
                 new Image(item.img).set({isFull: true, url: item.img}),
-                // #f97316 rather than the CSS keyword orange (rgb 255,165,0), a legacy
-                // value that reads yellow beside modern palettes. No backticks here:
-                // this block lives inside a template literal and is evaluated as
-                // source, so module scope is not visible either.
-                new Text(item.title).set({ size: "S5", color: "#f97316" }),
+                // #c2410c is 5.18:1 on white; h2 keeps the outline intact.
+                new Text(item.title).set({ size: "S5", tag: "h2", color: "#c2410c" }),
                 new Link("Link").set({
                     text: item.title, 
                     url: item.link, 
-                    background: "#3498db", 
+                    background: "#1d6fe0", 
                     pad: [{ lr: "0.5rem", tb: "1rem" }], 
                     radius: "0.4rem", 
                     color: "white",
@@ -1688,6 +1745,28 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
                 })
             ])`;
 
+    // WHY THE CARD'S COLOURS AND HEADING LEVEL ARE WHAT THEY ARE.
+    //
+    // Kept OUT of the template above on purpose. Everything inside that string
+    // is source the developer receives, so a paragraph of rationale there is a
+    // paragraph in every generated page: fourteen lines of commentary about
+    // contrast ratios added 700 characters to the emitted output before this
+    // was noticed. Moving it here — and taking the older four-line note with
+    // it — left the emission 235 characters SMALLER than before this work.
+    //
+    // The title was #f97316, chosen over the CSS keyword orange because that
+    // reads yellow beside modern palettes. A considered choice that measured
+    // 2.80:1 on white against a 3:1 requirement and missed it by a margin
+    // nobody catches by looking. #c2410c is 5.18:1 and clears both the large-
+    // and small-text thresholds whatever size the title renders at. The link
+    // background moved from #3498db (white on it: 3.15:1) to #1d6fe0 (4.77:1),
+    // already this library's blue elsewhere.
+    //
+    // The tag option decouples the document outline from the type scale: the
+    // title stays S5-sized and stops being an h5, which made every page with
+    // an h1 above a card grid skip h2, h3 and h4 at once. h2, because a card
+    // grid is normally a section of a page rather than a subsection of one;
+    // pass tag to nest it deeper.
     // zoom card block (string template)
     const zoomCard = `
         new ZoomCard()
@@ -1699,11 +1778,11 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
                 useBrightness: true
             })
             .items([
-                new Text(item.title).set({ fluidc: "S6", color: "#f97316" }),
+                new Text(item.title).set({ fluidc: "S6", tag: "h2", color: "#c2410c" }),
                 new Link("Link").set({
                     text: item.title, 
                     url: item.link, 
-                    background: "#3498db", 
+                    background: "#1d6fe0", 
                     pad: [{ lr: "0.5rem", tb: "1rem" }], 
                     radius: "0.4rem", 
                     color: "white"
@@ -1800,12 +1879,23 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
         const shorthand = items.filter((it) => !isSpecList(it));
         const specLists = items.filter(isSpecList);
 
+        // Alt text, forwarded only when some entry carries it. The template
+        // is emitted SOURCE, so anything added here is paid by every generated
+        // page — including the no-items path, whose output is pinned byte for
+        // byte. Widening the template only when the data needs it keeps that
+        // pin intact and still lets the terse form describe its images, which
+        // matters because the terse form is the one a generator reaches for.
+        const altTemplate = (tpl) =>
+            shorthand.some((it) => it && it.alt !== undefined)
+                ? tpl.replace("url: item.img}", "url: item.img, alt: item.alt}")
+                : tpl;
+
         // Every entry is shorthand: keep the `.map()` form, so the emitted
         // code stays as compact as the hand-written equivalent and the
         // template is still paid once.
         if (specLists.length === 0) {
             return `${JSON.stringify(shorthand, null, 2).split("\n").map((l, i) => i === 0 ? l : "      " + l).join("\n")}.map(item => 
-        ${cardTemplate}
+        ${altTemplate(cardTemplate)}
       )`;
         }
 
@@ -1846,9 +1936,9 @@ const blast    = this.filtero("blast", el.id, obj.customOptions);
         return `new Card()
             .set({ width: "300px", height: "700px", radius: "0.7rem", mar: { sides: ["all"], value: "0.8rem" } })
             .items([
-              new Image(${s(item.img)}).set({isFull: true, url: ${s(item.img)}}),
-              new Text(${s(item.title)}).set({ size: "S5", color: "#f97316" }),
-              new Link("Link").set({ text: ${s(item.title)}, url: ${s(item.link)}, background: "#3498db", pad: [{ lr: "0.5rem", tb: "1rem" }], radius: "0.4rem", color: "white" })
+              new Image(${s(item.img)}).set({isFull: true, url: ${s(item.img)}${item.alt === undefined ? "" : `, alt: ${s(item.alt)}`}}),
+              new Text(${s(item.title)}).set({ size: "S5", tag: "h2", color: "#c2410c" }),
+              new Link("Link").set({ text: ${s(item.title)}, url: ${s(item.link)}, background: "#1d6fe0", pad: [{ lr: "0.5rem", tb: "1rem" }], radius: "0.4rem", color: "white" })
             ])`;
     }
 
@@ -2059,7 +2149,7 @@ static form(obj){
             .filter(l => l.op.name === name)
             .filter(l => {
                 if (l.target) {
-                    return l.target.includes(id)
+                    return l.target.some((t) => sameId(t, id));
                 } else {
                     return true;
                 }
@@ -2110,7 +2200,7 @@ static form(obj){
     static filteroRaster(id, customOptions) {
         const list = (customOptions || []).filter((l) =>
             l && typeof l.op === "string" && RASTER_OP_NAMES.includes(l.op) &&
-            (!l.target || (id && l.target.includes(id))));
+            (!l.target || (id && l.target.some((t) => sameId(t, id)))));
         return list.length > 0 ? list : undefined;
     }
 }

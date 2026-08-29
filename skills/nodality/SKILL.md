@@ -68,6 +68,20 @@ Skipping step 3 is the classic failure: a misspelled op renders
 *nothing* rather than erroring, so the page looks plausible and is
 silently missing its effects.
 
+## HTML's names are accepted
+
+`src` and `href` both mean `url`; `options` means `items`. Write either — the
+canonical names are `url` and `items`, and that is what `get_schema` reports.
+Giving both with **different** values is reported as `CONFLICTING_ALIAS`,
+because one of them would be ignored.
+
+A table's rows may also be written as arrays with the header row first, the way
+a CSV is:
+
+```js
+{ type: "table", items: [["date", "race"], ["29/08", "Krusnoman"]] }
+```
+
 ## Composites carry their content in a slot
 
 A composite is not empty scaffolding – you give it content, and **which
@@ -194,6 +208,42 @@ prerendering, and the agent surface – imperative code is not validated.
 One naming caution: `Text` and `Image` collide with DOM constructor
 names. Always use the module import; on a page using the CDN globals,
 never assume `window.Text` / `window.Image` are still the DOM's own.
+
+## Building more than one page
+
+Declare shared chrome once and reference it. **`.defs()` must come before
+`.add()`** — `add` renders as it goes, so definitions arriving later cannot be
+used, and the wrong order is refused with a message saying so.
+
+```js
+const shared = {                      // one file, imported by every page
+  nav:    { type: "nav", items: [{ title: "Home", link: "/" }] },
+  footer: { type: "wrap", children: [{ type: "p", text: "Acme" }] },
+};
+
+new Des().defs(shared).nodes(N)
+  .add([{ $ref: "nav" }, { type: "h1", text: "Pricing" }, { $ref: "footer" }])
+  .set({ mount: "#mount" });
+```
+
+Keys written beside a reference **override** the definition, which is how one
+nav serves every page:
+
+```js
+{ $ref: "nav", id: "topnav" }                       // adds an id
+{ $ref: "nav", items: [{ title: "Docs", link: "/d" }] }   // replaces the list
+```
+
+The merge is shallow: an override replaces a slot, it does not extend it.
+
+Worth it from **two pages up**: on a single page a reference costs more than
+writing the thing, so do not reach for it before then. On a real site's nav and
+footer it is 1.7x at four pages and about 2x at ten — measured, because 61% of
+every token in that site was the same chrome repeated.
+
+A name with no definition is refused at render and reported by
+`validate_nodes` as `DANGLING_REF` with a did-you-mean, so pass `defs` as the
+third argument when you validate a page that uses references.
 
 ## Editing a page that already exists
 
