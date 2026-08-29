@@ -136,6 +136,54 @@ const TOOLS = [
     },
   },
   {
+    name: "get_schema",
+    description:
+      "One element type's parameters, on demand. This is the other half of " +
+      "list_ops: that returns the vocabulary of N, this returns the " +
+      "vocabulary of E. Call it for the type you are about to write rather " +
+      "than carrying every type's parameters in context \u2014 that is the " +
+      "difference between paying for a schema once and paying for it in " +
+      "every request. Each entry names the mapper, the components it builds " +
+      "and every parameter recovered from the source those components " +
+      "actually read, so it cannot describe a parameter the library does " +
+      "not have. Omit `type` for the whole schema. Composites carry content " +
+      "in a slot \u2014 `items` for cards, nav, sideNav, table and ulist; " +
+      "`children` for row, form and wrap \u2014 and declaring it in the " +
+      "other one renders the placeholders instead.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        type: {
+          type: "string",
+          description: "An element type, e.g. \"cards\". Omit for the whole schema.",
+        },
+      },
+    },
+  },
+  {
+    name: "parse_html",
+    description:
+      "Read a rendered page back into an E array, so a page can be EDITED " +
+      "rather than only generated: parse it, change the one thing, render " +
+      "again. Two tiers, and the report says which one you got. A page " +
+      "rendered with `{annotate: true}` carries its own descriptors and " +
+      "comes back exactly \u2014 every type, every option, nothing " +
+      "inferred. Without that, only what the tag settles is recovered: " +
+      "headings, paragraphs, links, images and lists. Thirteen composite " +
+      "types render as a bare <div> with nothing to tell them apart, so " +
+      "those are reported unrecovered rather than guessed \u2014 a wrong " +
+      "guess would silently become a different page. The recovered spec is " +
+      "validated before it is returned, because a descriptor read out of a " +
+      "document is untrusted input.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        html: { type: "string", description: "The rendered HTML to read back." },
+      },
+      required: ["html"],
+    },
+  },
+  {
     name: "preview",
     description:
       "Render an (E, N) pair to a self-contained HTML file through the " +
@@ -179,6 +227,44 @@ const IMPL = {
   // this server's opinion between the core and the agent.
   validate_nodes: async ({ nodes, elements }) =>
     ok(validateNodes(nodes, elements)),
+
+  // Served from the shipped schema.json rather than regenerated: the
+  // generator is a build-time script and this server answers in-process. The
+  // drift test keeps the committed copy honest, so reading it is not a second
+  // source of truth, it is the same one at rest.
+  get_schema: async ({ type } = {}) => {
+    const [{ readFile }, { fileURLToPath }, { dirname, join }] = await Promise.all([
+      import("node:fs/promises"), import("node:url"), import("node:path"),
+    ]);
+    const here = dirname(fileURLToPath(import.meta.url));
+    const schema = JSON.parse(await readFile(join(here, "..", "schema.json"), "utf8"));
+    const types = schema.types || {};
+    if (!type) return ok(schema);
+    if (!types[type]) {
+      // Same report shape as everything else, so an agent parses one thing.
+      return ok({
+        ok: false,
+        errors: [{
+          code: "UNKNOWN_ELEMENT_TYPE", path: "type", got: type,
+          suggestions: Object.keys(types)
+            .filter((t) => t.slice(0, 2) === String(type).slice(0, 2)).slice(0, 3),
+          valid: Object.keys(types),
+        }],
+      });
+    }
+    return ok({ type, ...types[type] });
+  },
+
+  parse_html: async ({ html }) => {
+    // Same arrangement as `preview`: a DOM is a build-time concern, so jsdom
+    // is not bundled and its absence arrives as MISSING_PEER_DEPENDENCY from
+    // the handler below rather than as a stack trace.
+    const [{ JSDOM }, { parseReport }] = await Promise.all([
+      import("jsdom"), import("../lib/parse-html.js"),
+    ]);
+    const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
+    return ok(parseReport(String(html ?? ""), dom.window.document));
+  },
 
   preview: async ({ elements, nodes, output }) => {
     const N = nodes || [];

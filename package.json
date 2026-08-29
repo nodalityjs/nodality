@@ -1,6 +1,6 @@
 {
   "name": "nodality",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "A lightweight library for declarative UI elements.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -14,7 +14,9 @@
     "bin/",
     "API.md",
     "examples/",
-    "skills/"
+    "skills/",
+    "schema.json",
+    "scripts/generate-schema.mjs"
   ],
   "exports": {
     ".": {

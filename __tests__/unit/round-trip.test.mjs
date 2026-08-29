@@ -199,3 +199,44 @@ test("an agent can load a page, change one card, and re-render", () => {
   // And the edited page is itself round-trippable, so editing composes.
   assert.deepEqual(parse(edited), spec);
 });
+
+// ── what parse returns is untrusted ──
+
+test("a tampered descriptor is reported, not handed back to be rendered", () => {
+  // `data-nod` is text in a document. It can be hand-edited, served by
+  // someone else, or written by a different version of the library — and the
+  // caller's next move is to render it. This is where Stage 3 and Stage 5
+  // compose: the validator that makes a spec repairable is the one that makes
+  // a parsed spec safe.
+  const good = render([{ type: "cards", items: [{ img: "a.jpg", title: "A", link: "#a" }] }], true);
+  const tampered = good.replace(/data-nod="[^"]*"/,
+    'data-nod="{&quot;type&quot;:&quot;cardz&quot;,&quot;items&quot;:[]}"');
+
+  const r = parseReport(tampered, dom.window.document);
+  assert.equal(r.ok, false, "an unknown type was reported as a clean read");
+  assert.ok(r.errors.some((e) => e.code === "UNKNOWN_ELEMENT_TYPE"),
+    `expected the validator's report, got ${JSON.stringify(r.errors)}`);
+});
+
+test("a well-formed read reports no errors", () => {
+  // The other side of the check: validation must not make every read look
+  // broken. Annotation records the descriptor as RENDERED, defaults included,
+  // so this also pins that those defaults are themselves valid vocabulary.
+  for (const spec of CORPUS) {
+    const r = parseReport(render(spec, true), dom.window.document);
+    assert.deepEqual(r.errors, [],
+      `a clean page reported errors: ${JSON.stringify(spec).slice(0, 50)} -> ` +
+      JSON.stringify(r.errors));
+    assert.equal(r.ok, true);
+  }
+});
+
+test("content in the wrong slot survives the round-trip as a report", () => {
+  // A page can be rendered from a spec the validator would flag — nothing
+  // stops a caller doing that. Reading it back must say so rather than
+  // quietly re-rendering the placeholders a second time.
+  const html = render([{ type: "table", children: [{ type: "h2", text: "X" }] }], true);
+  const r = parseReport(html, dom.window.document);
+  assert.equal(r.ok, false);
+  assert.equal(r.errors[0].code, "WRONG_CONTENT_SLOT");
+});

@@ -118,10 +118,31 @@ try {
     encoding: "utf8", stdio: ["ignore", "pipe", "pipe"],
   });
   /nodality prerender/.test(out) ? ok("bin prints usage") : bad("bin ran but printed no usage");
+
 } catch (e) {
   const out = `${e.stdout ?? ""}${e.stderr ?? ""}`;
   /nodality prerender/.test(out) ? ok("bin prints usage") : bad(`bin failed — ${e.message.split("\n")[0]}`);
 }
+
+// 4a. The bin's SUBCOMMANDS, not just its usage line.
+//
+// `npx nodality schema` shipped broken and stayed broken: schema.json and
+// scripts/generate-schema.mjs were both outside `files`, so the subcommand
+// died with MODULE_NOT_FOUND for every consumer while passing every test in
+// the repo, where the paths resolve. Printing usage proved the bin loads; it
+// proved nothing about whether the bin can do anything. This runs the
+// subcommand that carries Stage 2's whole deliverable.
+try {
+  const schemaOut = execFileSync(
+    process.execPath, [join(pkgDir, pkg.bin.nodality), "schema", "cards"],
+    { encoding: "utf8", timeout: 30000 });
+  const parsed = JSON.parse(schemaOut);
+  parsed?.params?.some((x) => x.name === "items")
+    ? ok("bin: `nodality schema cards` returns the type's parameters")
+    : bad("bin: `nodality schema cards` ran but did not describe the type");
+  } catch (e) {
+    bad(`bin: \`nodality schema cards\` failed \u2014 ${String(e.message).split("\n")[0]}`);
+  }
 
 console.log();
 if (fail.length) {
