@@ -64,6 +64,13 @@ function showUsage() {
                                               #   --dir=<path>        copy SKILL.md anywhere
                                               #   --no-mcp            skip MCP registration
                                               # Re-run after upgrading to refresh in place.
+  nodality schema [type] [--check]            # Print the machine-readable element
+                                              # schema, derived from the source
+                                              # at run time. With a type, print
+                                              # just that type — the form an
+                                              # agent puts in its context.
+                                              #   --check  exit 1 if schema.json
+                                              #            is stale (used in CI)
   nodality help
 
 Compile flags:
@@ -872,6 +879,11 @@ async function main() {
     await runFanoutStandalone(rest);
   } else if (command === "stage") {
     await runStage(rest);
+  } else if (command === "schema") {
+    // Lazily imported like `mcp` and `skill`: a subcommand nobody invoked
+    // should cost nothing, and a broken generator must not take the CLI down.
+    const { runSchema } = await import("./schema-cli.mjs");
+    await runSchema(rest);
   } else if (command === "skill") {
     const { runSkillInstall } = await import("./install-skill.mjs");
     await runSkillInstall(rest);

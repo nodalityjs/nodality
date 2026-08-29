@@ -25,7 +25,8 @@ import {
 } from "./raster-ops.js";
 import { presetNames, presetInfo } from "./raster-presets.js";
 import { ELEMENT_TYPES } from "./element-mapper.js";
-import { didYouMean, suggest } from "./suggest.js";
+import { ELEMENT_PARAM_NAMES } from "./element-params.generated.js";
+import { didYouMean, suggest, levenshtein } from "./suggest.js";
 
 /**
  * Every key a morph node reads. Anything else on the node is ignored by
@@ -198,6 +199,17 @@ export function validateNodes(nodes, elements) {
             list.forEach((el, i) => {
                 const p = `${at}[${i}]`;
                 if (!el || typeof el !== "object" || Array.isArray(el)) {
+                    // A bare string here is almost always the pre-S1 way of
+                    // gesturing at a composite's shape —
+                    // `children: ["image","text","link"]`. The mapper accepts
+                    // it and ignores it, which is the silent no-op this
+                    // validator exists to remove, so name the working form
+                    // rather than emitting a generic shape error.
+                    if (typeof el === "string") {
+                        push("LEGACY_CHILD_STRING", p, el, [`items: [[{ type: "${el}", ... }]]`],
+                            ["an element descriptor, or a composite's `items` for card content"]);
+                        return;
+                    }
                     push("BAD_ELEMENT", p, el, [], ["{ type: \"<element type>\", ... }"]);
                     return;
                 }
@@ -209,6 +221,65 @@ export function validateNodes(nodes, elements) {
                         suggest(el.type, ELEMENT_TYPES), ELEMENT_TYPES);
                 }
                 walkEls(el.children, `${p}.children`);
+
+                // Phase S3: a misspelled element parameter. `{type:"cards",
+                // itms:[…]}` used to validate clean and then render a grid
+                // with no items — the silent no-op this validator exists to
+                // remove, one level up from the node vocabulary it already
+                // checked.
+                //
+                // Reported ONLY for a near miss of a known parameter name.
+                // An unrecognised name with no close match is left alone on
+                // purpose: several mappers spread the whole element into
+                // their component, so they accept names no static scan can
+                // enumerate, and rejecting one would stop `preview` from
+                // rendering a page that works. Detection here, full per-type
+                // vocabulary from `npx nodality schema <type>`.
+                if (typeof el.type === "string") {
+                    for (const key in el) {
+                        if (ELEMENT_PARAM_NAMES.includes(key)) continue;
+                        // Ranked, closest first, capped at three. `suggest`
+                        // returns everything within distance 2 in list order,
+                        // so `txt` offered ["at","text","tint","top","x"] with
+                        // the answer second — five guesses is not a one-turn
+                        // repair, which is Stage 3's acceptance test.
+                        // Ranked by a transposition-aware score. Plain
+                        // Levenshtein calls `ulr`→`url` distance 2, the same
+                        // as `ulr`→`mar`, so the alphabetical tiebreak put
+                        // the wrong word first. A swapped pair of letters is
+                        // the commonest typo there is, so a candidate built
+                        // from exactly the same characters ranks ahead of an
+                        // equal-distance one that is not.
+                        const sorted = (w) => [...w].sort().join("");
+                        const score = (c) => levenshtein(key, c)
+                            - (sorted(c) === sorted(key) ? 1.5 : 0)
+                            - (c[0] === key[0] ? 0.25 : 0);
+                        const near = suggest(key, ELEMENT_PARAM_NAMES)
+                            .sort((a, b) => score(a) - score(b)
+                                         || a.length - b.length
+                                         || a.localeCompare(b))
+                            .slice(0, 3);
+                        if (!near.length) continue;
+                        push("UNKNOWN_ELEMENT_PARAM", `${p}.${key}`, key, near,
+                            [`run \`npx nodality schema ${el.type}\` for this type's parameters`]);
+                    }
+                }
+
+                // Phase S1: a composite's `items` carries either element
+                // specs (a card's children) or shorthand data objects. Walk
+                // the spec form so a typo inside a card is reported at its
+                // real path; leave the shorthand alone, since it is data for
+                // the emitted template rather than elements to validate.
+                //
+                // Checked here rather than in a per-type table because
+                // `items` means the same thing wherever a composite accepts
+                // it, and a table would drift from the mapper the way the
+                // op registry did before 1.2.8.
+                if (Array.isArray(el.items)) {
+                    el.items.forEach((entry, k) => {
+                        if (Array.isArray(entry)) walkEls(entry, `${p}.items[${k}]`);
+                    });
+                }
             });
         };
         walkEls(elements, "elements");
