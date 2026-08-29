@@ -2,6 +2,29 @@
 
 Generated per release from the source diff.
 
+## 1.2.10 — 2026-08-29
+
+### Added
+- New CLI subcommand `nodality schema [type] [--check]`, generating a machine-readable element schema from source at run time; with a `type` argument it prints just that type, and `--check` exits 1 if `schema.json` is stale (for CI).
+- New internal script `bin/schema-cli.mjs` implementing the `schema` subcommand, lazily imported so it costs nothing unless invoked.
+- `cards`-type grids now accept an `items` option: shorthand `{img, title, link}` objects (rendered with the existing card template), nested element spec arrays (composed via `mapType`/`toCode`), or a mix of both. Omitting `items` renders the same placeholder cards as before.
+- `table`-type elements now accept an `items` option supplying row data; omitted, the same placeholder rows render as before.
+- `wrap`-type elements now accept a `children` option, mapped as a subtree; omitted, the same placeholder content renders as before.
+- Nav-type elements (`nav`, `protoNav`, etc.) now accept an `items` option of `{title, link}` entries (bare strings/numbers also accepted as `title`); omitted, the same placeholder links render as before. Nav's fixed three-slot layout now supports any number of items.
+- New `lib/parse-html.js` module exporting `parseHTML`, `parseNode`, `inferNode`, `parseReport`, `annotateRoundTrip`, and `SPEC_ATTR`, implementing round-trip parsing of rendered HTML back into element specs.
+  - `annotateRoundTrip` writes each element's descriptor onto its rendered DOM node via a new `set({ annotate: true })` option on the designer, enabling exact round-trip recovery. Opt-in and off by default — existing pages are unaffected unless `annotate` is set.
+  - Without annotation, `parseHTML`/`parseNode` recover only structural ("leaf") types from tag alone: headings, `p`, `a`, `img`, `ulist`. Composite types are not guessed.
+- `validate-nodes.js` now flags `UNKNOWN_ELEMENT_PARAM` for near-miss/misspelled element parameter names (ranked with a transposition-aware scoring), and `LEGACY_CHILD_STRING` for the old (silently-ignored) bare-string form of `children`, both with corrective suggestions.
+- Validation now recurses into spec-shaped entries inside `items` arrays (e.g. card content), reporting errors at their real path.
+- New generated file `lib/element-params.generated.js` exporting `ELEMENT_PARAM_NAMES`, the full list of recognized element parameter names, used by the new near-miss validation.
+- `lib/suggest.js` now exports `levenshtein` (used by the new near-miss scoring).
+
+### Changed
+- Internal: `element-mapper.js`'s hardcoded `.items(...)` card-grid array extracted into `gridItemsSource` (plus new helpers `cardFromSpecs`, `cardFromShorthand`), with default output unchanged.
+
+### Fixed
+- Nav rendering no longer throws when `items` supplies a number of entries other than exactly three (previously assumed three fixed slots).
+
 ## 1.2.8 — 2026-08-20
 
 ### Added
