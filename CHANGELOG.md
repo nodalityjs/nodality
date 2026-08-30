@@ -2,6 +2,26 @@
 
 Generated per release from the source diff.
 
+## 1.3.2 — 2026-08-30
+
+### Fixed
+
+- **Picker**: Fixed a bug where `items` entries passed as plain strings or numbers (e.g. `["Sales", "Support"]`) were not handled correctly — they were incorrectly indexed as character pairs (`item[0]`, `item[1]`), producing broken option values/text. Both `[value, text]` pairs and plain string/number items now render correctly.
+- **check-page**: `CONTROL_WITHOUT_LABEL` no longer produces false positives for controls named via `<label for>`, `aria-labelledby`, `title`, or a wrapping `<label>` — accessible-name detection now checks all of these via a new internal `hasName` helper, not just `aria-label`.
+- **check-page**: `select` and `textarea` elements are now included in the tap-target-size and control-labelling checks (previously excluded, so undersized or unlabelled pickers/textareas went unreported).
+- **check-page**: For `select` and `textarea`, the control's own text/value (options list, current value) is no longer mistaken for an accessible name.
+- **webmcp-adapter**: Fixed a bug where `fill`/submit tooling could report a field as `filled` even when the underlying control silently rejected the value (e.g. a `<select>` given a value with no matching `<option>`, or a radio group where only the first radio button was ever targeted). Every set field is now read back to confirm the control actually took the value.
+
+### Added
+
+- **Picker**: New support for an accessible name — `label` (or `title`, for parity with `FloatingInput`) is now written to `aria-label` on the underlying `<select>` if one isn't already set.
+- **check-page**: `CONTROL_WITHOUT_LABEL` suggestions now mention `picker` alongside `input`/`labelInput` as components accepting `label`.
+- **webmcp-adapter**: Fill/submit failures now return a new `FIELD_NOT_SET` refusal listing fields that were rejected by their control or absent from the form entirely, including accepted values for closed-set controls (e.g. `<select>` options) where available. The response also includes `filled` (fields that did succeed) and `submitted: null`.
+
+### Breaking
+
+- **webmcp-adapter**: Calls that previously returned `ok: true` with an incomplete `filled` list (because a field silently failed to take its value) will now instead return a `FIELD_NOT_SET` refusal and not submit the form. Callers relying on the old lenient behaviour will need to handle this new refusal path.
+
 ## 1.3.1 — 2026-08-30
 
 ### Added
