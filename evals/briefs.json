@@ -1,0 +1,394 @@
+{
+  "note": "Tier 2 of AGENTIC-FIRST-PLAN.md §10, widened by Tier 5. Each brief is a task an agent is asked to do, plus what a correct answer must contain. `must` are strings that have to reach the RENDERED page — the check that content declared is content rendered, which is the defect this whole project has been removing. `forbid` are strings that must NOT appear: placeholder content leaking is a silent failure that looks like success. `source` says where a brief came from: `invented` briefs were written by the same person who wrote the checks, which is a real weakness; `relays` briefs are derived from the structure and copy of an existing production site nobody wrote for this eval. Multi-page briefs carry `pages` instead of `must`/`forbid`.",
+  "briefs": [
+    {
+      "id": "hero",
+      "task": "A landing page hero: one headline 'Ship faster', one paragraph 'Deploy in seconds, not hours.', and a link labelled 'Get started' pointing at /signup.",
+      "must": [
+        "Ship faster",
+        "Deploy in seconds, not hours.",
+        "Get started",
+        "/signup"
+      ],
+      "forbid": [],
+      "source": "invented"
+    },
+    {
+      "id": "cards-homogeneous",
+      "task": "A grid of three product cards: Orbit, Relay and Beacon, each with an image and a link to /p/<lowercase name>.",
+      "must": [
+        "Orbit",
+        "Relay",
+        "Beacon",
+        "/p/orbit",
+        "/p/relay",
+        "/p/beacon"
+      ],
+      "forbid": [
+        "Starship",
+        "Saturn V",
+        "Shuttle"
+      ],
+      "source": "invented"
+    },
+    {
+      "id": "cards-heterogeneous",
+      "task": "A card grid where the cards differ: the first is titled 'Alpha' with a heading and two paragraphs, the second is titled 'Beta' with only a heading, the third is titled 'Gamma' with a heading and a link.",
+      "must": [
+        "Alpha",
+        "Beta",
+        "Gamma"
+      ],
+      "forbid": [
+        "Starship"
+      ],
+      "source": "invented"
+    },
+    {
+      "id": "nav",
+      "task": "A site navigation with three entries: Home to /, Docs to /docs, Pricing to /pricing.",
+      "must": [
+        "Home",
+        "Docs",
+        "Pricing",
+        "/docs",
+        "/pricing"
+      ],
+      "forbid": [
+        "Services",
+        "abcnews"
+      ],
+      "source": "invented"
+    },
+    {
+      "id": "table",
+      "task": "A table of two rows with columns 'sku' and 'name': X1/Widget and X2/Gadget.",
+      "must": [
+        "sku",
+        "name",
+        "X1",
+        "Widget",
+        "X2",
+        "Gadget"
+      ],
+      "forbid": [
+        "Pokro"
+      ],
+      "source": "invented"
+    },
+    {
+      "id": "article",
+      "task": "An article: an h1 'Why latency matters', then an h2 'The numbers', then a paragraph 'A 100ms delay costs 1% of sales.'",
+      "must": [
+        "Why latency matters",
+        "The numbers",
+        "A 100ms delay costs 1% of sales."
+      ],
+      "forbid": [],
+      "source": "invented"
+    },
+    {
+      "id": "list",
+      "task": "A bulleted list of three items: Fast, Cheap, Reliable.",
+      "must": [
+        "Fast",
+        "Cheap",
+        "Reliable"
+      ],
+      "forbid": [],
+      "source": "invented"
+    },
+    {
+      "id": "sidenav",
+      "task": "A side navigation with two entries: Overview to /overview and Billing to /billing.",
+      "must": [
+        "Overview",
+        "Billing",
+        "/overview",
+        "/billing"
+      ],
+      "forbid": [
+        "Projects"
+      ],
+      "source": "invented"
+    },
+    {
+      "id": "accessible-cards",
+      "task": "Two image cards, Rocket and Rover, each image described for a screen reader.",
+      "must": [
+        "Rocket",
+        "Rover"
+      ],
+      "needsImageDescription": true,
+      "forbid": [
+        "Starship"
+      ],
+      "source": "invented"
+    },
+    {
+      "id": "mixed-page",
+      "task": "A page with a nav (Home to /, About to /about), an h1 'Acme', a paragraph 'We make things.', and a two-card grid of Widget and Gadget.",
+      "must": [
+        "Home",
+        "About",
+        "Acme",
+        "We make things.",
+        "Widget",
+        "Gadget"
+      ],
+      "forbid": [
+        "Starship",
+        "Services"
+      ],
+      "source": "invented"
+    },
+    {
+      "id": "relays-hero",
+      "source": "relays",
+      "task": "The hero of a race-partner site: a headline 'Find your relay partner', a subheading 'It has never been so easy to find your match', and two links — 'Find a partner' to /app and 'Browse all races' to race-list.html.",
+      "must": [
+        "Find your relay partner",
+        "It has never been so easy to find your match",
+        "Find a partner",
+        "Browse all races",
+        "/app",
+        "race-list.html"
+      ],
+      "forbid": []
+    },
+    {
+      "id": "relays-race-cards",
+      "source": "relays",
+      "task": "Three race cards, each showing the race name and its location: Maratonská štafeta in Havířov, Czech Republic; Vltava Run in Šumava; Moraviaman in Otrokovice, Czech Republic.",
+      "must": [
+        "Maratonská štafeta",
+        "Havířov, Czech Republic",
+        "Vltava Run",
+        "Šumava",
+        "Moraviaman",
+        "Otrokovice, Czech Republic"
+      ],
+      "forbid": [
+        "Starship",
+        "Saturn V"
+      ]
+    },
+    {
+      "id": "relays-how-it-works",
+      "source": "relays",
+      "task": "A 'How it works' section with a heading and three numbered steps: 1 Add your times, 2 Pick your races, 3 Meet your partner.",
+      "must": [
+        "How it works",
+        "Add your times",
+        "Pick your races",
+        "Meet your partner"
+      ],
+      "forbid": []
+    },
+    {
+      "id": "relays-filters",
+      "source": "relays",
+      "task": "A filter row for a race list: a country dropdown labelled 'All countries' offering CZE, POL, DEU and AUT, and a text input to search races by name.",
+      "must": [
+        "All countries",
+        "CZE",
+        "POL",
+        "DEU",
+        "AUT"
+      ],
+      "forbid": []
+    },
+    {
+      "id": "relays-footer",
+      "source": "relays",
+      "task": "A site footer: the brand 'Relays', the line 'Find a relay partner for any race in the world. Free.', a 'Product' column linking to Races and How it works, and a 'Legal' column linking to Terms & privacy.",
+      "must": [
+        "Relays",
+        "Find a relay partner for any race in the world. Free.",
+        "Product",
+        "Races",
+        "How it works",
+        "Legal",
+        "Terms & privacy"
+      ],
+      "forbid": []
+    },
+    {
+      "id": "relays-empty-state",
+      "source": "relays",
+      "task": "An empty state for a filtered list: the message 'No races match those filters.' and a link 'Clear filters' back to race-list.html.",
+      "must": [
+        "No races match those filters.",
+        "Clear filters",
+        "race-list.html"
+      ],
+      "forbid": []
+    },
+    {
+      "id": "form",
+      "source": "invented",
+      "task": "A contact form with a heading 'Get in touch' above it and a submit button labelled 'Send'.",
+      "must": [
+        "Get in touch"
+      ],
+      "forbid": []
+    },
+    {
+      "id": "image",
+      "source": "invented",
+      "task": "A single full-width image of a launch, at https://example.com/launch.jpg, described for a screen reader.",
+      "must": [
+        "https://example.com/launch.jpg"
+      ],
+      "needsImageDescription": true,
+      "forbid": []
+    },
+    {
+      "id": "stacked-sections",
+      "source": "invented",
+      "task": "Three stacked sections, each an h2 and a paragraph: Speed/'Fast to build.', Cost/'Cheap to run.', Trust/'Hard to break.'",
+      "must": [
+        "Speed",
+        "Fast to build.",
+        "Cost",
+        "Cheap to run.",
+        "Trust",
+        "Hard to break."
+      ],
+      "forbid": []
+    },
+    {
+      "id": "wide-table",
+      "source": "invented",
+      "task": "A table with columns date, race, country and discipline, and two rows: 29/08/2026 Krusnoman CZE Triathlon, and 05/09/2026 Hory Bory CZE Run.",
+      "must": [
+        "date",
+        "race",
+        "country",
+        "discipline",
+        "Krusnoman",
+        "Hory Bory",
+        "29/08/2026",
+        "05/09/2026"
+      ],
+      "forbid": [
+        "Pokro"
+      ]
+    },
+    {
+      "id": "nested-row",
+      "source": "invented",
+      "task": "A row containing two columns: the left an h2 'Left' with a paragraph 'One.', the right an h2 'Right' with a paragraph 'Two.'",
+      "must": [
+        "Left",
+        "One.",
+        "Right",
+        "Two."
+      ],
+      "forbid": [
+        "This",
+        "row."
+      ]
+    },
+    {
+      "id": "long-copy",
+      "source": "invented",
+      "task": "An article with an h1 'Latency', three h2 sections — 'Measurement', 'Budget', 'Tradeoffs' — each followed by a paragraph of at least ten words.",
+      "must": [
+        "Latency",
+        "Measurement",
+        "Budget",
+        "Tradeoffs"
+      ],
+      "forbid": []
+    },
+    {
+      "id": "site-two-page",
+      "source": "relays",
+      "pages": [
+        {
+          "id": "index",
+          "must": [
+            "Relays",
+            "Races",
+            "How it works",
+            "Find your relay partner",
+            "Terms & privacy"
+          ],
+          "forbid": [
+            "Starship"
+          ]
+        },
+        {
+          "id": "races",
+          "must": [
+            "Relays",
+            "Races",
+            "How it works",
+            "Every upcoming race",
+            "Terms & privacy"
+          ],
+          "forbid": [
+            "Starship"
+          ]
+        }
+      ],
+      "task": "A two-page site sharing one nav (Relays to index.html, Races to race-list.html, How it works to index.html#how-it-works) and one footer (Terms & privacy to relays-terms.html). Page 'index' has the hero 'Find your relay partner'; page 'races' has the heading 'Every upcoming race'."
+    },
+    {
+      "id": "site-four-page",
+      "source": "invented",
+      "pages": [
+        {
+          "id": "home",
+          "must": [
+            "Acme",
+            "Home",
+            "Pricing",
+            "Docs",
+            "Contact",
+            "We make things."
+          ],
+          "forbid": []
+        },
+        {
+          "id": "pricing",
+          "must": [
+            "Acme",
+            "Home",
+            "Pricing",
+            "Docs",
+            "Contact",
+            "Plans"
+          ],
+          "forbid": []
+        },
+        {
+          "id": "docs",
+          "must": [
+            "Acme",
+            "Home",
+            "Pricing",
+            "Docs",
+            "Contact",
+            "Reference"
+          ],
+          "forbid": []
+        },
+        {
+          "id": "contact",
+          "must": [
+            "Acme",
+            "Home",
+            "Pricing",
+            "Docs",
+            "Contact",
+            "Get in touch"
+          ],
+          "forbid": []
+        }
+      ],
+      "task": "A four-page site sharing one nav (Home /, Pricing /pricing, Docs /docs, Contact /contact) and one footer carrying the brand 'Acme'. Bodies: home 'We make things.', pricing 'Plans', docs 'Reference', contact 'Get in touch'."
+    }
+  ]
+}

@@ -133,3 +133,37 @@ test("the pre-S1 string form still gets its own diagnostic, not both", () => {
   assert.ok(!r.errors.some((e) => e.code === "WRONG_CONTENT_SLOT"),
     "the same mistake was reported twice");
 });
+
+// ── the eval's own briefs have to be answerable ──
+
+test("no brief demands a string its task never states", async () => {
+  // `cards-heterogeneous` required the titles Alpha, Beta and Gamma and never
+  // mentioned them. The hand-written reference solver passed it because the
+  // same person wrote both; a model could not, and failed a brief nobody could
+  // have answered. An unanswerable brief does not measure the library, it
+  // measures whether the solver's author also wrote the checks — which is the
+  // exact bias the eval's `source` field exists to expose.
+  const { readFileSync } = await import("node:fs");
+  const briefsPath = path.join(ROOT, "evals", "briefs.json");
+  const { briefs } = JSON.parse(readFileSync(briefsPath, "utf8"));
+
+  const unstated = [];
+  for (const b of briefs) {
+    const groups = b.pages
+      ? b.pages.map((p) => [p.id, p.must || []])
+      : [[null, b.must || []]];
+    for (const [page, must] of groups) {
+      for (const w of must) {
+        if (b.task.toLowerCase().includes(w.toLowerCase())) continue;
+        // A task may state a RULE rather than each literal — "a link to
+        // /p/<lowercase name>" derives /p/orbit. Accept a requirement whose
+        // parts are all present.
+        const parts = w.split(/[^A-Za-z0-9]+/).filter((x) => x.length > 2);
+        if (parts.length && parts.every((x) => b.task.toLowerCase().includes(x.toLowerCase()))) continue;
+        unstated.push(`${b.id}${page ? "/" + page : ""}: ${JSON.stringify(w)}`);
+      }
+    }
+  }
+  assert.deepEqual(unstated, [],
+    "these briefs require strings their own task never asks for:\n  " + unstated.join("\n  "));
+});

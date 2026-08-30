@@ -1435,7 +1435,20 @@ setTags(obj){
 
 			for (var i = 0; i < query.target.length; i++){
 
-				if (query.target[i] === id){ // #id is required
+				// Both spellings match. This compared by exact string equality
+				// and the comment said "#id is required", so a node written
+				// `target: ["docs"]` silently matched nothing while
+				// `target: ["#docs"]` worked — and morph-node.js had already
+				// chosen the OPPOSITE convention, stripping the hash before
+				// comparing. The library held two incompatible id conventions
+				// at once, and which one you needed depended on which
+				// subsystem you happened to be talking to.
+				//
+				// Neither side is made canonical here: both are normalised at
+				// the point of comparison, so every existing page keeps
+				// working whichever spelling it used.
+				const bare = (v) => typeof v === "string" && v.charAt(0) === "#" ? v.slice(1) : v;
+				if (bare(query.target[i]) === bare(id)){
 				
 					all = true;
 				}

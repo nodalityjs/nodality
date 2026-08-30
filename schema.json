@@ -15,6 +15,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -160,6 +164,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "text"
@@ -203,6 +211,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -348,6 +360,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "text"
@@ -391,6 +407,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -536,6 +556,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "text"
@@ -579,6 +603,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -724,6 +752,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "text"
@@ -767,6 +799,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -912,6 +948,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "text"
@@ -955,6 +995,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -1100,6 +1144,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "text"
@@ -1143,6 +1191,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -1288,6 +1340,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "text"
@@ -1583,6 +1639,10 @@
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -1778,7 +1838,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -1924,6 +1985,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "tags"
         },
         {
@@ -1992,6 +2057,10 @@
         },
         {
           "name": "align"
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
         },
         {
           "name": "animation"
@@ -2147,6 +2216,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "templateCols"
         },
         {
@@ -2218,6 +2291,10 @@
         {
           "name": "alignIts",
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
         },
         {
           "name": "animate"
@@ -2448,7 +2525,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -2603,6 +2681,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "tags"
         },
         {
@@ -2694,6 +2776,10 @@
         {
           "name": "alignIts",
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
         },
         {
           "name": "animate"
@@ -2915,7 +3001,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -3070,6 +3157,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "tags"
         },
         {
@@ -3157,6 +3248,10 @@
         {
           "name": "alignIts",
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
         },
         {
           "name": "animation"
@@ -3354,7 +3449,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -3500,6 +3596,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "tags"
         },
         {
@@ -3592,6 +3692,10 @@
         {
           "name": "alignIts",
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
         },
         {
           "name": "animate"
@@ -3822,7 +3926,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -3977,6 +4082,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "tags"
         },
         {
@@ -4104,6 +4213,10 @@
           "name": "inputType"
         },
         {
+          "name": "label",
+          "description": "Accessible name for the field."
+        },
+        {
           "name": "mar",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
@@ -4133,6 +4246,9 @@
         {
           "name": "theme",
           "description": "Explicit light/dark overrides — {light: {...}, dark: {...}}."
+        },
+        {
+          "name": "title"
         },
         {
           "name": "type",
@@ -4167,6 +4283,10 @@
         },
         {
           "name": "inputType"
+        },
+        {
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "mar",
@@ -4378,6 +4498,10 @@
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -4576,7 +4700,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -4717,6 +4842,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "tags"
@@ -4903,6 +5032,10 @@
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -5098,7 +5231,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -5239,6 +5373,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "tags"
@@ -5308,6 +5446,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -5413,7 +5555,8 @@
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -5482,6 +5625,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "title"
         },
         {
@@ -5538,6 +5685,10 @@
         {
           "name": "alignIts",
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
         },
         {
           "name": "animation"
@@ -5735,7 +5886,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -5876,6 +6028,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "tags"
@@ -5963,6 +6119,10 @@
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -6158,7 +6318,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -6299,6 +6460,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "tags"
@@ -6371,6 +6536,10 @@
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -6617,6 +6786,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "top"
         },
         {
@@ -6679,6 +6852,10 @@
         {
           "name": "alignIts",
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
         },
         {
           "name": "animation"
@@ -6876,7 +7053,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -7017,6 +7195,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "tags"
@@ -7248,6 +7430,10 @@
           "name": "align"
         },
         {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
           "name": "animation"
         },
         {
@@ -7413,6 +7599,10 @@
           "name": "stroke"
         },
         {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
           "name": "top"
         },
         {
@@ -7553,6 +7743,10 @@
         {
           "name": "alignIts",
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
         },
         {
           "name": "animation"
@@ -7750,7 +7944,8 @@
           "name": "kind"
         },
         {
-          "name": "label"
+          "name": "label",
+          "description": "Accessible name for the field."
         },
         {
           "name": "layout"
@@ -7891,6 +8086,10 @@
         },
         {
           "name": "stroke"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
           "name": "tags"

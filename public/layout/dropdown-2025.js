@@ -178,8 +178,15 @@ class Dropdown extends Animator {
           throw new Error("The 'add' method expects an array of children.");
       }
   
+      // Child 0 is skipped ONLY when it is the thing being used as the
+      // trigger. It was skipped unconditionally, so setting `title` — the
+      // supported way to label a dropdown — silently ate the first option:
+      // five declared, four shown, no error. With no title, behaviour is
+      // exactly what it was.
+      const firstIsTrigger = !this.options || !this.options.title;
+
       children.forEach((child, i) => {
-if (i !== 0){
+if (!(firstIsTrigger && i === 0)){
 
 
           if (child.res instanceof HTMLElement) {
@@ -192,7 +199,7 @@ if (i !== 0){
       });
   
       // Set the first child as the title of the toggleWrap if no title is explicitly set
-      if (!this.options || !this.options.title) {
+      if (firstIsTrigger) {
           const firstChild = children[0];
           if (firstChild && firstChild.res) {
             this.toggleWrap.appendChild(firstChild.res);

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.10
+ * nodality v1.2.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -44,6 +44,21 @@ class TextField extends Animator {
 		this.res.setAttribute("type", obj.type ?? "text");
 		//@ placeholder: Placeholder text shown while the field is empty.
 		obj.placeholder && (this.res.placeholder = obj.placeholder);
+
+		// width:100% plus horizontal padding is 100% PLUS the padding under
+		// the default content-box, so a full-width field pushed the page 20px
+		// wider than the viewport — the overflow measured exactly the padding.
+		this.res.style.boxSizing = "border-box";
+
+		//@ label: Accessible name for the field.
+		// A placeholder is NOT an accessible name: it disappears the moment
+		// anyone types, and assistive technology is not required to announce
+		// it. Take a real label where there is one and fall back to the
+		// placeholder, which is better than nothing at all.
+		if (!this.res.getAttribute("aria-label")) {
+			const name = obj.label ?? obj.title ?? obj.placeholder;
+			name && this.res.setAttribute("aria-label", String(name));
+		}
 		//@ name: Form field name. What a submitted form actually SENDS.
 		//@ id: DOM id on the input.
 		//@ required: Marks the field required for native validation.

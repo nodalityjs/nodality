@@ -136,6 +136,31 @@ const TOOLS = [
     },
   },
   {
+    name: "check_page",
+    description:
+      "What the page actually DOES, once it has real layout. Everything else " +
+      "here checks the input: validate_nodes checks vocabulary, get_schema " +
+      "says what a type accepts, parse_html says what a page was made from. " +
+      "None of them can tell you the page you just produced scrolls " +
+      "sideways, clips its own text, or is unreadable \u2014 a spec can be " +
+      "perfect and the page still wrong. Give it `html` (or `path` to a file " +
+      "`preview` wrote) and it drives a real browser at a phone and a desktop " +
+      "width and reports horizontal overflow, elements past the viewport, " +
+      "clipped content, images with no description, tap targets under 24px, " +
+      "controls with no accessible name, skipped heading levels and text " +
+      "below the WCAG contrast minimum. Same report shape as validate_nodes; " +
+      "`path` in an error is a CSS selector into the rendered page. It " +
+      "reports facts, never taste \u2014 it will not tell you whether a " +
+      "design is good.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        html: { type: "string", description: "Rendered HTML: a document or a fragment." },
+        path: { type: "string", description: "Path to an HTML file, e.g. what `preview` returned." },
+      },
+    },
+  },
+  {
     name: "get_schema",
     description:
       "One element type's parameters, on demand. This is the other half of " +
@@ -232,6 +257,26 @@ const IMPL = {
   // generator is a build-time script and this server answers in-process. The
   // drift test keeps the committed copy honest, so reading it is not a second
   // source of truth, it is the same one at rest.
+  check_page: async ({ html, path: file } = {}) => {
+    const { checkPage } = await import("../lib/check-page.js");
+    let source = html;
+    if (!source && file) {
+      const { readFile } = await import("node:fs/promises");
+      source = await readFile(file, "utf8");
+    }
+    if (!source) {
+      return ok({
+        ok: false,
+        errors: [{
+          code: "MISSING_FIELD", path: "html", got: undefined,
+          suggestions: ["html", "path"],
+          valid: ["rendered HTML, or a path to a file containing it"],
+        }],
+      });
+    }
+    return ok(await checkPage(source));
+  },
+
   get_schema: async ({ type } = {}) => {
     const [{ readFile }, { fileURLToPath }, { dirname, join }] = await Promise.all([
       import("node:fs/promises"), import("node:url"), import("node:path"),

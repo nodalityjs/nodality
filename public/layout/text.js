@@ -222,6 +222,27 @@ this.res.style.position = "absolute";
 			this.fluid(obj.fluid);
 		}
 
+		//@ tag: Heading level to render, independent of `size`/`fluid`.
+		// Size and semantics used to be the same decision: `size: "S5"`
+		// produced an <h5> and there was no way to have one without the
+		// other. That is fine for a person choosing both at once and wrong
+		// for a generated page, where the document outline is structure and
+		// the type scale is style. A card title wants to LOOK like a card
+		// title and SIT at h3, and before this it could not.
+		//
+		// Additive: absent `tag`, the element is exactly what size chose.
+		if (obj.tag && /^(h[1-6]|p)$/.test(String(obj.tag))) {
+			const want = String(obj.tag).toLowerCase();
+			if (this.res && this.res.tagName.toLowerCase() !== want) {
+				const swapped = document.createElement(want);
+				for (const a of Array.from(this.res.attributes)) {
+					swapped.setAttribute(a.name, a.value);
+				}
+				while (this.res.firstChild) swapped.appendChild(this.res.firstChild);
+				this.res = swapped;
+			}
+		}
+
 		obj.fluidc && (this.elCSS.push(`font-family: ${obj.font}; \n`));
 		obj.align && (this.res.style.textAlign = obj.align);
 		
@@ -342,6 +363,12 @@ addIcon(obj){
 	img.style.marginLeft = "10px";
 	img.style.height = "auto";
 	img.setAttribute("src", obj.url);
+	//@ alt: Description for an icon that carries meaning; omit for decoration.
+	// An <img> with no alt at all is an unlabelled image to a screen reader,
+	// which is what the nav's dropdown chevron was. Empty alt is the correct
+	// answer for decoration: it says "skip this", rather than leaving the
+	// reader to announce a URL.
+	img.setAttribute("alt", obj.alt === undefined ? "" : String(obj.alt));
 	this.res.appendChild(img);
 	return this;
 }

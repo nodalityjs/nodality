@@ -2,6 +2,42 @@
 
 Generated per release from the source diff.
 
+## 1.3.0 — 2026-08-30
+
+### Added
+- New MCP tool `check_page`, backed by new module `lib/check-page.js` and export `checkPage`. Renders HTML (via Playwright, an optional peer dependency) at mobile/desktop viewports and reports horizontal overflow, elements overflowing the viewport, clipped content, images without alt/accessible labels, tap targets under 24px, unlabelled controls, skipped heading levels, and low-contrast text. Returns the same `{ ok, errors: [...] }` shape as `validate_nodes`. Missing Playwright produces a report (`MISSING_PEER_DEPENDENCY`), not a crash.
+- New `Des.defs(map)` method for declaring shared, reusable element fragments referenced elsewhere via `{ $ref: "name" }`. Must be called before `.add()`.
+- New `lib/resolve-refs.js`: exports `resolveRefs`, `collectRefs`, `isRef`, `REF_KEY`, `unusedDefs`. Expands `$ref` references against `defs`, allows overriding keys alongside a `$ref`, and detects dangling/cyclic references.
+- New `lib/normalize-spec.js`: exports `normalizeSpec`, `normalizeAliases`, `aliasConflicts`, `ALIASES`, `ALIAS_NAMES`, `isCanonical`, `normalizeShapes`. Accepts common aliases (`src`/`href` → `url`, `options` → `items`) and normalizes table `items` given as header-first arrays into objects.
+- `validate_nodes` / `validateNodes(nodes, elements, defs)` now accepts an optional `defs` argument, validates against resolved `$ref`s and normalized aliases, and reports new error codes `DANGLING_REF`, `CONFLICTING_ALIAS`, and `BAD_CONTENT_SHAPE`.
+- `Text` elements (and the `size`/`fluid` option) gain a new `tag` option to set the rendered heading level (`h1`–`h6`/`p`) independently of visual size.
+- `Image` elements gain support for `alt` on non-`<img>` (background-image) rendering, adding `role="img"` and `aria-label`.
+- `text.js` `addIcon` now always sets an `alt` attribute (empty by default) on generated icon images.
+- `TextField` gains a new `label` option, used as an `aria-label` fallback chain (`label` → `title` → `placeholder`).
+- `FloatingInput` and `TextField` now set `box-sizing: border-box` to prevent width-plus-padding overflow, and `FloatingInput` sets `aria-label` from `title` when absent.
+- Generated card/zoom-card templates now optionally forward `alt` for images when present in the source data.
+- `element-params.generated.js` vocabulary now includes `alt` and `tag`.
+
+### Fixed
+- **Breaking-adjacent id handling made lenient, not stricter:** `#id` and bare `id` are now treated as equivalent everywhere ids are compared (`animator.js` target matching, `element-mapper.js` `filtero`/`filteroRaster`, new `morph-node.js` export `idMatches`), instead of some subsystems requiring the hash and others stripping it.
+- `Dropdown`: setting `title` no longer silently discards the first declared option; the first child is only treated as the trigger when there is no explicit `title`.
+- `image-picker.js` and `side-nav-bar.js`: label/button text now set via `textContent` instead of `innerText`, which was previously dropped by jsdom-based prerendering (SSG).
+- `side-bar.js` toggle button: size is now set via CSS (`style.width`/`height` plus `minWidth`/`minHeight` of 24px) instead of nonexistent DOM properties (`btn.width`/`btn.height`), which previously produced a 0×0, unclickable button. Also adds a default `aria-label`.
+- `side-nav-bar.js` toggle/close buttons now enforce a 24×24px minimum tap target and `lineHeight: 1`.
+- `element-mapper.js` `FloatingInput`/`Dropdown` builders now accept `label` as an alias for `title`, so generators/solvers using `label` produce an accessible name / selectable dropdown as intended.
+- `nav`/`sideNav` link generation now uses the caller-supplied `link` for each item instead of a hardcoded `#e`/`#myURL` fallback when items were explicitly supplied; placeholder (default) items are unchanged.
+- Nav link padding increased (`pad: [{ tb: 8, lr: 4 }]`) so nav links meet the 24px tap-target minimum.
+- Several hardcoded colors changed for WCAG contrast compliance: card/table header colors (`#ff6d22` → `#c2410c`), card/zoom-card title color (`#f97316` → `#c2410c`), card/zoom-card link background (`#3498db` → `#1d6fe0`), sidebar hamburger colors (`{opened:"#1abc9c",closed:"#e67e22"}` → `{opened:"#0f766e",closed:"#c2410c"}`).
+- `designer.js`: `_elements` is now recorded after nav/sideNav elements are reordered, so morph-node position matching and round-trip annotation now match against the actually-rendered order instead of the pre-reorder author order.
+
+### Changed
+- `designer.js` `add()` now resolves `$ref`s and normalizes aliases/shapes (via `resolveRefs`/`normalizeSpec`) before rendering, and throws a descriptive error for a `$ref` with no matching definition instead of the mapper's generic "Unknown element type" failure.
+- Card/zoom-card generated template rationale comments moved out of the emitted template string into source-level comments, shrinking generated output size.
+- Internal-only: comment/documentation updates with no behavioral effect in several files (e.g. clarifying existing id-hash and innerText/textContent conventions).
+
+### Breaking
+- None of the above removes or renames existing options; all new behavior is additive or fixes previously silent failures. Callers relying on the exact previous (broken) output of dropdown first-item consumption, nav link hrefs, or the specific hex colors/positions noted under "Fixed" will see visual/output differences.
+
 ## 1.2.11 — 2026-08-29
 
 ### Added
@@ -20,6 +56,29 @@ Generated per release from the source diff.
 
 ### Breaking
 - None noted — the `--check` behavior change only affects installed packages that previously had no working schema command at all (see Fixed).
+
+## 1.2.10 — 2026-08-29
+
+### Added
+- New CLI subcommand `nodality schema [type] [--check]`, generating a machine-readable element schema from source at run time; with a `type` argument it prints just that type, and `--check` exits 1 if `schema.json` is stale (for CI).
+- New internal script `bin/schema-cli.mjs` implementing the `schema` subcommand, lazily imported so it costs nothing unless invoked.
+- `cards`-type grids now accept an `items` option: shorthand `{img, title, link}` objects (rendered with the existing card template), nested element spec arrays (composed via `mapType`/`toCode`), or a mix of both. Omitting `items` renders the same placeholder cards as before.
+- `table`-type elements now accept an `items` option supplying row data; omitted, the same placeholder rows render as before.
+- `wrap`-type elements now accept a `children` option, mapped as a subtree; omitted, the same placeholder content renders as before.
+- Nav-type elements (`nav`, `protoNav`, etc.) now accept an `items` option of `{title, link}` entries (bare strings/numbers also accepted as `title`); omitted, the same placeholder links render as before. Nav's fixed three-slot layout now supports any number of items.
+- New `lib/parse-html.js` module exporting `parseHTML`, `parseNode`, `inferNode`, `parseReport`, `annotateRoundTrip`, and `SPEC_ATTR`, implementing round-trip parsing of rendered HTML back into element specs.
+  - `annotateRoundTrip` writes each element's descriptor onto its rendered DOM node via a new `set({ annotate: true })` option on the designer, enabling exact round-trip recovery. Opt-in and off by default — existing pages are unaffected unless `annotate` is set.
+  - Without annotation, `parseHTML`/`parseNode` recover only structural ("leaf") types from tag alone: headings, `p`, `a`, `img`, `ulist`. Composite types are not guessed.
+- `validate-nodes.js` now flags `UNKNOWN_ELEMENT_PARAM` for near-miss/misspelled element parameter names (ranked with a transposition-aware scoring), and `LEGACY_CHILD_STRING` for the old (silently-ignored) bare-string form of `children`, both with corrective suggestions.
+- Validation now recurses into spec-shaped entries inside `items` arrays (e.g. card content), reporting errors at their real path.
+- New generated file `lib/element-params.generated.js` exporting `ELEMENT_PARAM_NAMES`, the full list of recognized element parameter names, used by the new near-miss validation.
+- `lib/suggest.js` now exports `levenshtein` (used by the new near-miss scoring).
+
+### Changed
+- Internal: `element-mapper.js`'s hardcoded `.items(...)` card-grid array extracted into `gridItemsSource` (plus new helpers `cardFromSpecs`, `cardFromShorthand`), with default output unchanged.
+
+### Fixed
+- Nav rendering no longer throws when `items` supplies a number of entries other than exactly three (previously assumed three fixed slots).
 
 ## 1.2.8 — 2026-08-20
 
