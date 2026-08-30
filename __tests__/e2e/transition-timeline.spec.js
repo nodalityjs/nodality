@@ -29,7 +29,8 @@ test('T4 DoD: reversing mid-flight is continuous — no jump, no restart',
       const atInterrupt = tl.value;
       tl.to(0);                                  // reverse
       await new Promise((res) => setTimeout(res, 700));
-      return { atInterrupt, end: tl.value, trace: window.__trace.slice() };
+      return { atInterrupt, end: tl.value, trace: window.__trace.slice(),
+               duration: window.__duration };
     });
 
     // It was genuinely mid-flight when interrupted, and it arrived home.
@@ -37,38 +38,56 @@ test('T4 DoD: reversing mid-flight is continuous — no jump, no restart',
     expect(r.atInterrupt).toBeLessThan(0.95);
     expect(r.end).toBeCloseTo(0, 3);
 
-    // No discontinuity — judged per unit TIME, not per frame.
+    // No discontinuity — judged per unit TIME, against the fastest the
+    // animation is ALLOWED to move.
     //
-    // The frame-delta version of this assertion failed a release: under
-    // full-suite load a dropped frame produced a 0.49 step against a 0.2
-    // budget. That is a stalled frame, not a restart; the animation was
-    // continuous in value the whole way. Rate is the property that
-    // actually distinguishes the two — a restart is an instantaneous jump
-    // (huge rate), a stall is a normal rate observed over a long gap.
+    // The bound is analytic rather than chosen. Value is
+    // `from + (to - from) * easing(elapsed / span)` and `to()` sets
+    // `span = duration * dist`, so the peak rate is
     //
-    // A restart is INSTANTANEOUS; a stalled frame is not. So judge the
-    // step only across pairs that are close in time — a 400ms gap with a
-    // big delta is a dropped frame under load, and cannot demonstrate a
-    // restart no matter how large the jump looks.
+    //     dist * easing'max / (duration * dist)  =  easing'max / duration
     //
-    // (A rate budget was tried first and is the wrong tool: `in-out`
-    // easing peaks well above the mean rate, and `to()` scales the span
-    // by distance, so any fixed units-per-ms figure is either too tight
-    // or too loose to mean anything.)
-    const NORMAL_FRAME_MS = 50;
-    let maxStep = 0;
+    // — the distance CANCELS. `in-out` is cubic, `4x^3` below the midpoint
+    // and `1 - (2-2x)^3 / 2` above it, whose derivative peaks at exactly 3.
+    // Measured across runs of this fixture the observed peak is 0.00712/ms
+    // against the predicted 0.0075, and never above it.
+    //
+    // Two earlier versions of this assertion were wrong in opposite ways.
+    // A flat step budget over frames closer than 50ms is INCONSISTENT with
+    // itself: 50ms of legitimate motion is 0.375, so a budget of 0.2 fails
+    // on any frame landing past 26.7ms near the easing midpoint — which is
+    // what a loaded machine produces, and it failed at 0.2023, a 27.0ms
+    // frame. It also DISCARDED the long-gap pairs, so a genuine restart
+    // that coincided with a dropped frame was invisible to it.
+    //
+    // And the note that a rate budget cannot work — because `to()` scales
+    // the span by distance — had it backwards: that scaling is precisely
+    // what makes the peak rate constant. The mean rate varies; the peak
+    // does not.
+    //
+    // Scaling the bound by the gap means a stalled frame is allowed exactly
+    // as much motion as it had time for, so no pair has to be thrown away.
+    // A restart still fails loudly: snapping 0.42 to 0 in one ~16ms frame
+    // is ~0.026/ms, several times the ceiling.
+    const PEAK_RATE = 3 / r.duration;   // easing'max / duration
+    const TOLERANCE = 1.5;              // timer jitter between now() and the frame
     let judged = 0;
+    let worst = { ratio: 0 };
     for (let i = 1; i < r.trace.length; i++) {
       const [v0, t0] = r.trace[i - 1];
       const [v1, t1] = r.trace[i];
-      if (t1 - t0 > NORMAL_FRAME_MS) continue;   // dropped frame, not a jump
+      if (t1 <= t0) continue;
       judged++;
-      maxStep = Math.max(maxStep, Math.abs(v1 - v0));
+      const step = Math.abs(v1 - v0);
+      const allowed = PEAK_RATE * (t1 - t0) * TOLERANCE;
+      const ratio = step / allowed;
+      if (ratio > worst.ratio) worst = { ratio, step, gap: t1 - t0, allowed };
     }
-    expect(judged, 'every frame was a stall — nothing to judge').toBeGreaterThan(3);
-    expect(maxStep,
-      `largest step across a normal (<=${NORMAL_FRAME_MS}ms) frame was ${maxStep}`)
-      .toBeLessThan(0.2);
+    expect(judged, 'nothing in the trace to judge').toBeGreaterThan(3);
+    expect(worst.ratio,
+      `fastest move was ${worst.step} across ${worst.gap}ms, ` +
+      `where ${worst.allowed} is the most the easing permits`)
+      .toBeLessThan(1);
 
     // And it never snapped to 0 or 1 before easing back down.
     const peak = Math.max(...r.trace.map(([v]) => v));

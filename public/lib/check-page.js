@@ -94,6 +94,32 @@ const IN_PAGE = () => {
         });
     };
 
+    /**
+     * A name assistive technology can announce.
+     *
+     * Was `aria-label` alone, which is only one of the four ways to give one
+     * and the least used. A control correctly labelled by a `<label for>` —
+     * the ordinary HTML way — was reported as unnamed, and a false finding
+     * sends a repair at something that was never broken, which this file
+     * argues elsewhere is worse than a miss.
+     */
+    const hasName = (el) => {
+        if ((el.getAttribute("aria-label") || "").trim()) return true;
+        if ((el.getAttribute("title") || "").trim()) return true;
+        const by = (el.getAttribute("aria-labelledby") || "").trim();
+        if (by && by.split(/\s+/).some((id) => {
+            const t = document.getElementById(id);
+            return t && (t.textContent || "").trim();
+        })) return true;
+        if (el.id) {
+            const l = document.querySelector(`label[for="${CSS.escape(el.id)}"]`);
+            if (l && (l.textContent || "").trim()) return true;
+        }
+        const wrap = el.closest && el.closest("label");
+        if (wrap && (wrap.textContent || "").trim()) return true;
+        return false;
+    };
+
     const all = [...document.body.querySelectorAll("*")];
     const vw = window.innerWidth;
 
@@ -137,16 +163,30 @@ const IN_PAGE = () => {
         }
 
         // 5. A target too small to hit. 24px is the WCAG 2.2 AA minimum.
+        //
+        // `select` and `textarea` were both missing from this set, so neither
+        // check below ever ran on one. A picker could not be given an
+        // accessible name at all — `label` reached the component and nothing
+        // read it — and no report said so, because the checker was not
+        // looking. Two blind spots that hid each other.
         const interactive = tag === "a" || tag === "button" ||
-            (tag === "input" && el.type !== "hidden") || el.getAttribute("role") === "button";
+            (tag === "input" && el.type !== "hidden") ||
+            tag === "select" || tag === "textarea" ||
+            el.getAttribute("role") === "button";
         if (interactive && r.width > 0 && (r.width < 24 || r.height < 24)) {
             add("TAP_TARGET_TOO_SMALL", el, `${Math.round(r.width)}x${Math.round(r.height)}`,
                 "below the 24x24 minimum");
         }
 
         // 6. A control with nothing to announce.
-        if (interactive && !(el.textContent || "").trim() &&
-            !el.getAttribute("aria-label") && !el.querySelector("img[alt]:not([alt=''])")) {
+        //
+        // A <select>'s own text is its OPTIONS and a <textarea>'s is its
+        // VALUE. Neither names the control, so the textContent shortcut that
+        // clears a button by its caption must not clear these.
+        const ownText = (tag === "select" || tag === "textarea")
+            ? "" : (el.textContent || "").trim();
+        if (interactive && !ownText && !hasName(el) &&
+            !el.querySelector("img[alt]:not([alt=''])")) {
             add("CONTROL_WITHOUT_LABEL", el, tag, "no text and no accessible name");
         }
     }
@@ -229,7 +269,7 @@ const REPAIRS = {
         valid: ["at least 24x24 CSS pixels, per WCAG 2.2 AA target size (minimum)"],
     },
     CONTROL_WITHOUT_LABEL: {
-        suggestions: [`label: "<what the field is for>"  (labelInput)`,
+        suggestions: [`label: "<what the field is for>"  (input, labelInput, picker)`,
                       `text: "<what the control does>"  (button, a)`],
         valid: ["every control needs a name assistive technology can announce; " +
                 "a placeholder is not one"],

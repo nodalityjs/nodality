@@ -132,6 +132,62 @@ test('submit fills through the form and reports what it sent',
     expect(sent[0].form).toBe('contact-form');
     expect(sent[0].data.name).toBe('Ada Lovelace');
     expect(sent[0].data.email).toBe('ada@example.com');
+    // The picker and the checkbox too, not just the text fields. This test
+    // passed `topic: 'Sales'` and asserted everything EXCEPT topic, so it
+    // stayed green while the field was silently dropped from every payload:
+    // `Picker` read each item as a [value, text] pair, a string is
+    // indexable, and `["Sales", "Support"]` therefore rendered two options
+    // both valued "S". The tool still reported ok and listed topic among the
+    // fields it had filled. An assertion that skips the one value a
+    // composite is responsible for is how that survives.
+    expect(sent[0].data.topic).toBe('Sales');
+    expect(sent[0].data.optin).toBe('on');
+  });
+
+test('a value the control cannot take is refused, and nothing is sent',
+  async ({ page, baseURL }) => {
+    // The report used to be a lie by omission. Assigning a <select> a value
+    // it has no option for leaves it untouched and throws nothing, and the
+    // old handler counted the key as filled regardless — so the tool
+    // answered ok, listed the field among those it had filled, and submitted
+    // a payload the field was missing from. On the agent path that is the
+    // worst version of the failure: the caller cannot see the page.
+    await load(page, baseURL);
+    await call(page, 'navigate', { destination: 'contact' });
+    await expect.poll(() => visibleHeading(page), { timeout: 10000 }).toEqual(['Contact']);
+
+    const res = await call(page, 'submit_contact-form', {
+      name: 'Ada', email: 'ada@example.com', topic: 'Nonsense',
+    });
+    expect(res.ok, JSON.stringify(res)).toBe(false);
+    expect(res.code).toBe('FIELD_NOT_SET');
+    expect(res.got).toEqual(['topic']);
+    // What it WOULD accept, so the caller repairs in one turn rather than guessing.
+    expect(res.valid.join(' ')).toContain('Sales');
+    expect(res.valid.join(' ')).toContain('Support');
+    // And what did land, because the form is now partly filled.
+    expect(res.filled).toEqual(['name', 'email']);
+    expect(await page.evaluate(() => window.__submissions.length)).toBe(0);
+  });
+
+test('a field the form does not carry is reported, not skipped',
+  async ({ page, baseURL }) => {
+    await load(page, baseURL);
+    await call(page, 'navigate', { destination: 'contact' });
+    await expect.poll(() => visibleHeading(page), { timeout: 10000 }).toEqual(['Contact']);
+    // The schema still names `topic`; the control is gone.
+    await page.evaluate(() => {
+      const f = document.querySelector('#contact-form select');
+      if (f) f.remove();
+    });
+
+    const res = await call(page, 'submit_contact-form', {
+      name: 'Ada', email: 'ada@example.com', topic: 'Sales',
+    });
+    expect(res.ok, JSON.stringify(res)).toBe(false);
+    expect(res.code).toBe('FIELD_NOT_SET');
+    expect(res.got).toEqual(['topic']);
+    expect(await page.evaluate(() => window.__submissions.length)).toBe(0);
   });
 
 test('a missing required field reports the field, and nothing is sent',

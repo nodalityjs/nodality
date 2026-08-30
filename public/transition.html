@@ -83,7 +83,12 @@
     // No branch on null: progressTimeline tolerates a missing pipeline,
     // which is exactly the reduced-motion case — the morph completes, it
     // just has no pixels.
-    window.__tl = progressTimeline(pipe, { duration: 400 });
+    // Published so a test can derive what motion is LEGITIMATE rather than
+    // hardcoding a copy of it: the peak rate of an `in-out` timeline is
+    // easing'max / duration, and a step budget written independently of this
+    // number drifts out of agreement with it silently.
+    window.__duration = 400;
+    window.__tl = progressTimeline(pipe, { duration: window.__duration });
     window.__ready = true;
   </script>
 </body></html>

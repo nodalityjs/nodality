@@ -15,9 +15,20 @@ module.exports = {
         // This suite has a residual flake rate of a few percent across
         // ~300 tests: measured over repeated full runs, raster-probe,
         // transition-timeline and transition-pass have each failed once
-        // and passed on re-run, and none has a known cause. Most involve
-        // WebGL timing or screenshot equality, which is exactly the class
-        // that gets worse on slower hardware with a software rasteriser.
+        // and passed on re-run. Most involve WebGL timing or screenshot
+        // equality, which is exactly the class that gets worse on slower
+        // hardware with a software rasteriser.
+        //
+        // ONE of the three is now root-caused and fixed, and it was not a
+        // timing sensitivity at all — transition-timeline's continuity
+        // assertion was self-inconsistent. It discarded frames slower than
+        // 50ms as stalls, then held the survivors to a step budget of 0.2,
+        // while 50ms of legitimate easing is 0.375; any frame past 26.7ms
+        // near the midpoint failed while animating correctly. It now judges
+        // every pair against `easing'max / duration`, which is analytic and
+        // scales with the gap. Measured 0/24 failures under the contention
+        // that reproduced it at 1/12. The remaining two are still unexplained
+        // and should not be assumed to be the same kind of thing.
         //
         // That matters more than usual here because `npm run test` guards
         // TWO gates: onlyPublish.sh runs it before tagging, and the

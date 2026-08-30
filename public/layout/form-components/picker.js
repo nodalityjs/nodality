@@ -46,7 +46,26 @@ class Picker extends Animator {
         
         
         for (var i = 0; i < obj.length; i++){
-             card.appendChild(this.addNode(obj[i][0], obj[i][1]));
+            // An item is a [value, text] PAIR, or a plain string that is
+            // both. The string form was not handled and did not fail: a
+            // string is indexable, so `obj[i][0]` and `obj[i][1]` were its
+            // first two CHARACTERS. `items: ["Sales", "Support"]` rendered
+            // two options both valued "S", reading "a" and "u".
+            //
+            // It stayed hidden because the two halves of the library
+            // disagreed in opposite directions. `deriveSurface` builds a
+            // picker's enum from `items.filter(i => typeof i === "string")`
+            // — it requires the STRING form, and a unit test pins it — while
+            // this loop required the PAIR form, so no value of `items`
+            // satisfied both. The agent-facing manifest therefore advertised
+            // `enum: ["Sales", "Support"]` over a control whose only
+            // selectable values were "S" and "S", and an agent submitting
+            // "Sales" had the field silently dropped from the payload.
+            const it = obj[i];
+            const pair = (typeof it === "string" || typeof it === "number")
+                ? [String(it), String(it)]
+                : [it && it[0], it && it[1]];
+            card.appendChild(this.addNode(pair[0], pair[1]));
         }
         
   /*card.appendChild(this.addNode("audi", "Audi"));
@@ -73,6 +92,22 @@ class Picker extends Animator {
 
         obj.radius && (this.el.style.borderRadius = obj.radius);
         obj.background && (this.el.style.background = obj.background);
+
+        // A <select> with no adjacent text has no accessible name, and this
+        // component had no way to be given one. `label` already reached here
+        // — `elOpts` forwards it — and nothing read it, so every picker on
+        // every page reported CONTROL_WITHOUT_LABEL from `check_page` and the
+        // finding was UNREPAIRABLE through the descriptor vocabulary: there
+        // was no spelling of the fix. Declared and ignored, which is the
+        // failure this library spent six stages removing.
+        //
+        // `label` is the accessible name here, as it is on `input`; `title`
+        // is accepted too, since FloatingInput calls it that and a caller
+        // moving between the two form types should not have to notice.
+        const named = obj.label !== undefined ? obj.label : obj.title;
+        if (named !== undefined && named !== null && !this.el.getAttribute("aria-label")) {
+            this.el.setAttribute("aria-label", String(named));
+        }
 
         // Same dispatch Text and Wrapper use, so a Picker can be given a
         // border, height, font size or cursor through set() instead of the

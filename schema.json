@@ -4815,6 +4815,10 @@
           "name": "items"
         },
         {
+          "name": "label",
+          "description": "Accessible name for the field."
+        },
+        {
           "name": "length"
         },
         {
@@ -4832,6 +4836,9 @@
         {
           "name": "radius",
           "description": "Corner radius in pixels. A bare number, not a CSS length."
+        },
+        {
+          "name": "title"
         },
         {
           "name": "type",

@@ -228,3 +228,85 @@ test("the repair check_page suggests actually clears the finding", async (t) => 
   assert.equal(after.errors.filter((e) => e.code === "TAP_TARGET_TOO_SMALL").length, 0,
     "applying the suggested keySet clears it");
 });
+
+// ── 5. a picker's items, and its name ──
+
+test("a picker takes its items as strings or as [value, text] pairs", () => {
+  // The string form is the one `deriveSurface` requires — it builds the
+  // enum from `items.filter(i => typeof i === "string")`, pinned by
+  // agent-surface.test.mjs — while this component required the PAIR form.
+  // No value of `items` satisfied both. A string is indexable, so
+  // `["Sales", "Support"]` rendered two options both valued "S", reading
+  // "a" and "u", under a manifest advertising Sales and Support.
+  const opts = (spec) => {
+    draw(spec);
+    return [...dom.window.document.querySelectorAll("#mount select option")]
+      .map((o) => `${o.value}/${o.textContent}`);
+  };
+  assert.deepEqual(opts({ type: "picker", items: ["Sales", "Support"] }),
+    ["Sales/Sales", "Support/Support"]);
+  assert.deepEqual(opts({ type: "picker", items: [["a", "Alpha"], ["b", "Beta"]] }),
+    ["a/Alpha", "b/Beta"]);
+});
+
+test("a picker can be given an accessible name", () => {
+  // It could not before: `label` reached the component — `elOpts` forwards
+  // everything it does not skip — and nothing read it, so a select had no
+  // spelling of the fix at all.
+  const named = (spec) => {
+    draw(spec);
+    const s = dom.window.document.querySelector("#mount select");
+    return s && s.getAttribute("aria-label");
+  };
+  assert.equal(named({ type: "picker", label: "Topic", items: ["A"] }), "Topic");
+  assert.equal(named({ type: "picker", title: "Topic", items: ["A"] }), "Topic");
+  assert.equal(named({ type: "picker", items: ["A"] }), null,
+    "and stays absent when none was asked for, rather than inventing one");
+});
+
+// ── 6. the checker's own blind spot ──
+
+test("check_page sees select and textarea, which it did not", async (t) => {
+  // Neither was in the `interactive` set, so neither the label check nor the
+  // tap-target check ever ran on one. That is why a picker being unnameable
+  // went unnoticed for as long as it did: the component had no spelling of
+  // the fix, and the tool that would have said so was not looking. Two blind
+  // spots that hid each other.
+  const r = await checkOr("<form id='f'><select><option value='a'>A</option></select>" +
+    "<textarea></textarea></form>",
+    { viewports: [{ name: "mobile", width: 390, height: 844 }] });
+  if (!r) return t.skip("playwright not installed");
+  const paths = r.errors.filter((e) => e.code === "CONTROL_WITHOUT_LABEL").map((e) => e.path);
+  assert.equal(paths.length, 2, `both controls reported: ${JSON.stringify(paths)}`);
+  assert.ok(paths.some((p) => p.endsWith("select")), "the select");
+  assert.ok(paths.some((p) => p.endsWith("textarea")), "the textarea");
+});
+
+test("a select's options are not mistaken for its name", async (t) => {
+  // `textContent` on a <select> is the OPTION LIST. The shortcut that clears
+  // a button by its caption would clear every select ever written.
+  const r = await checkOr("<form id='f'><select><option value='a'>Sales</option>" +
+    "<option value='b'>Support</option></select></form>",
+    { viewports: [{ name: "mobile", width: 390, height: 844 }] });
+  if (!r) return t.skip("playwright not installed");
+  assert.equal(r.errors.filter((e) => e.code === "CONTROL_WITHOUT_LABEL").length, 1);
+});
+
+test("the four ways to name a control all count", async (t) => {
+  // Was `aria-label` alone — the least used of them. A control labelled the
+  // ordinary HTML way was reported as unnamed, and a false finding sends a
+  // repair at something that was never broken.
+  const wrap = (inner) => `<form id='f'>${inner}</form>`;
+  const cases = [
+    ["aria-label", "<select aria-label='Topic'><option value='a'>A</option></select>"],
+    ["label[for]", "<label for='s'>Topic</label><select id='s'><option value='a'>A</option></select>"],
+    ["ancestor label", "<label>Topic <select><option value='a'>A</option></select></label>"],
+    ["aria-labelledby", "<span id='t'>Topic</span><select aria-labelledby='t'><option value='a'>A</option></select>"],
+  ];
+  for (const [how, inner] of cases) {
+    const r = await checkOr(wrap(inner), { viewports: [{ name: "mobile", width: 390, height: 844 }] });
+    if (!r) return t.skip("playwright not installed");
+    assert.equal(r.errors.filter((e) => e.code === "CONTROL_WITHOUT_LABEL").length, 0,
+      `${how} should count as a name`);
+  }
+});
