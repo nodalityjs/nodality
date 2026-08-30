@@ -2,6 +2,20 @@
 
 Generated per release from the source diff.
 
+## 1.3.3 — 2026-08-31
+
+### Fixed
+- `Picker` now correctly handles array items given as plain strings (e.g. `items: ["Sales", "Support"]`). Previously each string was indexed by character, producing broken option values/text instead of using the full string.
+- Deprecation warnings from `deprecatedOption` (e.g. for `arrayPadding`/`arrayMargin`) are now emitted once per notice per build, instead of twice — components are constructed twice internally during rendering, which was doubling every warning.
+- Generated `Picker` markup from the element mapper now uses `pad` instead of the deprecated `arrayPadding`, so generated pickers no longer trigger a deprecation warning for an option the developer didn't write.
+
+### Changed
+- `Picker` now warns when `arrayPadding` or `arrayMargin` are used, recommending `pad`/`mar` instead. Both deprecated options continue to work.
+- Internal: `Picker.setup`'s first parameter renamed from `obj` to `items`; `Picker.set` restructured to read named options into local variables before use. No behavioral effect beyond the fixes above.
+
+### Added
+- New export `resetDeprecationNotices` from `layout/animator.js`, called internally by `Des` at the start of each build so deprecation notices are reported fresh per build rather than suppressed for the process lifetime.
+
 ## 1.3.2 — 2026-08-30
 
 ### Fixed
