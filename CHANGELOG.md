@@ -22,6 +22,32 @@ Generated per release from the source diff.
 
 - **webmcp-adapter**: Calls that previously returned `ok: true` with an incomplete `filled` list (because a field silently failed to take its value) will now instead return a `FIELD_NOT_SET` refusal and not submit the form. Callers relying on the old lenient behaviour will need to handle this new refusal path.
 
+## 1.3.1 — 2026-08-30
+
+### Added
+
+- `checkPage`: findings now include a `nod` field carrying the originating `data-nod` spec identifier when the checked page was annotated, otherwise `null`.
+- `checkPage`: findings' `suggestions` and `valid` fields are now populated per finding code (`TAP_TARGET_TOO_SMALL`, `CONTROL_WITHOUT_LABEL`, `IMAGE_WITHOUT_ALT`, `LOW_CONTRAST`, `HEADING_LEVEL_SKIPPED`, `ELEMENT_OVERFLOWS_VIEWPORT`, `HORIZONTAL_OVERFLOW`, `CONTENT_CLIPPED`) instead of always being empty arrays.
+- `checkPage(html, opts)`: new `opts.waitUntil` option (defaults to `"load"`) controlling Playwright's `page.setContent` wait condition, for pages whose styling loads asynchronously (e.g. `"networkidle"`).
+- `validate-nodes.js`: new export `SPEC_ITEMS`, the set of element types (currently `ulist`) whose `items` entries are validated as element specs rather than as data.
+- `validate-nodes.js`: object entries under `items` for types in `SPEC_ITEMS` are now validated — a missing `type` produces `MISSING_FIELD` (with a suggested replacement when a `text`/`title`/`label` string is present), and an unrecognized `type` produces `UNKNOWN_ELEMENT_TYPE` with near-miss suggestions.
+- `element-mapper.js`: `labelInput`-style elements now also fall back to a `text` field for the label when both `title` and `label` are absent (`title` wins, then `label`, then `text`).
+- `element-params.generated.js`: regenerated parameter list, adding numerous previously-unlisted parameter names (e.g. `alignTo`, `aligns`, `as`, `centerSelf`, `child`, `colat`, `decoding`, `fetchPriority`, `fitContent`, `hideOverflow`, `isBackground`, `isLink`, `justifo`, `justify`, `loading`, `minHeight`, `objectFit`, `objectPosition`, `owrap`, `sizes`, `srcset`, `stype`, `toColumn`, `wrap`) used for near-miss typo detection.
+
+### Fixed
+
+- `floating-input`: a field with no `title` no longer renders the literal string `"undefined"` as its label, placeholder, and `aria-label`; it now renders as empty/absent.
+- `check-page.js`: the internal element selector (`sel`) is now page-unique, walking up to the nearest ancestor `id` (or `document.body`) instead of being computed relative only to the immediate parent. Previously, multiple similar unlabelled elements on a page could produce identical selectors and collapse into a single merged finding.
+
+### Changed
+
+- `check-page.js`: `IN_PAGE`'s internal `add()` helper now takes the element itself rather than a pre-computed selector string, and also resolves the nearest `data-nod` attribute for the element.
+- Comment-only clarifications in `element-mapper.js` explaining the `title`/`label`/`text` fallback precedence.
+
+### Breaking
+
+- None noted — all changes are additive or bug fixes to existing behavior.
+
 ## 1.3.0 — 2026-08-30
 
 ### Added
