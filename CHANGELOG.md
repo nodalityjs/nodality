@@ -38,6 +38,25 @@ Generated per release from the source diff.
 ### Breaking
 - None of the above removes or renames existing options; all new behavior is additive or fixes previously silent failures. Callers relying on the exact previous (broken) output of dropdown first-item consumption, nav link hrefs, or the specific hex colors/positions noted under "Fixed" will see visual/output differences.
 
+## 1.2.11 — 2026-08-29
+
+### Added
+- New MCP tool `get_schema`: returns one element type's parameters (mapper, components, recovered parameters) or the whole schema if `type` is omitted; unknown types return an `UNKNOWN_ELEMENT_TYPE` error with `suggestions` and `valid` list.
+- New MCP tool `parse_html`: reads rendered HTML back into an E array. Pages rendered with `{annotate: true}` recover exactly; otherwise only headings, paragraphs, links, images and lists are recovered, and the thirteen composite types are reported as `unrecovered`. Requires `jsdom` as a peer dependency at call time.
+- `schema-cli.mjs` now falls back to reading the shipped `schema.json` when `scripts/generate-schema.mjs` is not present (i.e. in an installed package), supporting plain and `--type` lookups.
+- `lib/validate-nodes.js` exports `CONTENT_SLOT`, a map of which composite types read their content from `items` vs `children` (`cards`, `nav`, `sideNav`, `table`, `ulist` → `items`; `row`, `form`, `wrap` → `children`).
+- Validation now reports `WRONG_CONTENT_SLOT` when a composite's content is put in the slot it doesn't read (e.g. `{type:"table", children:[...]}`), naming the correct slot as a suggestion.
+
+### Fixed
+- `npx nodality schema` (and `--type`) no longer fails with `MODULE_NOT_FOUND` in installed packages — `schema.json` and `scripts/` are now included in the published tarball, and a packing smoke test guards against this regressing.
+- `parse_html`'s recovered spec is now validated (`validateNodes`) before being returned; the report's `ok` is `false` if either recovery is incomplete (`unrecovered`) or validation fails, and validation `errors` are included in the report.
+
+### Changed
+- `schema-cli.mjs --check` now only works in a checkout (requires `scripts/generate-schema.mjs`); in an installed package it prints an error and exits non-zero instead of running.
+
+### Breaking
+- None noted — the `--check` behavior change only affects installed packages that previously had no working schema command at all (see Fixed).
+
 ## 1.2.10 — 2026-08-29
 
 ### Added
