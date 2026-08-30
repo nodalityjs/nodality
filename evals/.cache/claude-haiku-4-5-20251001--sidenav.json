@@ -1,0 +1,19 @@
+{
+  "elements": [
+    {
+      "type": "sideNav",
+      "id": "sidebar",
+      "items": [
+        {
+          "title": "Overview",
+          "link": "/overview"
+        },
+        {
+          "title": "Billing",
+          "link": "/billing"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

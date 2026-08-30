@@ -1,0 +1,22 @@
+{
+  "elements": [
+    {
+      "id": "launch-image",
+      "type": "img",
+      "url": "https://example.com/launch.jpg",
+      "alt": "A rocket launching into the sky, flames erupting from its engines as it lifts off from the launch pad"
+    }
+  ],
+  "nodes": [
+    {
+      "op": {
+        "name": "span",
+        "width": "100vw",
+        "height": "100vh"
+      },
+      "target": [
+        "launch-image"
+      ]
+    }
+  ]
+}

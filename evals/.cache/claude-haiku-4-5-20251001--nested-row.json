@@ -1,0 +1,38 @@
+{
+  "elements": [
+    {
+      "type": "row",
+      "children": [
+        {
+          "type": "wrap",
+          "id": "left-col",
+          "children": [
+            {
+              "type": "h2",
+              "text": "Left"
+            },
+            {
+              "type": "p",
+              "text": "One."
+            }
+          ]
+        },
+        {
+          "type": "wrap",
+          "id": "right-col",
+          "children": [
+            {
+              "type": "h2",
+              "text": "Right"
+            },
+            {
+              "type": "p",
+              "text": "Two."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

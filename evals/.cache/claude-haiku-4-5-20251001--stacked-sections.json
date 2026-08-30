@@ -1,0 +1,35 @@
+{
+  "elements": [
+    {
+      "id": "speed-head",
+      "type": "h2",
+      "text": "Speed"
+    },
+    {
+      "id": "speed-para",
+      "type": "p",
+      "text": "Fast to build."
+    },
+    {
+      "id": "cost-head",
+      "type": "h2",
+      "text": "Cost"
+    },
+    {
+      "id": "cost-para",
+      "type": "p",
+      "text": "Cheap to run."
+    },
+    {
+      "id": "trust-head",
+      "type": "h2",
+      "text": "Trust"
+    },
+    {
+      "id": "trust-para",
+      "type": "p",
+      "text": "Hard to break."
+    }
+  ],
+  "nodes": []
+}

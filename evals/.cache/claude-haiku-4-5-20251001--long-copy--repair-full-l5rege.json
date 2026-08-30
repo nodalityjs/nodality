@@ -1,0 +1,40 @@
+{
+  "elements": [
+    {
+      "id": "hero",
+      "type": "h1",
+      "text": "Latency"
+    },
+    {
+      "id": "measurement-heading",
+      "type": "h2",
+      "text": "Measurement"
+    },
+    {
+      "id": "measurement-text",
+      "type": "p",
+      "text": "Latency is measured in milliseconds and represents the time delay between a request and its response in networked systems and applications."
+    },
+    {
+      "id": "budget-heading",
+      "type": "h2",
+      "text": "Budget"
+    },
+    {
+      "id": "budget-text",
+      "type": "p",
+      "text": "A latency budget allocates acceptable delay thresholds across different components ensuring that no single operation degrades overall user experience and responsiveness."
+    },
+    {
+      "id": "tradeoffs-heading",
+      "type": "h2",
+      "text": "Tradeoffs"
+    },
+    {
+      "id": "tradeoffs-text",
+      "type": "p",
+      "text": "Reducing latency often requires additional resources and computational overhead which may increase costs and power consumption while improving perceived performance and user satisfaction."
+    }
+  ],
+  "nodes": []
+}

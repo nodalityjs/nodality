@@ -560,8 +560,16 @@ animation: {
                   // wrote `label`. The field it produced then had no
                   // accessible name at all — a placeholder is not one, since
                   // it disappears the moment anyone types.
-                  ...(el.label !== undefined && el.title === undefined
-                      ? { title: el.label } : {}),
+                  //
+                  // `text` joined them after Tier 7. A model wrote
+                  // `{type:"labelInput", text:"Name"}` and the field rendered
+                  // the literal string "undefined" as its label, its
+                  // placeholder and its accessible name, while validate_nodes
+                  // reported ok — the worst available outcome for a spelling
+                  // this natural. Tier 6's rule applies: take what the world
+                  // already writes. `title` still wins, then `label`.
+                  ...(el.title === undefined && (el.label !== undefined || el.text !== undefined)
+                      ? { title: el.label !== undefined ? el.label : el.text } : {}),
                   ...this.elOpts(el),
               }), el, obj.customOptions);
       }

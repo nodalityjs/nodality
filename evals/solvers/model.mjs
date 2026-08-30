@@ -56,13 +56,14 @@ For a multi-page brief, put shared chrome in "defs" once and reference it from
 each page as { "$ref": "<name>" }. Keys written beside a $ref override the
 definition.`;
 
-const ask = async (brief) => {
+/** The first user turn — the brief, exactly as a developer would put it. */
+const askOf = (brief) => brief.pages
+  ? `${brief.task}\n\nProduce these pages, by id: ${brief.pages.map((p) => p.id).join(", ")}.`
+  : brief.task;
+
+const ask = async (messages) => {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error("ANTHROPIC_API_KEY is not set");
-
-  const user = brief.pages
-    ? `${brief.task}\n\nProduce these pages, by id: ${brief.pages.map((p) => p.id).join(", ")}.`
-    : brief.task;
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -75,7 +76,7 @@ const ask = async (brief) => {
       model: MODEL,
       max_tokens: 4000,
       system: SYSTEM,
-      messages: [{ role: "user", content: user }],
+      messages,
     }),
   });
   if (!res.ok) throw new Error(`${res.status} ${(await res.text()).slice(0, 200)}`);
@@ -93,14 +94,38 @@ const parseJson = (text) => {
   throw new Error("no JSON in the reply");
 };
 
-export async function solve(brief) {
+/** Stable, short, and readable in a filename. */
+const digest = (str) => {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+};
+
+/**
+ * @param brief
+ * @param repair  when the runner is repairing: `{ previous, feedback, mode }`.
+ *                The conversation is the real one — the brief, the model's own
+ *                answer as the assistant turn, then the tool reports as the
+ *                next user turn. Replaying it as a single flattened prompt
+ *                would measure a different thing: the model would be reading
+ *                someone else's broken spec rather than revising its own.
+ */
+export async function solve(brief, repair = null) {
   if (!existsSync(CACHE)) mkdirSync(CACHE, { recursive: true });
-  const file = path.join(CACHE, `${MODEL}--${brief.id}.json`);
+  const file = path.join(CACHE, repair
+    ? `${MODEL}--${brief.id}--repair-${repair.mode}-${digest(repair.feedback)}.json`
+    : `${MODEL}--${brief.id}.json`);
   if (existsSync(file)) return JSON.parse(readFileSync(file, "utf8"));
+
+  const messages = [{ role: "user", content: askOf(brief) }];
+  if (repair) {
+    messages.push({ role: "assistant", content: JSON.stringify(repair.previous) });
+    messages.push({ role: "user", content: repair.feedback });
+  }
 
   let answer;
   try {
-    answer = parseJson(await ask(brief));
+    answer = parseJson(await ask(messages));
   } catch (e) {
     // A refusal, a timeout or unparseable output is an ANSWER, and a failing
     // one. Returning an empty spec scores it through the same gates as any

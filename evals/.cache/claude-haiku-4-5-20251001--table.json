@@ -1,0 +1,23 @@
+{
+  "elements": [
+    {
+      "id": "products",
+      "type": "table",
+      "items": [
+        [
+          "sku",
+          "name"
+        ],
+        [
+          "X1",
+          "Widget"
+        ],
+        [
+          "X2",
+          "Gadget"
+        ]
+      ]
+    }
+  ],
+  "nodes": []
+}

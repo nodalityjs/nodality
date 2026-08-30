@@ -1,0 +1,28 @@
+{
+  "elements": [
+    {
+      "id": "hero",
+      "type": "h1",
+      "text": "Race Events"
+    },
+    {
+      "id": "races",
+      "type": "cards",
+      "items": [
+        {
+          "title": "Maratonská štafeta",
+          "text": "Havířov, Czech Republic"
+        },
+        {
+          "title": "Vltava Run",
+          "text": "Šumava"
+        },
+        {
+          "title": "Moraviaman",
+          "text": "Otrokovice, Czech Republic"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

@@ -39,18 +39,59 @@ export const DEFAULT_VIEWPORTS = [
  */
 const IN_PAGE = () => {
     const out = [];
-    const add = (code, path, got, detail) => out.push({ code, path, got, detail });
 
-    /** A short, stable selector for a node, so a report can be acted on. */
+    /**
+     * A PAGE-UNIQUE selector, so a report can be acted on.
+     *
+     * The first version was parent-relative and returned `input` for any input
+     * that was the only one under its own div. A form with three unlabelled
+     * fields produced the string "input" three times, the merge at the bottom
+     * of this file keyed on it, and three findings collapsed into one row
+     * reading `viewport: "mobile, mobile, mobile"`. The agent was told neither
+     * which control nor that there were three — Tier 7 watched a model fail to
+     * repair exactly that. A path walks to the nearest id, or to the body.
+     */
     const sel = (el) => {
         if (!el || !el.tagName) return "?";
-        if (el.id) return `#${CSS.escape(el.id)}`;
-        const tag = el.tagName.toLowerCase();
-        const cls = (el.getAttribute("class") || "").trim().split(/\s+/).filter(Boolean)[0];
-        const base = cls ? `${tag}.${CSS.escape(cls)}` : tag;
-        const sibs = el.parentElement
-            ? [...el.parentElement.children].filter((n) => n.tagName === el.tagName) : [];
-        return sibs.length > 1 ? `${base}:nth-of-type(${sibs.indexOf(el) + 1})` : base;
+        const seg = (n) => {
+            const tag = n.tagName.toLowerCase();
+            const sibs = n.parentElement
+                ? [...n.parentElement.children].filter((x) => x.tagName === n.tagName) : [];
+            return sibs.length > 1 ? `${tag}:nth-of-type(${sibs.indexOf(n) + 1})` : tag;
+        };
+        const parts = [];
+        for (let n = el; n && n !== document.body; n = n.parentElement) {
+            if (n.id) { parts.unshift(`#${CSS.escape(n.id)}`); break; }
+            parts.unshift(seg(n));
+        }
+        return parts.join(" > ") || el.tagName.toLowerCase();
+    };
+
+    /**
+     * The SPEC node an element came from, when the page carries annotation.
+     * A selector says where in the DOM; this says which descriptor to edit,
+     * which is the thing an agent repairing a spec actually needs. Free when
+     * the annotation is there, null when it is not — it is opt-in, and the
+     * attribute name is spelled out here because this function crosses into
+     * the browser as a string and cannot import `SPEC_ATTR`. A test pins the
+     * two together.
+     */
+    const nod = (el) => {
+        for (let n = el; n && n !== document.body; n = n.parentElement) {
+            const v = n.getAttribute && n.getAttribute("data-nod");
+            if (v) return v;
+        }
+        return null;
+    };
+
+    // `target` is the element itself, so a finding can carry both. A string is
+    // passed for findings about the document rather than about an element.
+    const add = (code, target, got, detail) => {
+        const isEl = !!(target && target.tagName);
+        out.push({
+            code, path: isEl ? sel(target) : String(target), got, detail,
+            nod: isEl ? nod(target) : null,
+        });
     };
 
     const all = [...document.body.querySelectorAll("*")];
@@ -72,7 +113,7 @@ const IN_PAGE = () => {
         // 2. An element sticking out past the right edge. Left/top are not
         //    checked: off-canvas menus and slide-in panels park there legitimately.
         if (r.right > vw + 1 && cs.position !== "fixed") {
-            add("ELEMENT_OVERFLOWS_VIEWPORT", sel(el), Math.round(r.right),
+            add("ELEMENT_OVERFLOWS_VIEWPORT", el, Math.round(r.right),
                 `extends ${Math.round(r.right - vw)}px past the ${vw}px viewport`);
         }
 
@@ -81,7 +122,7 @@ const IN_PAGE = () => {
         if ((cs.overflow === "hidden" || cs.overflowY === "hidden") &&
             el.scrollHeight > el.clientHeight + 2 && el.clientHeight > 0 &&
             (el.textContent || "").trim().length > 0) {
-            add("CONTENT_CLIPPED", sel(el), el.scrollHeight,
+            add("CONTENT_CLIPPED", el, el.scrollHeight,
                 `content is ${el.scrollHeight}px in a ${el.clientHeight}px box with overflow hidden`);
         }
 
@@ -89,24 +130,24 @@ const IN_PAGE = () => {
         //    too, which is what this library's cards emit.
         const tag = el.tagName.toLowerCase();
         if (tag === "img" && !el.hasAttribute("alt")) {
-            add("IMAGE_WITHOUT_ALT", sel(el), el.getAttribute("src") || "", "no alt attribute");
+            add("IMAGE_WITHOUT_ALT", el, el.getAttribute("src") || "", "no alt attribute");
         }
         if (el.getAttribute("role") === "img" && !el.getAttribute("aria-label")) {
-            add("IMAGE_WITHOUT_ALT", sel(el), "role=img", "role=img with no aria-label");
+            add("IMAGE_WITHOUT_ALT", el, "role=img", "role=img with no aria-label");
         }
 
         // 5. A target too small to hit. 24px is the WCAG 2.2 AA minimum.
         const interactive = tag === "a" || tag === "button" ||
             (tag === "input" && el.type !== "hidden") || el.getAttribute("role") === "button";
         if (interactive && r.width > 0 && (r.width < 24 || r.height < 24)) {
-            add("TAP_TARGET_TOO_SMALL", sel(el), `${Math.round(r.width)}x${Math.round(r.height)}`,
+            add("TAP_TARGET_TOO_SMALL", el, `${Math.round(r.width)}x${Math.round(r.height)}`,
                 "below the 24x24 minimum");
         }
 
         // 6. A control with nothing to announce.
         if (interactive && !(el.textContent || "").trim() &&
             !el.getAttribute("aria-label") && !el.querySelector("img[alt]:not([alt=''])")) {
-            add("CONTROL_WITHOUT_LABEL", sel(el), tag, "no text and no accessible name");
+            add("CONTROL_WITHOUT_LABEL", el, tag, "no text and no accessible name");
         }
     }
 
@@ -117,7 +158,7 @@ const IN_PAGE = () => {
     for (const h of heads) {
         const lvl = Number(h.tagName[1]);
         if (prev && lvl > prev + 1) {
-            add("HEADING_LEVEL_SKIPPED", sel(h), h.tagName,
+            add("HEADING_LEVEL_SKIPPED", h, h.tagName,
                 `h${prev} is followed by ${h.tagName.toLowerCase()}`);
         }
         prev = lvl;
@@ -157,11 +198,69 @@ const IN_PAGE = () => {
         const large = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
         const need = large ? 3 : 4.5;
         if (ratio < need) {
-            add("LOW_CONTRAST", sel(el), `${ratio.toFixed(2)}:1`,
+            add("LOW_CONTRAST", el, `${ratio.toFixed(2)}:1`,
                 `needs ${need}:1 at ${Math.round(size)}px`);
         }
     }
     return out;
+};
+
+/**
+ * How to repair each finding, in THIS library's vocabulary.
+ *
+ * `suggestions` and `valid` are in the finding shape because `validate_nodes`
+ * puts repairs there, and check_page left both empty on every finding it has
+ * ever emitted — a field that is always blank is a field an agent learns to
+ * ignore. Tier 7 measured the cost. Told only "54x23, below the 24x24
+ * minimum", the strong model guessed `keySet: {key, value}` and was right, the
+ * weaker one invented `keySet: {"--tap-target-size": "44px"}` and was wrong,
+ * and the page stayed broken through the repair turn. Naming the element was
+ * not enough; the report has to name the edit.
+ *
+ * Kept deliberately short. These are the repair that fits the overwhelming
+ * majority of cases, not a treatment of every way a page can be wrong — an
+ * agent that needs more has `npx nodality schema <type>`.
+ */
+const REPAIRS = {
+    TAP_TARGET_TOO_SMALL: {
+        suggestions: [`keySet: { key: "min-height", value: "44px" }`,
+                      `keySet: { key: "min-width", value: "44px" }`,
+                      `pad: [{ a: 12 }]`],
+        valid: ["at least 24x24 CSS pixels, per WCAG 2.2 AA target size (minimum)"],
+    },
+    CONTROL_WITHOUT_LABEL: {
+        suggestions: [`label: "<what the field is for>"  (labelInput)`,
+                      `text: "<what the control does>"  (button, a)`],
+        valid: ["every control needs a name assistive technology can announce; " +
+                "a placeholder is not one"],
+    },
+    IMAGE_WITHOUT_ALT: {
+        suggestions: [`alt: "<what the image shows>"`,
+                      `alt: ""  if it is decorative and repeats nearby text`],
+        valid: ["img takes `alt`; a background image takes it too and becomes aria-label"],
+    },
+    LOW_CONTRAST: {
+        suggestions: [`color: "<a darker or lighter text colour>"`,
+                      `background: "<a background with more separation>"`],
+        valid: ["4.5:1 for body text, 3:1 at 24px or at 18.66px bold"],
+    },
+    HEADING_LEVEL_SKIPPED: {
+        suggestions: [`tag: "h<the next level down>"`],
+        valid: ["`tag` sets the heading level independently of the size scale, " +
+                "so the outline can be correct without changing the design"],
+    },
+    ELEMENT_OVERFLOWS_VIEWPORT: {
+        suggestions: [`maxWidth: "100%"`, `width: "100%"`, `breakWord: true`],
+        valid: ["nothing may extend past the right edge of the viewport"],
+    },
+    HORIZONTAL_OVERFLOW: {
+        suggestions: [`maxWidth: "100%" on whichever element the other findings name`],
+        valid: ["the document may not be wider than the viewport"],
+    },
+    CONTENT_CLIPPED: {
+        suggestions: [`height: "auto"`, `overflow: "visible"`],
+        valid: ["a box with `overflow: hidden` must be tall enough for its text"],
+    },
 };
 
 /**
@@ -170,6 +269,12 @@ const IN_PAGE = () => {
  */
 export async function checkPage(html, opts = {}) {
     const viewports = opts.viewports || DEFAULT_VIEWPORTS;
+    // `load` is right for a self-contained page, which is what this library
+    // emits. A page whose styling arrives over the network — a CDN stylesheet,
+    // a webfont — has not been laid out yet at `load`, and measuring it there
+    // reports the unstyled document. Callers checking such a page pass
+    // "networkidle".
+    const waitUntil = opts.waitUntil || "load";
     let chromium;
     try {
         ({ chromium } = await import("playwright"));
@@ -202,16 +307,20 @@ export async function checkPage(html, opts = {}) {
         for (const vp of viewports) {
             const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height } });
             try {
-                await page.setContent(doc, { waitUntil: "load" });
+                await page.setContent(doc, { waitUntil });
                 const found = await page.evaluate(IN_PAGE);
                 for (const f of found) {
                     errors.push({
                         code: f.code,
                         path: f.path,
                         got: f.got,
-                        suggestions: [],
-                        valid: [],
+                        suggestions: REPAIRS[f.code]?.suggestions ?? [],
+                        valid: REPAIRS[f.code]?.valid ?? [],
                         detail: f.detail,
+                        // The spec node, when the page was annotated. Null
+                        // otherwise, rather than absent, so the field's
+                        // meaning does not depend on whether it is there.
+                        nod: f.nod ?? null,
                         viewport: vp.name,
                     });
                 }

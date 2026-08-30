@@ -1,0 +1,39 @@
+{
+  "elements": [
+    {
+      "id": "hero",
+      "type": "wrap",
+      "children": [
+        {
+          "id": "headline",
+          "type": "h1",
+          "text": "Find your relay partner"
+        },
+        {
+          "id": "subheading",
+          "type": "p",
+          "text": "It has never been so easy to find your match"
+        },
+        {
+          "id": "cta-row",
+          "type": "row",
+          "children": [
+            {
+              "id": "cta-app",
+              "type": "a",
+              "text": "Find a partner",
+              "href": "/app"
+            },
+            {
+              "id": "cta-races",
+              "type": "a",
+              "text": "Browse all races",
+              "href": "race-list.html"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

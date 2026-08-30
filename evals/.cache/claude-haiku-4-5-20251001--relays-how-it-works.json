@@ -1,0 +1,28 @@
+{
+  "elements": [
+    {
+      "id": "how-heading",
+      "type": "h2",
+      "text": "How it works"
+    },
+    {
+      "id": "steps",
+      "type": "cards",
+      "items": [
+        {
+          "title": "Add your times",
+          "text": "1"
+        },
+        {
+          "title": "Pick your races",
+          "text": "2"
+        },
+        {
+          "title": "Meet your partner",
+          "text": "3"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

@@ -1,0 +1,100 @@
+{
+  "defs": {
+    "topnav": {
+      "type": "nav",
+      "items": [
+        {
+          "title": "Home",
+          "link": "/"
+        },
+        {
+          "title": "Pricing",
+          "link": "/pricing"
+        },
+        {
+          "title": "Docs",
+          "link": "/docs"
+        },
+        {
+          "title": "Contact",
+          "link": "/contact"
+        }
+      ]
+    },
+    "footer": {
+      "type": "wrap",
+      "children": [
+        {
+          "type": "p",
+          "text": "Acme"
+        }
+      ]
+    }
+  },
+  "pages": {
+    "home": {
+      "elements": [
+        {
+          "$ref": "topnav",
+          "id": "nav"
+        },
+        {
+          "type": "h1",
+          "text": "We make things."
+        },
+        {
+          "$ref": "footer",
+          "id": "footer"
+        }
+      ]
+    },
+    "pricing": {
+      "elements": [
+        {
+          "$ref": "topnav",
+          "id": "nav"
+        },
+        {
+          "type": "h1",
+          "text": "Plans"
+        },
+        {
+          "$ref": "footer",
+          "id": "footer"
+        }
+      ]
+    },
+    "docs": {
+      "elements": [
+        {
+          "$ref": "topnav",
+          "id": "nav"
+        },
+        {
+          "type": "h1",
+          "text": "Reference"
+        },
+        {
+          "$ref": "footer",
+          "id": "footer"
+        }
+      ]
+    },
+    "contact": {
+      "elements": [
+        {
+          "$ref": "topnav",
+          "id": "nav"
+        },
+        {
+          "type": "h1",
+          "text": "Get in touch"
+        },
+        {
+          "$ref": "footer",
+          "id": "footer"
+        }
+      ]
+    }
+  }
+}

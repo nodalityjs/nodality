@@ -1,0 +1,69 @@
+{
+  "defs": {
+    "topnav": {
+      "type": "nav",
+      "items": [
+        {
+          "title": "Relays",
+          "link": "index.html"
+        },
+        {
+          "title": "Races",
+          "link": "race-list.html"
+        },
+        {
+          "title": "How it works",
+          "link": "index.html#how-it-works"
+        }
+      ]
+    },
+    "footer": {
+      "type": "wrap",
+      "children": [
+        {
+          "type": "a",
+          "text": "Terms & privacy",
+          "url": "relays-terms.html"
+        }
+      ]
+    }
+  },
+  "pages": {
+    "index": {
+      "elements": [
+        {
+          "$ref": "topnav",
+          "id": "topnav"
+        },
+        {
+          "type": "h1",
+          "text": "Find your relay partner",
+          "id": "hero"
+        },
+        {
+          "$ref": "footer",
+          "id": "footer"
+        }
+      ],
+      "nodes": []
+    },
+    "races": {
+      "elements": [
+        {
+          "$ref": "topnav",
+          "id": "topnav"
+        },
+        {
+          "type": "h1",
+          "text": "Every upcoming race",
+          "id": "heading"
+        },
+        {
+          "$ref": "footer",
+          "id": "footer"
+        }
+      ],
+      "nodes": []
+    }
+  }
+}

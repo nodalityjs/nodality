@@ -1,0 +1,48 @@
+{
+  "elements": [
+    {
+      "id": "cardgrid",
+      "type": "cards",
+      "items": [
+        [
+          {
+            "type": "h3",
+            "text": "Alpha",
+            "id": "alpha-title"
+          },
+          {
+            "type": "p",
+            "text": "First paragraph of content for the Alpha card.",
+            "id": "alpha-p1"
+          },
+          {
+            "type": "p",
+            "text": "Second paragraph of content for the Alpha card.",
+            "id": "alpha-p2"
+          }
+        ],
+        [
+          {
+            "type": "h3",
+            "text": "Beta",
+            "id": "beta-title"
+          }
+        ],
+        [
+          {
+            "type": "h3",
+            "text": "Gamma",
+            "id": "gamma-title"
+          },
+          {
+            "type": "a",
+            "text": "Learn more",
+            "url": "#",
+            "id": "gamma-link"
+          }
+        ]
+      ]
+    }
+  ],
+  "nodes": []
+}

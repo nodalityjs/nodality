@@ -122,7 +122,15 @@ function paramsOf(file) {
   const found = new Set();
   for (const line of liveLines(text)) {
     for (const m of line.matchAll(/\bobj\.([a-zA-Z][a-zA-Z0-9]*)/g)) found.add(m[1]);
-    for (const m of line.matchAll(/\bthis\.options\.([a-zA-Z][a-zA-Z0-9]*)/g)) found.add(m[1]);
+    // A bare `options.` too, not just `this.options.`. Several components
+    // name the argument of `set()` `options` rather than `obj` — image.js,
+    // link.js, container.js, the two flex layouts — and every read in them
+    // was invisible to this scan. The cost was concrete and in the
+    // accessibility path: `alt` was missing from `img`, so the per-type
+    // vocabulary an agent is pointed at by `npx nodality schema img` did not
+    // mention the parameter that makes an image describable, while the
+    // renderer read it perfectly well.
+    for (const m of line.matchAll(/\boptions\.([a-zA-Z][a-zA-Z0-9]*)/g)) found.add(m[1]);
   }
   for (const junk of ["options", "el", "customOptions", "storage", "i"]) found.delete(junk);
   paramCache.set(file, found);

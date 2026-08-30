@@ -1,0 +1,26 @@
+{
+  "elements": [
+    {
+      "id": "products",
+      "type": "cards",
+      "items": [
+        {
+          "img": "https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=300&fit=crop",
+          "title": "Orbit",
+          "link": "/p/orbit"
+        },
+        {
+          "img": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop",
+          "title": "Relay",
+          "link": "/p/relay"
+        },
+        {
+          "img": "https://images.unsplash.com/photo-1550355291-bbee04a92027?w=400&h=300&fit=crop",
+          "title": "Beacon",
+          "link": "/p/beacon"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

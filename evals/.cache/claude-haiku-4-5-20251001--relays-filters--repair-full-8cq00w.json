@@ -1,0 +1,42 @@
+{
+  "elements": [
+    {
+      "type": "row",
+      "id": "filterRow",
+      "children": [
+        {
+          "type": "dropdown",
+          "id": "countryFilter",
+          "items": [
+            {
+              "title": "All countries",
+              "value": ""
+            },
+            {
+              "title": "CZE",
+              "value": "CZE"
+            },
+            {
+              "title": "POL",
+              "value": "POL"
+            },
+            {
+              "title": "DEU",
+              "value": "DEU"
+            },
+            {
+              "title": "AUT",
+              "value": "AUT"
+            }
+          ]
+        },
+        {
+          "type": "input",
+          "id": "raceSearch",
+          "placeholder": "Search races by name"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

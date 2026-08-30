@@ -1,0 +1,19 @@
+{
+  "elements": [
+    {
+      "id": "how-it-works-heading",
+      "type": "h2",
+      "text": "How it works"
+    },
+    {
+      "id": "how-it-works-steps",
+      "type": "ulist",
+      "items": [
+        "1. Add your times",
+        "2. Pick your races",
+        "3. Meet your partner"
+      ]
+    }
+  ],
+  "nodes": []
+}

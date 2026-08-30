@@ -1,0 +1,23 @@
+{
+  "elements": [
+    {
+      "id": "nav",
+      "type": "nav",
+      "items": [
+        {
+          "title": "Home",
+          "link": "/"
+        },
+        {
+          "title": "Docs",
+          "link": "/docs"
+        },
+        {
+          "title": "Pricing",
+          "link": "/pricing"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

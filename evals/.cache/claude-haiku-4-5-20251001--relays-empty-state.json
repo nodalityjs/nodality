@@ -1,0 +1,22 @@
+{
+  "elements": [
+    {
+      "id": "container",
+      "type": "wrap",
+      "children": [
+        {
+          "id": "message",
+          "type": "p",
+          "text": "No races match those filters."
+        },
+        {
+          "id": "clear-link",
+          "type": "a",
+          "text": "Clear filters",
+          "url": "race-list.html"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

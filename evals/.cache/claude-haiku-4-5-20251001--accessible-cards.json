@@ -1,0 +1,27 @@
+{
+  "elements": [
+    {
+      "id": "rocket-card",
+      "type": "cards",
+      "items": [
+        {
+          "img": "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop",
+          "alt": "A sleek silver rocket on the launch pad against a clear blue sky, ready for takeoff",
+          "title": "Rocket"
+        }
+      ]
+    },
+    {
+      "id": "rover-card",
+      "type": "cards",
+      "items": [
+        {
+          "img": "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop",
+          "alt": "A six-wheeled robotic rover on rusty red Martian soil with rocky terrain in the background",
+          "title": "Rover"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

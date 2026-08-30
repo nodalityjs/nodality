@@ -1,0 +1,42 @@
+{
+  "elements": [
+    {
+      "id": "heading",
+      "type": "h2",
+      "text": "Get in touch"
+    },
+    {
+      "id": "contactForm",
+      "type": "form",
+      "children": [
+        {
+          "id": "nameInput",
+          "type": "labelInput",
+          "label": "Name",
+          "placeholder": "Your name"
+        },
+        {
+          "id": "emailInput",
+          "type": "labelInput",
+          "label": "Email",
+          "placeholder": "Your email"
+        },
+        {
+          "id": "messageInput",
+          "type": "labelInput",
+          "label": "Message",
+          "placeholder": "Your message"
+        },
+        {
+          "id": "submitBtn",
+          "type": "button",
+          "text": "Send",
+          "keySet": {
+            "--button-padding": "12px 24px"
+          }
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

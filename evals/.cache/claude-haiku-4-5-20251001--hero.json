@@ -1,0 +1,21 @@
+{
+  "elements": [
+    {
+      "type": "h1",
+      "id": "headline",
+      "text": "Ship faster"
+    },
+    {
+      "type": "p",
+      "id": "subheading",
+      "text": "Deploy in seconds, not hours."
+    },
+    {
+      "type": "a",
+      "id": "cta",
+      "text": "Get started",
+      "url": "/signup"
+    }
+  ],
+  "nodes": []
+}

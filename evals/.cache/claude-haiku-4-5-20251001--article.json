@@ -1,0 +1,20 @@
+{
+  "elements": [
+    {
+      "id": "title",
+      "type": "h1",
+      "text": "Why latency matters"
+    },
+    {
+      "id": "subtitle",
+      "type": "h2",
+      "text": "The numbers"
+    },
+    {
+      "id": "stat",
+      "type": "p",
+      "text": "A 100ms delay costs 1% of sales."
+    }
+  ],
+  "nodes": []
+}

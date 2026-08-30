@@ -169,12 +169,18 @@ export async function scoreJSX(brief, answer, opts = {}) {
 export async function score(brief, answer, opts = {}) {
   const gates = { valid: false, renders: false, content: false, quality: null };
   const notes = [];
+  // The RAW reports, kept beside the human-readable notes. `notes` is a
+  // display string and lossy by design; the repair loop has to hand an agent
+  // exactly what the tools return, so it needs the reports themselves.
+  const diag = { validate: null, threw: null, missing: [], leaked: [],
+                 undescribed: false, quality: null };
 
   const elements = answer?.elements ?? [];
   const nodes = answer?.nodes ?? [];
 
   // 1. valid
   const report = validateNodes(nodes, elements, answer?.defs);
+  diag.validate = report;
   gates.valid = report.ok;
   if (!report.ok) notes.push(...report.errors.map((e) => `${e.code} at ${e.path}`));
 
@@ -200,6 +206,7 @@ export async function score(brief, answer, opts = {}) {
     gates.renders = html.trim().length > 0;
     if (!gates.renders) notes.push("rendered nothing");
   } catch (e) {
+    diag.threw = String(e.message);
     notes.push(`THREW: ${e.message}`);
   }
 
@@ -214,6 +221,8 @@ export async function score(brief, answer, opts = {}) {
 
     const missing = (brief.must || []).filter((w) => !hay.includes(w));
     const leaked = (brief.forbid || []).filter((w) => hay.includes(w));
+    diag.missing = missing;
+    diag.leaked = leaked;
     if (missing.length) notes.push(`missing: ${missing.join(", ")}`);
     if (leaked.length) notes.push(`placeholder leaked: ${leaked.join(", ")}`);
 
@@ -223,6 +232,7 @@ export async function score(brief, answer, opts = {}) {
       described = imgs.length > 0 && imgs.every((n) =>
         (n.getAttribute("alt") || "").trim() || (n.getAttribute("aria-label") || "").trim());
       if (!described) notes.push("images carry no description");
+      diag.undescribed = !described;
     }
     gates.content = missing.length === 0 && leaked.length === 0 && described;
   }
@@ -258,6 +268,7 @@ export async function score(brief, answer, opts = {}) {
       notes.push("quality skipped: playwright not installed");
     } else {
       gates.quality = found.length === 0;
+      diag.quality = { ok: found.length === 0, errors: found };
       if (found.length) {
         notes.push(`quality: ${[...new Set(found.map((e) => e.code))].join(", ")}`);
       }
@@ -273,5 +284,6 @@ export async function score(brief, answer, opts = {}) {
     // number is how often it is clean, not a pass/fail hidden inside one.
     pass: required.every(Boolean),
     notes,
+    diag,
   };
 }

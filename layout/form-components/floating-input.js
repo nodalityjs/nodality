@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.11
+ * nodality v1.3.0
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -24,7 +24,13 @@ let label =  document.createElement("label");
     label.style.position = "relative";
 label.style.display = "block";
     
-let node = document.createTextNode(obj.title);
+// `createTextNode(undefined)` is the STRING "undefined", and so is
+// `placeholder = undefined`. A field given no title therefore rendered the
+// word "undefined" as its visible label, its placeholder AND its accessible
+// name — a page that says "undefined" to a visitor, with validate_nodes
+// reporting ok. An absent title has to render as absent.
+const title = obj.title == null ? "" : String(obj.title);
+let node = document.createTextNode(title);
 label.appendChild(node);
 label.style.opacity = 0;
     
@@ -40,7 +46,7 @@ var input = document.createElement("input");
             
             
     input.style.position = "relative";
-    input.placeholder = obj.title;
+    input.placeholder = title;
 
     // width:100% plus horizontal padding is 100% PLUS the padding under the
     // default content-box, so a full-width field pushed the page 20px wider
@@ -51,8 +57,8 @@ var input = document.createElement("input");
     // A placeholder is not an accessible name — it disappears the moment
     // anyone types, and assistive technology is not required to announce it.
     // The visible label is right there, so use it.
-    if (obj.title && !input.getAttribute("aria-label")) {
-        input.setAttribute("aria-label", obj.title);
+    if (title && !input.getAttribute("aria-label")) {
+        input.setAttribute("aria-label", title);
     }
 
             
@@ -95,7 +101,7 @@ input.addEventListener("focus", () => {
     
 input.addEventListener("focusout", () => {
      label.style.transform = "scale(1.0)";
-     input.placeholder = obj.title;
+     input.placeholder = title;
      label.style.opacity = "0.0";
 });
 

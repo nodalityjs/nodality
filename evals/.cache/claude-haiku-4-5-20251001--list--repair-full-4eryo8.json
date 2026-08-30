@@ -1,0 +1,23 @@
+{
+  "elements": [
+    {
+      "id": "list",
+      "type": "ulist",
+      "items": [
+        {
+          "type": "p",
+          "text": "Fast"
+        },
+        {
+          "type": "p",
+          "text": "Cheap"
+        },
+        {
+          "type": "p",
+          "text": "Reliable"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}
