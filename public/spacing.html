@@ -25,6 +25,18 @@ import { TextField } from '../layout/text-field.js';
 //
 // The deprecated forms are each followed by their `mar`/`pad` equivalent.
 // They must agree, because they are now defined as calls to it.
+// Deprecation notices, captured for the spec.
+//
+// Installed BEFORE anything renders. It used to sit near the bottom, after
+// the case loop had already built `mboth` — so the notice it exists to
+// capture had been emitted and missed, and a second render below re-emitted
+// it for the benefit of this array. That second chance disappeared once a
+// notice became once-per-build rather than once-per-construction, which is
+// the correct behaviour; the capture was simply in the wrong place.
+window.__deprecations = [];
+const _err = console.error;
+console.error = (...a) => { window.__deprecations.push(a.join(" ")); _err(...a); };
+
 const cases = [
   // ── the spec form: the only margin and padding API ──
   ["mar-all",        "wrapper", { mar: [{ a: 40 }] }],
@@ -100,12 +112,6 @@ for (const [name, opts] of roundTrip) {
     rebuilt: read(document.querySelector("#probe-b").lastElementChild),
   };
 }
-
-// Deprecation notices, captured for the spec.
-window.__deprecations = [];
-const _err = console.error;
-console.error = (...a) => { window.__deprecations.push(a.join(" ")); _err(...a); };
-new Wrapper().set({ mboth: true }).render("#probe-a");
 
 // The spec reads this to map positions back to case names.
 window.__cases = cases.map(c => c[0]);

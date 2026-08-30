@@ -14,7 +14,14 @@ class Picker extends Animator {
     
     
     
-    setup(obj, name){
+    // `items`, not `obj`. This parameter shadowed the options object every
+    // other method calls `obj`, and the shadow was not only confusing: both
+    // scanners that recover this library's vocabulary read `obj.<name>` to
+    // find options, so the array's own `obj.length` on the loop below was
+    // recovered as a PICKER OPTION called `length`. It reached schema.json
+    // and the published API reference, where it told readers a picker takes
+    // something it has never read.
+    setup(items, name){
         let wrap = document.createElement("div");
         
 		let card = document.createElement("select");
@@ -45,10 +52,10 @@ class Picker extends Animator {
         
         
         
-        for (var i = 0; i < obj.length; i++){
+        for (var i = 0; i < items.length; i++){
             // An item is a [value, text] PAIR, or a plain string that is
             // both. The string form was not handled and did not fail: a
-            // string is indexable, so `obj[i][0]` and `obj[i][1]` were its
+            // string is indexable, so `items[i][0]` and `items[i][1]` were its
             // first two CHARACTERS. `items: ["Sales", "Support"]` rendered
             // two options both valued "S", reading "a" and "u".
             //
@@ -61,7 +68,7 @@ class Picker extends Animator {
             // `enum: ["Sales", "Support"]` over a control whose only
             // selectable values were "S" and "S", and an agent submitting
             // "Sales" had the field silently dropped from the payload.
-            const it = obj[i];
+            const it = items[i];
             const pair = (typeof it === "string" || typeof it === "number")
                 ? [String(it), String(it)]
                 : [it && it[0], it && it[1]];
@@ -84,9 +91,34 @@ class Picker extends Animator {
 
     set(obj){
         this.options = obj;
-        obj.items && this.setup(obj.items, obj.name);
-        obj.arrayPadding && this.arrayPadding(obj.arrayPadding.sides, obj.arrayPadding.value);
-        obj.arrayMargin && this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
+        // One `//@` per line that reads the option it describes: the doc
+        // scanner keeps only the LAST annotation before a statement, and
+        // matches it by name against what that statement reads. Two stacked
+        // above one line silently loses the first.
+        //@ name: Field name submitted with the selected value.
+        const fieldName = obj.name;
+        //@ items: The choices, each a `[value, text]` pair — or a plain string used as both.
+        obj.items && this.setup(obj.items, fieldName);
+        // `pad` and `mar` are the library-wide spelling and this component now
+        // uses them. Its own `{sides, value}` pair predates `this.res` being
+        // assigned, back when the inherited helpers wrote to a node this class
+        // never set and `pad` silently did nothing here — so a picker needed a
+        // private form to have any padding at all. That has not been true since
+        // `res` was pointed at the select, and a second spelling on one
+        // component is a thing to learn for no benefit.
+        //
+        // Kept working rather than removed, and warned about, exactly as
+        // `padding`/`margin` are on Button.
+        //@deprecated arrayPadding: superseded by `pad`. `pad: [{a: "0.5rem"}]` is the same padding. Still works, but warns.
+        if (obj.arrayPadding) {
+            this.deprecatedOption("arrayPadding", 'pad: [{a: "0.5rem"}]');
+            this.arrayPadding(obj.arrayPadding.sides, obj.arrayPadding.value);
+        }
+        //@deprecated arrayMargin: superseded by `mar`. `mar: [{a: 10}]` is the same margin. Still works, but warns.
+        if (obj.arrayMargin) {
+            this.deprecatedOption("arrayMargin", "mar: [{a: 10}]");
+            this.arrayMargin(obj.arrayMargin.sides, obj.arrayMargin.value);
+        }
         obj.pad && this.pad(obj.pad);
         obj.mar && this.mar(obj.mar);
 
@@ -104,7 +136,10 @@ class Picker extends Animator {
         // `label` is the accessible name here, as it is on `input`; `title`
         // is accepted too, since FloatingInput calls it that and a caller
         // moving between the two form types should not have to notice.
-        const named = obj.label !== undefined ? obj.label : obj.title;
+        //@ title: Accepted as a synonym for `label`, for parity with `labelInput`.
+        const fallbackName = obj.title;
+        //@ label: Accessible name for the control, written to `aria-label`; a select with no adjacent text has none otherwise.
+        const named = obj.label !== undefined ? obj.label : fallbackName;
         if (named !== undefined && named !== null && !this.el.getAttribute("aria-label")) {
             this.el.setAttribute("aria-label", String(named));
         }

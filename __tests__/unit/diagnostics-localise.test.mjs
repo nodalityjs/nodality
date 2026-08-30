@@ -310,3 +310,82 @@ test("the four ways to name a control all count", async (t) => {
       `${how} should count as a name`);
   }
 });
+
+// ── 7. the picker uses the library-wide spelling ──
+
+test("a picker takes pad and mar, and the default emits neither deprecation", () => {
+  // `arrayPadding`/`arrayMargin` were a private second spelling, needed back
+  // when this component never assigned `this.res` and the inherited helpers
+  // wrote to a node that did not exist — so `pad` silently did nothing here.
+  // That stopped being true when `res` was pointed at the select, and the
+  // mapper's own default was still passing the private form, so every
+  // generated picker carried an option no developer had written.
+  const warned = [];
+  const real = console.error;
+  console.error = (...a) => warned.push(a.join(" "));
+  try {
+    const dflt = draw({ type: "picker", name: "t", items: ["A", "B"] });
+    assert.equal(warned.length, 0, `the default picker warns: ${warned.join(" | ")}`);
+
+    const padded = draw({ type: "picker", name: "t", items: ["A", "B"],
+                          pad: [{ a: "0.5rem" }] });
+    assert.equal(dflt, padded, "the default IS pad: [{a: '0.5rem'}], byte for byte");
+  } finally { console.error = real; }
+
+  const sel = () => dom.window.document.querySelector("#mount select");
+  draw({ type: "picker", name: "t", items: ["A"], mar: [{ a: 10 }] });
+  assert.equal(sel().style.margin, "10px", "mar reaches the select");
+});
+
+test("the private spelling still works, and says what to write instead", () => {
+  // Deprecated, not removed — the same treatment `padding`/`margin` get on
+  // Button. A page that used it keeps rendering identically.
+  const warned = [];
+  const real = console.error;
+  console.error = (...a) => warned.push(a.join(" "));
+  let old;
+  try {
+    old = draw({ type: "picker", name: "t", items: ["A", "B"],
+                 arrayPadding: { sides: ["all"], value: "0.5rem" } });
+  } finally { console.error = real; }
+
+  assert.ok(warned.length > 0, "it warns");
+  assert.match(warned[0], /arrayPadding` is deprecated/);
+  assert.match(warned[0], /pad:/, "and names the replacement");
+
+  // The CONTROL, not the whole mount: the emitted code block echoes the
+  // option the developer actually wrote, so it differs by design between the
+  // two spellings. What must not differ is the page.
+  const control = (html) => /<select[\s\S]*?<\/select>/.exec(html)[0];
+  assert.equal(control(old),
+    control(draw({ type: "picker", name: "t", items: ["A", "B"] })),
+    "and renders exactly the control it always did");
+});
+
+// ── 8. a deprecation notice is reported once ──
+
+test("a deprecated option is reported once per build, not once per construction", () => {
+  // Every component is built TWICE on the way to the page: the mapper builds
+  // one to obtain `toCode()`, and `Des.set()` executes that emitted source
+  // with `new Function`, which builds it again — and the second is what
+  // mounts. So every notice was doubled, and a developer could not tell that
+  // from having written the option in two places.
+  const say = (spec) => {
+    const said = [];
+    const real = console.error;
+    console.error = (...a) => said.push(a.join(" "));
+    try { draw(spec); } finally { console.error = real; }
+    return said;
+  };
+
+  const one = say({ type: "button", text: "X", padding: "10px" });
+  assert.equal(one.length, 1, `once, not ${one.length}: ${JSON.stringify(one)}`);
+  assert.match(one[0], /`padding` is deprecated/);
+
+  // Not blanket silence: a DIFFERENT option is its own notice.
+  assert.equal(say({ type: "button", text: "X", padding: "10px", margin: "4px" }).length, 2);
+
+  // And it is per build, so a dev server rebuilding says it again rather
+  // than swallowing it for the life of the process.
+  assert.equal(say({ type: "button", text: "X", padding: "10px" }).length, 1);
+});

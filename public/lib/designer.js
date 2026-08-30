@@ -9,7 +9,7 @@ import { installAgentSurface } from "../lib/webmcp-adapter.js";
 import { annotateRoundTrip } from "../lib/parse-html.js";
 import { resolveRefs, collectRefs } from "../lib/resolve-refs.js";
 import { normalizeSpec } from "../lib/normalize-spec.js";
-import { Animator } from "../layout/animator.js";
+import { Animator, resetDeprecationNotices } from "../layout/animator.js";
 import { Base } from "../layout/base.js";
 import { Text } from "../layout/text.js";
 import { Image } from "../layout/image.js";
@@ -75,6 +75,12 @@ import { Circle } from "../layout/circle.js";
 // Audio, progress, TextField, import navFactor
 class Des {
     constructor() {
+        // A fresh build reports its deprecations afresh. Cleared HERE and not
+        // in `set()`, because the first of the two constructions happens back
+        // in `add()` — the mapper builds each component to obtain `toCode()`
+        // — so clearing at render time would wipe that notice and let the
+        // eval pass re-emit it, which is the doubling this removes.
+        resetDeprecationNotices();
         this.items = [];
         this.options = [];
         this.code = [];

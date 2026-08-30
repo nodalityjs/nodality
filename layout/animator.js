@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.1
+ * nodality v1.3.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -11,6 +11,17 @@ import { applyRasterPipeline } from "../lib/raster-ops.js";
 
 import { keyPattern } from "../lib/codegen.js";
 // 22/08/2020 - 16:30
+/**
+ * Deprecation notices already emitted for the build in progress.
+ * See `deprecatedOption` below for why this exists at all.
+ */
+const notified = new Set();
+
+/** Called by `Des` at the start of a build so each page reports afresh. */
+export function resetDeprecationNotices() {
+	notified.clear();
+}
+
 class Animator {
     
     constructor(){
@@ -1058,7 +1069,24 @@ resmar(arr) {
 	}
 
 	deprecatedOption(name, replacement) {
-		console.error(`nodality: \`${name}\` is deprecated — use \`${replacement}\` instead.`);
+		// Once per notice per page build, not once per construction.
+		//
+		// Every component is built TWICE on the way to the page: the mapper
+		// constructs one to obtain `toCode()`, and `Des.set()` then executes
+		// that emitted source with `new Function`, which constructs it again —
+		// and the second one is what mounts. Any side effect in `set()` is
+		// therefore doubled, so a developer who wrote one deprecated option
+		// was told about it twice and had no way to tell that from having
+		// written it in two places.
+		//
+		// Keyed on the message, so two DIFFERENT deprecated options still
+		// produce two notices. `Des` clears this at the start of each build,
+		// so a dev server that rebuilds says it again — the notice is not
+		// swallowed for the rest of the process.
+		const notice = `nodality: \`${name}\` is deprecated — use \`${replacement}\` instead.`;
+		if (notified.has(notice)) return this;
+		notified.add(notice);
+		console.error(notice);
 		return this;
 	}
 

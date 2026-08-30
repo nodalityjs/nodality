@@ -1941,7 +1941,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -2132,7 +2133,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -2737,7 +2739,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -2937,7 +2940,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -3267,7 +3271,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -3467,7 +3472,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -3775,7 +3781,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "justifo"
@@ -3972,7 +3979,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "toColumn"
@@ -4318,7 +4326,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -4518,7 +4527,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -4589,7 +4599,8 @@
           "description": "DOM id on the input."
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "length"
@@ -4674,7 +4685,8 @@
           "description": "Explicit light/dark overrides — {light: {...}, dark: {...}}."
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "type",
@@ -4730,7 +4742,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "type",
@@ -4780,7 +4793,8 @@
           "description": "Corner radius in pixels. A bare number, not a CSS length."
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "type",
@@ -4798,11 +4812,13 @@
       "params": [
         {
           "name": "arrayMargin",
-          "description": "Margin on named sides. {sides: [\"left\"], value: \"1rem\"}."
+          "description": "Margin on named sides. {sides: [\"left\"], value: \"1rem\"}.",
+          "deprecated": "superseded by `mar`. `mar: [{a: 10}]` is the same margin. Still works, but warns."
         },
         {
           "name": "arrayPadding",
-          "description": "Padding on named sides. {sides: [\"left\",\"top\"], value: \"1rem\"}."
+          "description": "Padding on named sides. {sides: [\"left\",\"top\"], value: \"1rem\"}.",
+          "deprecated": "superseded by `pad`. `pad: [{a: \"0.5rem\"}]` is the same padding. Still works, but warns."
         },
         {
           "name": "background"
@@ -4812,14 +4828,12 @@
           "description": "DOM id on the input."
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "label",
           "description": "Accessible name for the field."
-        },
-        {
-          "name": "length"
         },
         {
           "name": "mar",
@@ -4838,7 +4852,8 @@
           "description": "Corner radius in pixels. A bare number, not a CSS length."
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "type",
@@ -5156,7 +5171,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -5341,7 +5357,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -5741,7 +5758,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -5926,7 +5944,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -6173,7 +6192,8 @@
           "description": "Heading level to render, independent of `size`/`fluid`."
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -6450,7 +6470,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -6635,7 +6656,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -6936,7 +6958,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -7121,7 +7144,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -7734,7 +7758,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -7919,7 +7944,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -8392,7 +8418,8 @@
           "description": "DOM id on the input."
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "layout"
@@ -8679,7 +8706,8 @@
           "name": "italic"
         },
         {
-          "name": "items"
+          "name": "items",
+          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -8864,7 +8892,8 @@
           "name": "text"
         },
         {
-          "name": "title"
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
