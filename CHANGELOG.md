@@ -18,9 +18,9 @@ Generated per release from the source diff.
 - **check-page**: `CONTROL_WITHOUT_LABEL` suggestions now mention `picker` alongside `input`/`labelInput` as components accepting `label`.
 - **webmcp-adapter**: Fill/submit failures now return a new `FIELD_NOT_SET` refusal listing fields that were rejected by their control or absent from the form entirely, including accepted values for closed-set controls (e.g. `<select>` options) where available. The response also includes `filled` (fields that did succeed) and `submitted: null`.
 
-### Breaking
+### Behaviour corrected
 
-- **webmcp-adapter**: Calls that previously returned `ok: true` with an incomplete `filled` list (because a field silently failed to take its value) will now instead return a `FIELD_NOT_SET` refusal and not submit the form. Callers relying on the old lenient behaviour will need to handle this new refusal path.
+- **webmcp-adapter**: Calls that previously returned `ok: true` with an incomplete `filled` list (because a field silently failed to take its value) will now instead return a `FIELD_NOT_SET` refusal and not submit the form. Callers relying on the old lenient behaviour will need to handle this new refusal path. Released as a patch deliberately: the previous `ok: true` was not a contract, it was a wrong answer over a payload that had silently lost a field, and no caller could depend on it.
 
 ## 1.3.1 — 2026-08-30
 
