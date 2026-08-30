@@ -4,3 +4,7 @@ dist/
 release.sh
 *.tgz
 scripts/playwright.config.js
+
+# Cached model responses from evals/solvers/model.mjs — regenerable,
+# and API output rather than source.
+evals/.cache/

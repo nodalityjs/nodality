@@ -93,7 +93,20 @@ let obj = options;
 		}
 
 
-		options.url && this.res.setAttribute("src", options.url);
+		// `src` belongs on an <img>. The "exact"/"uncover" modes build a <div>
+		// and paint through background-image, and setting src on it produced
+		// `<div src="…">` — invalid HTML that fetches nothing, and the shape
+		// every generated card grid emitted. Nothing read it back: the SSG's
+		// relative-path rewriter is scoped to `script[src^="./"]`.
+		if (this.res.tagName === "IMG") {
+			options.url && this.res.setAttribute("src", options.url);
+		} else if (options.alt !== undefined) {
+			// A background image carries no alt, so a caller who supplies one
+			// gets the accessible equivalent. Additive: absent `alt`, the
+			// element is byte-for-byte what it was.
+			this.res.setAttribute("role", "img");
+			this.res.setAttribute("aria-label", options.alt);
+		}
 
 		// Responsive sources + loading hints. All optional, so images that
 		// don't pass them are byte-for-byte what they were before. Only

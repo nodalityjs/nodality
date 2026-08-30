@@ -1,6 +1,6 @@
 {
   "name": "nodality",
-  "version": "1.2.10",
+  "version": "1.3.0",
   "description": "A lightweight library for declarative UI elements.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -14,7 +14,9 @@
     "bin/",
     "API.md",
     "examples/",
-    "skills/"
+    "skills/",
+    "schema.json",
+    "scripts/generate-schema.mjs"
   ],
   "exports": {
     ".": {
@@ -31,6 +33,8 @@
     "./raster": "./lib/raster-ops.js",
     "./validate": "./lib/validate-nodes.js",
     "./parse": "./lib/parse-html.js",
+    "./refs": "./lib/resolve-refs.js",
+    "./normalize": "./lib/normalize-spec.js",
     "./inspect": "./lib/raster-inspect.js",
     "./examples/*": "./examples/*.js",
     "./transition": "./lib/transition.js",

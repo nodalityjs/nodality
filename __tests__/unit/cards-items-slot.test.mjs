@@ -66,8 +66,25 @@ const render = (elements) => {
 test("a cards grid with no items emits exactly what it emitted before S1", () => {
   const out = emit([{ type: "cards" }]);
   const hash = crypto.createHash("sha256").update(out).digest("hex").slice(0, 16);
-  assert.equal(out.length, 1697, "emitted length moved");
-  assert.equal(hash, "14f592f739faf9d8", "emitted code changed for the no-items path");
+  // RE-PINNED, deliberately, by Tier 4 (§10). Stages 1-6 held this byte for
+  // byte; Tier 4 is the first change that is allowed to move it, because the
+  // fixes are to what the components EMIT and there is no way to fix those
+  // without changing the output. What moved and why:
+  //
+  //   1697 -> 1462 chars, and SMALLER, which was not the intent. The card
+  //   template carried its own rationale as comments, and comments inside
+  //   that template are source the developer receives. Moving them out of
+  //   the string took 235 characters off every generated card grid.
+  //
+  //   #f97316 -> #c2410c   (2.80:1 on white, against a 3:1 requirement)
+  //   #3498db -> #1d6fe0   (white on it was 3.15:1, needs 4.5:1)
+  //   tag: "h2" added      (the title was an <h5>, so any page with an h1
+  //                         above a card grid skipped h2, h3 and h4)
+  //
+  // The pin still does its job: it is negative-controlled below, and the next
+  // unintended change to this path fails here.
+  assert.equal(out.length, 1462, "emitted length moved");
+  assert.equal(hash, "76c4a8bc5daa24cb", "emitted code changed for the no-items path");
   assert.ok(out.includes("Starship"), "placeholder content should still be emitted");
   assert.ok(out.includes(".map(item"), "the template form should be preserved");
 });

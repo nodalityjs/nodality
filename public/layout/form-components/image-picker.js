@@ -40,7 +40,9 @@ class FilePickera extends Animator {
         
         let label = document.createElement("label");
 	    label.setAttribute("for", obj.id);
-        label.innerText = obj.title;
+        // textContent, not innerText — see side-nav-bar.js: jsdom drops it, and
+        // the SSG renders through jsdom.
+        label.textContent = obj.title;
         label.style.marginRight = 12;
         label.style.padding = "0.5em";
         
@@ -67,7 +69,7 @@ class FilePickera extends Animator {
              }
              
              
-             label.innerText = "Change";
+             label.textContent = "Change";
              this.file = card.files[0];
              this.onLoad(this.file);
             // this.loadCall(this.func);

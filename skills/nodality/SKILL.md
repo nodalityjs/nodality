@@ -1,6 +1,6 @@
 ---
 name: nodality
-description: Build or edit a page with the Nodality library – declarative static UI from two arrays (elements + nodes), GPU raster effects, morph navigation graphs, prerendering, and agent surfaces. Use when the user asks to create or change a Nodality page, mentions (E, N), Des(), morph/raster/agent-surface nodes, works with imperative Nodality code (new Text(), new Link(), .render()), or asks to draft a landing page with Nodality.
+description: Build or edit a page with the Nodality library – declarative static UI from two arrays (elements + nodes), GPU raster effects, morph navigation graphs, prerendering, and agent surfaces. Use when the user asks to create or change a Nodality page, mentions (E, N), Des(), morph/raster/agent-surface nodes, works with imperative Nodality code (new Text(), new Link(), .render()), asks to draft a landing page with Nodality, or asks to EDIT an already-rendered Nodality page (parse it back to data, change it, re-render).
 ---
 
 # Working with Nodality
@@ -45,6 +45,12 @@ drift. If the MCP is not configured, add it:
 1. **`list_ops` first.** Never guess an op name, a parameter, an easing
    name, a transition preset, or an element type. One call returns all
    of them as data.
+1b. **`get_schema` for the element you are about to write.** `list_ops`
+   gives the vocabulary of N; `get_schema` gives the vocabulary of E,
+   one type at a time – its parameters, recovered from the source the
+   components actually read. Ask for the type, not the whole schema:
+   that is the difference between paying for a schema once and paying
+   for it in every request.
 2. **Author the pair.** E top-down (page structure), then N (what
    happens to it). Small pages fit in one file.
 3. **`validate_nodes` before showing the user anything.** Pass both
@@ -61,6 +67,50 @@ drift. If the MCP is not configured, add it:
 Skipping step 3 is the classic failure: a misspelled op renders
 *nothing* rather than erroring, so the page looks plausible and is
 silently missing its effects.
+
+## HTML's names are accepted
+
+`src` and `href` both mean `url`; `options` means `items`. Write either — the
+canonical names are `url` and `items`, and that is what `get_schema` reports.
+Giving both with **different** values is reported as `CONFLICTING_ALIAS`,
+because one of them would be ignored.
+
+A table's rows may also be written as arrays with the header row first, the way
+a CSV is:
+
+```js
+{ type: "table", items: [["date", "race"], ["29/08", "Krusnoman"]] }
+```
+
+## Composites carry their content in a slot
+
+A composite is not empty scaffolding – you give it content, and **which
+key you use is part of the type**:
+
+| slot | types |
+|---|---|
+| `items` | `cards`, `nav`, `sideNav`, `table`, `ulist` |
+| `children` | `row`, `form`, `wrap` |
+
+```js
+{ type: "cards", items: [                       // shorthand
+    { img: "a.jpg", title: "Alpha", link: "#a" },
+    [{ type: "h2", text: "Beta" }],             // or nested specs
+]}
+```
+
+`items` takes either shorthand entries or a nested list of element
+specs, and one array may mix both. Use nested specs when the cards
+differ from one another – that is the case where a data format wins by
+the widest margin, and where writing it as code costs *more* than
+hand-written JSX.
+
+**Declaring content in the wrong slot renders the placeholders.** A
+composite given nothing falls back to sample content, so
+`{type:"table", children:[…]}` produces a plausible-looking table of
+someone else's data rather than an error. `validate_nodes` reports this
+as `WRONG_CONTENT_SLOT` and names the slot that carries content – which
+is another reason step 3 is not optional. `get_schema` names it too.
 
 ## The four node families
 
@@ -158,6 +208,76 @@ prerendering, and the agent surface – imperative code is not validated.
 One naming caution: `Text` and `Image` collide with DOM constructor
 names. Always use the module import; on a page using the CDN globals,
 never assume `window.Text` / `window.Image` are still the DOM's own.
+
+## Building more than one page
+
+Declare shared chrome once and reference it. **`.defs()` must come before
+`.add()`** — `add` renders as it goes, so definitions arriving later cannot be
+used, and the wrong order is refused with a message saying so.
+
+```js
+const shared = {                      // one file, imported by every page
+  nav:    { type: "nav", items: [{ title: "Home", link: "/" }] },
+  footer: { type: "wrap", children: [{ type: "p", text: "Acme" }] },
+};
+
+new Des().defs(shared).nodes(N)
+  .add([{ $ref: "nav" }, { type: "h1", text: "Pricing" }, { $ref: "footer" }])
+  .set({ mount: "#mount" });
+```
+
+Keys written beside a reference **override** the definition, which is how one
+nav serves every page:
+
+```js
+{ $ref: "nav", id: "topnav" }                       // adds an id
+{ $ref: "nav", items: [{ title: "Docs", link: "/d" }] }   // replaces the list
+```
+
+The merge is shallow: an override replaces a slot, it does not extend it.
+
+Worth it from **two pages up**: on a single page a reference costs more than
+writing the thing, so do not reach for it before then. On a real site's nav and
+footer it is 1.7x at four pages and about 2x at ten — measured, because 61% of
+every token in that site was the same chrome repeated.
+
+A name with no definition is refused at render and reported by
+`validate_nodes` as `DANGLING_REF` with a did-you-mean, so pass `defs` as the
+third argument when you validate a page that uses references.
+
+## Editing a page that already exists
+
+Editing is the common case in production, and it does not mean
+regenerating. Read the page back to data, change the one thing, render
+again:
+
+```js
+import { parseHTML } from "nodality/parse";
+
+const spec = parseHTML(html);      // or the parse_html MCP tool
+spec[0].items[1].title = "Gamma";  // change one card
+new Des().nodes([]).add(spec).set({ mount: "#mount", annotate: true });
+```
+
+**Render with `{annotate: true}` if the page will ever be edited.** It
+writes each descriptor onto the node it produced, and that is what makes
+the read exact – every type, every option, nothing inferred. It is
+opt-in and off by default because it puts attributes in the output.
+
+Without annotation only what the tag settles comes back: headings,
+paragraphs, links, images, lists. Thirteen composite types render as a
+bare `<div>` with nothing to tell them apart, so those are reported
+**unrecovered rather than guessed** – a wrong guess would silently
+become a different page. Use `parseReport` (or the `parse_html` tool)
+rather than `parseHTML` when you need to know which you got:
+
+```js
+const { ok, exact, spec, unrecovered, errors } = parseReport(html);
+```
+
+`ok` is false if anything was unrecovered *or* the recovered spec fails
+validation. Check it before re-rendering: a descriptor read out of a
+document is untrusted input.
 
 ## Verifying your work
 

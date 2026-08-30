@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.9
+ * nodality v1.2.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -41,6 +41,19 @@ var input = document.createElement("input");
             
     input.style.position = "relative";
     input.placeholder = obj.title;
+
+    // width:100% plus horizontal padding is 100% PLUS the padding under the
+    // default content-box, so a full-width field pushed the page 20px wider
+    // than the viewport and every page carrying a form scrolled sideways on a
+    // phone. Measured, not guessed: the overflow was exactly the padding.
+    input.style.boxSizing = "border-box";
+
+    // A placeholder is not an accessible name — it disappears the moment
+    // anyone types, and assistive technology is not required to announce it.
+    // The visible label is right there, so use it.
+    if (obj.title && !input.getAttribute("aria-label")) {
+        input.setAttribute("aria-label", obj.title);
+    }
 
             
             

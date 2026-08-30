@@ -27,7 +27,11 @@ for (let i = 0; i < 3; i++) {
     await expect(imgDiv).toHaveAttribute('style', new RegExp(cardData[i].img));
 
     // Check the title
-    const title = card.locator('h5');
+    // h2, not h5. Tier 4 decoupled the heading level from the type scale:
+    // the title still renders at S5's size and now sits at h2, because an
+    // h5 under the page's h1 skipped three levels of the outline on every
+    // page carrying a card grid.
+    const title = card.locator('h2');
     await expect(title).toHaveText(cardData[i].title);
 
     // Check the link

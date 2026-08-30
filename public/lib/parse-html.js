@@ -41,6 +41,8 @@
  * this stage across mixed leaf-and-composite specs.
  */
 
+import { validateNodes } from "./validate-nodes.js";
+
 const HEADINGS = new Set(["h1", "h2", "h3", "h4", "h5", "h6"]);
 
 /** The attribute a page uses to carry its own descriptors. */
@@ -123,11 +125,21 @@ export function parseReport(html, doc) {
         if (one) spec.push(one);
         else unrecovered.push({ index: i, tag: (node.tagName || "").toLowerCase() });
     });
+    // What parse returns is UNTRUSTED. A `data-nod` attribute is just text in
+    // a document: hand-edited, served by someone else, or written by a version
+    // of the library that is not this one. The caller's next move is to render
+    // it, so the recovered spec is checked here rather than after it has
+    // already become a page. This is also the first place Stage 3 and Stage 5
+    // compose — the validator that makes a spec repairable is the one that
+    // makes a parsed spec safe.
+    const check = validateNodes([], spec);
+
     return {
-        ok: unrecovered.length === 0,
+        ok: unrecovered.length === 0 && check.ok,
         exact: kids.every((n) => n.getAttribute && n.getAttribute(SPEC_ATTR)),
         total: kids.length,
         spec,
         unrecovered,
+        errors: check.errors,
     };
 }

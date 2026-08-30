@@ -136,6 +136,13 @@ const norm = (t) => String(t || "").replace(/\s+/g, " ").trim().toLowerCase();
 const bareId = (id) =>
     typeof id === "string" && id.startsWith("#") ? id.slice(1) : id;
 
+// The DOM id a component actually carries, which is not always the bare one:
+// nav and sideNav emit `id="#docs"`, hash included, because animator.js used
+// to require the hash to match. Both spellings are now accepted on both sides,
+// and this is the lookup half — an element is found whether its id was written
+// with the hash or without.
+export const idMatches = (a, b) => bareId(a) === bareId(b);
+
 /**
  * A morph node, in one shape: a list of EDGES.
  *

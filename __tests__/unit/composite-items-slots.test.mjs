@@ -67,10 +67,21 @@ const render = (el) => {
 
 test("each composite with no content renders exactly what it did before S4", () => {
   for (const [type, length, hash] of [
+    // RE-PINNED by Tier 4 (§10) — the first deliberate move of these values.
+    // `row` is unchanged, which is the useful part: it says the other three
+    // moved for the reasons given and nothing else drifted along with them.
+    //   table   the header was white on #ff6d22, 2.81:1 against a 4.5:1
+    //           requirement — styled, and not legible. Now #c2410c.
+    //   nav     links gained padding; 43x18 is under the 24px tap-target
+    //           minimum in the direction a thumb needs.
+    //   sideNav the toggle glyph was set with innerText, which jsdom has no
+    //           setter for — and the SSG prerenders THROUGH jsdom, so the
+    //           character never reached a prerendered page and the button
+    //           shipped empty. textContent works in both.
     ["row", 367, "ae12d009272b8665"],
-    ["table", 3621, "94e5b870343df320"],
-    ["nav", 1434, "b6f04b0dbf830009"],
-    ["sideNav", 1861, "bd0b0732cf1a571d"],
+    ["table", 3620, "51c8a2dc0e6e35d2"],
+    ["nav", 1441, "57cd4af92e30179e"],
+    ["sideNav", 1964, "83db854bfe92d163"],
   ]) {
     const html = render({ type });
     assert.equal(html.length, length, `${type}: rendered length moved`);

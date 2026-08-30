@@ -112,12 +112,12 @@ test("notifications/initialized draws no reply and does not desynchronise", asyn
   } finally { c.kill(); }
 });
 
-test("tools/list advertises the three tools, each with a schema", async () => {
+test("tools/list advertises every tool, each with a schema", async () => {
   const c = await ready();
   try {
     const { result } = await c.send("tools/list", {});
     assert.deepEqual(result.tools.map((t) => t.name).sort(),
-      ["list_ops", "preview", "validate_nodes"]);
+      ["check_page", "get_schema", "list_ops", "parse_html", "preview", "validate_nodes"]);
     for (const t of result.tools) {
       assert.ok(t.description && t.description.length > 40,
         `${t.name} needs a description an agent can act on`);
@@ -463,6 +463,96 @@ test("an unknown tool is a protocol error, and the server keeps serving", async 
     const res = await c.send("tools/call", { name: "nope", arguments: {} });
     assert.equal(res.error.code, -32602);
     const after = await c.send("tools/list", {});
-    assert.equal(after.result.tools.length, 3, "server stopped serving after a bad call");
+    assert.equal(after.result.tools.length, 6, "server stopped serving after a bad call");
+  } finally { c.kill(); }
+});
+
+// ── the agent surface for Stages 1-5 ────────────────────────────────
+//
+// The five stages shipped a data format, a schema, repairable errors and a
+// round-trip, and then shipped them into a server that advertised none of
+// them. An agent meets the tool list, not the library: a capability no tool
+// names does not exist as far as the caller is concerned. These tests are the
+// check that the surface keeps up with the format.
+
+test("the tool list advertises the schema and the round-trip", async () => {
+  const c = client();
+  try {
+    await c.send("initialize", {
+      protocolVersion: "2025-06-18", capabilities: {},
+      clientInfo: { name: "test", version: "1" },
+    });
+    c.notify("notifications/initialized");
+    const res = await c.send("tools/list");
+    const names = res.result.tools.map((t) => t.name);
+    for (const want of ["list_ops", "validate_nodes", "preview", "get_schema", "parse_html", "check_page"]) {
+      assert.ok(names.includes(want), `tools/list is missing "${want}": ${names.join(", ")}`);
+    }
+  } finally { c.kill(); }
+});
+
+test("get_schema answers for one type, and reports an unknown one", async () => {
+  const c = client();
+  try {
+    await c.send("initialize", {
+      protocolVersion: "2025-06-18", capabilities: {},
+      clientInfo: { name: "test", version: "1" },
+    });
+    c.notify("notifications/initialized");
+
+    const good = payload((await c.send("tools/call", {
+      name: "get_schema", arguments: { type: "cards" },
+    })).result);
+    assert.equal(good.type, "cards");
+    assert.ok(good.params.some((p) => p.name === "items"),
+      "get_schema('cards') did not report the slot that carries its content");
+
+    // Property 2 is only worth anything if one type is much cheaper than all
+    // of them; assert the shape that makes that true.
+    const all = payload((await c.send("tools/call", {
+      name: "get_schema", arguments: {},
+    })).result);
+    assert.ok(Object.keys(all.types).length > 30, "the full schema should cover every type");
+    assert.ok(JSON.stringify(good).length * 10 < JSON.stringify(all).length,
+      "one type must be far cheaper than the whole schema, or on-demand buys nothing");
+
+    // An unknown type comes back as a report, in the same shape as every
+    // other report, rather than as an error envelope.
+    const bad = payload((await c.send("tools/call", {
+      name: "get_schema", arguments: { type: "cardz" },
+    })).result);
+    assert.equal(bad.ok, false);
+    assert.equal(bad.errors[0].code, "UNKNOWN_ELEMENT_TYPE");
+    assert.ok(bad.errors[0].suggestions.includes("cards"),
+      `no did-you-mean for "cardz": ${JSON.stringify(bad.errors[0].suggestions)}`);
+  } finally { c.kill(); }
+});
+
+test("parse_html reads a page back and says which tier it got", async () => {
+  const c = client();
+  try {
+    await c.send("initialize", {
+      protocolVersion: "2025-06-18", capabilities: {},
+      clientInfo: { name: "test", version: "1" },
+    });
+    c.notify("notifications/initialized");
+
+    const res = await c.send("tools/call", {
+      name: "parse_html",
+      arguments: { html: '<h2 style="x">Hi</h2><a href="#d">Go</a><div></div>' },
+    });
+    const out = payload(res.result);
+
+    // jsdom is a build-time dependency; where it is absent the server must
+    // still answer in the report shape rather than throwing prose.
+    if (out.errors?.[0]?.code === "MISSING_PEER_DEPENDENCY") return;
+
+    assert.equal(out.exact, false, "unannotated HTML cannot be an exact read");
+    assert.deepEqual(out.spec.map((e) => e.type), ["h2", "a"]);
+    assert.equal(out.spec[1].url, "#d");
+    // The bare div is a composite with nothing to identify it. It must be
+    // reported, not guessed: the caller re-renders whatever comes back.
+    assert.deepEqual(out.unrecovered, [{ index: 2, tag: "div" }]);
+    assert.equal(out.ok, false, "a partial read must not report itself complete");
   } finally { c.kill(); }
 });

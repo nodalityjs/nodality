@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.9
+ * nodality v1.2.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -140,8 +140,16 @@ class SideNav extends Animator {
 
     createToggleButton(color) {
         const button = document.createElement("button");
-        button.innerText = "☰";
+        // textContent, not innerText: jsdom has no innerText setter and the SSG
+        // prerenders through jsdom, so this glyph never reached a
+        // prerendered page — the toggle shipped as an empty button.
+        button.textContent = "☰";
         button.style.padding = "10px 20px";
+        // WCAG 2.2 AA asks for 24x24. These measured 40x20: wide enough,
+        // and two pixels short in the direction that matters on a phone.
+        button.style.minWidth = "24px";
+        button.style.minHeight = "24px";
+        button.style.lineHeight = "1";
         button.style.backgroundColor = "transparent";
         button.style.color = color ?? "#3498db";
         button.style.border = "none";
@@ -158,9 +166,14 @@ class SideNav extends Animator {
 
     createCloseButton(color) {
         const button = document.createElement("button");
-        button.innerText = "×";
+        button.textContent = "×";
         button.style.fontSize = "1.6rem";
         button.style.padding = "10px 20px";
+        // WCAG 2.2 AA asks for 24x24. These measured 40x20: wide enough,
+        // and two pixels short in the direction that matters on a phone.
+        button.style.minWidth = "24px";
+        button.style.minHeight = "24px";
+        button.style.lineHeight = "1";
         button.style.backgroundColor = "transparent";
         button.style.color = color ?? "black";
         button.style.border = "none";

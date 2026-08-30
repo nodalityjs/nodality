@@ -1,5 +1,5 @@
 /*!
- * nodality v1.2.9
+ * nodality v1.2.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -52,8 +52,16 @@ class SideBar extends Animator{
         btn.style.background = "white";
         btn.style.opacity = 0.80;
         btn.style.border = "none";
-        btn.width = "1.5em";
-        btn.height = "1.5em";
+        // `btn.width = ...` sets a PROPERTY that <button> does not have, so
+        // this element had no size at all: 0x0 in the browser, impossible to
+        // hit and invisible to the checker's tap-target rule until it was
+        // measured. Style, and at least the 24px WCAG 2.2 minimum.
+        btn.style.width = "2rem";
+        btn.style.height = "2rem";
+        btn.style.minWidth = "24px";
+        btn.style.minHeight = "24px";
+        // A control with no text is a control with nothing to announce.
+        if (!btn.getAttribute("aria-label")) btn.setAttribute("aria-label", "Toggle navigation");
         btn.style.borderRadius = "50%";
         btn.style.zIndex = 2;
         
