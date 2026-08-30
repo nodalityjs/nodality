@@ -1,0 +1,23 @@
+{
+  "elements": [
+    {
+      "id": "skutable",
+      "type": "table",
+      "items": [
+        {
+          "sku": "SKU",
+          "name": "Name"
+        },
+        {
+          "sku": "X1",
+          "name": "Widget"
+        },
+        {
+          "sku": "X2",
+          "name": "Gadget"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

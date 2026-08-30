@@ -1,0 +1,3 @@
+{
+  "jsx": "export default function Page() { return (<div className=\"p-6\"><ul className=\"list-disc list-inside space-y-2 text-gray-800 text-lg\"><li>Fast</li><li>Cheap</li><li>Reliable</li></ul></div>); }"
+}

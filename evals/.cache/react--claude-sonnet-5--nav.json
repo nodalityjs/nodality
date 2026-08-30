@@ -1,0 +1,3 @@
+{
+  "jsx": "export default function Page() { return (\n  <nav className=\"w-full bg-white shadow-sm px-6 py-4\">\n    <ul className=\"flex items-center space-x-8\">\n      <li>\n        <a href=\"/\" className=\"text-gray-800 hover:text-blue-600 font-medium transition-colors\">Home</a>\n      </li>\n      <li>\n        <a href=\"/docs\" className=\"text-gray-800 hover:text-blue-600 font-medium transition-colors\">Docs</a>\n      </li>\n      <li>\n        <a href=\"/pricing\" className=\"text-gray-800 hover:text-blue-600 font-medium transition-colors\">Pricing</a>\n      </li>\n    </ul>\n  </nav>\n); }"
+}

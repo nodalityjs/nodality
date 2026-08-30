@@ -1,0 +1,77 @@
+{
+  "elements": [
+    {
+      "id": "footer",
+      "type": "wrap",
+      "children": [
+        {
+          "id": "footer-brand",
+          "type": "h3",
+          "text": "Relays"
+        },
+        {
+          "id": "footer-tagline",
+          "type": "p",
+          "text": "Find a relay partner for any race in the world. Free."
+        },
+        {
+          "id": "footer-columns",
+          "type": "row",
+          "children": [
+            {
+              "id": "footer-product",
+              "type": "wrap",
+              "children": [
+                {
+                  "id": "footer-product-title",
+                  "type": "h4",
+                  "text": "Product"
+                },
+                {
+                  "id": "footer-product-links",
+                  "type": "nav",
+                  "items": [
+                    {
+                      "title": "Races",
+                      "link": "#races"
+                    },
+                    {
+                      "title": "How it works",
+                      "link": "#how-it-works"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "footer-legal",
+              "type": "wrap",
+              "children": [
+                {
+                  "id": "footer-legal-title",
+                  "type": "h4",
+                  "text": "Legal"
+                },
+                {
+                  "id": "footer-legal-links",
+                  "type": "nav",
+                  "items": [
+                    {
+                      "title": "Terms",
+                      "link": "#terms"
+                    },
+                    {
+                      "title": "Privacy",
+                      "link": "#privacy"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

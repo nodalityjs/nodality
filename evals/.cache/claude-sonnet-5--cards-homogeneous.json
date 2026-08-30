@@ -1,0 +1,26 @@
+{
+  "elements": [
+    {
+      "id": "products",
+      "type": "cards",
+      "items": [
+        {
+          "img": "orbit.jpg",
+          "title": "Orbit",
+          "link": "/p/orbit"
+        },
+        {
+          "img": "relay.jpg",
+          "title": "Relay",
+          "link": "/p/relay"
+        },
+        {
+          "img": "beacon.jpg",
+          "title": "Beacon",
+          "link": "/p/beacon"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

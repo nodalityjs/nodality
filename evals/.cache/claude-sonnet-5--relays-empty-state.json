@@ -1,0 +1,16 @@
+{
+  "elements": [
+    {
+      "id": "empty-message",
+      "type": "p",
+      "text": "No races match those filters."
+    },
+    {
+      "id": "clear-filters",
+      "type": "a",
+      "text": "Clear filters",
+      "link": "race-list.html"
+    }
+  ],
+  "nodes": []
+}

@@ -1,0 +1,27 @@
+{
+  "elements": [
+    {
+      "id": "hero-headline",
+      "type": "h1",
+      "text": "Find your relay partner"
+    },
+    {
+      "id": "hero-subheading",
+      "type": "p",
+      "text": "It has never been so easy to find your match"
+    },
+    {
+      "id": "hero-link-find",
+      "type": "a",
+      "text": "Find a partner",
+      "link": "/app"
+    },
+    {
+      "id": "hero-link-browse",
+      "type": "a",
+      "text": "Browse all races",
+      "link": "race-list.html"
+    }
+  ],
+  "nodes": []
+}

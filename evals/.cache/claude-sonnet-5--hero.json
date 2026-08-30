@@ -1,0 +1,21 @@
+{
+  "elements": [
+    {
+      "id": "hero-heading",
+      "type": "h1",
+      "text": "Ship faster"
+    },
+    {
+      "id": "hero-copy",
+      "type": "p",
+      "text": "Deploy in seconds, not hours."
+    },
+    {
+      "id": "hero-cta",
+      "type": "a",
+      "text": "Get started",
+      "link": "/signup"
+    }
+  ],
+  "nodes": []
+}

@@ -1,0 +1,96 @@
+{
+  "defs": {
+    "nav": {
+      "type": "nav",
+      "items": [
+        {
+          "title": "Home",
+          "link": "/"
+        },
+        {
+          "title": "Pricing",
+          "link": "/pricing"
+        },
+        {
+          "title": "Docs",
+          "link": "/docs"
+        },
+        {
+          "title": "Contact",
+          "link": "/contact"
+        }
+      ]
+    },
+    "footer": {
+      "type": "wrap",
+      "children": [
+        {
+          "type": "p",
+          "text": "Acme"
+        }
+      ]
+    }
+  },
+  "pages": {
+    "home": {
+      "elements": [
+        {
+          "$ref": "nav"
+        },
+        {
+          "id": "body",
+          "type": "p",
+          "text": "We make things."
+        },
+        {
+          "$ref": "footer"
+        }
+      ]
+    },
+    "pricing": {
+      "elements": [
+        {
+          "$ref": "nav"
+        },
+        {
+          "id": "body",
+          "type": "p",
+          "text": "Plans"
+        },
+        {
+          "$ref": "footer"
+        }
+      ]
+    },
+    "docs": {
+      "elements": [
+        {
+          "$ref": "nav"
+        },
+        {
+          "id": "body",
+          "type": "p",
+          "text": "Reference"
+        },
+        {
+          "$ref": "footer"
+        }
+      ]
+    },
+    "contact": {
+      "elements": [
+        {
+          "$ref": "nav"
+        },
+        {
+          "id": "body",
+          "type": "p",
+          "text": "Get in touch"
+        },
+        {
+          "$ref": "footer"
+        }
+      ]
+    }
+  }
+}

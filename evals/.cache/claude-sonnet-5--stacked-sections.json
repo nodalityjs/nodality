@@ -1,0 +1,47 @@
+{
+  "elements": [
+    {
+      "type": "wrap",
+      "id": "section-speed",
+      "children": [
+        {
+          "type": "h2",
+          "text": "Speed"
+        },
+        {
+          "type": "p",
+          "text": "Fast to build."
+        }
+      ]
+    },
+    {
+      "type": "wrap",
+      "id": "section-cost",
+      "children": [
+        {
+          "type": "h2",
+          "text": "Cost"
+        },
+        {
+          "type": "p",
+          "text": "Cheap to run."
+        }
+      ]
+    },
+    {
+      "type": "wrap",
+      "id": "section-trust",
+      "children": [
+        {
+          "type": "h2",
+          "text": "Trust"
+        },
+        {
+          "type": "p",
+          "text": "Hard to break."
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

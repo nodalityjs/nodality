@@ -1,0 +1,29 @@
+{
+  "elements": [
+    {
+      "id": "results-table",
+      "type": "table",
+      "items": [
+        [
+          "date",
+          "race",
+          "country",
+          "discipline"
+        ],
+        [
+          "29/08/2026",
+          "Krusnoman",
+          "CZE",
+          "Triathlon"
+        ],
+        [
+          "05/09/2026",
+          "Hory Bory",
+          "CZE",
+          "Run"
+        ]
+      ]
+    }
+  ],
+  "nodes": []
+}

@@ -1,0 +1,18 @@
+{
+  "elements": [
+    {
+      "id": "launch-img",
+      "type": "img",
+      "src": "https://example.com/launch.jpg",
+      "alt": "A rocket launching into a clear sky, engines ablaze, lifting off from the launch pad amid a cloud of exhaust smoke."
+    }
+  ],
+  "nodes": [
+    {
+      "op": "span",
+      "target": [
+        "launch-img"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "elements": [
+    {
+      "type": "h1",
+      "text": "Latency"
+    },
+    {
+      "type": "h2",
+      "text": "Measurement"
+    },
+    {
+      "type": "p",
+      "text": "Measuring latency accurately requires consistent tooling, repeated sampling, and controlling for network variance."
+    },
+    {
+      "type": "h2",
+      "text": "Budget"
+    },
+    {
+      "type": "p",
+      "text": "A latency budget allocates acceptable delay across each stage of a request so no single component dominates."
+    },
+    {
+      "type": "h2",
+      "text": "Tradeoffs"
+    },
+    {
+      "type": "p",
+      "text": "Reducing latency often trades against cost, complexity, or throughput, so teams must weigh priorities carefully."
+    }
+  ],
+  "nodes": []
+}

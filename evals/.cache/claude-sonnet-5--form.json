@@ -1,0 +1,36 @@
+{
+  "elements": [
+    {
+      "id": "heading",
+      "type": "h1",
+      "text": "Get in touch"
+    },
+    {
+      "id": "contact-form",
+      "type": "form",
+      "children": [
+        {
+          "id": "name-field",
+          "type": "labelInput",
+          "text": "Name"
+        },
+        {
+          "id": "email-field",
+          "type": "labelInput",
+          "text": "Email"
+        },
+        {
+          "id": "message-field",
+          "type": "labelInput",
+          "text": "Message"
+        },
+        {
+          "id": "submit-btn",
+          "type": "button",
+          "text": "Send"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

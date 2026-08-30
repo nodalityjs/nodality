@@ -1,0 +1,37 @@
+{
+  "elements": [
+    {
+      "id": "cards1",
+      "type": "cards",
+      "items": [
+        [
+          {
+            "type": "img",
+            "id": "rocket-img",
+            "src": "rocket.jpg",
+            "alt": "A rocket launching into a clear blue sky, trailing bright white exhaust smoke"
+          },
+          {
+            "type": "h2",
+            "id": "rocket-title",
+            "text": "Rocket"
+          }
+        ],
+        [
+          {
+            "type": "img",
+            "id": "rover-img",
+            "src": "rover.jpg",
+            "alt": "A six-wheeled robotic rover parked on rocky, reddish terrain"
+          },
+          {
+            "type": "h2",
+            "id": "rover-title",
+            "text": "Rover"
+          }
+        ]
+      ]
+    }
+  ],
+  "nodes": []
+}

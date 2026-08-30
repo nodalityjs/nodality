@@ -1,0 +1,42 @@
+{
+  "elements": [
+    {
+      "id": "cardgrid",
+      "type": "cards",
+      "items": [
+        [
+          {
+            "type": "h2",
+            "text": "Alpha"
+          },
+          {
+            "type": "p",
+            "text": "First paragraph about Alpha."
+          },
+          {
+            "type": "p",
+            "text": "Second paragraph about Alpha."
+          }
+        ],
+        [
+          {
+            "type": "h2",
+            "text": "Beta"
+          }
+        ],
+        [
+          {
+            "type": "h2",
+            "text": "Gamma"
+          },
+          {
+            "type": "a",
+            "text": "Learn more",
+            "href": "#"
+          }
+        ]
+      ]
+    }
+  ],
+  "nodes": []
+}

@@ -1,0 +1,16 @@
+{
+  "pages": {
+    "home": {
+      "jsx": "export default function Page() { return (\n  <div className=\"min-h-screen flex flex-col\">\n    <nav className=\"bg-gray-800 text-white px-6 py-4 flex gap-6\">\n      <a href=\"/\" className=\"hover:underline\">Home</a>\n      <a href=\"/pricing\" className=\"hover:underline\">Pricing</a>\n      <a href=\"/docs\" className=\"hover:underline\">Docs</a>\n      <a href=\"/contact\" className=\"hover:underline\">Contact</a>\n    </nav>\n    <main className=\"flex-1 flex items-center justify-center p-10\">\n      <p className=\"text-xl\">We make things.</p>\n    </main>\n    <footer className=\"bg-gray-100 text-center py-4 text-gray-600\">\n      Acme\n    </footer>\n  </div>\n);}"
+    },
+    "pricing": {
+      "jsx": "export default function Page() { return (\n  <div className=\"min-h-screen flex flex-col\">\n    <nav className=\"bg-gray-800 text-white px-6 py-4 flex gap-6\">\n      <a href=\"/\" className=\"hover:underline\">Home</a>\n      <a href=\"/pricing\" className=\"hover:underline\">Pricing</a>\n      <a href=\"/docs\" className=\"hover:underline\">Docs</a>\n      <a href=\"/contact\" className=\"hover:underline\">Contact</a>\n    </nav>\n    <main className=\"flex-1 flex items-center justify-center p-10\">\n      <p className=\"text-xl\">Plans</p>\n    </main>\n    <footer className=\"bg-gray-100 text-center py-4 text-gray-600\">\n      Acme\n    </footer>\n  </div>\n);}"
+    },
+    "docs": {
+      "jsx": "export default function Page() { return (\n  <div className=\"min-h-screen flex flex-col\">\n    <nav className=\"bg-gray-800 text-white px-6 py-4 flex gap-6\">\n      <a href=\"/\" className=\"hover:underline\">Home</a>\n      <a href=\"/pricing\" className=\"hover:underline\">Pricing</a>\n      <a href=\"/docs\" className=\"hover:underline\">Docs</a>\n      <a href=\"/contact\" className=\"hover:underline\">Contact</a>\n    </nav>\n    <main className=\"flex-1 flex items-center justify-center p-10\">\n      <p className=\"text-xl\">Reference</p>\n    </main>\n    <footer className=\"bg-gray-100 text-center py-4 text-gray-600\">\n      Acme\n    </footer>\n  </div>\n);}"
+    },
+    "contact": {
+      "jsx": "export default function Page() { return (\n  <div className=\"min-h-screen flex flex-col\">\n    <nav className=\"bg-gray-800 text-white px-6 py-4 flex gap-6\">\n      <a href=\"/\" className=\"hover:underline\">Home</a>\n      <a href=\"/pricing\" className=\"hover:underline\">Pricing</a>\n      <a href=\"/docs\" className=\"hover:underline\">Docs</a>\n      <a href=\"/contact\" className=\"hover:underline\">Contact</a>\n    </nav>\n    <main className=\"flex-1 flex items-center justify-center p-10\">\n      <p className=\"text-xl\">Get in touch</p>\n    </main>\n    <footer className=\"bg-gray-100 text-center py-4 text-gray-600\">\n      Acme\n    </footer>\n  </div>\n);}"
+    }
+  }
+}

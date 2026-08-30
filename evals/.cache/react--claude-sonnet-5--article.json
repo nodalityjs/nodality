@@ -1,0 +1,3 @@
+{
+  "jsx": "export default function Page() { return (<article className=\"max-w-3xl mx-auto px-6 py-12\"><h1 className=\"text-4xl font-bold text-gray-900 mb-6\">Why latency matters</h1><h2 className=\"text-2xl font-semibold text-gray-800 mb-4\">The numbers</h2><p className=\"text-lg text-gray-700 leading-relaxed\">A 100ms delay costs 1% of sales.</p></article>); }"
+}

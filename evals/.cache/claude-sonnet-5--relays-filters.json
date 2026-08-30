@@ -1,0 +1,28 @@
+{
+  "elements": [
+    {
+      "id": "filterRow",
+      "type": "row",
+      "children": [
+        {
+          "id": "countryFilter",
+          "type": "dropdown",
+          "label": "All countries",
+          "options": [
+            "CZE",
+            "POL",
+            "DEU",
+            "AUT"
+          ]
+        },
+        {
+          "id": "nameSearch",
+          "type": "input",
+          "inputType": "text",
+          "placeholder": "Search races by name"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}

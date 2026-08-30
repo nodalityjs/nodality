@@ -1,0 +1,3 @@
+{
+  "jsx": "export default function Page() { return (<div className=\"w-full\"><img src=\"https://example.com/launch.jpg\" alt=\"A rocket launching into a clear blue sky, with bright orange flames and thick white smoke billowing from the base of the launch pad as it ascends.\" className=\"w-full h-auto block\" /></div>); }"
+}

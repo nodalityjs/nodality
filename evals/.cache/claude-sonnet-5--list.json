@@ -1,0 +1,14 @@
+{
+  "elements": [
+    {
+      "id": "list1",
+      "type": "ulist",
+      "items": [
+        "Fast",
+        "Cheap",
+        "Reliable"
+      ]
+    }
+  ],
+  "nodes": []
+}

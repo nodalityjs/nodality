@@ -79,12 +79,15 @@ const { validateNodes } = await import(path.join(ROOT, "lib", "validate-nodes.js
  * and the fourth lost its nav is not a pass.
  */
 export async function scoreBrief(brief, answer, opts = {}) {
-  if (!brief.pages) return score(brief, answer, opts);
+  if (!brief.pages) return (answer && answer.jsx !== undefined)
+    ? scoreJSX(brief, answer, opts)
+    : score(brief, answer, opts);
 
   const parts = [];
   for (const page of brief.pages) {
     const one = answer?.pages?.[page.id];
-    parts.push(await score(
+    const scorer = (one && one.jsx !== undefined) ? scoreJSX : score;
+    parts.push(await scorer(
       { ...page, id: `${brief.id}/${page.id}`, needsImageDescription: brief.needsImageDescription },
       // Shared definitions belong to the answer, not to the page: every page
       // of a site references the same ones, which is the whole point.
@@ -102,6 +105,65 @@ export async function scoreBrief(brief, answer, opts = {}) {
     notes: parts.flatMap((r) => r.notes.map((n) => `${r.id.split("/")[1]}: ${n}`)),
     pages: parts,
   };
+}
+
+/**
+ * The React baseline runs through the same four gates. Each is translated
+ * rather than approximated — see evals/render-jsx.mjs for what each one means
+ * on that side and why.
+ */
+export async function scoreJSX(brief, answer, opts = {}) {
+  const gates = { valid: false, renders: false, content: false, quality: null };
+  const notes = [];
+  const { parsesJSX, renderJSX, withTailwind } = await import("./render-jsx.mjs");
+  const jsx = answer?.jsx ?? "";
+
+  gates.valid = parsesJSX(jsx);
+  if (!gates.valid) notes.push("JSX does not parse");
+
+  let markup = "";
+  try {
+    markup = await renderJSX(jsx);
+    gates.renders = markup.trim().length > 0;
+    if (!gates.renders) notes.push("rendered nothing");
+  } catch (e) { notes.push(`THREW: ${String(e.message).slice(0, 80)}`); }
+
+  if (gates.renders) {
+    const box = dom.window.document.createElement("div");
+    box.innerHTML = markup;
+    const hay = `${box.textContent || ""} ` +
+      [...box.querySelectorAll("[href],[src]")]
+        .map((n) => n.getAttribute("href") || n.getAttribute("src")).join(" ");
+    const missing = (brief.must || []).filter((w) => !hay.includes(w));
+    const leaked = (brief.forbid || []).filter((w) => hay.includes(w));
+    if (missing.length) notes.push(`missing: ${missing.join(", ")}`);
+    if (leaked.length) notes.push(`leaked: ${leaked.join(", ")}`);
+    let described = true;
+    if (brief.needsImageDescription) {
+      const imgs = [...box.querySelectorAll("img, [role='img']")];
+      described = imgs.length > 0 && imgs.every((n) =>
+        (n.getAttribute("alt") || "").trim() || (n.getAttribute("aria-label") || "").trim());
+      if (!described) notes.push("images carry no description");
+    }
+    gates.content = missing.length === 0 && leaked.length === 0 && described;
+  }
+
+  if (opts.quality && gates.renders) {
+    const { checkPage } = await import(path.join(ROOT, "lib", "check-page.js"));
+    // networkidle, because Tailwind arrives over the network and a page
+    // measured before its stylesheet lands has no layout to fail.
+    const r = await checkPage(withTailwind(markup), { waitUntil: "networkidle" });
+    if (r.errors[0]?.code === "MISSING_PEER_DEPENDENCY") {
+      gates.quality = null;
+      notes.push("quality skipped: playwright not installed");
+    } else {
+      gates.quality = r.ok;
+      if (!r.ok) notes.push(`quality: ${[...new Set(r.errors.map((e) => e.code))].join(", ")}`);
+    }
+  }
+
+  return { id: brief.id, gates,
+           pass: [gates.valid, gates.renders, gates.content].every(Boolean), notes };
 }
 
 export async function score(brief, answer, opts = {}) {

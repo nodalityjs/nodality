@@ -1,0 +1,41 @@
+{
+  "elements": [
+    {
+      "id": "topnav",
+      "type": "nav",
+      "items": [
+        {
+          "title": "Home",
+          "link": "/"
+        },
+        {
+          "title": "About",
+          "link": "/about"
+        }
+      ]
+    },
+    {
+      "id": "hero",
+      "type": "h1",
+      "text": "Acme"
+    },
+    {
+      "id": "intro",
+      "type": "p",
+      "text": "We make things."
+    },
+    {
+      "id": "products",
+      "type": "cards",
+      "items": [
+        {
+          "title": "Widget"
+        },
+        {
+          "title": "Gadget"
+        }
+      ]
+    }
+  ],
+  "nodes": []
+}
