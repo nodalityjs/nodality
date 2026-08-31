@@ -5,7 +5,7 @@ Generated per release from the source diff.
 ## 1.3.3 — 2026-08-31
 
 ### Fixed
-- `Picker` now correctly handles array items given as plain strings (e.g. `items: ["Sales", "Support"]`). Previously each string was indexed by character, producing broken option values/text instead of using the full string.
+- `picker` no longer advertises an option it has never read. `Picker.setup` took the items array in a parameter named `obj`, shadowing the options object every other method calls `obj` — so the array's own `obj.length` on the loop inside was recovered as a picker option called `length` by the schema scanner, and reached `schema.json` and the published API reference. The parameter is now named `items`; `length` is gone from the picker's parameter list.
 - Deprecation warnings from `deprecatedOption` (e.g. for `arrayPadding`/`arrayMargin`) are now emitted once per notice per build, instead of twice — components are constructed twice internally during rendering, which was doubling every warning.
 - Generated `Picker` markup from the element mapper now uses `pad` instead of the deprecated `arrayPadding`, so generated pickers no longer trigger a deprecation warning for an option the developer didn't write.
 
