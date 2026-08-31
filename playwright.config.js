@@ -12,23 +12,60 @@ module.exports = {
 
         // Retries and workers, CI only.
         //
-        // This suite has a residual flake rate of a few percent across
-        // ~300 tests: measured over repeated full runs, raster-probe,
-        // transition-timeline and transition-pass have each failed once
-        // and passed on re-run. Most involve WebGL timing or screenshot
-        // equality, which is exactly the class that gets worse on slower
-        // hardware with a software rasteriser.
+        // This suite had a residual failure rate of a few percent across
+        // ~300 tests, attributed here for a long time to "WebGL timing or
+        // screenshot equality — the class that gets worse on slower hardware
+        // with a software rasteriser". Three tests were named: raster-probe,
+        // transition-timeline and transition-pass.
         //
-        // ONE of the three is now root-caused and fixed, and it was not a
-        // timing sensitivity at all — transition-timeline's continuity
-        // assertion was self-inconsistent. It discarded frames slower than
-        // 50ms as stalls, then held the survivors to a step budget of 0.2,
-        // while 50ms of legitimate easing is 0.375; any frame past 26.7ms
-        // near the midpoint failed while animating correctly. It now judges
-        // every pair against `easing'max / duration`, which is analytic and
-        // scales with the gap. Measured 0/24 failures under the contention
-        // that reproduced it at 1/12. The remaining two are still unexplained
-        // and should not be assumed to be the same kind of thing.
+        // That attribution was wrong, and expensively so: it explained the
+        // failures without examining them, so nothing was fixed for as long
+        // as it was believed. All three were investigated on 31 August 2026.
+        // TWO WERE TEST BUGS, and neither involved WebGL timing.
+        //
+        //   transition-timeline — a self-inconsistent assertion. It discarded
+        //   frames slower than 50ms as stalls, then held the survivors to a
+        //   step budget of 0.2, while 50ms of legitimate easing is 0.375. Any
+        //   frame past 26.7ms near the easing midpoint failed while animating
+        //   perfectly. It now judges every pair against `easing'max /
+        //   duration`, which is analytic, scales with the gap, and needs no
+        //   filter — so the long-gap pairs it used to discard, where a real
+        //   restart could hide, are judged too. 0/24 under the contention that
+        //   reproduced it at 1/12.
+        //
+        //   raster-probe — a fixed-sleep race. It slept 260ms per op and then
+        //   called `sourceAt`, which returns null until the first draw and
+        //   documents that it "reports not ready rather than guessing".
+        //   Measured time-to-first-draw across the registry is 80–480ms, so
+        //   the budget sat INSIDE the requirement rather than above it, and
+        //   which op lost was random: a release run failed on `blobs`, two
+        //   back-to-back local runs on `halftone` and then on nothing. It now
+        //   polls the condition, which is also faster when the machine is
+        //   quiet. 8/8 under six-way contention.
+        //
+        // The third and a fourth are NOT test bugs, and are recorded so the
+        // next person does not re-open them:
+        //
+        //   raster-ops "a failing test takes the else branch" — timed out at
+        //   30s during a release. It exercises `resolveSwitches`, which is
+        //   pure logic with no rendering at all, so no shader timing is
+        //   involved. The time went on page setup while macOS storage
+        //   indexing held the machine at load 23 and the whole suite ran 3.4m
+        //   against its usual 1.6m. Environmental.
+        //
+        //   transition-pass — NOT REPRODUCED. 112 adversarial runs, including
+        //   12 workers against six CPU hogs, all green. It carries the same
+        //   structural smell as raster-probe — a 300ms hedge after `__ready`
+        //   — but measurement kills the theory: the pipeline is usable 0ms
+        //   after `__ready`, because the fixture builds it synchronously
+        //   first. The sleep is wasted time, not margin. Its historical
+        //   failure has no known cause, and that is a weaker statement than
+        //   "it is fine" on purpose.
+        //
+        // The lesson worth keeping: a plausible category ("WebGL timing") is
+        // not a diagnosis, and writing one down stops people looking. Measure
+        // what the test needs against what it allows before believing the
+        // machine is at fault.
         //
         // That matters more than usual here because `npm run test` guards
         // TWO gates: onlyPublish.sh runs it before tagging, and the
