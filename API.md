@@ -187,8 +187,6 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/nodes/linkStyle
 - **Nodes** — Nodes allow you to edit design of the elements.
   https://nodalityjs.github.io/docs/nodes/nodes
-- **Nodes** — Nodes modify beahaviour of the elements.
-  https://nodalityjs.github.io/docs/nodes/readme
 - **Shadow** — To use the default shadow, we use the  op.
   https://nodalityjs.github.io/docs/nodes/shadow
 - **Span** — Span is a part of text that can have different contents and design from the rest of your text.

@@ -143,6 +143,16 @@ test('every op in the registry answers sourceAt, in bounds', async ({ page, base
   // element, and must resolve a source coordinate that lands inside the
   // element — including the stateful ones (`stir`, `echo`) that have no
   // closed form and are exactly why this is a GPU readback.
+  //
+  // Longer than the 30s default, because the work is real: fifteen ops,
+  // each compiling a shader, drawing, and answering a GPU readback. The
+  // default was already tight — it covered fifteen sequential sleeps plus
+  // fifteen pipelines — and the per-op wait below is bounded generously so
+  // that a genuine hang is reported rather than timed out. Without the room
+  // for every op to reach its own ceiling, an op that never draws surfaces
+  // as "test timeout" instead of naming itself, which is the difference
+  // between a diagnosis and a shrug.
+  test.setTimeout(120_000);
   await load(page, baseURL, 'none');
   const r = await page.evaluate(async () => {
     const { REGISTRY, applyRasterPipeline } = await import('/lib/raster-ops.js');
@@ -160,9 +170,31 @@ test('every op in the registry answers sourceAt, in bounds', async ({ page, base
           : { op };
         h = applyRasterPipeline(host, [node]);
         if (!h) { out.push({ op, skip: 'no pipeline' }); continue; }
-        await new Promise((res) => setTimeout(res, 260));
-        const b = h.canvas.getBoundingClientRect();
-        const s = h.sourceAt(b.left + b.width * 0.5, b.top + b.height * 0.5);
+        // Wait for the first draw rather than betting on it.
+        //
+        // `sourceAt` opens with `if (destroyed || !lastSnap || !textureReady)
+        // return null` — documented as reporting "not ready" rather than
+        // guessing — so a fixed sleep is a wager that the frame has landed,
+        // and this loop had 260ms of it. Which op loses the wager is
+        // essentially RANDOM: a release run failed on `blobs`, and two
+        // back-to-back runs of this exact loop failed on `halftone` and then
+        // on nothing at all. Measured time-to-first-draw across the registry
+        // is 80–480ms depending on the op and what else the machine is doing,
+        // so 260ms was inside the noise rather than above it.
+        //
+        // Polling the condition is also FASTER on a quiet machine — most ops
+        // answer inside 100ms — so this removes roughly four seconds of
+        // hard-coded sleeping as well as the flake. The ceiling is generous
+        // because it exists to bound a genuine hang, not to time a frame: an
+        // op that truly never draws still fails, and says so.
+        let b = null, s = null;
+        const deadline = performance.now() + 5000;
+        while (performance.now() < deadline) {
+          await new Promise((res) => requestAnimationFrame(res));
+          b = h.canvas.getBoundingClientRect();
+          s = h.sourceAt(b.left + b.width * 0.5, b.top + b.height * 0.5);
+          if (s) break;
+        }
         out.push({
           op,
           ok: !!s,
