@@ -682,15 +682,45 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # The prose pins, which nothing moved. The generator rewrites the API
+      # reference from the tag and touches no prose, so the CDN snippet, the
+      # getting-started install and the homepage banner kept naming whatever
+      # they last named — the lines a reader actually copies. They reached
+      # four releases behind, and went stale again the moment the next
+      # release landed, because a check with no way to satisfy itself is a
+      # chore rather than a gate.
+      #
+      # The lockfile moves with package.json or `npm ci` refuses the pair,
+      # which is precisely how the v1.3.3 docs job died: the manifest said
+      # ^1.3.2 and the lock still said 1.2.8. That failure came AFTER the
+      # push below, so the source advanced while the site did not — the
+      # half-applied state this ordering exists to prevent.
+      - name: Move the version pins to the released version
+        if: steps.guard.outputs.run == 'true'
+        id: pins
+        working-directory: docs-src
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          node scripts/check-pins.mjs "${TAG#v}" --write
+          npm install --package-lock-only --silent
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Either half can be the reason to publish. Gating both on the
+      # reference alone would leave a release that only moved the pins
+      # committed-but-unpublished, which is the failure one line up.
       - name: Commit the regenerated reference
-        if: steps.guard.outputs.run == 'true' && steps.gen.outputs.changed == 'true'
+        if: steps.guard.outputs.run == 'true' && (steps.gen.outputs.changed == 'true' || steps.pins.outputs.changed == 'true')
         working-directory: docs-src
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/raster docs/api
-          git commit -m "docs: regenerate API reference for $TAG"
+          git add docs src package.json package-lock.json
+          git commit -m "docs: regenerate API reference and move pins for $TAG"
           git push origin HEAD:main
 
       # Reuse the repo's own deploy.sh rather than reimplementing the
@@ -700,7 +730,7 @@ jobs:
       # a stale or conflicted source tree. A second publishing path in YAML
       # would drift from those within a release or two.
       - name: Publish the site
-        if: steps.guard.outputs.run == 'true' && steps.gen.outputs.changed == 'true'
+        if: steps.guard.outputs.run == 'true' && (steps.gen.outputs.changed == 'true' || steps.pins.outputs.changed == 'true')
         working-directory: docs-src
         env:
           DOCS_TOKEN: ${{ secrets.DOCS_PUBLISH_TOKEN }}
