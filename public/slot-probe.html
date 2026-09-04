@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Nodality — composite content slots</title></head>
+<body>
+<!--
+  Every composite, both slots, both payload shapes, in a real browser.
+
+  A browser and not jsdom because `nav` and `sideNav` need Element.animate,
+  and their absence is why the slot contract for those two types went
+  unmeasured — and then got written down from source, wrongly, three times.
+
+  Payload shape is a second variable and the fixture varies it, because
+  conflating the two is what produced the earlier "threw" results: `ulist`
+  reads `items` perfectly well, but only as element specs, so probing it
+  with link-ish items looked like a slot failure and was not.
+-->
+<div id="stage"></div>
+<script type="module">
+import { Des } from "../lib/designer.js";
+
+const TYPES = ["cards", "nav", "sideNav", "row", "form", "stack", "wrap",
+               "grid", "table", "ulist"];
+const MARK = "ZQMARKERQZ";
+const SHAPES = {
+  linkish: () => ({ title: MARK, link: "#e", text: MARK, name: MARK }),
+  spec:    () => ({ type: "p", text: MARK }),
+};
+
+const warnings = [];
+const realWarn = console.warn.bind(console);
+console.warn = (...a) => { warnings.push(a.join(" ")); realWarn(...a); };
+
+const results = [];
+for (const type of TYPES)
+for (const slot of ["items", "children"])
+for (const [shape, mk] of Object.entries(SHAPES)) {
+  const host = document.createElement("div");
+  host.id = `probe-${type}-${slot}-${shape}`;
+  document.body.appendChild(host);
+  const el = { id: `e-${type}-${slot}-${shape}`, type, [slot]: [mk(), mk()] };
+  let error = null;
+  try {
+    new Des().nodes([]).add([el]).set({ mount: `#${host.id}`, code: false });
+  } catch (e) { error = String((e && e.message) || e); }
+  results.push({ type, slot, shape, error, reached: !error && host.textContent.includes(MARK) });
+}
+
+window.__result = results;
+window.__warnings = warnings;
+window.__ready = true;
+</script>
+</body>
+</html>

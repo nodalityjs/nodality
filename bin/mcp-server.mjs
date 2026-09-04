@@ -173,8 +173,9 @@ const TOOLS = [
       "actually read, so it cannot describe a parameter the library does " +
       "not have. Omit `type` for the whole schema. Composites carry content " +
       "in a slot \u2014 `items` for cards, nav, sideNav, table and ulist; " +
-      "`children` for row, form and wrap \u2014 and declaring it in the " +
-      "other one renders the placeholders instead.",
+      "`children` for row, form, stack and wrap \u2014 and declaring it in " +
+      "the other one renders the placeholders instead. The library warns on " +
+      "the console when it happens.",
     inputSchema: {
       type: "object",
       properties: {
