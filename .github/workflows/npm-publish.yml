@@ -307,13 +307,32 @@ jobs:
   # which is what makes it a second opinion rather than an echo of the
   # suite. The cost is a network dependency — if this job fails, check
   # whether create-nodality changed before assuming the library broke.
-  # Pin it (create-nodality@1.0.101) if release stability matters more
-  # than catching scaffold drift.
+  # Pin it to an exact version if release stability matters more than
+  # catching scaffold drift — deliberately NOT naming one here, because
+  # the last such note named 1.0.101 and went stale, which is the same
+  # drift this job exists to catch.
+  #
+  # The scaffolder resolves the nodality version from the registry at
+  # scaffold time rather than carrying a hardcoded floor, so the project
+  # starts on published latest and is then overwritten by the candidate
+  # in the next step. A hardcoded pin there had gone three minor versions
+  # stale unnoticed, hidden by the caret.
   scaffold:
     name: Scaffolded project builds
     needs: pack
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # 25, raised from 15. This job does two full npm installs — one inside
+    # `npm create nodality`, one for the candidate tarball — plus a webpack
+    # build and a prerender, and 15 minutes was not enough headroom for
+    # that: the v1.3.4 release hit the wall mid-`npm install` and was
+    # cancelled AFTER the tag had been pushed, leaving the repo released on
+    # GitHub and stale on npm until the job was re-run by hand. The re-run
+    # then passed in 14m50s — ten seconds of margin, which is not margin.
+    #
+    # The failure mode is what justifies the number rather than the mean
+    # runtime: this job runs after the tag, so a timeout does not merely
+    # retry, it strands a half-finished release.
+    timeout-minutes: 25
     permissions:
       contents: read
 
