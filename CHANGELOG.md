@@ -2,6 +2,17 @@
 
 Generated per release from the source diff.
 
+## 1.3.4 — 2026-09-04
+
+### Added
+- Console warning when a composite (`cards`, `table`, `ulist`, `nav`, `sideNav`, `row`, `form`, `stack`, `wrap`) is given content in the slot it doesn't read (e.g. `children` instead of `items`), so the silent "placeholder renders instead of content" failure is now surfaced via `console.warn`.
+
+### Fixed
+- Documentation/tooling description (MCP server tool schema) corrected: `stack` is now listed alongside `row` and `form` as using the `children` slot; previously this was misdescribed for `wrap`, which actually reads `children` only.
+
+### Changed
+- Internal: added a `CONTENT_SLOT` map in `lib/element-mapper.js` recording which content slot (`items` vs `children`) each composite type reads, used only to power the new warning.
+
 ## 1.3.3 — 2026-08-31
 
 ### Fixed
