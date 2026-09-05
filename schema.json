@@ -5,7 +5,8 @@
       "resolved": true,
       "mapper": "mapText",
       "components": [
-        "Text"
+        "Text",
+        "Set"
       ],
       "params": [
         {
@@ -96,7 +97,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -181,7 +182,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -201,7 +202,8 @@
       "resolved": true,
       "mapper": "mapText",
       "components": [
-        "Text"
+        "Text",
+        "Set"
       ],
       "params": [
         {
@@ -292,7 +294,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -377,7 +379,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -397,7 +399,8 @@
       "resolved": true,
       "mapper": "mapText",
       "components": [
-        "Text"
+        "Text",
+        "Set"
       ],
       "params": [
         {
@@ -488,7 +491,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -573,7 +576,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -593,7 +596,8 @@
       "resolved": true,
       "mapper": "mapText",
       "components": [
-        "Text"
+        "Text",
+        "Set"
       ],
       "params": [
         {
@@ -684,7 +688,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -769,7 +773,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -789,7 +793,8 @@
       "resolved": true,
       "mapper": "mapText",
       "components": [
-        "Text"
+        "Text",
+        "Set"
       ],
       "params": [
         {
@@ -880,7 +885,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -965,7 +970,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -985,7 +990,8 @@
       "resolved": true,
       "mapper": "mapText",
       "components": [
-        "Text"
+        "Text",
+        "Set"
       ],
       "params": [
         {
@@ -1076,7 +1082,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -1161,7 +1167,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -1181,7 +1187,8 @@
       "resolved": true,
       "mapper": "mapText",
       "components": [
-        "Text"
+        "Text",
+        "Set"
       ],
       "params": [
         {
@@ -1272,7 +1279,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -1357,7 +1364,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -1377,7 +1384,8 @@
       "resolved": true,
       "mapper": "mapImage",
       "components": [
-        "Image"
+        "Image",
+        "Set"
       ],
       "params": [
         {
@@ -1436,7 +1444,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -1509,7 +1517,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -1608,7 +1616,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "isNavA"
@@ -1677,7 +1685,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -1697,15 +1705,14 @@
         "Link",
         "ZoomCard",
         "FlexGrid",
+        "Set",
         "Checkbox",
         "Stack",
         "Form",
         "Error",
         "AreaSwitcher",
         "Wrapper",
-        "UList",
-        "Set",
-        "Free"
+        "UList"
       ],
       "params": [
         {
@@ -1783,7 +1790,7 @@
         },
         {
           "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
+          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
           "name": "centerColumn"
@@ -1910,7 +1917,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -1942,7 +1949,7 @@
         },
         {
           "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
+          "description": "The cards. Each entry is either a data object -- { title, link, img } -- or an ARRAY of element specs, which renders as one card containing them."
         },
         {
           "name": "keySet",
@@ -1960,9 +1967,6 @@
         },
         {
           "name": "left"
-        },
-        {
-          "name": "link"
         },
         {
           "name": "loading"
@@ -2032,9 +2036,6 @@
         },
         {
           "name": "position"
-        },
-        {
-          "name": "positions"
         },
         {
           "name": "preffersId",
@@ -2127,9 +2128,6 @@
           "name": "tags"
         },
         {
-          "name": "templateCols"
-        },
-        {
           "name": "text"
         },
         {
@@ -2148,16 +2146,13 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
         },
         {
           "name": "useBrightness"
-        },
-        {
-          "name": "value"
         },
         {
           "name": "vtn"
@@ -2300,7 +2295,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -2422,7 +2417,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -2560,7 +2555,7 @@
         },
         {
           "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
+          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
           "name": "centerColumn"
@@ -2705,7 +2700,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -2740,7 +2735,7 @@
         },
         {
           "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
+          "description": "The links, each `{ title, link }` -- or a plain string."
         },
         {
           "name": "keySet",
@@ -2955,7 +2950,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -3095,7 +3090,7 @@
         },
         {
           "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
+          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
           "name": "centerColumn"
@@ -3237,7 +3232,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -3272,7 +3267,7 @@
         },
         {
           "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
+          "description": "The links, each `{ title, link }` -- or a plain string."
         },
         {
           "name": "keySet",
@@ -3487,7 +3482,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -3527,26 +3522,11 @@
       "components": [
         "FlexRow",
         "Text",
-        "Error",
-        "Image",
-        "Link",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "AreaSwitcher",
-        "Wrapper",
-        "UList",
         "Set"
       ],
       "params": [
         {
           "name": "absolute"
-        },
-        {
-          "name": "action"
         },
         {
           "name": "align"
@@ -3573,39 +3553,14 @@
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "as"
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "backTo"
-        },
-        {
           "name": "background"
-        },
-        {
-          "name": "backgroundCard"
-        },
-        {
-          "name": "backgroundColor"
         },
         {
           "name": "backgroundOp"
         },
         {
-          "name": "blast"
-        },
-        {
-          "name": "blastData"
-        },
-        {
           "name": "block",
           "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
         },
         {
           "name": "border"
@@ -3613,9 +3568,6 @@
         {
           "name": "borderObj",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja"
         },
         {
           "name": "breakWord",
@@ -3626,18 +3578,6 @@
           "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
-          "name": "centerColumn"
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "checkedBackgroundColor"
-        },
-        {
-          "name": "child"
-        },
-        {
           "name": "children"
         },
         {
@@ -3645,9 +3585,6 @@
         },
         {
           "name": "class"
-        },
-        {
-          "name": "clipPath"
         },
         {
           "name": "colat"
@@ -3663,54 +3600,13 @@
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
-          "name": "customAlign",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle"
-        },
-        {
-          "name": "data"
-        },
-        {
-          "name": "decoding"
-        },
-        {
-          "name": "disp",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
           "name": "em"
-        },
-        {
-          "name": "fetchPriority"
-        },
-        {
-          "name": "filter"
         },
         {
           "name": "filtera"
         },
         {
-          "name": "fitContent"
-        },
-        {
-          "name": "fixMobileTap",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
           "name": "flex"
-        },
-        {
-          "name": "flexCenter"
-        },
-        {
-          "name": "flexDir",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
         },
         {
           "name": "fluid"
@@ -3720,10 +3616,6 @@
         },
         {
           "name": "font"
-        },
-        {
-          "name": "ga",
-          "description": "CSS grid-area, verbatim."
         },
         {
           "name": "gap"
@@ -3739,18 +3631,11 @@
           "name": "height"
         },
         {
-          "name": "hideOverflow"
-        },
-        {
-          "name": "hover",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
           "name": "icon"
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -3759,30 +3644,7 @@
           "name": "initLetter"
         },
         {
-          "name": "inpad"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
-        },
-        {
-          "name": "isHidden",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink"
-        },
-        {
-          "name": "isNavA"
-        },
-        {
           "name": "italic"
-        },
-        {
-          "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
         },
         {
           "name": "justifo"
@@ -3795,26 +3657,10 @@
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
-          "name": "kind"
-        },
-        {
-          "name": "label",
-          "description": "Accessible name for the field."
-        },
-        {
           "name": "layout"
         },
         {
           "name": "left"
-        },
-        {
-          "name": "link"
-        },
-        {
-          "name": "loading"
-        },
-        {
-          "name": "map"
         },
         {
           "name": "mar",
@@ -3824,41 +3670,10 @@
           "name": "marginOp"
         },
         {
-          "name": "maxHeight"
-        },
-        {
           "name": "maxWidth"
         },
         {
-          "name": "mboth",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "method"
-        },
-        {
-          "name": "minHeight"
-        },
-        {
           "name": "mobile"
-        },
-        {
-          "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
         },
         {
           "name": "onScroll"
@@ -3867,17 +3682,7 @@
           "name": "onTap"
         },
         {
-          "name": "opacity"
-        },
-        {
-          "name": "overflow"
-        },
-        {
           "name": "owrap"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
           "name": "padding"
@@ -3894,52 +3699,17 @@
           "description": "Corner radius in pixels. A bare number, not a CSS length."
         },
         {
-          "name": "ranges"
-        },
-        {
           "name": "raster",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react"
         },
         {
           "name": "removeDecoration"
         },
         {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
           "name": "responsive"
         },
         {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "rounded",
-          "description": "Apply the default corner radius. Use `radius` for a specific value."
-        },
-        {
-          "name": "scale"
-        },
-        {
-          "name": "sequence"
-        },
-        {
           "name": "shadow"
-        },
-        {
-          "name": "simpleBorder",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter"
         },
         {
           "name": "size",
@@ -3947,40 +3717,14 @@
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
-          "name": "sizes"
-        },
-        {
           "name": "span"
-        },
-        {
-          "name": "srcset"
-        },
-        {
-          "name": "sticky",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch"
         },
         {
           "name": "stroke"
         },
         {
-          "name": "stype"
-        },
-        {
           "name": "tag",
           "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags"
-        },
-        {
-          "name": "text"
-        },
-        {
-          "name": "title",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "toColumn"
@@ -3993,41 +3737,20 @@
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
-          "name": "transition"
-        },
-        {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
         },
         {
-          "name": "useBrightness"
-        },
-        {
-          "name": "value"
-        },
-        {
           "name": "vtn"
-        },
-        {
-          "name": "weight"
         },
         {
           "name": "width"
         },
         {
           "name": "wrap"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
-        },
-        {
-          "name": "zIndex"
         }
       ]
     },
@@ -4147,7 +3870,7 @@
         },
         {
           "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
+          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
           "name": "centerColumn"
@@ -4292,7 +4015,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -4327,7 +4050,7 @@
         },
         {
           "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
+          "description": "The choices, each a `[value, text]` pair -- or a plain string used as both."
         },
         {
           "name": "keySet",
@@ -4542,7 +4265,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -4596,11 +4319,11 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
+          "description": "The choices, each a plain string."
         },
         {
           "name": "length"
@@ -4613,7 +4336,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -4682,7 +4405,7 @@
         },
         {
           "name": "theme",
-          "description": "Explicit light/dark overrides — {light: {...}, dark: {...}}."
+          "description": "Light/dark colour overrides. {light: {...}, dark: {...}}."
         },
         {
           "name": "title",
@@ -4717,7 +4440,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "inputType"
@@ -4747,7 +4470,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -4776,7 +4499,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -4798,7 +4521,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -4825,7 +4548,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "items",
@@ -4833,7 +4556,7 @@
         },
         {
           "name": "label",
-          "description": "Accessible name for the field."
+          "description": "Accessible name for the control, written to `aria-label`; a select with no adjacent text has none otherwise."
         },
         {
           "name": "mar",
@@ -4841,7 +4564,7 @@
         },
         {
           "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
+          "description": "Field name submitted with the selected value."
         },
         {
           "name": "pad",
@@ -4857,7 +4580,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -4872,7 +4595,7 @@
       "params": [
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "opacity"
@@ -4883,7 +4606,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -4903,11 +4626,11 @@
       "params": [
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -4919,490 +4642,23 @@
       "mapper": "multiswitcher",
       "components": [
         "Error",
-        "Switcher",
-        "Text",
-        "Image",
-        "Link",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "AreaSwitcher",
-        "Wrapper",
-        "UList",
-        "Set"
+        "Switcher"
       ],
       "params": [
-        {
-          "name": "absolute"
-        },
-        {
-          "name": "action"
-        },
-        {
-          "name": "align"
-        },
-        {
-          "name": "alignIts",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
-        },
-        {
-          "name": "alt",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animation"
-        },
         {
           "name": "area",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "as"
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "backTo"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundCard"
-        },
-        {
-          "name": "backgroundColor"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "blast"
-        },
-        {
-          "name": "blastData"
-        },
-        {
-          "name": "block",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja"
-        },
-        {
-          "name": "breakWord",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
           "name": "breakpoints"
         },
         {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn"
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "checkedBackgroundColor"
-        },
-        {
-          "name": "child"
-        },
-        {
-          "name": "children"
-        },
-        {
-          "name": "clampc"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "clipPath"
-        },
-        {
-          "name": "colat"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "column"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
-        },
-        {
-          "name": "customAlign",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle"
-        },
-        {
-          "name": "data"
-        },
-        {
-          "name": "decoding"
-        },
-        {
-          "name": "disp",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
-          "name": "em"
-        },
-        {
-          "name": "fetchPriority"
-        },
-        {
-          "name": "filter"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "fitContent"
-        },
-        {
-          "name": "fixMobileTap",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "flex"
-        },
-        {
-          "name": "flexCenter"
-        },
-        {
-          "name": "flexDir",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
-        },
-        {
-          "name": "fluid"
-        },
-        {
-          "name": "fluidc"
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "ga",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gap"
-        },
-        {
-          "name": "gpos",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient"
-        },
-        {
-          "name": "height"
-        },
-        {
-          "name": "hideOverflow"
-        },
-        {
-          "name": "hover",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
-          "name": "icon"
-        },
-        {
           "name": "id",
-          "description": "DOM id on the input."
-        },
-        {
-          "name": "index"
-        },
-        {
-          "name": "initLetter"
-        },
-        {
-          "name": "inpad"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
-        },
-        {
-          "name": "isHidden",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink"
-        },
-        {
-          "name": "isNavA"
-        },
-        {
-          "name": "italic"
-        },
-        {
-          "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
-        },
-        {
-          "name": "keySet",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "kind"
-        },
-        {
-          "name": "label",
-          "description": "Accessible name for the field."
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "link"
-        },
-        {
-          "name": "loading"
-        },
-        {
-          "name": "map"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "maxHeight"
-        },
-        {
-          "name": "maxWidth"
-        },
-        {
-          "name": "mboth",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "method"
-        },
-        {
-          "name": "minHeight"
-        },
-        {
-          "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
-        },
-        {
-          "name": "onScroll"
-        },
-        {
-          "name": "onTap"
-        },
-        {
-          "name": "opacity"
-        },
-        {
-          "name": "overflow"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "padding"
-        },
-        {
-          "name": "position"
-        },
-        {
-          "name": "preffersId",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "ranges"
-        },
-        {
-          "name": "raster",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react"
-        },
-        {
-          "name": "removeDecoration"
-        },
-        {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive"
-        },
-        {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "rounded",
-          "description": "Apply the default corner radius. Use `radius` for a specific value."
-        },
-        {
-          "name": "scale"
-        },
-        {
-          "name": "sequence"
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "simpleBorder",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter"
-        },
-        {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes"
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "srcset"
-        },
-        {
-          "name": "sticky",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "stype"
-        },
-        {
-          "name": "tag",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags"
-        },
-        {
-          "name": "text"
-        },
-        {
-          "name": "title",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
-        },
-        {
-          "name": "top"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "transition"
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
-        },
-        {
-          "name": "url"
-        },
-        {
-          "name": "useBrightness"
-        },
-        {
-          "name": "value"
-        },
-        {
-          "name": "vtn"
-        },
-        {
-          "name": "weight"
-        },
-        {
-          "name": "width"
-        },
-        {
-          "name": "wrap"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
-        },
-        {
-          "name": "zIndex"
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -5454,7 +4710,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "img"
@@ -5492,7 +4748,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -5509,487 +4765,25 @@
       "resolved": true,
       "mapper": "form",
       "components": [
-        "Form",
-        "Error",
-        "Text",
-        "Image",
-        "Link",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "AreaSwitcher",
-        "Wrapper",
-        "UList",
-        "Set"
+        "Form"
       ],
       "params": [
         {
-          "name": "absolute"
-        },
-        {
           "name": "action"
-        },
-        {
-          "name": "align"
-        },
-        {
-          "name": "alignIts",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
-        },
-        {
-          "name": "alt",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animation"
-        },
-        {
-          "name": "area",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "as"
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "backTo"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundCard"
-        },
-        {
-          "name": "backgroundColor"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "blast"
-        },
-        {
-          "name": "blastData"
-        },
-        {
-          "name": "block",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja"
-        },
-        {
-          "name": "breakWord",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn"
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "checkedBackgroundColor"
-        },
-        {
-          "name": "child"
         },
         {
           "name": "children"
         },
         {
-          "name": "clampc"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "clipPath"
-        },
-        {
-          "name": "colat"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "column"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
-        },
-        {
-          "name": "customAlign",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle"
-        },
-        {
-          "name": "data"
-        },
-        {
-          "name": "decoding"
-        },
-        {
-          "name": "disp",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
-          "name": "em"
-        },
-        {
-          "name": "fetchPriority"
-        },
-        {
-          "name": "filter"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "fitContent"
-        },
-        {
-          "name": "fixMobileTap",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "flex"
-        },
-        {
-          "name": "flexCenter"
-        },
-        {
-          "name": "flexDir",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
-        },
-        {
-          "name": "fluid"
-        },
-        {
-          "name": "fluidc"
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "ga",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gap"
-        },
-        {
-          "name": "gpos",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient"
-        },
-        {
-          "name": "height"
-        },
-        {
-          "name": "hideOverflow"
-        },
-        {
-          "name": "hover",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
-          "name": "icon"
-        },
-        {
           "name": "id",
-          "description": "DOM id on the input."
-        },
-        {
-          "name": "index"
-        },
-        {
-          "name": "initLetter"
-        },
-        {
-          "name": "inpad"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
-        },
-        {
-          "name": "isHidden",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink"
-        },
-        {
-          "name": "isNavA"
-        },
-        {
-          "name": "italic"
-        },
-        {
-          "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
-        },
-        {
-          "name": "keySet",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "kind"
-        },
-        {
-          "name": "label",
-          "description": "Accessible name for the field."
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "link"
-        },
-        {
-          "name": "loading"
-        },
-        {
-          "name": "map"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "maxHeight"
-        },
-        {
-          "name": "maxWidth"
-        },
-        {
-          "name": "mboth",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "method"
         },
         {
-          "name": "minHeight"
-        },
-        {
-          "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
-        },
-        {
-          "name": "onScroll"
-        },
-        {
-          "name": "onTap"
-        },
-        {
-          "name": "opacity"
-        },
-        {
-          "name": "overflow"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "padding"
-        },
-        {
-          "name": "position"
-        },
-        {
-          "name": "preffersId",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "ranges"
-        },
-        {
-          "name": "raster",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react"
-        },
-        {
-          "name": "removeDecoration"
-        },
-        {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive"
-        },
-        {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "rounded",
-          "description": "Apply the default corner radius. Use `radius` for a specific value."
-        },
-        {
-          "name": "scale"
-        },
-        {
-          "name": "sequence"
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "simpleBorder",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter"
-        },
-        {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes"
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "srcset"
-        },
-        {
-          "name": "sticky",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "stype"
-        },
-        {
-          "name": "tag",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags"
-        },
-        {
-          "name": "text"
-        },
-        {
-          "name": "title",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
-        },
-        {
-          "name": "top"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "transition"
-        },
-        {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
-        },
-        {
-          "name": "url"
-        },
-        {
-          "name": "useBrightness"
-        },
-        {
-          "name": "value"
-        },
-        {
-          "name": "vtn"
-        },
-        {
-          "name": "weight"
-        },
-        {
-          "name": "width"
-        },
-        {
-          "name": "wrap"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
-        },
-        {
-          "name": "zIndex"
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -6102,7 +4896,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -6204,7 +4998,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -6222,486 +5016,26 @@
       "mapper": "stack",
       "components": [
         "Stack",
-        "Set",
-        "Error",
-        "Text",
-        "Image",
-        "Link",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Form",
-        "AreaSwitcher",
-        "Wrapper",
-        "UList"
+        "Set"
       ],
       "params": [
         {
-          "name": "absolute"
-        },
-        {
-          "name": "action"
-        },
-        {
-          "name": "align"
-        },
-        {
-          "name": "alignIts",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
-        },
-        {
-          "name": "alt",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animation"
-        },
-        {
-          "name": "area",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "as"
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "backTo"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundCard"
-        },
-        {
-          "name": "backgroundColor"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "blast"
-        },
-        {
-          "name": "blastData"
-        },
-        {
-          "name": "block",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja"
-        },
-        {
-          "name": "breakWord",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn"
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "checkedBackgroundColor"
-        },
-        {
-          "name": "child"
-        },
-        {
           "name": "children"
-        },
-        {
-          "name": "clampc"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "clipPath"
-        },
-        {
-          "name": "colat"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "column"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
-        },
-        {
-          "name": "customAlign",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle"
-        },
-        {
-          "name": "data"
-        },
-        {
-          "name": "decoding"
-        },
-        {
-          "name": "disp",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
-          "name": "em"
-        },
-        {
-          "name": "fetchPriority"
-        },
-        {
-          "name": "filter"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "fitContent"
-        },
-        {
-          "name": "fixMobileTap",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "flex"
-        },
-        {
-          "name": "flexCenter"
-        },
-        {
-          "name": "flexDir",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
-        },
-        {
-          "name": "fluid"
-        },
-        {
-          "name": "fluidc"
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "ga",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gap"
-        },
-        {
-          "name": "gpos",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient"
         },
         {
           "name": "height"
         },
         {
-          "name": "hideOverflow"
-        },
-        {
-          "name": "hover",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
-          "name": "icon"
-        },
-        {
           "name": "id",
-          "description": "DOM id on the input."
-        },
-        {
-          "name": "index"
-        },
-        {
-          "name": "initLetter"
-        },
-        {
-          "name": "inpad"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
-        },
-        {
-          "name": "isHidden",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink"
-        },
-        {
-          "name": "isNavA"
-        },
-        {
-          "name": "italic"
-        },
-        {
-          "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
-        },
-        {
-          "name": "keySet",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "kind"
-        },
-        {
-          "name": "label",
-          "description": "Accessible name for the field."
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "link"
-        },
-        {
-          "name": "loading"
-        },
-        {
-          "name": "map"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "maxHeight"
-        },
-        {
-          "name": "maxWidth"
-        },
-        {
-          "name": "mboth",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "method"
-        },
-        {
-          "name": "minHeight"
-        },
-        {
-          "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
-        },
-        {
-          "name": "onScroll"
-        },
-        {
-          "name": "onTap"
-        },
-        {
-          "name": "opacity"
-        },
-        {
-          "name": "overflow"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "padding"
-        },
-        {
-          "name": "position"
-        },
-        {
-          "name": "preffersId",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "ranges"
-        },
-        {
-          "name": "raster",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react"
-        },
-        {
-          "name": "removeDecoration"
-        },
-        {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive"
-        },
-        {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "rounded",
-          "description": "Apply the default corner radius. Use `radius` for a specific value."
-        },
-        {
-          "name": "scale"
-        },
-        {
-          "name": "sequence"
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "simpleBorder",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter"
-        },
-        {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes"
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "srcset"
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "sticky",
           "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
         },
         {
-          "name": "stretch"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "stype"
-        },
-        {
-          "name": "tag",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags"
-        },
-        {
-          "name": "text"
-        },
-        {
-          "name": "title",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
-        },
-        {
-          "name": "top"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "transition"
-        },
-        {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
-        },
-        {
-          "name": "url"
-        },
-        {
-          "name": "useBrightness"
-        },
-        {
-          "name": "value"
-        },
-        {
-          "name": "vtn"
-        },
-        {
-          "name": "weight"
-        },
-        {
-          "name": "width"
-        },
-        {
-          "name": "wrap"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
-        },
-        {
-          "name": "zIndex"
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -6710,486 +5044,34 @@
       "mapper": "simple",
       "components": [
         "Error",
-        "AreaSwitcher",
-        "Text",
-        "Image",
-        "Link",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "Wrapper",
-        "UList",
-        "Set"
+        "AreaSwitcher"
       ],
       "params": [
         {
-          "name": "absolute"
-        },
-        {
-          "name": "action"
-        },
-        {
-          "name": "align"
-        },
-        {
-          "name": "alignIts",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
-        },
-        {
-          "name": "alt",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animation"
-        },
-        {
-          "name": "area",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "as"
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "backTo"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundCard"
-        },
-        {
-          "name": "backgroundColor"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "blast"
-        },
-        {
-          "name": "blastData"
-        },
-        {
-          "name": "block",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja"
-        },
-        {
-          "name": "breakWord",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn"
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "checkedBackgroundColor"
-        },
-        {
-          "name": "child"
-        },
-        {
           "name": "children"
-        },
-        {
-          "name": "clampc"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "clipPath"
-        },
-        {
-          "name": "colat"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "column"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
-        },
-        {
-          "name": "customAlign",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle"
-        },
-        {
-          "name": "data"
-        },
-        {
-          "name": "decoding"
-        },
-        {
-          "name": "disp",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
-          "name": "em"
-        },
-        {
-          "name": "fetchPriority"
-        },
-        {
-          "name": "filter"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "fitContent"
-        },
-        {
-          "name": "fixMobileTap",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "flex"
-        },
-        {
-          "name": "flexCenter"
-        },
-        {
-          "name": "flexDir",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
-        },
-        {
-          "name": "fluid"
-        },
-        {
-          "name": "fluidc"
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "ga",
-          "description": "CSS grid-area, verbatim."
         },
         {
           "name": "gap"
         },
         {
-          "name": "gpos",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient"
-        },
-        {
           "name": "height"
         },
         {
-          "name": "hideOverflow"
-        },
-        {
-          "name": "hover",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
-          "name": "icon"
-        },
-        {
           "name": "id",
-          "description": "DOM id on the input."
-        },
-        {
-          "name": "index"
-        },
-        {
-          "name": "initLetter"
-        },
-        {
-          "name": "inpad"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
-        },
-        {
-          "name": "isHidden",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink"
-        },
-        {
-          "name": "isNavA"
-        },
-        {
-          "name": "italic"
-        },
-        {
-          "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
-        },
-        {
-          "name": "keySet",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "kind"
-        },
-        {
-          "name": "label",
-          "description": "Accessible name for the field."
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "link"
-        },
-        {
-          "name": "loading"
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "map"
         },
         {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "maxHeight"
-        },
-        {
-          "name": "maxWidth"
-        },
-        {
-          "name": "mboth",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "method"
-        },
-        {
-          "name": "minHeight"
-        },
-        {
-          "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
-        },
-        {
-          "name": "onScroll"
-        },
-        {
-          "name": "onTap"
-        },
-        {
-          "name": "opacity"
-        },
-        {
-          "name": "overflow"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "padding"
-        },
-        {
-          "name": "position"
-        },
-        {
-          "name": "preffersId",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "ranges"
-        },
-        {
-          "name": "raster",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
           "name": "react"
         },
         {
-          "name": "removeDecoration"
-        },
-        {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive"
-        },
-        {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "rounded",
-          "description": "Apply the default corner radius. Use `radius` for a specific value."
-        },
-        {
-          "name": "scale"
-        },
-        {
-          "name": "sequence"
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "simpleBorder",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter"
-        },
-        {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes"
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "srcset"
-        },
-        {
-          "name": "sticky",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "stype"
-        },
-        {
-          "name": "tag",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags"
-        },
-        {
-          "name": "text"
-        },
-        {
-          "name": "title",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
-        },
-        {
-          "name": "top"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "transition"
-        },
-        {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
-        },
-        {
-          "name": "url"
-        },
-        {
-          "name": "useBrightness"
-        },
-        {
-          "name": "value"
-        },
-        {
-          "name": "vtn"
-        },
-        {
-          "name": "weight"
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "width"
-        },
-        {
-          "name": "wrap"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
-        },
-        {
-          "name": "zIndex"
         }
       ]
     },
@@ -7257,7 +5139,7 @@
         },
         {
           "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
+          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
           "name": "centerColumn"
@@ -7343,7 +5225,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -7486,7 +5368,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -7510,27 +5392,9 @@
       "mapper": "mapWrap",
       "components": [
         "Wrapper",
-        "Error",
-        "Text",
-        "Image",
-        "Link",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "AreaSwitcher",
-        "UList",
         "Set"
       ],
       "params": [
-        {
-          "name": "absolute"
-        },
-        {
-          "name": "action"
-        },
         {
           "name": "align"
         },
@@ -7539,18 +5403,11 @@
           "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
         },
         {
-          "name": "alt",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
           "name": "animation"
         },
         {
           "name": "area",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "as"
         },
         {
           "name": "at"
@@ -7562,27 +5419,10 @@
           "name": "background"
         },
         {
-          "name": "backgroundCard"
-        },
-        {
-          "name": "backgroundColor"
-        },
-        {
           "name": "backgroundOp"
         },
         {
           "name": "blast"
-        },
-        {
-          "name": "blastData"
-        },
-        {
-          "name": "block",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
         },
         {
           "name": "border"
@@ -7595,21 +5435,11 @@
           "name": "borderObja"
         },
         {
-          "name": "breakWord",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
           "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
+          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
           "name": "centerColumn"
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "checkedBackgroundColor"
         },
         {
           "name": "child"
@@ -7618,26 +5448,13 @@
           "name": "children"
         },
         {
-          "name": "clampc"
-        },
-        {
           "name": "class"
-        },
-        {
-          "name": "clipPath"
-        },
-        {
-          "name": "colat"
         },
         {
           "name": "color"
         },
         {
           "name": "column"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
           "name": "customAlign",
@@ -7648,39 +5465,14 @@
           "description": "justify-items, verbatim."
         },
         {
-          "name": "customStyle"
-        },
-        {
-          "name": "data"
-        },
-        {
-          "name": "decoding"
-        },
-        {
           "name": "disp",
           "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
-          "name": "em"
-        },
-        {
-          "name": "fetchPriority"
         },
         {
           "name": "filter"
         },
         {
           "name": "filtera"
-        },
-        {
-          "name": "fitContent"
-        },
-        {
-          "name": "fixMobileTap",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "flex"
         },
         {
           "name": "flexCenter"
@@ -7690,20 +5482,11 @@
           "description": "Flex direction. Also sets display:flex, so it is enough on its own."
         },
         {
-          "name": "fluid"
-        },
-        {
-          "name": "fluidc"
-        },
-        {
           "name": "font"
         },
         {
           "name": "ga",
           "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gap"
         },
         {
           "name": "gpos",
@@ -7719,30 +5502,8 @@
           "name": "hideOverflow"
         },
         {
-          "name": "hover",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
-          "name": "icon"
-        },
-        {
           "name": "id",
-          "description": "DOM id on the input."
-        },
-        {
-          "name": "index"
-        },
-        {
-          "name": "initLetter"
-        },
-        {
-          "name": "inpad"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "isHidden",
@@ -7752,16 +5513,6 @@
           "name": "isLink"
         },
         {
-          "name": "isNavA"
-        },
-        {
-          "name": "italic"
-        },
-        {
-          "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
-        },
-        {
           "name": "keySet",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
@@ -7769,23 +5520,7 @@
           "name": "kind"
         },
         {
-          "name": "label",
-          "description": "Accessible name for the field."
-        },
-        {
           "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "link"
-        },
-        {
-          "name": "loading"
-        },
-        {
-          "name": "map"
         },
         {
           "name": "mar",
@@ -7805,31 +5540,8 @@
           "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
         },
         {
-          "name": "method"
-        },
-        {
-          "name": "minHeight"
-        },
-        {
           "name": "name",
           "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
-        },
-        {
-          "name": "onScroll"
         },
         {
           "name": "onTap"
@@ -7845,14 +5557,7 @@
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
-          "name": "padding"
-        },
-        {
           "name": "position"
-        },
-        {
-          "name": "preffersId",
-          "description": "Prefer this id when the Designer emits code for the element."
         },
         {
           "name": "radius",
@@ -7862,33 +5567,11 @@
           "name": "ranges"
         },
         {
-          "name": "raster",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react"
-        },
-        {
-          "name": "removeDecoration"
-        },
-        {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
           "name": "responsive"
         },
         {
           "name": "resprop",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "rounded",
-          "description": "Apply the default corner radius. Use `radius` for a specific value."
         },
         {
           "name": "scale"
@@ -7907,18 +5590,7 @@
           "name": "simpleCenter"
         },
         {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes"
-        },
-        {
           "name": "span"
-        },
-        {
-          "name": "srcset"
         },
         {
           "name": "sticky",
@@ -7929,23 +5601,6 @@
         },
         {
           "name": "stroke"
-        },
-        {
-          "name": "stype"
-        },
-        {
-          "name": "tag",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags"
-        },
-        {
-          "name": "text"
-        },
-        {
-          "name": "title",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -7959,34 +5614,13 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
-        },
-        {
-          "name": "url"
-        },
-        {
-          "name": "useBrightness"
-        },
-        {
-          "name": "value"
-        },
-        {
-          "name": "vtn"
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "weight"
         },
         {
           "name": "width"
-        },
-        {
-          "name": "wrap"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
         },
         {
           "name": "zIndex"
@@ -8036,7 +5670,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "layout"
@@ -8082,7 +5716,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "width"
@@ -8119,7 +5753,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "inline"
@@ -8152,7 +5786,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -8258,7 +5892,7 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -8352,7 +5986,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
@@ -8415,11 +6049,11 @@
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
+          "description": "The rows. Each entry is a `{ title, link }` or `{ text, url }` data object, a `[value, text]` pair, or an element spec."
         },
         {
           "name": "layout"
@@ -8449,7 +6083,7 @@
         },
         {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         }
       ]
     },
@@ -8459,17 +6093,6 @@
       "components": [
         "UList",
         "Text",
-        "Error",
-        "Image",
-        "Link",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "AreaSwitcher",
-        "Wrapper",
         "Set"
       ],
       "params": [
@@ -8477,14 +6100,7 @@
           "name": "absolute"
         },
         {
-          "name": "action"
-        },
-        {
           "name": "align"
-        },
-        {
-          "name": "alignIts",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
         },
         {
           "name": "alt",
@@ -8498,39 +6114,14 @@
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "as"
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "backTo"
-        },
-        {
           "name": "background"
-        },
-        {
-          "name": "backgroundCard"
-        },
-        {
-          "name": "backgroundColor"
         },
         {
           "name": "backgroundOp"
         },
         {
-          "name": "blast"
-        },
-        {
-          "name": "blastData"
-        },
-        {
           "name": "block",
           "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
         },
         {
           "name": "border"
@@ -8538,9 +6129,6 @@
         {
           "name": "borderObj",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja"
         },
         {
           "name": "breakWord",
@@ -8551,91 +6139,26 @@
           "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
-          "name": "centerColumn"
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "checkedBackgroundColor"
-        },
-        {
-          "name": "child"
-        },
-        {
-          "name": "children"
-        },
-        {
           "name": "clampc"
         },
         {
           "name": "class"
         },
         {
-          "name": "clipPath"
-        },
-        {
-          "name": "colat"
-        },
-        {
           "name": "color"
-        },
-        {
-          "name": "column"
         },
         {
           "name": "cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
-          "name": "customAlign",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle"
-        },
-        {
-          "name": "data"
-        },
-        {
-          "name": "decoding"
-        },
-        {
-          "name": "disp",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
           "name": "em"
-        },
-        {
-          "name": "fetchPriority"
-        },
-        {
-          "name": "filter"
         },
         {
           "name": "filtera"
         },
         {
-          "name": "fitContent"
-        },
-        {
-          "name": "fixMobileTap",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
           "name": "flex"
-        },
-        {
-          "name": "flexCenter"
-        },
-        {
-          "name": "flexDir",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
         },
         {
           "name": "fluid"
@@ -8645,13 +6168,6 @@
         },
         {
           "name": "font"
-        },
-        {
-          "name": "ga",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gap"
         },
         {
           "name": "gpos",
@@ -8664,18 +6180,11 @@
           "name": "height"
         },
         {
-          "name": "hideOverflow"
-        },
-        {
-          "name": "hover",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
           "name": "icon"
         },
         {
           "name": "id",
-          "description": "DOM id on the input."
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
           "name": "index"
@@ -8684,30 +6193,11 @@
           "name": "initLetter"
         },
         {
-          "name": "inpad"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
-        },
-        {
-          "name": "isHidden",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink"
-        },
-        {
-          "name": "isNavA"
-        },
-        {
           "name": "italic"
         },
         {
           "name": "items",
-          "description": "The choices, each a `[value, text]` pair — or a plain string used as both."
+          "description": "The list entries, each an element spec -- `{ type, ... }` -- or a plain string."
         },
         {
           "name": "keySet",
@@ -8717,23 +6207,10 @@
           "name": "kind"
         },
         {
-          "name": "label",
-          "description": "Accessible name for the field."
-        },
-        {
           "name": "layout"
         },
         {
           "name": "left"
-        },
-        {
-          "name": "link"
-        },
-        {
-          "name": "loading"
-        },
-        {
-          "name": "map"
         },
         {
           "name": "mar",
@@ -8743,38 +6220,7 @@
           "name": "marginOp"
         },
         {
-          "name": "maxHeight"
-        },
-        {
           "name": "maxWidth"
-        },
-        {
-          "name": "mboth",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "method"
-        },
-        {
-          "name": "minHeight"
-        },
-        {
-          "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
         },
         {
           "name": "onScroll"
@@ -8783,76 +6229,25 @@
           "name": "onTap"
         },
         {
-          "name": "opacity"
-        },
-        {
-          "name": "overflow"
-        },
-        {
           "name": "pad",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "padding"
-        },
-        {
-          "name": "position"
         },
         {
           "name": "preffersId",
           "description": "Prefer this id when the Designer emits code for the element."
         },
         {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "ranges"
-        },
-        {
           "name": "raster",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react"
         },
         {
           "name": "removeDecoration"
         },
         {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
           "name": "responsive"
         },
         {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "rounded",
-          "description": "Apply the default corner radius. Use `radius` for a specific value."
-        },
-        {
-          "name": "scale"
-        },
-        {
-          "name": "sequence"
-        },
-        {
           "name": "shadow"
-        },
-        {
-          "name": "simpleBorder",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter"
         },
         {
           "name": "size",
@@ -8860,40 +6255,14 @@
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
-          "name": "sizes"
-        },
-        {
           "name": "span"
-        },
-        {
-          "name": "srcset"
-        },
-        {
-          "name": "sticky",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch"
         },
         {
           "name": "stroke"
         },
         {
-          "name": "stype"
-        },
-        {
           "name": "tag",
           "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags"
-        },
-        {
-          "name": "text"
-        },
-        {
-          "name": "title",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
           "name": "top"
@@ -8903,41 +6272,17 @@
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
-          "name": "transition"
-        },
-        {
           "name": "type",
-          "description": "Input type attribute. Defaults to \"text\"; \"search\" adds the native clear button."
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
           "name": "url"
         },
         {
-          "name": "useBrightness"
-        },
-        {
-          "name": "value"
-        },
-        {
           "name": "vtn"
         },
         {
-          "name": "weight"
-        },
-        {
           "name": "width"
-        },
-        {
-          "name": "wrap"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
-        },
-        {
-          "name": "zIndex"
         }
       ]
     }

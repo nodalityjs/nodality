@@ -65,13 +65,38 @@ test("SPEC_ITEMS cannot drift: the validator reports exactly what the mapper thr
 
   for (const type of itemTypes) {
     const spec = { type, items: [{ text: "Fast" }] };
-    const throws = draw(spec).startsWith("THREW:");
+    const out = draw(spec);
+    const throws = out.startsWith("THREW:");
+    // Rendered THE CONTENT, not merely rendered. The original form of this
+    // test read "did not throw" as "worked", which is the one thing a
+    // composite handed the wrong entry shape does not do: it renders its
+    // placeholder template and drops the entry, silently. That is a third
+    // outcome, and it is the one WRONG_ITEM_SHAPE exists to report.
+    // Read the MOUNT, not the body `draw` returns. `Des.set()` appends its
+    // code panel — a <pre> and a <textarea> holding the generated source — to
+    // document.body, and that source quotes the entry's own text. Matching
+    // against the body therefore finds "Fast" in the emitted code for a card
+    // that rendered no such text, and reads a silent drop as a successful
+    // render.
+    const rendered = !throws &&
+      dom.window.document.querySelector("#mount").innerHTML.includes("Fast");
     const reported = validateNodes([], [spec]).errors
       .some((e) => e.path.startsWith("elements[0].items[0]"));
-    assert.equal(reported, throws,
-      `${type}: mapper ${throws ? "throws" : "renders"} on an untyped item but the ` +
-      `validator ${reported ? "reports" : "says nothing"} — ` +
-      `SPEC_ITEMS ${SPEC_ITEMS.has(type) ? "lists" : "omits"} it`);
+
+    // A throw must never be silent. An exception raised during rendering is
+    // the failure §8.7.4 measured as unrepairable when it carries no location,
+    // so the validator has to reach it first.
+    if (throws) {
+      assert.ok(reported,
+        `${type}: the mapper throws on an untyped item and the validator says nothing — ` +
+        `SPEC_ITEMS ${SPEC_ITEMS.has(type) ? "lists" : "omits"} it`);
+    }
+    // And a report must never land on a shape that works, because a false
+    // report does not annotate the page, it prevents it.
+    if (reported) {
+      assert.ok(!rendered,
+        `${type}: the validator reports an entry the mapper renders — a false positive`);
+    }
   }
 });
 

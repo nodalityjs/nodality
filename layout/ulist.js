@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.4
+ * nodality v1.3.5
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -175,6 +175,21 @@ toCode(indent = 0) {
 
         const pad = " ".repeat(indent);
         let code = `${pad}new UList()`;
+
+        // The options, so the emitted source reproduces this instance. Without
+        // this the generator wrote `new UList()` and dropped every option that
+        // had been set on it -- and since Des.set() EXECUTES the emitted
+        // source, the page rendered from code that no longer described the
+        // list. The mapper was forwarding correctly the whole time; the loss
+        // was here, at the boundary the artefact is supposed to cross.
+        const opts = Object.fromEntries(
+            Object.entries(this.options || {}).filter(([, v]) =>
+                v !== undefined && v !== null && v !== ""),
+        );
+        if (Object.keys(opts).length) {
+            code += `\n${pad}  .set(${JSON.stringify(opts, null, 2)
+                .split("\n").join(`\n${pad}  `)})`;
+        }
 
         if (this.items && this.items.length) {
             code += `\n${pad}  .setItems([\n` +

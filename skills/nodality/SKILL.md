@@ -89,8 +89,26 @@ key you use is part of the type**:
 
 | slot | types |
 |---|---|
-| `items` | `cards`, `nav`, `sideNav`, `table`, `ulist` |
-| `children` | `row`, `form`, `wrap` |
+| `items` | `cards`, `nav`, `sideNav`, `table`, `ulist`, `dropdown`, `picker`, `radio` |
+| `children` | `row`, `form`, `stack`, `wrap` |
+
+And **what an entry may be depends on the type**, because an element spec is
+not accepted everywhere:
+
+| type | an entry is |
+|---|---|
+| `cards` | `{ title, link, img }`, or an **array** of element specs |
+| `nav`, `sideNav` | `{ title, link }`, or a string |
+| `table` | `{ title, link }` / `{ text, url }`, a `[value, text]` pair, or an element spec |
+| `ulist` | an element spec, or a string |
+| `dropdown`, `picker` | a string, or a `[value, text]` pair |
+| `radio` | a string |
+
+Writing `items: [{ type: "h2", text: "…" }]` on `cards` or `nav` is the one
+mistake worth naming, because it is well-formed and does nothing: `cards`
+renders an empty card and `nav` drops the entry. Wrap it — `items: [[{ type:
+"h2", … }]]` — and `cards` builds a card containing it. `validate_nodes`
+reports this as `WRONG_ITEM_SHAPE` and hands back the corrected entry.
 
 ```js
 { type: "cards", items: [                       // shorthand

@@ -152,9 +152,18 @@ const familyOf = (node) => {
 // be demonstrated is absent, and absent means silent: reporting a slot that
 // might work would stop `preview` rendering a page that renders, which 1.2.7
 // established is the costlier direction to be wrong in.
+//
+// Four types had that evidence and were missing anyway. `stack` was declared in
+// the mapper's copy of this table and not in this one, so the two had already
+// drifted -- which is what the comment on SPEC_ITEMS below warns about, one
+// table over. `dropdown`, `picker` and `radio` read `items` as choices and were
+// in neither. The omission was invisible to the drift test because the test
+// iterated THIS map, so a type absent from it was a type it never checked; the
+// test now iterates the element registry instead.
 export const CONTENT_SLOT = {
     cards: "items", nav: "items", sideNav: "items", table: "items", ulist: "items",
-    row: "children", form: "children", wrap: "children",
+    dropdown: "items", picker: "items", radio: "items",
+    row: "children", form: "children", stack: "children", wrap: "children",
 };
 
 // Of the types that read `items`, which read the entries as ELEMENT SPECS
@@ -165,6 +174,41 @@ export const CONTENT_SLOT = {
 // than trusted, because a hand-kept table beside a mapper is exactly what
 // drifted before 1.2.8.
 export const SPEC_ITEMS = new Set(["ulist"]);
+
+// Of the types that read `items` but NOT as flat element specs, what an entry
+// may be. Measured by rendering every shape against every type rather than read
+// off the mappers, because the mappers disagree: `table` takes an element spec,
+// `cards` takes one only inside a nested array, and `nav` takes neither.
+//
+// This guards the expensive kind of failure rather than the cheap one. An entry
+// carrying `type` IS a well-formed element spec, so nothing here is a typo and
+// near-miss detection cannot reach it: `cards` renders an empty card, `nav`
+// drops the entry, both pages render, and the content is simply gone. That is
+// the "validates and is wrong" case, and it is the one shape a generator
+// reaches for first, because every other slot in the format takes element
+// specs.
+//
+// `keys` are the fields that prove an entry was MEANT as data. A report fires
+// only when none of them is present -- i.e. only when the entry cannot render
+// anything at all -- because a false report does not annotate the page, it
+// prevents it.
+export const ITEM_SHAPE = {
+    cards: {
+        nest: true, keys: ["title", "link", "img"],
+        valid: 'a data object -- { title, link, img } -- or an ARRAY of element specs, which renders as one card containing them',
+    },
+    nav: {
+        nest: false, keys: ["title", "link"],
+        valid: '{ title, link }, or a plain string',
+    },
+    sideNav: {
+        nest: false, keys: ["title", "link"],
+        valid: '{ title, link }, or a plain string',
+    },
+    dropdown: { nest: false, keys: [], valid: 'a plain string, or a [value, text] pair' },
+    picker:   { nest: false, keys: [], valid: 'a plain string, or a [value, text] pair' },
+    radio:    { nest: false, keys: [], valid: 'a plain string' },
+};
 
 export function validateNodes(nodes, elements, defs) {
     const errors = [];
@@ -425,6 +469,43 @@ export function validateNodes(nodes, elements, defs) {
                             push("UNKNOWN_ELEMENT_TYPE", `${at}.type`, entry.type,
                                 suggest(entry.type, ELEMENT_TYPES), ELEMENT_TYPES);
                         }
+                    });
+                }
+
+                // Phase S8: an entry in the wrong SHAPE for a type that reads
+                // `items` as something other than element specs. The sibling
+                // check above walks entries that ARE specs; this one reports
+                // entries that are specs where a spec renders nothing.
+                //
+                // Fires only when the entry carries none of the fields the type
+                // reads, so an entry meant as data is never reported, and a
+                // `$ref` -- resolved later -- is left alone. The suggestion
+                // hands back the replacement rather than describing it, which
+                // 8.7.4 measured as the difference between a report a model can
+                // act on and one it cannot.
+                const shape = ITEM_SHAPE[el.type];
+                if (shape && Array.isArray(el.items)) {
+                    el.items.forEach((entry, k) => {
+                        const at = `${p}.items[${k}]`;
+                        if (entry === null || typeof entry !== "object") return;
+                        if (Array.isArray(entry)) return;   // nested spec, or a [value, text] pair
+                        if (isRef(entry)) return;
+                        if (shape.keys.some((key) => entry[key] !== undefined)) return;
+
+                        const text = ["text", "title", "label"]
+                            .map((key) => entry[key]).find((v) => typeof v === "string");
+                        const suggestions = [];
+                        if (shape.nest && typeof entry.type === "string") {
+                            suggestions.push(JSON.stringify([entry]));
+                        } else if (shape.keys.length) {
+                            suggestions.push(JSON.stringify({
+                                title: text === undefined ? "..." : text,
+                                link: entry.url || entry.link || "#",
+                            }));
+                        } else if (text !== undefined) {
+                            suggestions.push(JSON.stringify(text));
+                        }
+                        push("WRONG_ITEM_SHAPE", at, entry, suggestions, [shape.valid]);
                     });
                 }
             });

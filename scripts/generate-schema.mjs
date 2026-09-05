@@ -138,19 +138,75 @@ function paramsOf(file) {
 }
 
 // ── 6. descriptions from //@ annotations, wherever they live ─────────
-const DESCRIPTIONS = {}, DEPRECATED = {};
+//
+// Keyed by the FILE the annotation was found in, not by parameter name alone.
+// A flat name->text map with first-writer-wins looks harmless while every
+// parameter name means one thing across the library, and stops being harmless
+// the moment two components read the same name differently. `items` is that
+// name: the picker documents it as "the choices, each a [value, text] pair",
+// the picker's file was scanned first, and so every composite in the schema --
+// cards, nav, sideNav, table, ulist -- advertised the picker's contract. The
+// MCP `get_schema` tool serves this file, so the on-demand path that §7.4
+// argues for was the path that lied.
+//
+// Params are already resolved per file by paramsOf(); only the descriptions
+// were global. Now both are scoped the same way, and a `//@ <type>.<param>:`
+// annotation overrides for one element type where the mapper, not the
+// component, decides what the slot means.
+const DESC_BY_FILE = new Map(), DEPR_BY_FILE = new Map();
+const DESC_BY_TYPE = {};
+// Names whose meaning depends on the element type, declared with `//@scoped
+// <name>`. For these a description is never BORROWED from a file that does not
+// contribute the parameter: `items` is documented once, in picker.js, and is
+// correct there and wrong for every composite; `type` is documented once, in
+// text-field.js, and means the input's type there and the element's type
+// everywhere else. Neither is ambiguous by the usual test of two files
+// disagreeing -- each has exactly one annotation -- which is why the test has
+// to be declared rather than inferred.
+const SCOPED = new Set();
+// Every annotation, first writer winning, exactly as before this change. Names
+// outside SCOPED still resolve through it, so a parameter documented once in a
+// shared helper -- `mar`, `pad`, `transform` in animator.js -- keeps its
+// description on every type that accepts it.
+const DESC_GLOBAL = {}, DEPR_GLOBAL = {};
 {
   const files = new Set(Object.values(IMPORTS)
     .map((rel) => join(ROOT, "lib", rel)).filter(existsSync));
   files.add(MAPPER);
   for (const f of files) {
+    const desc = {}, depr = {};
     for (const line of readFileSync(f, "utf8").split("\n")) {
-      let m = line.match(/\/\/@deprecated\s+([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.+)$/);
-      if (m) { DEPRECATED[m[1]] ??= m[2].trim(); continue; }
+      let m = line.match(/\/\/@scoped\s+([a-zA-Z][a-zA-Z0-9]*)\s*$/);
+      if (m) { SCOPED.add(m[1]); continue; }
+      m = line.match(/\/\/@deprecated\s+([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.+)$/);
+      if (m) { depr[m[1]] ??= m[2].trim(); DEPR_GLOBAL[m[1]] ??= m[2].trim(); continue; }
+      // Qualified first: `//@ cards.items: …` binds to one type only.
+      m = line.match(/\/\/@\s+([a-zA-Z][a-zA-Z0-9]*)\.([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.+)$/);
+      if (m) { (DESC_BY_TYPE[m[1]] ??= {})[m[2]] ??= m[3].trim(); continue; }
       m = line.match(/\/\/@\s+([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.+)$/);
-      if (m) DESCRIPTIONS[m[1]] ??= m[2].trim();
+      if (m) { desc[m[1]] ??= m[2].trim(); DESC_GLOBAL[m[1]] ??= m[2].trim(); }
     }
+    DESC_BY_FILE.set(f, desc); DEPR_BY_FILE.set(f, depr);
   }
+}
+
+/**
+ * Look a parameter's annotation up along the chain that actually built the
+ * type: the type's own qualified override, then the files of the components it
+ * assembles, then the mapper. A parameter no component of this type documents
+ * gets no description, which is the honest answer and strictly better than
+ * another type's.
+ */
+function annotationFor(table, name, from, type, qualified) {
+  if (qualified && DESC_BY_TYPE[type] && DESC_BY_TYPE[type][name]) {
+    return DESC_BY_TYPE[type][name];
+  }
+  for (const f of from) {
+    const got = table.get(f);
+    if (got && got[name]) return got[name];
+  }
+  if (SCOPED.has(name)) return undefined;
+  return (qualified ? DESC_GLOBAL : DEPR_GLOBAL)[name];
 }
 
 // ── 7. assemble ──────────────────────────────────────────────────────
@@ -167,6 +223,14 @@ for (const type of TYPES) {
     const b = methodBody(name);
     let out = b;
     for (const m of b.matchAll(/\bthis\.([a-zA-Z][a-zA-Z0-9_]*)\s*\(/g)) {
+      // NOT through mapType. It is the dispatcher: a composite calls it to
+      // build its CHILDREN, which are separate elements with their own types
+      // and their own schema entries. Following it made every composite
+      // inherit the whole library -- which is why `nav` advertised 157
+      // parameters for a component that has no `set()` at all, and `cards`
+      // 141. Those were its children's parameters, and its children's
+      // children's, reported as its own.
+      if (m[1] === "mapType") continue;
       if (seen.size < 12) out += "\n" + bodyOf(m[1], seen);
     }
     return out;
@@ -175,30 +239,56 @@ for (const type of TYPES) {
   const classes = body ? classesIn(body) : [];
   const files = classes.map(fileFor).filter(Boolean);
 
+  // Which file contributed each parameter. The description lookup walks this
+  // rather than the whole component list, so a parameter is documented by the
+  // file that actually reads it and by nothing else. Scoping to the type's
+  // components alone was not enough: `alt` is contributed to `img` by
+  // image.js, and an annotation living in any other file would have been
+  // dropped -- which cost `img.alt` its description on the first attempt at
+  // this fix, the one parameter the comment in paramsOf() exists to protect.
   const params = new Set();
-  for (const f of files) for (const p of paramsOf(f)) params.add(p);
+  const from = new Map();
+  const contributed = (name, file) => {
+    params.add(name);
+    if (!from.has(name)) from.set(name, []);
+    if (!from.get(name).includes(file)) from.get(name).push(file);
+  };
+  for (const f of files) for (const p of paramsOf(f)) contributed(p, f);
 
   // The mapper's OWN `el.<name>` reads. Scanning components alone missed
   // these, because a mapper often passes an element field as a constructor
   // argument rather than an option — `new Text(el.text)`. That left `text`
   // off every heading, which would have been the single worst error the
   // schema could contain: the most-used parameter of the most-used type.
-  for (const m of body.matchAll(/\bel\.([a-zA-Z][a-zA-Z0-9]*)/g)) params.add(m[1]);
+  for (const m of body.matchAll(/\bel\.([a-zA-Z][a-zA-Z0-9]*)/g)) contributed(m[1], MAPPER);
 
   // Read off the element by every mapper regardless of component.
-  for (const p of ["type", "id"]) params.add(p);
+  for (const p of ["type", "id"]) contributed(p, MAPPER);
 
+  // NOTE. A `settable` flag was attempted here and removed. The question it
+  // was meant to answer -- which of these parameters an AUTHOR can set on the
+  // element, as opposed to which the components READ -- is real and still
+  // open, but no static rule tried here agreed with what rendering shows. The
+  // heuristic marked 151 of nav's parameters settable for a component that
+  // accepts none, and a schema that states a falsehood in a new field is worse
+  // than one that states less. What IS fixed below is the largest part of the
+  // over-claim: composites no longer inherit their children's vocabulary.
   const ok = files.length > 0;
   if (ok) resolved++;
   schema.types[type] = {
     resolved: ok,
     mapper: method,
     components: classes,
-    params: [...params].sort().map((name) => ({
-      name,
-      ...(DESCRIPTIONS[name] ? { description: DESCRIPTIONS[name] } : {}),
-      ...(DEPRECATED[name] ? { deprecated: DEPRECATED[name] } : {}),
-    })),
+    params: [...params].sort().map((name) => {
+      const where = from.get(name) || [];
+      const description = annotationFor(DESC_BY_FILE, name, where, type, true);
+      const deprecated = annotationFor(DEPR_BY_FILE, name, where, type, false);
+      return {
+        name,
+        ...(description ? { description } : {}),
+        ...(deprecated ? { deprecated } : {}),
+      };
+    }),
   };
 }
 schema.summary = { types: TYPES.length, resolved, unresolved: TYPES.length - resolved };

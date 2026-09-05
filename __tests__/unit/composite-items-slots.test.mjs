@@ -181,8 +181,15 @@ test("the schema lists the slot each composite now reads", async () => {
   // this project has been correcting.
   const { readFileSync } = await import("node:fs");
   const schema = JSON.parse(readFileSync(path.join(ROOT, "schema.json"), "utf8"));
-  for (const type of ["row", "table", "nav", "sideNav", "cards"]) {
-    assert.ok(schema.types[type].params.some((p) => p.name === "items"),
-      `schema for "${type}" does not list "items"`);
+  const { CONTENT_SLOT } = await import(path.join(ROOT, "lib", "validate-nodes.js"));
+  // Every composite, and the slot it actually reads. The previous form
+  // hardcoded five types and asked all of them for `items`, including `row` --
+  // which reads `children`. It passed only because the schema generator
+  // followed the mapper's dispatcher into every other mapper, so `row`
+  // inherited an `items` it does not have. A test that asserts the wrong thing
+  // and passes for the wrong reason is worth less than no test.
+  for (const [type, slot] of Object.entries(CONTENT_SLOT)) {
+    assert.ok(schema.types[type].params.some((p) => p.name === slot),
+      `schema for "${type}" does not list its content slot "${slot}"`);
   }
 });
