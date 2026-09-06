@@ -2,6 +2,23 @@
 
 Generated per release from the source diff.
 
+## 1.3.6 — 2026-09-06
+
+### Added
+- `validateNodes` now reports `WRONG_ITEM_SHAPE` for `items` entries that are objects but carry none of the fields the element type expects (e.g. a `nav`/`sideNav`/`cards` entry with no `title`/`link`/`img`, or a `dropdown`/`picker`/`radio` entry with no matching text field). The report includes a suggested replacement where one can be inferred.
+- `validate-nodes.js` exports `ITEM_SHAPE`, describing per-type what an `items` entry may be (`cards`, `nav`, `sideNav`, `dropdown`, `picker`, `radio`).
+- `CONTENT_SLOT` (in both `element-mapper.js` and `validate-nodes.js`) now recognises `dropdown`, `picker`, and `radio` as reading `items`, and `stack` as reading `children` — these were previously unvalidated.
+- `UList.toCode()` now emits a `.set({...})` call reproducing the instance's non-empty options, so generated source for a `UList` no longer silently drops options that were set on it.
+- Generated `FlexGrid`, `FlexRow`, `Text`, `Image`, `Wrapper`, and `UList`-backed mapper output now forwards the full set of author-declared options (via a new internal `elOpts` helper) instead of a hand-picked subset — options such as `background`, `align`, `width`, `opacity`, and `radius` on `Text`, and template-level options on `FlexGrid` cards, are no longer dropped when generating source.
+
+### Fixed
+- Fixed options being silently discarded during code generation for several element types (`row`/`FlexRow`, `Text`, `Image`, `Wrapper`, `UList`, `cards`/`FlexGrid`): previously an option could be set on a spec, pass validation, and still be absent from the rendered/generated output.
+- `Image` and `Wrapper` mapping no longer spreads the raw element spec (`...el`) into component options, which had leaked spec-only bookkeeping fields (`type`, `children`, `items`) into both the component's options and the emitted source.
+
+### Changed
+- Internal: added a unit test pinning `CONTENT_SLOT` equal between `element-mapper.js` and `validate-nodes.js` (previously the two had drifted, e.g. over `stack`), and changed the drift test to iterate the element registry rather than one of the two maps, so a type missing from both is now caught.
+- Internal: per-element-type option descriptions (`@scoped`/`@` annotations) added as comments in `element-mapper.js` for use by `scripts/generate-schema.mjs`, replacing name-based first-writer-wins documentation lookup that had caused `items` docs for `picker` to be served for `cards`, `nav`, `sideNav`, `table`, and `ulist`.
+
 ## 1.3.4 — 2026-09-04
 
 ### Added
