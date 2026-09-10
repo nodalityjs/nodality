@@ -2930,8 +2930,24 @@ function snapshotToImage(el, w, h, dpr) {
     return embeddedFontCss(el).catch(() => "").then((fontCss) => new Promise((resolve, reject) => {
         const serialized = new XMLSerializer()
             .serializeToString(freezeStyles(el, el.cloneNode(true)));
+        // The SVG carries NO scaling at all — it is emitted at CSS size, 1:1.
+        //
+        // Engines do not agree about scaling foreignObject content: mobile Chrome and
+        // Safari apply neither a viewBox ratio nor an ancestor transform to the HTML
+        // subtree, so content laid out at `w x h` stayed `w x h` in the top-left of a
+        // `w*dpr` canvas. Reading the uploaded texture back off the GPU on a dpr-3
+        // phone showed exactly that: a 1101x369 texture with its ink confined to the
+        // first 367x123. The same SVG looked correct in an <img> sized to 367 CSS px,
+        // because there the unscaled content happened to fill the box — which is what
+        // made this look like a compositing bug for so long.
+        //
+        // So the SVG is rasterised at the size its contents are laid out for, and the
+        // dpr upscale is done by drawImage below, where the destination rectangle is
+        // stated outright and no engine has an opinion. High-dpr output is a touch
+        // softer than a native-resolution rasterisation would be; correct everywhere
+        // beats crisp on the machines that happened to agree with us.
         const svg =
-            `<svg xmlns="http://www.w3.org/2000/svg" width="${w * dpr}" height="${h * dpr}" viewBox="0 0 ${w} ${h}">` +
+            `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">` +
             `<foreignObject width="100%" height="100%">` +
             `<div xmlns="http://www.w3.org/1999/xhtml">` +
             (fontCss ? `<style>${fontCss}</style>` : "") +
@@ -2942,7 +2958,30 @@ function snapshotToImage(el, w, h, dpr) {
         // globalThis. Where they do, the DOM constructor is gone and this
         // promise never settles: the snapshot backend hangs with no error.
         const img = document.createElement("img");
-        img.onload = () => resolve(img);
+        img.onload = () => {
+            // Rasterise into a canvas of exactly the size we asked for, and hand
+            // THAT to the caller.
+            //
+            // texImage2D takes an image's INTRINSIC size, and engines disagree about
+            // what that is for an SVG: desktop Chrome honours the width/height
+            // attributes (w*dpr), while mobile Chrome and Safari take it from the
+            // viewBox (w). On a phone the texture therefore arrived at 1/dpr scale
+            // and the effect painted its content into the top-left corner of its own
+            // canvas — the headline came out about a third of its size, while every
+            // measurement of the box, the SVG and the CSS looked perfectly correct.
+            //
+            // Drawing with an explicit destination rectangle makes the size ours
+            // instead of theirs, so the texture matches the backing store on every
+            // engine. This mirrors what fitImageToBox already does for the
+            // sole-image fast path.
+            const c = document.createElement("canvas");
+            c.width = Math.max(1, Math.round(w * dpr));
+            c.height = Math.max(1, Math.round(h * dpr));
+            const ctx = c.getContext("2d");
+            if (!ctx) { resolve(img); return; }
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+            resolve(c);
+        };
         img.onerror = reject;
         img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
     }));
