@@ -2,6 +2,15 @@
 
 Generated per release from the source diff.
 
+## 1.3.7 — 2026-09-10
+
+### Fixed
+- Snapshot capture (`snapshotToImage`) now freezes `font-size`, `line-height`, `letter-spacing`, and `word-spacing` to their computed pixel values unconditionally, not just when written inline with viewport units. This fixes text (e.g. `clamp()` headlines mixing `rem`/`vw`) rendering at the wrong size in captures, particularly on mobile viewports.
+- Web fonts loaded via `@font-face` (including cross-origin sources like Google Fonts) are now embedded into the snapshot as base64 `data:` URIs in an inline `<style>` block, so captured text renders in the correct typeface instead of falling back to a local font. Only font subsets/weights actually used and covering the captured text are embedded, keeping snapshot size down. Any fetch/parse failure silently falls back to prior behaviour (no embedded font).
+
+### Changed
+- Font-face CSS rules are parsed and cached once per page (`FACE_RULES`), and fetched font data is cached per URL (`FONT_DATA_CACHE`), so only the first snapshot on a page pays the cost of resolving and downloading fonts.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
