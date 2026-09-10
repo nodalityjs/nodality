@@ -19,7 +19,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-const CLI = path.join(ROOT, "bin", "nodality.js");
+const CLI = path.join(ROOT, "bin", "nodality.mjs");
 
 /** A minimal site with one page carrying a chain and an allowlisted form. */
 function scaffold() {

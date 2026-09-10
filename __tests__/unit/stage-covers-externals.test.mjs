@@ -34,7 +34,7 @@ const root = new URL("../../", import.meta.url);
 const p = (rel) => fileURLToPath(new URL(rel, root));
 
 const DIST = p("dist/index.esm.js");
-const BIN = p("bin/nodality.js");
+const BIN = p("bin/nodality.mjs");
 
 /** Every relative specifier a source file imports or re-exports. */
 function relativeImports(src) {
@@ -91,7 +91,7 @@ test("stage copies every module the bundle externalises, transitively", () => {
 	// a list is what went stale and shipped a site with 404s.
 	const bin = readFileSync(BIN, "utf8");
 	assert.match(bin, /relSpecs|externalised module/,
-		"bin/nodality.js no longer stages the bundle's external imports");
+		"bin/nodality.mjs no longer stages the bundle's external imports");
 	assert.ok(!/const needed\s*=\s*\[/.test(bin),
 		"stage is back to a hardcoded file list; it must follow the bundle's " +
 		"own imports, or the next externalised module ships broken");
