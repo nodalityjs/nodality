@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.9
+ * nodality v1.3.10
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -93,39 +93,39 @@ class GridOverlay extends Animator {
 		// or a destructure here would hide them from `get_schema` and make the
 		// validator reject valid specs.
 		this.config = {
-			//@ gridOverlay.columns: Columns, counted as cells (N cells draw N+1 lines). 0 draws no vertical lines. Default 4. Named `columns`, not `cols`: the library's shared `cols` means grid-template-columns verbatim.
+			//@ gridOverlay.columns {count}: Columns, counted as cells (N cells draw N+1 lines). 0 draws no vertical lines. Default 4. Named `columns`, not `cols`: the library's shared `cols` means grid-template-columns verbatim.
 			columns: obj.columns ?? DEFAULTS.columns,
-			//@ gridOverlay.rows: Rows across the overlay's height, counted as cells. 0 draws no horizontal lines. Default 2.
+			//@ gridOverlay.rows {count}: Rows across the overlay's height, counted as cells. 0 draws no horizontal lines. Default 2.
 			rows: obj.rows ?? DEFAULTS.rows,
-			//@ gridOverlay.inset: Distance of the outermost lines from the edge in px. A number, or {x, y}. Default 16.
+			//@ gridOverlay.inset {px-number}: Distance of the outermost lines from the edge in px. A number, or {x, y}. Default 16.
 			inset: obj.inset ?? DEFAULTS.inset,
-			//@ gridOverlay.color: Colour of lines, marks and readouts (drawn with currentColor). Falls back to the Theme text colour.
+			//@ gridOverlay.color {color}: Colour of lines, marks and readouts (drawn with currentColor). Falls back to the Theme text colour.
 			color: obj.color,
-			//@ gridOverlay.lineWidth: Stroke width of the grid lines in px. Default 1.
+			//@ gridOverlay.lineWidth {px-number}: Stroke width of the grid lines in px. Default 1.
 			lineWidth: obj.lineWidth ?? DEFAULTS.lineWidth,
-			//@ gridOverlay.lineOpacity: Opacity of the lines only; marks and readouts stay opaque. 0–1, default 0.35.
+			//@ gridOverlay.lineOpacity {ratio}: Opacity of the lines only; marks and readouts stay opaque. 0–1, default 0.35.
 			lineOpacity: obj.lineOpacity ?? DEFAULTS.lineOpacity,
-			//@ gridOverlay.marks: Registration mark at each intersection: "square" (default), "cross" or "none".
+			//@ gridOverlay.marks {enum(square|cross|none)}: Registration mark at each intersection: "square" (default), "cross" or "none".
 			marks: obj.marks ?? DEFAULTS.marks,
-			//@ gridOverlay.markSize: Size of each registration mark in px. Default 8.
+			//@ gridOverlay.markSize {px-number}: Size of each registration mark in px. Default 8.
 			markSize: obj.markSize ?? DEFAULTS.markSize,
-			//@ gridOverlay.position: "fixed" (default) pins the grid to the viewport; "absolute" fills the nearest positioned ancestor.
+			//@ gridOverlay.position {enum(fixed|absolute)}: "fixed" (default) pins the grid to the viewport; "absolute" fills the nearest positioned ancestor.
 			position: obj.position ?? DEFAULTS.position,
-			//@ gridOverlay.zIndex: Stacking order of the overlay. Default 2 — keep navigation above it.
+			//@ gridOverlay.zIndex {count}: Stacking order of the overlay. Default 2 — keep navigation above it.
 			zIndex: obj.zIndex ?? DEFAULTS.zIndex,
-			//@ gridOverlay.font: Font family of the readouts. Default a monospace stack.
+			//@ gridOverlay.font {text}: Font family of the readouts. Default a monospace stack.
 			font: obj.font ?? DEFAULTS.font,
-			//@ gridOverlay.fontSize: Readout font size in px. Default 11.
+			//@ gridOverlay.fontSize {px-number}: Readout font size in px. Default 11.
 			fontSize: obj.fontSize ?? DEFAULTS.fontSize,
-			//@ gridOverlay.letterSpacing: Readout letter spacing, any CSS length. Default "0.04em".
+			//@ gridOverlay.letterSpacing {text}: Readout letter spacing, any CSS length. Default "0.04em".
 			letterSpacing: obj.letterSpacing ?? DEFAULTS.letterSpacing,
-			//@ gridOverlay.uppercase: Uppercase the readout text. Default true.
+			//@ gridOverlay.uppercase {bool}: Uppercase the readout text. Default true.
 			uppercase: obj.uppercase ?? DEFAULTS.uppercase,
-			//@ gridOverlay.breakpoint: Viewport width in px below which `mobile` applies. Default 768.
+			//@ gridOverlay.breakpoint {px-number}: Viewport width in px below which `mobile` applies. Default 768.
 			breakpoint: obj.breakpoint ?? DEFAULTS.breakpoint,
-			//@ gridOverlay.mobile: Options that replace their desktop values below `breakpoint`, e.g. {columns: 1, rows: 4}.
+			//@ gridOverlay.mobile {object}: Options that replace their desktop values below `breakpoint`, e.g. {columns: 1, rows: 4}.
 			mobile: obj.mobile,
-			//@ gridOverlay.readouts: Labels beside intersections: [{id, col, row, text, anchor}]. col/row index lines from 0; anchor "br" (default), "bl", "tr" or "tl", flipped automatically when the label would fall outside. Decorative — say the same thing in real page text.
+			//@ gridOverlay.readouts {array}: Labels beside intersections: [{id, col, row, text, anchor}]. col/row index lines from 0; anchor "br" (default), "bl", "tr" or "tl", flipped automatically when the label would fall outside. Decorative — say the same thing in real page text.
 			readouts: obj.readouts ?? DEFAULTS.readouts,
 		};
 
@@ -138,7 +138,7 @@ class GridOverlay extends Animator {
 		this._watchSize();
 		this.draw();
 
-		//@ gridOverlay.raster: Raster op nodes for the overlay, e.g. an offset driven by hover to bend the lines near the cursor.
+		//@ gridOverlay.raster {nodes}: Raster op nodes for the overlay, e.g. an offset driven by hover to bend the lines near the cursor.
 		obj.raster && this.rasterize(obj.raster);
 		return this;
 	}

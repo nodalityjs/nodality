@@ -170,7 +170,41 @@ function warnWrongSlot(el) {
 }
 
 class ElementMapper { // 22:09:58 04/11/2024
-   static mapType(obj) {
+    // Every element may carry an `id`. It is the joint between E and N — what
+    // `target`, `parse` and the agent surface all name — and applying it inside
+    // each of thirty-six mappers means thirty-six chances to forget. Two were
+    // already forgotten: `video` and `table` both accepted an id, advertised it
+    // in their schema, and rendered a node without one. Nothing failed; the
+    // element simply could not be named. So it is applied HERE, once, after
+    // dispatch, and a component that sets its own id keeps it.
+    static mapType(obj) {
+        const built = this.dispatchType(obj);
+        const id = obj && obj.el && obj.el.id;
+        if (id != null && id !== "") {
+            // `res` on almost every component; `formElement` on Form, which
+            // predates the convention. A mapper that returns emitted CODE
+            // rather than an instance (cards, copy) carries the id in the
+            // source it emits, and there is no node here to write to.
+            // Four conventions for "the node this component owns": `res` on
+            // most, `formElement` on Form, `el` on RadioGroup and
+            // FilePickera, `container` on Switcher. A mapper that returns
+            // emitted CODE rather than an instance (cards, copy) carries the
+            // id in the source it emits, and there is no node here to write.
+            const node = built && (built.res || built.formElement || built.el || built.container);
+            if (node && typeof node.setAttribute === "function") {
+                const current = node.getAttribute("id");
+                // `#hero` and `hero` name the same element everywhere else, so
+                // the attribute is written without the hash whether the id
+                // arrived here or was set by the component itself. An
+                // attribute spelled "#hero" matches no selector.
+                if (!current) node.setAttribute("id", String(id).replace(/^#/, ""));
+                else if (current.startsWith("#")) node.setAttribute("id", current.slice(1));
+            }
+        }
+        return built;
+    }
+
+   static dispatchType(obj) {
         warnWrongSlot(obj && obj.el);
   // console.log("LOBJ");
    // console.log(obj);
@@ -299,7 +333,7 @@ class ElementMapper { // 22:09:58 04/11/2024
               span: this.filtero("span", el.id, obj.customOptions),
               backgroundOp: this.filtero("background", el.id, obj.customOptions),
               marginOp: this.filtero("margin", el.id, obj.customOptions),
-              transform: this.filtero("transform", el.id, obj.customOptions),
+              transform: this.filtero("transform", el.id, obj.customOptions) ?? el.transform,
               filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
           });
@@ -337,7 +371,10 @@ class ElementMapper { // 22:09:58 04/11/2024
                          span: this.filtero("span", el.id, obj.customOptions),
                          backgroundOp: this.filtero("background", el.id, obj.customOptions),
                          marginOp: this.filtero("margin", el.id, obj.customOptions),
-                         transform: this.filtero("transform", el.id, obj.customOptions),
+                         // A transform design node wins; without one the element's
+                // own CSS string is used. Previously the lookup overwrote it
+                // with undefined, so `transform` on an element was dropped.
+                transform: this.filtero("transform", el.id, obj.customOptions) ?? el.transform,
                          filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
         }).items([
@@ -382,7 +419,10 @@ new Text("row.").set({
                          span: this.filtero("span", el.id, obj.customOptions),
                          backgroundOp: this.filtero("background", el.id, obj.customOptions),
                          marginOp: this.filtero("margin", el.id, obj.customOptions),
-                         transform: this.filtero("transform", el.id, obj.customOptions),
+                         // A transform design node wins; without one the element's
+                // own CSS string is used. Previously the lookup overwrote it
+                // with undefined, so `transform` on an element was dropped.
+                transform: this.filtero("transform", el.id, obj.customOptions) ?? el.transform,
                          filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
                         pad: [
@@ -459,6 +499,8 @@ animation: {
     },
   `;
 
+  // The id below was hardcoded to "#first", so every copy element on a page
+  // emitted the same id and none could be targeted individually.
   return `new Wrapper()
 .set({
   width: "${minSize}px",
@@ -467,7 +509,7 @@ animation: {
   justifyContent: "center",
   alignItems: "center",
   position: "absolute",
-  id: "#first",
+  id: "${obj.el.id ? String(obj.el.id).replace(/^#/, "") : "first"}",
   scale: 0.3,
   ${ft?.animation ? animation : ""}${
     // Wrapper routes its options through commonMethods(), so a raster
@@ -1033,6 +1075,10 @@ if (obj.el.dropdown){
 
        const navBar = new Switcher()
            .set({
+               // A Switcher applies its id when it renders, because its box
+               // does not exist before then. Omitting it here is why a `nav`
+               // element accepted an id and rendered a bar without one.
+               id: obj.el && obj.el.id,
                breakpoints: [ // 172800 almost
                    {
                        at: "0px", view: new MobileBar().set({
@@ -1641,7 +1687,10 @@ return new Circle()
                 span: this.filtero("span", el.id, obj.customOptions),
                 backgroundOp: this.filtero("background", el.id, obj.customOptions),
                 marginOp: this.filtero("margin", el.id, obj.customOptions),
-                transform: this.filtero("transform", el.id, obj.customOptions),
+                // A transform design node wins; without one the element's
+                // own CSS string is used. Previously the lookup overwrote it
+                // with undefined, so `transform` on an element was dropped.
+                transform: this.filtero("transform", el.id, obj.customOptions) ?? el.transform,
                 filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
    })
@@ -1656,7 +1705,9 @@ return new Circle()
    
   const count = obj.el.sides ?? 7;
 
-let elo = new Polygon({ id: "hex" })
+// Was `{ id: "hex" }` hardcoded, so every polygon on a page rendered the
+  // same id and none could be targeted individually.
+  let elo = new Polygon({ id: el.id ? String(el.id).replace(/^#/, "") : "hex" })
   .set({
     sides: count,
     size: 300,
@@ -1668,7 +1719,10 @@ let elo = new Polygon({ id: "hex" })
                 span: this.filtero("span", el.id, obj.customOptions),
                 backgroundOp: this.filtero("background", el.id, obj.customOptions),
                 marginOp: this.filtero("margin", el.id, obj.customOptions),
-                transform: this.filtero("transform", el.id, obj.customOptions),
+                // A transform design node wins; without one the element's
+                // own CSS string is used. Previously the lookup overwrote it
+                // with undefined, so `transform` on an element was dropped.
+                transform: this.filtero("transform", el.id, obj.customOptions) ?? el.transform,
                 filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
   })
@@ -1712,6 +1766,13 @@ let elo = new Polygon({ id: "hex" })
                 id: el.id,
                 class: el.class,
                 color: el.color,
+                // Deliberately NOT `el.size ?? …`. In Text the step picks the
+                // TAG as well as the font size, so honouring an explicit
+                // `size` turned `{type:"h2", size:"S3"}` into an <h3> and
+                // quietly changed the document outline. The element type owns
+                // the step here; `tag` is the option for choosing the heading
+                // level independently. `size` is therefore not settable on a
+                // text element, which the schema now says.
                 size: this.getElType(el.type), // update 23/07/2025
                 //@ tag: Heading level to render, independent of the type's size.
                 // Without this the option exists on the component and is not
@@ -1729,7 +1790,10 @@ let elo = new Polygon({ id: "hex" })
                 span: this.filtero("span", el.id, obj.customOptions),
                 backgroundOp: this.filtero("background", el.id, obj.customOptions),
                 marginOp: this.filtero("margin", el.id, obj.customOptions),
-                transform: this.filtero("transform", el.id, obj.customOptions),
+                // A transform design node wins; without one the element's
+                // own CSS string is used. Previously the lookup overwrote it
+                // with undefined, so `transform` on an element was dropped.
+                transform: this.filtero("transform", el.id, obj.customOptions) ?? el.transform,
                 filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
                 // The caller's own breakpoints. This used to REPLACE them
@@ -1805,7 +1869,7 @@ let elo = new Polygon({ id: "hex" })
                   //  re["index"] = obj.i + "", // add other options here
 
                     //  transform: this.filtero("transform", el.id, obj.customOptions),
-                     re["transform"] = this.filtero("transform", obj.el.id, obj.customOptions),
+                     re["transform"] = this.filtero("transform", obj.el.id, obj.customOptions) ?? obj.el.transform,
                     re["shadow"] = this.filtero("shadow", obj.el.id, obj.customOptions),//customOptions.filter(l => l.op.name === "shadow")[0],
                     re["gradient"] = this.filtero("gradient", obj.el.id, obj.customOptions),
                       re["blast"] = this.filtero("blast", obj.el.id, obj.customOptions),
@@ -2238,7 +2302,10 @@ static form(obj){
                 gradient: this.filtero("gradient", el.id, obj.customOptions),
                 animation: this.filtero("animation", el.id, obj.customOptions),
                 shadow: this.filtero("shadow", el.id, obj.customOptions),
-                transform: this.filtero("transform", el.id, obj.customOptions),
+                // A transform design node wins; without one the element's
+                // own CSS string is used. Previously the lookup overwrote it
+                // with undefined, so `transform` on an element was dropped.
+                transform: this.filtero("transform", el.id, obj.customOptions) ?? el.transform,
                 filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
             });
@@ -2284,7 +2351,10 @@ static form(obj){
                 gradient: this.filtero("gradient", el.id, obj.customOptions),
                 animation: this.filtero("animation", el.id, obj.customOptions),
                 shadow: this.filtero("shadow", el.id, obj.customOptions),
-                transform: this.filtero("transform", el.id, obj.customOptions),
+                // A transform design node wins; without one the element's
+                // own CSS string is used. Previously the lookup overwrote it
+                // with undefined, so `transform` on an element was dropped.
+                transform: this.filtero("transform", el.id, obj.customOptions) ?? el.transform,
                 filtera: this.filtero("filter", el.id, obj.customOptions),
                 raster: this.filteroRaster(el.id, obj.customOptions),
             });

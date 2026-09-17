@@ -68,7 +68,7 @@ class Video extends Animator {
 		this.options = obj;
 		const v = this.res;
 
-		//@ video.sources: Several encodings of the same clip: [{url, type}] or plain url strings. The browser picks the first it can play, so order best-first (AV1, then HEVC, then H.264). `type` is inferred from the extension when omitted.
+		//@ video.sources {array}: Several encodings of the same clip: [{url, type}] or plain url strings. The browser picks the first it can play, so order best-first (AV1, then HEVC, then H.264). `type` is inferred from the extension when omitted.
 		if (Array.isArray(obj.sources) && obj.sources.length) {
 			// A `src` attribute wins over <source> children, so it has to go.
 			v.removeAttribute("src");
@@ -87,27 +87,27 @@ class Video extends Animator {
 			}
 		}
 
-		//@ video.poster: Image shown before the first frame decodes. Give one on any autoplaying clip: it is what holds the layout still and what reduced-motion visitors see instead of the video.
+		//@ video.poster {url}: Image shown before the first frame decodes. Give one on any autoplaying clip: it is what holds the layout still and what reduced-motion visitors see instead of the video.
 		obj.poster && v.setAttribute("poster", obj.poster);
 
-		//@ video.preload: "none", "metadata" (a good default for a loop) or "auto".
+		//@ video.preload {enum(none|metadata|auto)}: "none", "metadata" (a good default for a loop) or "auto".
 		obj.preload && v.setAttribute("preload", obj.preload);
 
-		//@ video.controls: Show the browser's playback controls. Default true — pass false for an ambient loop.
+		//@ video.controls {bool}: Show the browser's playback controls. Default true — pass false for an ambient loop.
 		if (obj.controls === false) v.removeAttribute("controls");
 		else if (obj.controls === true) v.setAttribute("controls", "controls");
 
-		//@ video.loop: Restart when the clip ends.
+		//@ video.loop {bool}: Restart when the clip ends.
 		obj.loop && (v.loop = true, v.setAttribute("loop", "loop"));
 
-		//@ video.playsinline: Play in place on iPhone instead of taking over the screen. Implied by `autoplay`; there is no reason to refuse it on a background loop.
+		//@ video.playsinline {bool}: Play in place on iPhone instead of taking over the screen. Implied by `autoplay`; there is no reason to refuse it on a background loop.
 		const playsinline = obj.playsinline ?? obj.autoplay;
 		if (playsinline) {
 			v.setAttribute("playsinline", "");
 			v.setAttribute("webkit-playsinline", "");
 		}
 
-		//@ video.muted: Mute the audio track. Forced on by `autoplay`, because browsers block an unmuted autoplay; pass false only if you mean to accept that.
+		//@ video.muted {bool}: Mute the audio track. Forced on by `autoplay`, because browsers block an unmuted autoplay; pass false only if you mean to accept that.
 		const muted = obj.muted ?? (obj.autoplay ? true : undefined);
 		if (muted === true) {
 			v.muted = true;
@@ -117,39 +117,39 @@ class Video extends Animator {
 			v.removeAttribute("muted");
 		}
 
-		//@ video.autoplay: Start on its own. Implies muted and playsinline, pauses off screen and in a hidden tab, and is cancelled by prefers-reduced-motion (the poster stays).
-		//@ video.lazy: Only play while on screen. On by default whenever `autoplay` is set; pass false to keep an autoplaying clip running off screen.
+		//@ video.autoplay {bool}: Start on its own. Implies muted and playsinline, pauses off screen and in a hidden tab, and is cancelled by prefers-reduced-motion (the poster stays).
+		//@ video.lazy {bool}: Only play while on screen. On by default whenever `autoplay` is set; pass false to keep an autoplaying clip running off screen.
 		if (obj.autoplay) this._autoplay(obj.lazy !== false);
 
-		//@ video.objectFit: How the frame fills the element box: "cover", "contain", "fill", "none".
+		//@ video.objectFit {enum(cover|contain|fill|none|scale-down)}: How the frame fills the element box: "cover", "contain", "fill", "none".
 		obj.objectFit && (v.style.objectFit = obj.objectFit);
 
-		//@ video.aspectRatio: Box proportion held before the video loads, e.g. "16 / 9". Prevents the page shifting when the first frame arrives.
+		//@ video.aspectRatio {css-aspect-ratio}: Box proportion held before the video loads, e.g. "16 / 9". Prevents the page shifting when the first frame arrives.
 		obj.aspectRatio && (v.style.aspectRatio = obj.aspectRatio);
 
-		//@ video.id: DOM id. Also what a node's `target` names, so a clip carrying a raster op needs one.
+		//@ video.id {text}: DOM id. Also what a node's `target` names, so a clip carrying a raster op needs one.
 		obj.id && v.setAttribute("id", obj.id);
 
-		//@ video.label: Accessible name, for a clip that carries meaning.
+		//@ video.label {text}: Accessible name, for a clip that carries meaning.
 		obj.label && v.setAttribute("aria-label", obj.label);
 
-		//@ video.decorative: Hide from assistive technology. For an ambient loop that repeats what the page already says in text.
+		//@ video.decorative {bool}: Hide from assistive technology. For an ambient loop that repeats what the page already says in text.
 		if (obj.decorative) v.setAttribute("aria-hidden", "true");
 
-		//@ video.background: CSS background behind the frame — visible while the poster loads.
+		//@ video.background {color}: CSS background behind the frame — visible while the poster loads.
 		obj.background && (v.style.background = obj.background);
-		//@ video.height: CSS height of the element.
+		//@ video.height {css-length}: CSS height of the element.
 		obj.height && (v.style.height = obj.height);
-		//@ video.maxWidth: CSS max-width of the element.
+		//@ video.maxWidth {css-length}: CSS max-width of the element.
 		obj.maxWidth && (v.style.maxWidth = obj.maxWidth);
-		//@ video.radius: Corner radius. A CSS length; a bare number is read as pixels.
+		//@ video.radius {px-or-length}: Corner radius. A CSS length; a bare number is read as pixels.
 		obj.radius && (v.style.borderRadius = typeof obj.radius === "number" ? `${obj.radius}px` : obj.radius);
-		//@ video.width: CSS width of the element.
+		//@ video.width {css-length}: CSS width of the element.
 		obj.width && (v.style.width = `${obj.width}`);
-		//@ video.opacity: 0–1.
+		//@ video.opacity {ratio}: 0–1.
 		obj.opacity && (v.style.opacity = obj.opacity);
 
-		//@ video.raster: Raster op nodes to run over this element.
+		//@ video.raster {nodes}: Raster op nodes to run over this element.
 		obj.raster && this.rasterize(obj.raster);
 
 		return this;

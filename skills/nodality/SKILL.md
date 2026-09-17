@@ -68,6 +68,21 @@ Skipping step 3 is the classic failure: a misspelled op renders
 *nothing* rather than erroring, so the page looks plausible and is
 silently missing its effects.
 
+**Read `warnings`, not just `errors`.** The report has both. `errors`
+mean the page will not render as a page; `warnings` mean it renders and
+does not do what you wrote:
+
+| code | what it means |
+|---|---|
+| `BAD_PARAM_VALUE` | the value is not the shape the parameter takes — `width: 7` is not a CSS length, `mar: 7` is not `[{a: 7}]`. As an *error* where the value is provably inert; as a warning otherwise. |
+| `PARAM_NOT_ON_TYPE` | a real parameter name that THIS type does not read, so it is accepted and dropped — `keySet` on a `table`. |
+
+`get_schema <type>` carries a `unit` on every parameter whose shape the
+source declares, which is where those checks come from, and a
+`forwardsElement` flag: when it is false the type's vocabulary is only
+what its mapper reads by name, because the mapper builds its own options
+rather than passing yours on.
+
 ## HTML's names are accepted
 
 `src` and `href` both mean `url`; `options` means `items`. Write either — the

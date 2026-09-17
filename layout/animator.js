@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.9
+ * nodality v1.3.10
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -287,13 +287,13 @@ class Animator {
         // only on the three components that happened to dispatch it
         // themselves (Wrapper, Text, Image) — those now set the same
         // property to the same value, and everything else gains it.
-        //@ cols: grid-template-columns, verbatim — e.g. "240px 1fr".
+        //@ cols {css-track-list}: grid-template-columns, verbatim — e.g. "240px 1fr".
         cols: "gridTemplateColumns",
-        //@ rows: grid-template-rows, verbatim.
+        //@ rows {css-track-list}: grid-template-rows, verbatim.
         rows: "gridTemplateRows",
-        //@ areas: grid-template-areas, verbatim — e.g. '"nav main" "nav main"'.
+        //@ areas {css-areas}: grid-template-areas, verbatim — e.g. '"nav main" "nav main"'.
         areas: "gridTemplateAreas",
-        //@ area: This element's grid-area — the name of a cell declared in the parent's `areas`.
+        //@ area {text}: This element's grid-area — the name of a cell declared in the parent's `areas`.
         area: "gridArea",
 
         // ── Typography (extended) ──────────────────────────────────────
@@ -337,9 +337,21 @@ class Animator {
     };
 
     // Apply styles safely
+    // A bare number where CSS wants a length is dropped by the CSSOM without
+    // a word, so `radius: 12` did nothing while `radius: "12px"` worked — and
+    // the documentation promised the opposite ("a bare number, not a CSS
+    // length"). Rather than correct the docs to match an awkward behaviour,
+    // the number is read as pixels, which is what every caller meant.
+    const PIXELS_WHEN_BARE = new Set([
+        "radius", "width", "height", "maxWidth", "maxHeight", "minWidth",
+        "minHeight", "top", "left", "right", "bottom", "gap",
+    ]);
     for (const key in styleMap) {
         if (obj[key] != null) {
-            this.res.style[styleMap[key]] = obj[key];
+            const value = (typeof obj[key] === "number" && obj[key] !== 0 && PIXELS_WHEN_BARE.has(key))
+                ? `${obj[key]}px`
+                : obj[key];
+            this.res.style[styleMap[key]] = value;
         }
     }
 
@@ -352,11 +364,22 @@ class Animator {
     }
 //alert(obj.respad);
     // Special methods
-    //@ pad: Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: "2rem"}` works.
+    //@ width {css-length}: CSS width — a length with a unit, e.g. "100%" or "320px". A bare number is not a CSS length and is ignored.
+    //@ height {css-length}: CSS height — a length with a unit.
+    //@ maxWidth {css-length}: CSS max-width — a length with a unit.
+    //@ maxHeight {css-length}: CSS max-height — a length with a unit.
+    //@ color {color}: Text colour — any CSS colour.
+    //@ background {color}: Background — any CSS colour or background shorthand.
+    //@ opacity {ratio}: 0 to 1.
+    //@ zIndex {count}: Stacking order, a whole number.
+    //@ radius {px-or-length}: Corner radius. A bare number is read as pixels; a string is used verbatim.
+    //@ exact {css-length}: Font size as an exact CSS length, e.g. "0.875rem".
+    //@ cursor {css-cursor}: CSS cursor keyword, e.g. "pointer".
+    //@ pad {sides}: Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: "2rem"}` works.
     obj.pad && this.pad(obj.pad);
-    //@ mar: Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: "center"` sets left and right to auto, as does `{a: "auto"}` or `{center: true}`.
+    //@ mar {sides}: Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: "center"` sets left and right to auto, as does `{a: "auto"}` or `{center: true}`.
     obj.mar && this.mar(obj.mar);
-    //@ respad: Responsive padding — per-breakpoint overrides of `pad`, in the same form.
+    //@ respad {breakpoints}: Responsive padding — per-breakpoint overrides of `pad`, in the same form.
     obj.respad && this.respad(obj.respad);
 
     // `borderObj` was never dispatched from here, so a component with no
@@ -378,27 +401,27 @@ class Animator {
     // component that understands it. Components that already apply this
     // option set the same property to the same value, so it stays
     // idempotent for them.
-    //@ borderObj: Border as {width, color, type?, radius?}. Width carries its unit, e.g. "1px".
+    //@ borderObj {object}: Border as {width, color, type?, radius?}. Width carries its unit, e.g. "1px".
     obj.borderObj && obj.borderObj.width && this.borderObj(obj.borderObj);
-    //@ resmar: Responsive margin — per-breakpoint overrides of `mar`, in the same form.
+    //@ resmar {breakpoints}: Responsive margin — per-breakpoint overrides of `mar`, in the same form.
     obj.resmar && this.resmar(obj.resmar);
-    //@ hover: Styles applied on hover, e.g. {color, background, animation: "0.2s ease"}.
+    //@ hover {object}: Styles applied on hover, e.g. {color, background, animation: "0.2s ease"}.
     obj.hover && this.hover(obj.hover);
-    //@ size: Fluid type scale step (S1…S6) — font size that scales with the viewport.
+    //@ size {scale-step}: Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.
     obj.size && this.fluidCopy(obj.size);
-    //@ resprop: Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size.
+    //@ resprop {breakpoints}: Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size.
     obj.resprop && this.resprop(obj.resprop, obj);
-    //@ vars: Custom CSS properties on this element — {"--nod-split": 0.2}. Custom properties inherit, so writing them on a root drives its whole subtree with one declaration; that is how the morph axes reach every generated element without a stylesheet.
+    //@ vars {object}: Custom CSS properties on this element — {"--nod-split": 0.2}. Custom properties inherit, so writing them on a root drives its whole subtree with one declaration; that is how the morph axes reach every generated element without a stylesheet.
     obj.vars && this.vars(obj.vars);
-    //@ keySet: Escape hatch — {key, value} written straight to element.style, or an array of them.
+    //@ keySet {keyset}: Escape hatch — {key, value} written straight to element.style, or an array of them.
     obj.keySet && this.keySet(obj.keySet);
-    //@ noTheme: Opt this element out of Theme.setDefaults light/dark colouring.
+    //@ noTheme {bool}: Opt this element out of Theme.setDefaults light/dark colouring.
     obj.noTheme && (this._noTheme = true);
-    //@ theme: Explicit light/dark overrides — {light: {...}, dark: {...}}.
+    //@ theme {object}: Explicit light/dark overrides — {light: {...}, dark: {...}}.
     obj.theme && this.theme(obj.theme);
-    //@ hide: Hide the element without removing it from the tree.
+    //@ hide {bool}: Hide the element without removing it from the tree.
     obj.hide && this.isHidden(obj.hide);
-    //@ raster: Attach a WebGL raster pipeline. Array of op nodes; see the Raster section.
+    //@ raster {nodes}: Attach a WebGL raster pipeline. Array of op nodes; see the Raster section.
     obj.raster && this.rasterize(obj.raster);
 
   //@ center: Centres this element's CHILDREN. `true` for both axes, `"x"` horizontal, `"y"` vertical. Axis-aware: in a flex column `"y"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: "center"`.
@@ -409,7 +432,7 @@ class Animator {
     obj.center && this.center(obj.center, {display: obj.disp || obj.display, flexDirection: obj.flexDir || obj.flexDirection});
 	// Only route to the animation system for object-shaped transforms.
 	// String transforms are applied above via the styleMap path.
- //@ transform: A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given.
+ //@ transform {css-transform}: A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given.
 	(obj.transform && typeof obj.transform === "object") && this.reactOnTransform(obj.transform);
 
 	(obj.opacity !== undefined) && (this.res.style.opacity = obj.opacity);

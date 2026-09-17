@@ -84,19 +84,69 @@ const DISPATCH = {};
 }
 
 // ── 3. mapper method -> component classes it constructs ──────────────
+// Braces are counted over CODE only: a `}` inside a string or a comment is
+// text, not structure.
+//
+// The previous version counted them in `mapperLive`, which strips comments by
+// deleting everything after `//` on a line — and that also truncates any line
+// holding a URL, taking its closing brace with it. Four mapper bodies
+// (`dropdown`, `protoNav`, `sideNav`, `gridItemsSource`) therefore never
+// balanced and ran on to the end of the class, so every method BELOW them was
+// read as part of them. The visible cost was a new mapper's parameters being
+// credited to `cards`, `nav`, `sideNav` and `dropdown` as well as to its own
+// type; the invisible cost was that reachability (below) could not be
+// determined at all, because an overrunning body picks up someone else's
+// `elOpts()` call.
 function methodBody(name) {
-  const at = mapperLive.indexOf(`static ${name}(`);
+  const at = src.indexOf(`static ${name}(`);
   if (at < 0) return "";
-  // Balance braces from the method's opening brace.
-  let i = mapperLive.indexOf("{", at), depth = 0;
-  for (let j = i; j < mapperLive.length; j++) {
-    if (mapperLive[j] === "{") depth++;
-    else if (mapperLive[j] === "}") { depth--; if (!depth) return mapperLive.slice(i, j); }
+  const start = src.indexOf("{", at);
+  if (start < 0) return "";
+
+  let depth = 0;
+  // "code" | "line" | "block" | "'" | '"' | "`"
+  let state = "code";
+  // Template literals nest: `${ ... `inner` ... }` returns to code inside ${}.
+  const stack = [];
+
+  for (let j = start; j < src.length; j++) {
+    const c = src[j], next = src[j + 1];
+    if (state === "line") { if (c === "\n") state = "code"; continue; }
+    if (state === "block") { if (c === "*" && next === "/") { state = "code"; j++; } continue; }
+    if (state === "'" || state === '"') {
+      if (c === "\\") { j++; continue; }
+      if (c === state) state = "code";
+      continue;
+    }
+    if (state === "`") {
+      if (c === "\\") { j++; continue; }
+      if (c === "`") { state = "code"; continue; }
+      if (c === "$" && next === "{") { stack.push("`"); state = "code"; depth++; j++; }
+      continue;
+    }
+    // code
+    if (c === "/" && next === "/") { state = "line"; j++; continue; }
+    if (c === "/" && next === "*") { state = "block"; j++; continue; }
+    if (c === "'" || c === '"' || c === "`") { state = c; continue; }
+    if (c === "{") { depth++; continue; }
+    if (c === "}") {
+      depth--;
+      if (stack.length && depth === stack.length) { stack.pop(); state = "`"; continue; }
+      if (!depth) return src.slice(start, j);
+    }
   }
-  return mapperLive.slice(i);
+  return src.slice(start);
 }
+// `new X(` in a mapper is not always a component: the bodies legitimately
+// build an Error to reject bad input and a Set to de-duplicate. Reporting
+// those as the type's components told an agent that a page uses a component
+// called `Error`.
+const BUILTINS = new Set(["Error", "TypeError", "RangeError", "Set", "Map",
+  "WeakMap", "WeakSet", "Date", "RegExp", "Promise", "Array", "Object",
+  "Function", "Number", "String", "Boolean", "Intl", "URL", "URLSearchParams"]);
 const classesIn = (body) =>
-  [...new Set([...body.matchAll(/new\s+([A-Z][A-Za-z0-9]*)\s*\(/g)].map((m) => m[1]))];
+  [...new Set([...body.matchAll(/new\s+([A-Z][A-Za-z0-9]*)\s*\(/g)].map((m) => m[1]))]
+    .filter((name) => !BUILTINS.has(name));
 
 // ── 4. class -> file, from element-mapper's own imports ──────────────
 const IMPORTS = {};
@@ -155,6 +205,12 @@ function paramsOf(file) {
 // component, decides what the slot means.
 const DESC_BY_FILE = new Map(), DEPR_BY_FILE = new Map();
 const DESC_BY_TYPE = {};
+// Declared value SHAPES, written as `//@ name {unit}: text`. Without them the
+// validator can only check that a parameter name exists — never that `mar: 7`
+// or `columns: "four"` is a value the component can use. The raster op
+// registry has carried units since it was written; element parameters had
+// none, which is why a spec full of unusable values validated clean.
+const UNIT_BY_TYPE = {}, UNIT_BY_FILE = new Map(), UNIT_GLOBAL = {};
 // Names whose meaning depends on the element type, declared with `//@scoped
 // <name>`. For these a description is never BORROWED from a file that does not
 // contribute the parameter: `items` is documented once, in picker.js, and is
@@ -174,19 +230,27 @@ const DESC_GLOBAL = {}, DEPR_GLOBAL = {};
     .map((rel) => join(ROOT, "lib", rel)).filter(existsSync));
   files.add(MAPPER);
   for (const f of files) {
-    const desc = {}, depr = {};
+    const desc = {}, depr = {}, units = {};
     for (const line of readFileSync(f, "utf8").split("\n")) {
       let m = line.match(/\/\/@scoped\s+([a-zA-Z][a-zA-Z0-9]*)\s*$/);
       if (m) { SCOPED.add(m[1]); continue; }
       m = line.match(/\/\/@deprecated\s+([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.+)$/);
       if (m) { depr[m[1]] ??= m[2].trim(); DEPR_GLOBAL[m[1]] ??= m[2].trim(); continue; }
       // Qualified first: `//@ cards.items: …` binds to one type only.
-      m = line.match(/\/\/@\s+([a-zA-Z][a-zA-Z0-9]*)\.([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.+)$/);
-      if (m) { (DESC_BY_TYPE[m[1]] ??= {})[m[2]] ??= m[3].trim(); continue; }
-      m = line.match(/\/\/@\s+([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.+)$/);
-      if (m) { desc[m[1]] ??= m[2].trim(); DESC_GLOBAL[m[1]] ??= m[2].trim(); }
+      // An optional `{unit}` before the colon declares the value's shape.
+      m = line.match(/\/\/@\s+([a-zA-Z][a-zA-Z0-9]*)\.([a-zA-Z][a-zA-Z0-9]*)\s*(?:\{([^}]+)\})?\s*:\s*(.+)$/);
+      if (m) {
+        (DESC_BY_TYPE[m[1]] ??= {})[m[2]] ??= m[4].trim();
+        if (m[3]) (UNIT_BY_TYPE[m[1]] ??= {})[m[2]] ??= m[3].trim();
+        continue;
+      }
+      m = line.match(/\/\/@\s+([a-zA-Z][a-zA-Z0-9]*)\s*(?:\{([^}]+)\})?\s*:\s*(.+)$/);
+      if (m) {
+        desc[m[1]] ??= m[3].trim(); DESC_GLOBAL[m[1]] ??= m[3].trim();
+        if (m[2]) { units[m[1]] ??= m[2].trim(); UNIT_GLOBAL[m[1]] ??= m[2].trim(); }
+      }
     }
-    DESC_BY_FILE.set(f, desc); DEPR_BY_FILE.set(f, depr);
+    DESC_BY_FILE.set(f, desc); DEPR_BY_FILE.set(f, depr); UNIT_BY_FILE.set(f, units);
   }
 }
 
@@ -246,6 +310,38 @@ for (const type of TYPES) {
   // image.js, and an annotation living in any other file would have been
   // dropped -- which cost `img.alt` its description on the first attempt at
   // this fix, the one parameter the comment in paramsOf() exists to protect.
+  // Can a spec actually REACH the parameters its components read?
+  //
+  // Only if the mapper hands the element's options over — `elOpts(el)` or a
+  // spread. A mapper that builds its own options object instead (mapTable is
+  // the plain case: it hardcodes cellPadding, cellAlign, style.font and
+  // headStyle and never looks at the element) leaves every one of those names
+  // unreachable, however faithfully the component reads them. Listing them
+  // anyway is the schema's worst failure mode, because the validator then
+  // vouches for a spec that cannot work: 43% of all declared parameters were
+  // in that state when this was written.
+  //
+  // Where nothing is forwarded, the type is credited only with what the mapper
+  // itself reads off the element, plus the two every mapper handles.
+  // Three ways a mapper hands the element over: `elOpts(el)`, a spread, or
+  // taking the element object ITSELF as the options object and passing it on
+  // (`let re = obj.el; re["url"] = …; new Link().set(re)` — how mapLink
+  // works). The third forwards just as completely and looks nothing like the
+  // other two.
+  //
+  // Aliasing alone is not forwarding: almost every mapper opens with
+  // `let el = obj.el` to read from it, and mapTable does exactly that while
+  // building its own options object from literals. What distinguishes the two
+  // is whether the alias is handed to a component.
+  const aliases = [...body.matchAll(/(?:let|const|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:obj\.)?el\s*[;,]/g)]
+    .map((m) => m[1]);
+  const passesAlias = aliases.some((a) =>
+    new RegExp(`\\.set\\(\\s*${a}\\s*[,)]|new\\s+[A-Z]\\w*\\(\\s*${a}\\s*[,)]`).test(body));
+  const forwardsElement = /\belOpts\s*\(|\.\.\.el\b/.test(body) || passesAlias;
+  const mapperReads = new Set([...body.matchAll(/\bel\.([a-zA-Z][a-zA-Z0-9]*)/g)].map((m) => m[1]));
+  mapperReads.add("type"); mapperReads.add("id");
+  const reachable = (name) => forwardsElement || mapperReads.has(name);
+
   const params = new Set();
   const from = new Map();
   const contributed = (name, file) => {
@@ -253,7 +349,7 @@ for (const type of TYPES) {
     if (!from.has(name)) from.set(name, []);
     if (!from.get(name).includes(file)) from.get(name).push(file);
   };
-  for (const f of files) for (const p of paramsOf(f)) contributed(p, f);
+  for (const f of files) for (const p of paramsOf(f)) if (reachable(p)) contributed(p, f);
 
   // The mapper's OWN `el.<name>` reads. Scanning components alone missed
   // these, because a mapper often passes an element field as a constructor
@@ -278,13 +374,20 @@ for (const type of TYPES) {
   schema.types[type] = {
     resolved: ok,
     mapper: method,
+    // Whether the mapper hands the element's options to its components. When
+    // false, this type's vocabulary is only what the mapper reads by name.
+    forwardsElement,
     components: classes,
     params: [...params].sort().map((name) => {
       const where = from.get(name) || [];
       const description = annotationFor(DESC_BY_FILE, name, where, type, true);
       const deprecated = annotationFor(DEPR_BY_FILE, name, where, type, false);
+      const unit = (UNIT_BY_TYPE[type] && UNIT_BY_TYPE[type][name])
+        || where.map((f) => (UNIT_BY_FILE.get(f) || {})[name]).find(Boolean)
+        || UNIT_GLOBAL[name];
       return {
         name,
+        ...(unit ? { unit } : {}),
         ...(description ? { description } : {}),
         ...(deprecated ? { deprecated } : {}),
       };
@@ -335,11 +438,28 @@ if (args.includes("--stdout")) { process.stdout.write(json); process.exit(0); }
   const union = new Set();
   for (const t of Object.values(schema.types)) for (const p of t.params) union.add(p.name);
   const names = [...union].sort();
+  const byType = {};
+  const units = {};
+  for (const [type, t] of Object.entries(schema.types)) {
+    byType[type] = t.params.map((p) => p.name);
+    for (const p of t.params) if (p.unit) units[`${type}.${p.name}`] = p.unit;
+  }
   const mod = `// GENERATED by scripts/generate-schema.mjs — do not edit.
 // Every parameter name any element type reads, recovered from source.
 // Used for near-miss typo detection in validate-nodes.js. A drift test
 // regenerates this and fails if it differs, so it cannot rot silently.
 export const ELEMENT_PARAM_NAMES = ${JSON.stringify(names)};
+
+// Per-type vocabulary. The union above answers "is this a real parameter
+// anywhere"; this answers "does THIS type accept it", which is what a page
+// actually needs to know — writing \`keySet\` on a \`table\` is a name the
+// union knows and the type ignores.
+export const ELEMENT_PARAMS_BY_TYPE = ${JSON.stringify(byType)};
+
+// Declared value shapes, keyed "type.param". Only parameters whose source
+// carries a \`//@ name {unit}:\` annotation appear, so this grows as the
+// library documents itself and never claims a shape it was not told.
+export const ELEMENT_PARAM_UNITS = ${JSON.stringify(units)};
 `;
   writeFileSync(join(ROOT, "lib", "element-params.generated.js"), mod);
 }

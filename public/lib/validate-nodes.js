@@ -27,7 +27,114 @@ import { presetNames, presetInfo } from "./raster-presets.js";
 import { collectRefs, isRef, resolveRefs } from "./resolve-refs.js";
 import { normalizeSpec, aliasConflicts, ALIASES } from "./normalize-spec.js";
 import { ELEMENT_TYPES } from "./element-mapper.js";
-import { ELEMENT_PARAM_NAMES } from "./element-params.generated.js";
+import {
+    ELEMENT_PARAM_NAMES, ELEMENT_PARAMS_BY_TYPE, ELEMENT_PARAM_UNITS,
+} from "./element-params.generated.js";
+
+// ── Value shapes ─────────────────────────────────────────────────────
+//
+// Until now this file checked NAMES and never values, so `{width: 7}`,
+// `{mar: 7}` and `{columns: "four"}` all validated clean and all rendered
+// nothing — the same silent no-op the name checking exists to remove, one
+// level down.
+//
+// A violation is an ERROR only where the value is provably inert: a CSS
+// length written as a bare number is dropped by the CSSOM, and a value
+// outside an enum falls through to a default. Everything else is a WARNING,
+// because several components accept looser input than they document and an
+// error would stop `preview` rendering a page that works — the costlier
+// direction to be wrong in, as 1.2.7 established.
+const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+
+const SHAPES = {
+    "css-length": {
+        want: 'a CSS length with a unit, e.g. "320px", "100%" or "2rem"',
+        bad: (v) => typeof v === "number" && v !== 0,
+        level: "error",
+        fix: (v) => [`"${v}px"`],
+    },
+    "px-or-length": {
+        want: "a number of pixels, or a CSS length string",
+        bad: (v) => typeof v !== "number" && typeof v !== "string",
+        level: "warning",
+        fix: () => ["12", '"12px"'],
+    },
+    "css-aspect-ratio": {
+        want: 'a CSS aspect ratio, e.g. "16 / 9"',
+        bad: (v) => typeof v !== "string" || !/\d\s*\/\s*\d/.test(v),
+        level: "warning",
+        fix: () => ['"16 / 9"'],
+    },
+    "px-number": {
+        want: "a bare number of pixels, e.g. 12",
+        bad: (v) => typeof v === "string" && /[a-z%]/i.test(v) && !/^\d+(\.\d+)?px$/.test(v),
+        level: "warning",
+        fix: (v) => [String(parseFloat(v) || 0)],
+    },
+    ratio: {
+        want: "a number from 0 to 1",
+        bad: (v) => typeof v !== "number" || v < 0 || v > 1,
+        level: "warning",
+        fix: () => ["0.5"],
+    },
+    count: {
+        want: "a whole number",
+        bad: (v) => typeof v !== "number" || !Number.isFinite(v) || Math.floor(v) !== v,
+        level: "warning",
+        fix: (v) => (typeof v === "string" && /^\d+$/.test(v) ? [v] : ["4"]),
+    },
+    bool: { want: "true or false", bad: (v) => typeof v !== "boolean", level: "warning", fix: () => ["true"] },
+    color: { want: "a CSS colour", bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"#0B1B2B"'] },
+    url: { want: "a URL string", bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"/path/to/file"'] },
+    text: { want: "a string", bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"…"'] },
+    "css-cursor": { want: 'a CSS cursor keyword, e.g. "pointer"', bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"pointer"'] },
+    "css-transform": { want: 'a CSS transform, e.g. "rotate(3deg)"', bad: (v) => typeof v !== "string" && !isPlainObject(v), level: "warning", fix: () => ['"rotate(3deg)"'] },
+    "css-track-list": { want: 'a CSS track list, e.g. "repeat(4, 1fr)"', bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"repeat(4, 1fr)"'] },
+    "css-areas": { want: 'CSS grid-template-areas, e.g. \'"nav main"\'', bad: (v) => typeof v !== "string", level: "warning", fix: () => ['\'"nav main"\''] },
+    array: { want: "an array", bad: (v) => !Array.isArray(v), level: "warning", fix: () => ["[…]"] },
+    nodes: { want: "an array of op nodes", bad: (v) => !Array.isArray(v), level: "warning", fix: () => ['[{ op: "dither" }]'] },
+    breakpoints: {
+        want: "an array of per-breakpoint overrides, [{breakpoint, ...css}]",
+        bad: (v) => !Array.isArray(v),
+        level: "warning",
+        fix: () => ['[{ breakpoint: 768, gridTemplateColumns: "1fr" }]'],
+    },
+    object: { want: "an object", bad: (v) => !isPlainObject(v), level: "warning", fix: () => ["{ … }"] },
+    keyset: {
+        want: "{key, value}, or an array of them",
+        bad: (v) => !isPlainObject(v) && !Array.isArray(v),
+        level: "warning",
+        fix: () => ['[{ key: "display", value: "grid" }]'],
+    },
+    sides: {
+        want: 'an array of side objects, e.g. [{a: 40}] — or "center" for `mar`',
+        bad: (v) => !Array.isArray(v) && !isPlainObject(v) && v !== "center",
+        level: "warning",
+        fix: (v) => (typeof v === "number" ? [`[{ a: ${v} }]`] : ["[{ a: 40 }]"]),
+    },
+    "scale-step": {
+        want: "a fluid type step, S1 through S6",
+        bad: (v) => typeof v !== "string" || !/^S[1-6]$/.test(v),
+        level: "error",
+        fix: () => ['"S3"'],
+    },
+};
+
+/** `enum(a|b|c)` is declared inline rather than listed here. */
+function shapeFor(unit) {
+    if (!unit) return null;
+    const m = /^enum\(([^)]*)\)$/.exec(unit);
+    if (m) {
+        const allowed = m[1].split("|").map((x) => x.trim()).filter(Boolean);
+        return {
+            want: `one of ${allowed.map((a) => `"${a}"`).join(", ")}`,
+            bad: (v) => !allowed.includes(v),
+            level: "error",
+            fix: () => allowed.slice(0, 3).map((a) => `"${a}"`),
+        };
+    }
+    return SHAPES[unit] || null;
+}
 import { didYouMean, suggest, levenshtein } from "./suggest.js";
 
 /**
@@ -212,6 +319,10 @@ export const ITEM_SHAPE = {
 
 export function validateNodes(nodes, elements, defs) {
     const errors = [];
+    // Findings that describe a page which will render, but not as written.
+    // They are kept apart from `errors` so `ok` keeps meaning "this will
+    // render", and a caller that only knows about errors is unaffected.
+    const warnings = [];
     const push = (code, path, got, suggestions, valid) => {
         errors.push({
             code, path, got,
@@ -219,10 +330,18 @@ export function validateNodes(nodes, elements, defs) {
             valid: valid || [],
         });
     };
+    const warn = (code, path, got, suggestions, valid, detail) => {
+        warnings.push({
+            code, path, got,
+            suggestions: suggestions || [],
+            valid: valid || [],
+            ...(detail ? { detail } : {}),
+        });
+    };
 
     if (!Array.isArray(nodes)) {
         push("BAD_NODES", "nodes", nodes, [], ["an array of node objects"]);
-        return { ok: false, errors };
+        return { ok: false, errors, warnings };
     }
 
     // Ids declared by E, including children, since `target` may name any
@@ -385,7 +504,30 @@ export function validateNodes(nodes, elements, defs) {
                 // rendering a page that works. Detection here, full per-type
                 // vocabulary from `npx nodality schema <type>`.
                 if (typeof el.type === "string") {
+                    const vocab = ELEMENT_PARAMS_BY_TYPE[el.type];
                     for (const key in el) {
+                        // Known library-wide, but not something THIS type
+                        // reads. It is not a typo, so the near-miss check
+                        // below never fires; it simply does nothing, which is
+                        // how `keySet` on a `table` silently failed to place
+                        // it in a grid. A warning, not an error: the page
+                        // renders, just not as written.
+                        if (vocab && ELEMENT_PARAM_NAMES.includes(key) && !vocab.includes(key)) {
+                            warn("PARAM_NOT_ON_TYPE", `${p}.${key}`, key, [],
+                                [`run \`npx nodality schema ${el.type}\` for what this type reads`],
+                                `"${el.type}" does not read "${key}" — it is accepted and ignored`);
+                        }
+
+                        // A value the parameter cannot use. Checked only where
+                        // the source declares a shape, so this grows with the
+                        // annotations and never guesses.
+                        const shape = shapeFor(ELEMENT_PARAM_UNITS[`${el.type}.${key}`]);
+                        if (shape && el[key] !== undefined && shape.bad(el[key])) {
+                            const report = shape.level === "error" ? push : warn;
+                            report("BAD_PARAM_VALUE", `${p}.${key}`, el[key],
+                                shape.fix(el[key]), [shape.want]);
+                        }
+
                         if (ELEMENT_PARAM_NAMES.includes(key)) continue;
                         // Ranked, closest first, capped at three. `suggest`
                         // returns everything within distance 2 in list order,
@@ -827,7 +969,7 @@ export function validateNodes(nodes, elements, defs) {
         }
     });
 
-    return { ok: errors.length === 0, errors };
+    return { ok: errors.length === 0, errors, warnings };
 }
 
 /**

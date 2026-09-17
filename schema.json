@@ -4,9 +4,9 @@
     "h1": {
       "resolved": true,
       "mapper": "mapText",
+      "forwardsElement": true,
       "components": [
-        "Text",
-        "Set"
+        "Text"
       ],
       "params": [
         {
@@ -24,10 +24,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -41,6 +44,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -58,10 +62,13 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -90,7 +97,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -110,6 +119,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -120,13 +130,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "onScroll"
@@ -140,6 +153,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -150,6 +164,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -157,7 +172,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -178,6 +194,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -194,16 +211,18 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "h2": {
       "resolved": true,
       "mapper": "mapText",
+      "forwardsElement": true,
       "components": [
-        "Text",
-        "Set"
+        "Text"
       ],
       "params": [
         {
@@ -221,10 +240,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -238,6 +260,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -255,10 +278,13 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -287,7 +313,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -307,6 +335,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -317,13 +346,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "onScroll"
@@ -337,6 +369,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -347,6 +380,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -354,7 +388,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -375,6 +410,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -391,16 +427,18 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "h3": {
       "resolved": true,
       "mapper": "mapText",
+      "forwardsElement": true,
       "components": [
-        "Text",
-        "Set"
+        "Text"
       ],
       "params": [
         {
@@ -418,10 +456,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -435,6 +476,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -452,10 +494,13 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -484,7 +529,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -504,6 +551,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -514,13 +562,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "onScroll"
@@ -534,6 +585,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -544,6 +596,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -551,7 +604,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -572,6 +626,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -588,16 +643,18 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "h4": {
       "resolved": true,
       "mapper": "mapText",
+      "forwardsElement": true,
       "components": [
-        "Text",
-        "Set"
+        "Text"
       ],
       "params": [
         {
@@ -615,10 +672,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -632,6 +692,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -649,10 +710,13 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -681,7 +745,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -701,6 +767,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -711,13 +778,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "onScroll"
@@ -731,6 +801,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -741,6 +812,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -748,7 +820,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -769,6 +842,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -785,16 +859,18 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "h5": {
       "resolved": true,
       "mapper": "mapText",
+      "forwardsElement": true,
       "components": [
-        "Text",
-        "Set"
+        "Text"
       ],
       "params": [
         {
@@ -812,10 +888,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -829,6 +908,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -846,10 +926,13 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -878,7 +961,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -898,6 +983,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -908,13 +994,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "onScroll"
@@ -928,6 +1017,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -938,6 +1028,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -945,7 +1036,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -966,6 +1058,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -982,16 +1075,18 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "h6": {
       "resolved": true,
       "mapper": "mapText",
+      "forwardsElement": true,
       "components": [
-        "Text",
-        "Set"
+        "Text"
       ],
       "params": [
         {
@@ -1009,10 +1104,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -1026,6 +1124,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -1043,10 +1142,13 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -1075,7 +1177,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -1095,6 +1199,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -1105,13 +1210,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "onScroll"
@@ -1125,6 +1233,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -1135,6 +1244,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -1142,7 +1252,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -1163,6 +1274,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -1179,16 +1291,18 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "p": {
       "resolved": true,
       "mapper": "mapText",
+      "forwardsElement": true,
       "components": [
-        "Text",
-        "Set"
+        "Text"
       ],
       "params": [
         {
@@ -1206,10 +1320,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -1223,6 +1340,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -1240,10 +1358,13 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -1272,7 +1393,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -1292,6 +1415,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -1302,13 +1426,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "onScroll"
@@ -1322,6 +1449,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -1332,6 +1460,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -1339,7 +1468,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -1360,6 +1490,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -1376,16 +1507,18 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "img": {
       "resolved": true,
       "mapper": "mapImage",
+      "forwardsElement": true,
       "components": [
-        "Image",
-        "Set"
+        "Image"
       ],
       "params": [
         {
@@ -1397,6 +1530,7 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
@@ -1418,7 +1552,9 @@
           "name": "clipPath"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "decoding"
@@ -1440,7 +1576,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "id",
@@ -1457,6 +1595,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -1469,7 +1608,9 @@
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "minHeight"
@@ -1487,14 +1628,18 @@
           "name": "onTap"
         },
         {
-          "name": "opacity"
+          "name": "opacity",
+          "unit": "ratio",
+          "description": "0 to 1."
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -1526,7 +1671,9 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         },
         {
           "name": "x"
@@ -1535,13 +1682,16 @@
           "name": "y"
         },
         {
-          "name": "zIndex"
+          "name": "zIndex",
+          "unit": "count",
+          "description": "Stacking order, a whole number."
         }
       ]
     },
     "a": {
       "resolved": true,
       "mapper": "mapLink",
+      "forwardsElement": true,
       "components": [
         "Link"
       ],
@@ -1553,7 +1703,9 @@
           "name": "animation"
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -1577,6 +1729,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -1586,7 +1739,9 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "data"
@@ -1609,6 +1764,7 @@
         },
         {
           "name": "hover",
+          "unit": "object",
           "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
         },
         {
@@ -1626,13 +1782,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "new",
@@ -1647,6 +1806,7 @@
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -1658,7 +1818,8 @@
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "rounded",
@@ -1681,6 +1842,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -1691,13 +1853,16 @@
           "name": "url"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "cards": {
       "resolved": true,
       "mapper": "mapGrid",
+      "forwardsElement": true,
       "components": [
         "Card",
         "Image",
@@ -1705,11 +1870,9 @@
         "Link",
         "ZoomCard",
         "FlexGrid",
-        "Set",
         "Checkbox",
         "Stack",
         "Form",
-        "Error",
         "AreaSwitcher",
         "Wrapper",
         "UList"
@@ -1737,6 +1900,7 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
@@ -1749,7 +1913,9 @@
           "name": "backTo"
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundCard"
@@ -1779,6 +1945,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -1820,13 +1987,16 @@
           "name": "colat"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "column"
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -1903,13 +2073,16 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "hideOverflow"
         },
         {
           "name": "hover",
+          "unit": "object",
           "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
         },
         {
@@ -1953,6 +2126,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -1976,16 +2150,21 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxHeight"
+          "name": "maxHeight",
+          "unit": "css-length",
+          "description": "CSS max-height — a length with a unit."
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "mboth",
@@ -2022,13 +2201,16 @@
           "name": "onTap"
         },
         {
-          "name": "opacity"
+          "name": "opacity",
+          "unit": "ratio",
+          "description": "0 to 1."
         },
         {
           "name": "overflow"
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -2043,13 +2225,15 @@
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "ranges"
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -2060,10 +2244,12 @@
         },
         {
           "name": "resmar",
+          "unit": "breakpoints",
           "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
         },
         {
           "name": "respad",
+          "unit": "breakpoints",
           "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
         },
         {
@@ -2071,6 +2257,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -2095,7 +2282,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -2139,6 +2327,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -2161,7 +2350,9 @@
           "name": "weight"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         },
         {
           "name": "wrap"
@@ -2173,13 +2364,16 @@
           "name": "y"
         },
         {
-          "name": "zIndex"
+          "name": "zIndex",
+          "unit": "count",
+          "description": "Stacking order, a whole number."
         }
       ]
     },
     "free": {
       "resolved": true,
       "mapper": "mapFree",
+      "forwardsElement": false,
       "components": [
         "Free",
         "Text",
@@ -2187,266 +2381,28 @@
       ],
       "params": [
         {
-          "name": "absolute"
-        },
-        {
-          "name": "align"
-        },
-        {
-          "name": "alt",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animation"
-        },
-        {
-          "name": "area",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "as"
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "block",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "breakWord",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "clampc"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "clipPath"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
-        },
-        {
-          "name": "decoding"
-        },
-        {
-          "name": "em"
-        },
-        {
-          "name": "fetchPriority"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "fitContent"
-        },
-        {
-          "name": "flex"
-        },
-        {
-          "name": "fluid"
-        },
-        {
-          "name": "fluidc"
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "gpos",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient"
-        },
-        {
-          "name": "height"
-        },
-        {
-          "name": "icon"
+          "name": "els"
         },
         {
           "name": "id",
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
-          "name": "index"
-        },
-        {
-          "name": "initLetter"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
-        },
-        {
-          "name": "italic"
-        },
-        {
-          "name": "keySet",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "loading"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "maxWidth"
-        },
-        {
-          "name": "minHeight"
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
-        },
-        {
-          "name": "onScroll"
-        },
-        {
-          "name": "onTap"
-        },
-        {
-          "name": "opacity"
-        },
-        {
-          "name": "positions"
-        },
-        {
-          "name": "preffersId",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "raster",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "removeDecoration"
-        },
-        {
-          "name": "responsive"
-        },
-        {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes"
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "srcset"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "stype"
-        },
-        {
-          "name": "tag",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "templateCols"
-        },
-        {
-          "name": "top"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
           "name": "type",
           "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        },
-        {
-          "name": "url"
-        },
-        {
-          "name": "vtn"
-        },
-        {
-          "name": "width"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
-        },
-        {
-          "name": "zIndex"
         }
       ]
     },
     "nav": {
       "resolved": true,
       "mapper": "protoNav",
+      "forwardsElement": true,
       "components": [
         "Link",
         "Dropdown",
         "Text",
         "Wrapper",
+        "UINavBar",
         "Switcher",
         "MobileBar",
         "DesktopBar",
@@ -2462,10 +2418,8 @@
         "Checkbox",
         "Stack",
         "Form",
-        "Error",
         "AreaSwitcher",
-        "UList",
-        "Set"
+        "UList"
       ],
       "params": [
         {
@@ -2476,6 +2430,9 @@
         },
         {
           "name": "align"
+        },
+        {
+          "name": "alignItems"
         },
         {
           "name": "alignIts",
@@ -2493,7 +2450,11 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
+        },
+        {
+          "name": "ariaLabel"
         },
         {
           "name": "as"
@@ -2505,7 +2466,9 @@
           "name": "backTo"
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundCard"
@@ -2515,6 +2478,9 @@
         },
         {
           "name": "backgroundOp"
+        },
+        {
+          "name": "barPad"
         },
         {
           "name": "behaviour"
@@ -2537,7 +2503,11 @@
           "name": "border"
         },
         {
+          "name": "borderBottom"
+        },
+        {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -2585,7 +2555,9 @@
           "name": "colat"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "column"
@@ -2595,6 +2567,7 @@
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -2615,6 +2588,9 @@
           "name": "decoding"
         },
         {
+          "name": "desktopSize"
+        },
+        {
           "name": "diameter"
         },
         {
@@ -2623,6 +2599,9 @@
         },
         {
           "name": "dropdown"
+        },
+        {
+          "name": "els"
         },
         {
           "name": "em"
@@ -2686,13 +2665,19 @@
           "name": "hamburgerColour"
         },
         {
-          "name": "height"
+          "name": "hamburgerInset"
+        },
+        {
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "hideOverflow"
         },
         {
           "name": "hover",
+          "unit": "object",
           "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
         },
         {
@@ -2731,6 +2716,9 @@
           "name": "isNavA"
         },
         {
+          "name": "isSide"
+        },
+        {
           "name": "italic"
         },
         {
@@ -2738,7 +2726,11 @@
           "description": "The links, each `{ title, link }` -- or a plain string."
         },
         {
+          "name": "justify"
+        },
+        {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -2765,6 +2757,7 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
@@ -2774,10 +2767,14 @@
           "name": "marginOp"
         },
         {
-          "name": "maxHeight"
+          "name": "maxHeight",
+          "unit": "css-length",
+          "description": "CSS max-height — a length with a unit."
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "mboth",
@@ -2788,6 +2785,9 @@
         },
         {
           "name": "minHeight"
+        },
+        {
+          "name": "mobileSize"
         },
         {
           "name": "name",
@@ -2817,13 +2817,19 @@
           "name": "onTap"
         },
         {
-          "name": "opacity"
+          "name": "opacity",
+          "unit": "ratio",
+          "description": "0 to 1."
+        },
+        {
+          "name": "openColor"
         },
         {
           "name": "overflow"
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -2841,13 +2847,15 @@
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "ranges"
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -2858,10 +2866,12 @@
         },
         {
           "name": "resmar",
+          "unit": "breakpoints",
           "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
         },
         {
           "name": "respad",
+          "unit": "breakpoints",
           "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
         },
         {
@@ -2869,6 +2879,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -2896,11 +2907,15 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
           "name": "sizes"
+        },
+        {
+          "name": "spacing"
         },
         {
           "name": "span"
@@ -2943,6 +2958,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -2968,7 +2984,9 @@
           "name": "weight"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         },
         {
           "name": "wrap"
@@ -2980,13 +2998,16 @@
           "name": "y"
         },
         {
-          "name": "zIndex"
+          "name": "zIndex",
+          "unit": "count",
+          "description": "Stacking order, a whole number."
         }
       ]
     },
     "sideNav": {
       "resolved": true,
       "mapper": "sideNav",
+      "forwardsElement": true,
       "components": [
         "Link",
         "Dropdown",
@@ -3003,10 +3024,8 @@
         "Checkbox",
         "Stack",
         "Form",
-        "Error",
         "AreaSwitcher",
-        "UList",
-        "Set"
+        "UList"
       ],
       "params": [
         {
@@ -3034,6 +3053,7 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
@@ -3046,7 +3066,9 @@
           "name": "backTo"
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundCard"
@@ -3079,6 +3101,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -3120,7 +3143,9 @@
           "name": "colat"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "column"
@@ -3130,6 +3155,7 @@
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -3158,6 +3184,9 @@
         },
         {
           "name": "dropdown"
+        },
+        {
+          "name": "els"
         },
         {
           "name": "em"
@@ -3218,13 +3247,16 @@
           "name": "hamColour"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "hideOverflow"
         },
         {
           "name": "hover",
+          "unit": "object",
           "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
         },
         {
@@ -3271,6 +3303,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -3297,6 +3330,7 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
@@ -3306,10 +3340,14 @@
           "name": "marginOp"
         },
         {
-          "name": "maxHeight"
+          "name": "maxHeight",
+          "unit": "css-length",
+          "description": "CSS max-height — a length with a unit."
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "mboth",
@@ -3349,13 +3387,16 @@
           "name": "onTap"
         },
         {
-          "name": "opacity"
+          "name": "opacity",
+          "unit": "ratio",
+          "description": "0 to 1."
         },
         {
           "name": "overflow"
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -3373,13 +3414,15 @@
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "ranges"
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -3390,10 +3433,12 @@
         },
         {
           "name": "resmar",
+          "unit": "breakpoints",
           "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
         },
         {
           "name": "respad",
+          "unit": "breakpoints",
           "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
         },
         {
@@ -3401,6 +3446,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -3428,7 +3474,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -3475,6 +3522,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -3500,7 +3548,9 @@
           "name": "weight"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         },
         {
           "name": "wrap"
@@ -3512,17 +3562,19 @@
           "name": "y"
         },
         {
-          "name": "zIndex"
+          "name": "zIndex",
+          "unit": "count",
+          "description": "Stacking order, a whole number."
         }
       ]
     },
     "row": {
       "resolved": true,
       "mapper": "mapRow",
+      "forwardsElement": true,
       "components": [
-        "FlexRow",
         "Text",
-        "Set"
+        "FlexRow"
       ],
       "params": [
         {
@@ -3550,10 +3602,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -3567,6 +3622,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -3590,13 +3646,16 @@
           "name": "colat"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "column"
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -3628,7 +3687,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -3654,6 +3715,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -3664,13 +3726,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "mobile"
@@ -3696,10 +3761,12 @@
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -3713,7 +3780,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -3734,6 +3802,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -3747,7 +3816,9 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         },
         {
           "name": "wrap"
@@ -3757,561 +3828,52 @@
     "dropdown": {
       "resolved": true,
       "mapper": "dropdown",
+      "forwardsElement": false,
       "components": [
         "Link",
         "Dropdown",
         "Text",
-        "Wrapper",
-        "Switcher",
-        "MobileBar",
-        "DesktopBar",
-        "Spacer",
-        "SideNav",
-        "Free",
-        "Image",
-        "Circle",
-        "Polygon",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "Error",
-        "AreaSwitcher",
-        "UList",
-        "Set"
+        "Wrapper"
       ],
       "params": [
         {
-          "name": "absolute"
-        },
-        {
-          "name": "action"
-        },
-        {
-          "name": "align"
-        },
-        {
-          "name": "alignIts",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
-        },
-        {
-          "name": "alt",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animate"
-        },
-        {
-          "name": "animation"
-        },
-        {
-          "name": "area",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "as"
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "backTo"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundCard"
-        },
-        {
-          "name": "backgroundColor"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "behaviour"
-        },
-        {
-          "name": "blast"
-        },
-        {
-          "name": "blastData"
-        },
-        {
-          "name": "block",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja"
-        },
-        {
-          "name": "brand"
-        },
-        {
-          "name": "breakWord",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
-          "name": "breakpoints"
-        },
-        {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn"
-        },
-        {
-          "name": "centerSelf"
-        },
-        {
-          "name": "checkedBackgroundColor"
-        },
-        {
-          "name": "child"
-        },
-        {
-          "name": "children"
-        },
-        {
-          "name": "clampc"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "clipPath"
-        },
-        {
-          "name": "colat"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "column"
-        },
-        {
-          "name": "contentWidth"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
-        },
-        {
-          "name": "customAlign",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle"
-        },
-        {
-          "name": "data"
-        },
-        {
-          "name": "decoding"
-        },
-        {
-          "name": "diameter"
-        },
-        {
-          "name": "disp",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
-          "name": "dropdown"
-        },
-        {
-          "name": "em"
-        },
-        {
-          "name": "fetchPriority"
-        },
-        {
-          "name": "filter"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "fitContent"
-        },
-        {
-          "name": "fixMobileTap",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "fixed"
-        },
-        {
-          "name": "flex"
-        },
-        {
-          "name": "flexCenter"
-        },
-        {
-          "name": "flexDir",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
-        },
-        {
-          "name": "fluid"
-        },
-        {
-          "name": "fluidc"
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "ga",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gap"
-        },
-        {
-          "name": "gpos",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient"
-        },
-        {
-          "name": "hamColour"
-        },
-        {
-          "name": "hamburgerColour"
-        },
-        {
-          "name": "height"
-        },
-        {
-          "name": "hideOverflow"
-        },
-        {
-          "name": "hover",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
-          "name": "icon"
-        },
-        {
           "name": "id",
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
-        },
-        {
-          "name": "index"
-        },
-        {
-          "name": "initLetter"
-        },
-        {
-          "name": "inline"
-        },
-        {
-          "name": "inpad"
-        },
-        {
-          "name": "isBackground"
-        },
-        {
-          "name": "isFull"
-        },
-        {
-          "name": "isHidden",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink"
-        },
-        {
-          "name": "isNavA"
-        },
-        {
-          "name": "italic"
         },
         {
           "name": "items",
           "description": "The choices, each a `[value, text]` pair -- or a plain string used as both."
         },
         {
-          "name": "keySet",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "kind"
-        },
-        {
           "name": "label",
           "description": "Accessible name for the field."
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "link"
-        },
-        {
-          "name": "loading"
-        },
-        {
-          "name": "map"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "margin"
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "maxHeight"
-        },
-        {
-          "name": "maxWidth"
-        },
-        {
-          "name": "mboth",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "method"
-        },
-        {
-          "name": "minHeight"
-        },
-        {
-          "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit"
-        },
-        {
-          "name": "objectPosition"
-        },
-        {
-          "name": "offcanvas"
-        },
-        {
-          "name": "onScroll"
-        },
-        {
-          "name": "onTap"
-        },
-        {
-          "name": "opacity"
-        },
-        {
-          "name": "overflow"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "padding"
-        },
-        {
-          "name": "position"
-        },
-        {
-          "name": "positions"
-        },
-        {
-          "name": "preffersId",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "ranges"
-        },
-        {
-          "name": "raster",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react"
-        },
-        {
-          "name": "removeDecoration"
-        },
-        {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive"
-        },
-        {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "rounded",
-          "description": "Apply the default corner radius. Use `radius` for a specific value."
-        },
-        {
-          "name": "scale"
-        },
-        {
-          "name": "sequence"
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "sides"
-        },
-        {
-          "name": "simpleBorder",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter"
-        },
-        {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes"
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "srcset"
-        },
-        {
-          "name": "sticky",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "stype"
-        },
-        {
-          "name": "tag",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags"
-        },
-        {
-          "name": "templateCols"
-        },
-        {
-          "name": "text"
         },
         {
           "name": "title",
           "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
         },
         {
-          "name": "top"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "transition"
-        },
-        {
           "name": "type",
           "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        },
-        {
-          "name": "url"
-        },
-        {
-          "name": "useBrightness"
-        },
-        {
-          "name": "value"
-        },
-        {
-          "name": "vtn"
-        },
-        {
-          "name": "weight"
-        },
-        {
-          "name": "width"
-        },
-        {
-          "name": "wrap"
-        },
-        {
-          "name": "x"
-        },
-        {
-          "name": "y"
-        },
-        {
-          "name": "zIndex"
         }
       ]
     },
     "radio": {
       "resolved": true,
       "mapper": "radio",
+      "forwardsElement": true,
       "components": [
-        "RadioGroup",
-        "Set"
+        "RadioGroup"
       ],
       "params": [
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "exact",
+          "unit": "css-length",
           "description": "Font size as an exact CSS length, e.g. \"0.875rem\"."
         },
         {
@@ -4343,23 +3905,28 @@
     "input": {
       "resolved": true,
       "mapper": "input",
+      "forwardsElement": true,
       "components": [
-        "TextField",
-        "Set"
+        "TextField"
       ],
       "params": [
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "bold",
           "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "exact",
+          "unit": "css-length",
           "description": "Font size as an exact CSS length, e.g. \"0.875rem\"."
         },
         {
@@ -4378,10 +3945,13 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "name",
@@ -4389,6 +3959,7 @@
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -4397,6 +3968,7 @@
         },
         {
           "name": "radius",
+          "unit": "px-or-length",
           "description": "Corner radius in pixels. A bare number, not a CSS length."
         },
         {
@@ -4405,6 +3977,7 @@
         },
         {
           "name": "theme",
+          "unit": "object",
           "description": "Light/dark colour overrides. {light: {...}, dark: {...}}."
         },
         {
@@ -4423,16 +3996,19 @@
     "labelInput": {
       "resolved": true,
       "mapper": "floatInput",
+      "forwardsElement": true,
       "components": [
-        "FloatingInput",
-        "Set"
+        "FloatingInput"
       ],
       "params": [
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "exact",
+          "unit": "css-length",
           "description": "Font size as an exact CSS length, e.g. \"0.875rem\"."
         },
         {
@@ -4451,6 +4027,7 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
@@ -4459,6 +4036,7 @@
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -4477,19 +4055,23 @@
     "filePicker": {
       "resolved": true,
       "mapper": "filePicker",
+      "forwardsElement": true,
       "components": [
-        "FilePickera",
-        "Set"
+        "FilePickera"
       ],
       "params": [
         {
           "name": "accept"
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "font"
@@ -4513,7 +4095,8 @@
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "title",
@@ -4528,9 +4111,9 @@
     "picker": {
       "resolved": true,
       "mapper": "picker",
+      "forwardsElement": true,
       "components": [
-        "Picker",
-        "Set"
+        "Picker"
       ],
       "params": [
         {
@@ -4544,7 +4127,9 @@
           "deprecated": "superseded by `pad`. `pad: [{a: \"0.5rem\"}]` is the same padding. Still works, but warns."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "id",
@@ -4560,6 +4145,7 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
@@ -4568,11 +4154,13 @@
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "title",
@@ -4587,90 +4175,109 @@
     "video": {
       "resolved": true,
       "mapper": "video",
+      "forwardsElement": true,
       "components": [
-        "Error",
-        "Video",
-        "Set"
+        "Video"
       ],
       "params": [
         {
           "name": "aspectRatio",
+          "unit": "css-aspect-ratio",
           "description": "Box proportion held before the video loads, e.g. \"16 / 9\". Prevents the page shifting when the first frame arrives."
         },
         {
           "name": "autoplay",
+          "unit": "bool",
           "description": "Start on its own. Implies muted and playsinline, pauses off screen and in a hidden tab, and is cancelled by prefers-reduced-motion (the poster stays)."
         },
         {
           "name": "background",
+          "unit": "color",
           "description": "CSS background behind the frame — visible while the poster loads."
         },
         {
           "name": "controls",
+          "unit": "bool",
           "description": "Show the browser's playback controls. Default true — pass false for an ambient loop."
         },
         {
           "name": "decorative",
+          "unit": "bool",
           "description": "Hide from assistive technology. For an ambient loop that repeats what the page already says in text."
         },
         {
           "name": "height",
+          "unit": "css-length",
           "description": "CSS height of the element."
         },
         {
           "name": "id",
+          "unit": "text",
           "description": "DOM id. Also what a node's `target` names, so a clip carrying a raster op needs one."
         },
         {
           "name": "label",
+          "unit": "text",
           "description": "Accessible name, for a clip that carries meaning."
         },
         {
           "name": "lazy",
+          "unit": "bool",
           "description": "Only play while on screen. On by default whenever `autoplay` is set; pass false to keep an autoplaying clip running off screen."
         },
         {
           "name": "loop",
+          "unit": "bool",
           "description": "Restart when the clip ends."
         },
         {
           "name": "maxWidth",
+          "unit": "css-length",
           "description": "CSS max-width of the element."
         },
         {
           "name": "muted",
+          "unit": "bool",
           "description": "Mute the audio track. Forced on by `autoplay`, because browsers block an unmuted autoplay; pass false only if you mean to accept that."
         },
         {
           "name": "objectFit",
+          "unit": "enum(cover|contain|fill|none|scale-down)",
           "description": "How the frame fills the element box: \"cover\", \"contain\", \"fill\", \"none\"."
         },
         {
           "name": "opacity",
+          "unit": "ratio",
           "description": "0–1."
         },
         {
           "name": "playsinline",
+          "unit": "bool",
           "description": "Play in place on iPhone instead of taking over the screen. Implied by `autoplay`; there is no reason to refuse it on a background loop."
         },
         {
           "name": "poster",
+          "unit": "url",
           "description": "Image shown before the first frame decodes. Give one on any autoplaying clip: it is what holds the layout still and what reduced-motion visitors see instead of the video."
         },
         {
           "name": "preload",
+          "unit": "enum(none|metadata|auto)",
           "description": "\"none\", \"metadata\" (a good default for a loop) or \"auto\"."
         },
         {
           "name": "radius",
+          "unit": "px-or-length",
           "description": "Corner radius. A CSS length; a bare number is read as pixels."
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Raster op nodes to run over this element."
         },
         {
           "name": "sources",
+          "unit": "array",
           "description": "Several encodings of the same clip: [{url, type}] or plain url strings. The browser picks the first it can play, so order best-first (AV1, then HEVC, then H.264). `type` is inferred from the extension when omitted."
         },
         {
@@ -4682,6 +4289,7 @@
         },
         {
           "name": "width",
+          "unit": "css-length",
           "description": "CSS width of the element."
         }
       ]
@@ -4689,8 +4297,8 @@
     "audio": {
       "resolved": true,
       "mapper": "audio",
+      "forwardsElement": false,
       "components": [
-        "Error",
         "Audio"
       ],
       "params": [
@@ -4710,13 +4318,14 @@
     "multiswitcher": {
       "resolved": true,
       "mapper": "multiswitcher",
+      "forwardsElement": false,
       "components": [
-        "Error",
         "Switcher"
       ],
       "params": [
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
@@ -4735,9 +4344,9 @@
     "button": {
       "resolved": true,
       "mapper": "button",
+      "forwardsElement": true,
       "components": [
-        "Button",
-        "Set"
+        "Button"
       ],
       "params": [
         {
@@ -4747,7 +4356,9 @@
           "name": "auto"
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "bold",
@@ -4763,10 +4374,13 @@
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "exact",
+          "unit": "css-length",
           "description": "Font size as an exact CSS length, e.g. \"0.875rem\"."
         },
         {
@@ -4776,7 +4390,9 @@
           "name": "frame"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "id",
@@ -4787,6 +4403,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -4800,14 +4417,17 @@
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "resmar",
+          "unit": "breakpoints",
           "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
         },
         {
           "name": "respad",
+          "unit": "breakpoints",
           "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
         },
         {
@@ -4827,13 +4447,16 @@
           "name": "weight"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "form": {
       "resolved": true,
       "mapper": "form",
+      "forwardsElement": false,
       "components": [
         "Form"
       ],
@@ -4860,10 +4483,10 @@
     "checkbox": {
       "resolved": true,
       "mapper": "checkbox",
+      "forwardsElement": true,
       "components": [
         "Text",
-        "Checkbox",
-        "Set"
+        "Checkbox"
       ],
       "params": [
         {
@@ -4881,10 +4504,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundColor"
@@ -4901,6 +4527,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -4924,10 +4551,13 @@
           "name": "clipPath"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -4959,7 +4589,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -4979,6 +4611,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -4993,13 +4626,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "name",
@@ -5013,6 +4649,7 @@
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -5021,6 +4658,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -5028,10 +4666,12 @@
         },
         {
           "name": "resmar",
+          "unit": "breakpoints",
           "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
         },
         {
           "name": "respad",
+          "unit": "breakpoints",
           "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
         },
         {
@@ -5042,7 +4682,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -5064,6 +4705,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -5077,23 +4719,27 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "stack": {
       "resolved": true,
       "mapper": "stack",
+      "forwardsElement": true,
       "components": [
-        "Stack",
-        "Set"
+        "Stack"
       ],
       "params": [
         {
           "name": "children"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "id",
@@ -5112,8 +4758,8 @@
     "simple": {
       "resolved": true,
       "mapper": "simple",
+      "forwardsElement": false,
       "components": [
-        "Error",
         "AreaSwitcher"
       ],
       "params": [
@@ -5124,14 +4770,13 @@
           "name": "gap"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "id",
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
-        },
-        {
-          "name": "map"
         },
         {
           "name": "react"
@@ -5139,15 +4784,32 @@
         {
           "name": "type",
           "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        },
-        {
-          "name": "width"
         }
       ]
     },
     "copy": {
       "resolved": true,
       "mapper": "mapCopy",
+      "forwardsElement": false,
+      "components": [
+        "Wrapper",
+        "Text"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        }
+      ]
+    },
+    "wrap": {
+      "resolved": true,
+      "mapper": "mapWrap",
+      "forwardsElement": true,
       "components": [
         "Wrapper",
         "Text"
@@ -5172,6 +4834,7 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
@@ -5181,7 +4844,9 @@
           "name": "backTo"
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -5198,6 +4863,7 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
@@ -5218,19 +4884,25 @@
           "name": "child"
         },
         {
+          "name": "children"
+        },
+        {
           "name": "clampc"
         },
         {
           "name": "class"
         },
         {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "column"
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -5285,7 +4957,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "hideOverflow"
@@ -5315,7 +4989,11 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "kind"
         },
         {
           "name": "layout"
@@ -5325,16 +5003,21 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxHeight"
+          "name": "maxHeight",
+          "unit": "css-length",
+          "description": "CSS max-height — a length with a unit."
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "mboth",
@@ -5351,13 +5034,16 @@
           "name": "onTap"
         },
         {
-          "name": "opacity"
+          "name": "opacity",
+          "unit": "ratio",
+          "description": "0 to 1."
         },
         {
           "name": "overflow"
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -5369,13 +5055,15 @@
         },
         {
           "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
           "name": "ranges"
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -5386,6 +5074,7 @@
         },
         {
           "name": "resprop",
+          "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
@@ -5406,7 +5095,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -5431,6 +5121,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -5450,408 +5141,58 @@
           "name": "weight"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         },
         {
-          "name": "zIndex"
-        }
-      ]
-    },
-    "wrap": {
-      "resolved": true,
-      "mapper": "mapWrap",
-      "components": [
-        "Wrapper",
-        "Set"
-      ],
-      "params": [
-        {
-          "name": "align"
-        },
-        {
-          "name": "alignIts",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
-        },
-        {
-          "name": "animation"
-        },
-        {
-          "name": "area",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "at"
-        },
-        {
-          "name": "backTo"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "blast"
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja"
-        },
-        {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn"
-        },
-        {
-          "name": "child"
-        },
-        {
-          "name": "children"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "column"
-        },
-        {
-          "name": "customAlign",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "disp",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
-          "name": "filter"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "flexCenter"
-        },
-        {
-          "name": "flexDir",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "ga",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gpos",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient"
-        },
-        {
-          "name": "height"
-        },
-        {
-          "name": "hideOverflow"
-        },
-        {
-          "name": "id",
-          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
-        },
-        {
-          "name": "isHidden",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink"
-        },
-        {
-          "name": "keySet",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "kind"
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "maxHeight"
-        },
-        {
-          "name": "maxWidth"
-        },
-        {
-          "name": "mboth",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "name",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "onTap"
-        },
-        {
-          "name": "opacity"
-        },
-        {
-          "name": "overflow"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "position"
-        },
-        {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "ranges"
-        },
-        {
-          "name": "responsive"
-        },
-        {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "scale"
-        },
-        {
-          "name": "sequence"
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "simpleBorder",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter"
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "sticky",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "top"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "transition"
-        },
-        {
-          "name": "type",
-          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        },
-        {
-          "name": "weight"
-        },
-        {
-          "name": "width"
-        },
-        {
-          "name": "zIndex"
+          "name": "zIndex",
+          "unit": "count",
+          "description": "Stacking order, a whole number."
         }
       ]
     },
     "circle": {
       "resolved": true,
       "mapper": "mapCircle",
+      "forwardsElement": false,
       "components": [
         "Circle"
       ],
       "params": [
         {
-          "name": "animation"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
-        },
-        {
-          "name": "diameter"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "gradient"
-        },
-        {
-          "name": "height"
-        },
-        {
           "name": "id",
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
-          "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "margin"
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "radius",
-          "description": "Corner radius in pixels. A bare number, not a CSS length."
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "top"
-        },
-        {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
           "name": "type",
           "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        },
-        {
-          "name": "width"
-        },
-        {
-          "name": "zIndex"
         }
       ]
     },
     "polygon": {
       "resolved": true,
       "mapper": "mapPolygon",
+      "forwardsElement": false,
       "components": [
         "Polygon"
       ],
       "params": [
         {
-          "name": "animation"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "gradient"
-        },
-        {
           "name": "id",
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
-        },
-        {
-          "name": "inline"
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "margin"
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "shadow"
         },
         {
           "name": "sides"
         },
         {
-          "name": "stroke"
-        },
-        {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -5863,8 +5204,60 @@
     "code": {
       "resolved": true,
       "mapper": "mapCode",
+      "forwardsElement": false,
       "components": [
         "Code",
+        "Text"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "transform",
+          "unit": "css-transform",
+          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        }
+      ]
+    },
+    "table": {
+      "resolved": true,
+      "mapper": "mapTable",
+      "forwardsElement": false,
+      "components": [
+        "Table"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "items",
+          "description": "The rows. Each entry is a `{ title, link }` or `{ text, url }` data object, a `[value, text]` pair, or an element spec."
+        },
+        {
+          "name": "transform",
+          "unit": "css-transform",
+          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        }
+      ]
+    },
+    "ulist": {
+      "resolved": true,
+      "mapper": "mapUList",
+      "forwardsElement": true,
+      "components": [
+        "UList",
         "Text"
       ],
       "params": [
@@ -5883,10 +5276,13 @@
         },
         {
           "name": "area",
+          "unit": "text",
           "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
         },
         {
-          "name": "background"
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
         },
         {
           "name": "backgroundOp"
@@ -5900,10 +5296,8 @@
         },
         {
           "name": "borderObj",
+          "unit": "object",
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderRadius"
         },
         {
           "name": "breakWord",
@@ -5920,13 +5314,13 @@
           "name": "class"
         },
         {
-          "name": "code"
-        },
-        {
-          "name": "color"
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
         },
         {
           "name": "cursor",
+          "unit": "css-cursor",
           "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
@@ -5955,299 +5349,9 @@
           "name": "gradient"
         },
         {
-          "name": "height"
-        },
-        {
-          "name": "icon"
-        },
-        {
-          "name": "id",
-          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
-        },
-        {
-          "name": "index"
-        },
-        {
-          "name": "initLetter"
-        },
-        {
-          "name": "italic"
-        },
-        {
-          "name": "keySet",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "left"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "maxWidth"
-        },
-        {
-          "name": "onScroll"
-        },
-        {
-          "name": "onTap"
-        },
-        {
-          "name": "pad",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "preffersId",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "raster",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "removeDecoration"
-        },
-        {
-          "name": "resmar",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive"
-        },
-        {
-          "name": "resprop",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "tag",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "top"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "type",
-          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        },
-        {
-          "name": "url"
-        },
-        {
-          "name": "vtn"
-        },
-        {
-          "name": "width"
-        }
-      ]
-    },
-    "table": {
-      "resolved": true,
-      "mapper": "mapTable",
-      "components": [
-        "Table"
-      ],
-      "params": [
-        {
-          "name": "animation"
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderRadius"
-        },
-        {
-          "name": "cellAlign"
-        },
-        {
-          "name": "cellPadding"
-        },
-        {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "gradient"
-        },
-        {
-          "name": "headStyle"
-        },
-        {
-          "name": "id",
-          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
-        },
-        {
-          "name": "items",
-          "description": "The rows. Each entry is a `{ title, link }` or `{ text, url }` data object, a `[value, text]` pair, or an element spec."
-        },
-        {
-          "name": "layout"
-        },
-        {
-          "name": "mar",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "marginOp"
-        },
-        {
-          "name": "shadow"
-        },
-        {
-          "name": "span"
-        },
-        {
-          "name": "stroke"
-        },
-        {
-          "name": "style"
-        },
-        {
-          "name": "transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "type",
-          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        }
-      ]
-    },
-    "ulist": {
-      "resolved": true,
-      "mapper": "mapUList",
-      "components": [
-        "UList",
-        "Text",
-        "Set"
-      ],
-      "params": [
-        {
-          "name": "absolute"
-        },
-        {
-          "name": "align"
-        },
-        {
-          "name": "alt",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animation"
-        },
-        {
-          "name": "area",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "background"
-        },
-        {
-          "name": "backgroundOp"
-        },
-        {
-          "name": "block",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "border"
-        },
-        {
-          "name": "borderObj",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "breakWord",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
-          "name": "center",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "clampc"
-        },
-        {
-          "name": "class"
-        },
-        {
-          "name": "color"
-        },
-        {
-          "name": "cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
-        },
-        {
-          "name": "em"
-        },
-        {
-          "name": "filtera"
-        },
-        {
-          "name": "flex"
-        },
-        {
-          "name": "fluid"
-        },
-        {
-          "name": "fluidc"
-        },
-        {
-          "name": "font"
-        },
-        {
-          "name": "gpos",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient"
-        },
-        {
-          "name": "height"
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
         },
         {
           "name": "icon"
@@ -6271,6 +5375,7 @@
         },
         {
           "name": "keySet",
+          "unit": "keyset",
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
@@ -6284,13 +5389,16 @@
         },
         {
           "name": "mar",
+          "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
           "name": "marginOp"
         },
         {
-          "name": "maxWidth"
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
         },
         {
           "name": "onScroll"
@@ -6300,6 +5408,7 @@
         },
         {
           "name": "pad",
+          "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
@@ -6308,6 +5417,7 @@
         },
         {
           "name": "raster",
+          "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
         },
         {
@@ -6321,7 +5431,8 @@
         },
         {
           "name": "size",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport.",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
           "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
         },
         {
@@ -6339,6 +5450,7 @@
         },
         {
           "name": "transform",
+          "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
@@ -6352,35 +5464,43 @@
           "name": "vtn"
         },
         {
-          "name": "width"
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         }
       ]
     },
     "gridOverlay": {
       "resolved": true,
       "mapper": "mapGridOverlay",
+      "forwardsElement": false,
       "components": [
         "GridOverlay"
       ],
       "params": [
         {
           "name": "breakpoint",
+          "unit": "px-number",
           "description": "Viewport width in px below which `mobile` applies. Default 768."
         },
         {
           "name": "color",
+          "unit": "color",
           "description": "Colour of lines, marks and readouts (drawn with currentColor). Falls back to the Theme text colour."
         },
         {
           "name": "columns",
+          "unit": "count",
           "description": "Columns, counted as cells (N cells draw N+1 lines). 0 draws no vertical lines. Default 4. Named `columns`, not `cols`: the library's shared `cols` means grid-template-columns verbatim."
         },
         {
           "name": "font",
+          "unit": "text",
           "description": "Font family of the readouts. Default a monospace stack."
         },
         {
           "name": "fontSize",
+          "unit": "px-number",
           "description": "Readout font size in px. Default 11."
         },
         {
@@ -6389,46 +5509,52 @@
         },
         {
           "name": "inset",
+          "unit": "px-number",
           "description": "Distance of the outermost lines from the edge in px. A number, or {x, y}. Default 16."
         },
         {
           "name": "letterSpacing",
+          "unit": "text",
           "description": "Readout letter spacing, any CSS length. Default \"0.04em\"."
         },
         {
           "name": "lineOpacity",
+          "unit": "ratio",
           "description": "Opacity of the lines only; marks and readouts stay opaque. 0–1, default 0.35."
         },
         {
           "name": "lineWidth",
+          "unit": "px-number",
           "description": "Stroke width of the grid lines in px. Default 1."
         },
         {
           "name": "markSize",
+          "unit": "px-number",
           "description": "Size of each registration mark in px. Default 8."
         },
         {
           "name": "marks",
+          "unit": "enum(square|cross|none)",
           "description": "Registration mark at each intersection: \"square\" (default), \"cross\" or \"none\"."
         },
         {
           "name": "mobile",
+          "unit": "object",
           "description": "Options that replace their desktop values below `breakpoint`, e.g. {columns: 1, rows: 4}."
         },
         {
           "name": "position",
+          "unit": "enum(fixed|absolute)",
           "description": "\"fixed\" (default) pins the grid to the viewport; \"absolute\" fills the nearest positioned ancestor."
         },
         {
-          "name": "raster",
-          "description": "Raster op nodes for the overlay, e.g. an offset driven by hover to bend the lines near the cursor."
-        },
-        {
           "name": "readouts",
+          "unit": "array",
           "description": "Labels beside intersections: [{id, col, row, text, anchor}]. col/row index lines from 0; anchor \"br\" (default), \"bl\", \"tr\" or \"tl\", flipped automatically when the label would fall outside. Decorative — say the same thing in real page text."
         },
         {
           "name": "rows",
+          "unit": "count",
           "description": "Rows across the overlay's height, counted as cells. 0 draws no horizontal lines. Default 2."
         },
         {
@@ -6437,10 +5563,12 @@
         },
         {
           "name": "uppercase",
+          "unit": "bool",
           "description": "Uppercase the readout text. Default true."
         },
         {
           "name": "zIndex",
+          "unit": "count",
           "description": "Stacking order of the overlay. Default 2 — keep navigation above it."
         }
       ]
