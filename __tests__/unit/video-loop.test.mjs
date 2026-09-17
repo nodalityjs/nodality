@@ -180,6 +180,14 @@ test("a decorative loop is hidden from assistive tech; a meaningful one is named
 	assert.equal(loop({ label: "The case opening" }).res.getAttribute("aria-label"), "The case opening");
 });
 
+test("id reaches the element, so a node can target the clip", () => {
+	// It did not, until a page put a video in a grid and the id vanished: the
+	// schema lists `id` for this type and the mapper forwards it, so an agent
+	// has every reason to expect targeting to work.
+	const v = loop({ id: "shell-loop" });
+	assert.equal(v.res.getAttribute("id"), "shell-loop");
+});
+
 test("toCode() round-trips the loop options", () => {
 	const [code] = loop({ preload: "metadata" }).toCode();
 	assert.match(code, /^new Video\("\/clip\.mp4"\)\.set\(/);

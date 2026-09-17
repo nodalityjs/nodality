@@ -4619,7 +4619,7 @@
         },
         {
           "name": "id",
-          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+          "description": "DOM id. Also what a node's `target` names, so a clip carrying a raster op needs one."
         },
         {
           "name": "label",

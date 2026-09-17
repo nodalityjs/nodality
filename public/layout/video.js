@@ -127,6 +127,9 @@ class Video extends Animator {
 		//@ video.aspectRatio: Box proportion held before the video loads, e.g. "16 / 9". Prevents the page shifting when the first frame arrives.
 		obj.aspectRatio && (v.style.aspectRatio = obj.aspectRatio);
 
+		//@ video.id: DOM id. Also what a node's `target` names, so a clip carrying a raster op needs one.
+		obj.id && v.setAttribute("id", obj.id);
+
 		//@ video.label: Accessible name, for a clip that carries meaning.
 		obj.label && v.setAttribute("aria-label", obj.label);
 
