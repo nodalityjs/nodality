@@ -9,6 +9,38 @@
 # listening) are guarded individually below.
 set -euo pipefail
 
+cd "$(dirname "$0")"
+
+# ── Node version ─────────────────────────────────────────────────────
+# Select the version in .nvmrc before running anything.
+#
+# Not cosmetic: this script drives a prerender whose library is ESM, and on
+# Node 18 that dies with "Cannot use import statement outside a module" —
+# after which the deploy reports "prerender failed, nothing uploaded" and
+# the cause looks like the site rather than the interpreter. The publish
+# script has the matching trap: `node --test` only expands a glob on Node 21
+# and later, so an older one reports the whole unit suite as missing, or
+# (when the shell expands it instead) invents dozens of failures.
+#
+# .nvmrc alone does not prevent that — it only records the intent, and a
+# shell that never ran `nvm use` still gets whatever it had. So the script
+# selects the version itself and refuses to continue without it.
+if [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]; then
+  # nvm is a shell function, and `set -u` trips over its unset internals.
+  set +u
+  # shellcheck disable=SC1090
+  . "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
+  nvm use >/dev/null 2>&1 || nvm use --lts >/dev/null 2>&1 || true
+  set -u
+fi
+
+NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)"
+if [ "$NODE_MAJOR" -lt 21 ]; then
+  echo "❌ Node $(node -v 2>/dev/null || echo 'not found') is too old — this needs 21+." >&2
+  echo "   .nvmrc asks for $(cat .nvmrc 2>/dev/null || echo 22). Run: nvm use" >&2
+  exit 1
+fi
+
 
 auth_output=$(gh auth status 2>&1 || true)
 if echo "$auth_output" | grep -q 'github\.com as nodalityjs'; then

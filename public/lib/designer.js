@@ -69,6 +69,7 @@ import { ScrollVideo } from "../lib/scroll-video.js";
 import { AreaSwitcher } from "../layout/grid-switcher.js";
 import { Polygon } from "../layout/polygon.js";
 import { Circle } from "../layout/circle.js";
+import { GridOverlay } from "../layout/grid-overlay.js";
 
 
 
@@ -1438,7 +1439,8 @@ new Slider(texts, null, { tintColor: "#e74c3c", inactiveColor: "#ccc" })
         const layout = {
   Text, Image, Link, FlexRow, UINavBar, Free, Audio, Progress, Center, Code,
   Stack, Wrapper, MetaAdder, Table, Dropdown, Modal, TextField, Card,
-  Wrap, FlexGrid, ZoomCard, Switcher, MobileBar, DesktopBar, SideNav, Spacer, HScroller, Polygon, Circle, UList
+  Wrap, FlexGrid, ZoomCard, Switcher, MobileBar, DesktopBar, SideNav, Spacer, HScroller, Polygon, Circle, UList,
+  GridOverlay
 };
 
 const formComponents = {

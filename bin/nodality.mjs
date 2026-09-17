@@ -794,7 +794,7 @@ async function runCompile(rawArgs) {
     "Button", "Des", "LinkStyler", "CardGen", "KeyframeAnim",
     "TransformAnim", "Stacker", "ScrollVideo", "Theme",
     "AreaSwitcher", "Video", "UList", "Slider",
-    "Polygon", "Circle", "FloatingInput", "Form",
+    "Polygon", "Circle", "GridOverlay", "FloatingInput", "Form",
   ]);
   const used = new Set();
   for (const line of emitted) {

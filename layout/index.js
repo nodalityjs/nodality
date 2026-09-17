@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.7
+ * nodality v1.3.8
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -69,6 +69,7 @@ import { Theme } from "../lib/theme.js";
 import { AreaSwitcher } from "../layout/grid-switcher.js";
 import { Polygon } from "../layout/polygon.js";
 import { Circle } from "../layout/circle.js";
+import { GridOverlay } from "../layout/grid-overlay.js";
 
 // SEO + data helpers — also surface via package.json subpath exports
 // (`nodality/seo`, `nodality/data`) for Node-side tree-shaking, but we
@@ -140,6 +141,7 @@ if (typeof window !== 'undefined') {
   window.Slider = Slider;
   window.Polygon = Polygon;
   window.Circle = Circle;
+  window.GridOverlay = GridOverlay;
   window.FloatingInput = FloatingInput;
   window.Form = Form;
 }
@@ -200,6 +202,7 @@ if (typeof global !== 'undefined') {
   global.Slider = Slider;
   global.Polygon = Polygon;
   global.Circle = Circle;
+  global.GridOverlay = GridOverlay;
   global.FloatingInput = FloatingInput;
   global.Form = Form;
 }
@@ -260,6 +263,7 @@ export {
   Slider,
   Polygon,
   Circle,
+  GridOverlay,
   FloatingInput,
   Form,
   // SEO + data helpers — see explanation above the imports block.
