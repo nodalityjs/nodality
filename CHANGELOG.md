@@ -2,6 +2,31 @@
 
 Generated per release from the source diff.
 
+## 1.3.11 — 2026-09-18
+
+### Added
+- `Animator`-driven style options (`width`, `height`, `maxWidth`, `maxHeight`, `radius`, `top`, `left`, `right`, `bottom`, `gap`, etc.) now accept a bare number and apply it as pixels, instead of silently doing nothing.
+- Every element now receives its `id` after rendering, fixing `video` and `table`, which previously accepted an `id` in their options but never applied it to the rendered node.
+- `nav` (Switcher-based) elements now apply their `id`.
+- `copy` and `polygon` elements now use the `id` passed in options instead of always rendering with a hardcoded id (`"first"` / `"hex"`), so multiple instances on a page can be targeted individually.
+- `transform` set directly on an element is no longer discarded when no transform design node exists for it — it is used as a fallback across all mappers that route `transform` through `filtero`.
+- `validateNodes` now returns a `warnings` array alongside `errors`, reporting:
+  - `PARAM_NOT_ON_TYPE`: a recognised option that the given element `type` does not actually read (e.g. `keySet` on `table`).
+  - `BAD_PARAM_VALUE`: a value that doesn't match the parameter's documented shape (e.g. a bare number for a CSS length, an invalid enum value, an out-of-range ratio). Reported as an error for provably inert values (e.g. numeric CSS lengths, bad enums, bad `scale-step`), and as a warning otherwise.
+- New generated exports in `element-params.generated.js`: `ELEMENT_PARAMS_BY_TYPE` (per-type parameter vocabulary) and `ELEMENT_PARAM_UNITS` (declared value shape per `type.param`).
+- `size` on a text element (`h1`–`h6`, `p`) is documented as picking both the font-size step and the rendered heading tag; setting `size` explicitly no longer changes the tag silently — use `tag` instead.
+
+### Fixed
+- `transform` on elements without a matching design node was being overwritten with `undefined` and dropped; it is now preserved.
+
+### Changed
+- Inline `//@` documentation comments across `Animator`, `GridOverlay`, `Video`, and `element-mapper.js` now annotate each option with its value shape (e.g. `{css-length}`, `{bool}`, `{color}`, `{enum(...)}`), used to generate `ELEMENT_PARAM_UNITS`.
+- `ElementMapper.mapType` is now a thin wrapper around the renamed `ElementMapper.dispatchType`, which does the original dispatching; `mapType` additionally applies `id` post-render.
+- `validateNodes` signature unchanged, but its return value gains the `warnings` field described above.
+
+### Breaking
+- None noted — `validateNodes`'s existing `ok`/`errors` fields are unchanged; `warnings` is additive.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
