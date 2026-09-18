@@ -2,6 +2,30 @@
 
 Generated per release from the source diff.
 
+## 1.3.12 — 2026-09-18
+
+### Added
+- `Audio` now supports `set()` (accepting options such as `id`) and `toCode()`, so `{type: "audio"}` elements render instead of throwing a syntax error during mount.
+- `Animator`-derived components automatically get their declared `id` applied to their root node after `set()` runs, without each subclass needing to implement it itself.
+- `RadioGroup`, `SideNav`, and `AreaSwitcher` (which don't route through the shared `set()` wrapping) now explicitly apply an element's `id` to their respective root nodes.
+- `Switcher`-based output (nav, sideNav, multiswitcher) now includes the declared `id` in generated code.
+- `Stack.toCode()` now serializes the element's `id` instead of always emitting `set({})`.
+
+### Fixed
+- `resprop()` no longer wipes `this.options` when called with only breakpoints (as `image`, `code`, and `container`/`wrap` did), which previously crashed image hydration entirely.
+- `reactOnTransform` now validates that a transform node has a `values` array before use, warning and bailing out immediately instead of throwing an uncaught exception later inside a timer.
+- `borderRadius()` now converts a bare number to pixels instead of silently doing nothing.
+- Element ids are now written to the DOM exactly as declared (including a leading `#`) instead of being stripped, fixing pages that select by `[id="#hero"]`.
+- Mapper-built elements that construct their own options object (e.g. table, circle, polygon) now carry the declared `id` into that options object, and a mapper-hardcoded id no longer overrides the element's own declared id (fixed `free` emitting `id: "#3"` for every free element).
+- `Polygon` and the wrapper's default element no longer hardcode a fallback id (`"hex"`, `"first"`) that collided across multiple elements on the same page — hash-prefixed ids are also preserved.
+- Link elements no longer discard the element's own `font` and `pad` in favor of hardcoded defaults (`"Arial"`, `[{ "a": 10 }]`); those now only apply when the element doesn't specify its own.
+
+### Changed
+- Internal: `resprop` calls in `code.js`, `container.js`, and `image.js` now pass the full options object alongside breakpoints.
+
+### Breaking
+- Element `id` attributes are now written to the DOM verbatim (including any leading `#`), rather than having the `#` stripped. Code or selectors relying on the previous normalized (no-hash) attribute value will need updating.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
