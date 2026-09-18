@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.10
+ * nodality v1.3.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -30,6 +30,7 @@ class Stack extends Animator {
     }
     
     set(obj){
+        this.options = obj || {};
         this.setup();
         obj.height && (this.res.style.height = obj.height);
         obj.sticky && this.sticky();
@@ -57,7 +58,9 @@ class Stack extends Animator {
 
     toCode() {
         // Initialize the code string with the Stack setup
-        let code = `new Stack().set({})`;
+        // Was a hardcoded `set({})`, which dropped the element's id.
+        const id = this.options && this.options.id;
+        let code = `new Stack().set(${id ? `{ id: ${JSON.stringify(String(id))} }` : "{}"})`;
         
         // Add child elements
         if (this.children.length > 0) {

@@ -74,7 +74,7 @@ code = `${pad}new Wrapper()`;
 		obj.scale && (this.res.style.scale=obj.scale);
 		obj.scale && (stra += `scale: ${obj.scale}`);
 		obj.keySet && this.keySet(obj.keySet);
-		obj.resprop && this.resprop(obj.resprop);
+		obj.resprop && this.resprop(obj.resprop, obj);
 		obj.position && (this.res.style.position = obj.position);
 		obj.top !== undefined && (this.res.style.top = obj.top);
 		// ------

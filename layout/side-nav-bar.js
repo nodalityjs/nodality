@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.10
+ * nodality v1.3.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -16,6 +16,11 @@ class SideNav extends Animator {
        this.setTags(this.obj.tags);
         this.animate = this.obj.animate !== undefined ? this.obj.animate : true; // could be never false
         this.res = this.createSideNav(obj);
+        // SideNav is configured through setup(), not set(), so the base
+        // class that applies an element's id after set() never runs here.
+        if (obj && obj.id != null && obj.id !== "" && this.res && this.res.setAttribute) {
+            this.res.setAttribute("id", String(obj.id));
+        }
         this.res.style.position = "relative";
         this.res.style.zIndex = 3;
         this.closed = true; // Set to true initially, so it's closed by default

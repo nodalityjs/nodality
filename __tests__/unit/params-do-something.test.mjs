@@ -125,7 +125,6 @@ const KNOWN_INERT = new Set([
 	// h3 and changed the document outline. `tag` is the settable option.
 	"h1.size", "h2.size", "h3.size", "h4.size", "h5.size", "h6.size", "p.size",
 	// a
-	"a.pad",
 	"a.transform",
 	// checkbox
 	"checkbox.area",

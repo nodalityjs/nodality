@@ -148,7 +148,7 @@ let obj = options;
 		options.index && (this.index = options.index);
 		options.index && (stra += `\n index: "${options.index}",`);
 
-		options.resprop && this.resprop(options.resprop);
+		options.resprop && this.resprop(options.resprop, options);
 		
 		if (options.centerSelf){
 			this.res.style.marginRight = "auto";

@@ -91,6 +91,11 @@ class RadioGroup /*extends Animator*/ {
         }
         
         this.el = wrap;
+        // RadioGroup is not an Animator, so the base class that applies an
+        // element's id after set() never sees it. It applies its own.
+        if (objects && objects.id != null && objects.id !== "") {
+            this.el.setAttribute("id", String(objects.id));
+        }
         
         this.responsive();
         return this;

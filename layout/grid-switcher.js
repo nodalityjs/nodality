@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.10
+ * nodality v1.3.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -18,6 +18,8 @@ class AreaSwitcher extends Animator{
     }
 
     set(obj){
+      // The node is `gridContainer`, not `res`, so the id is applied here.
+      if (obj && obj.id != null && obj.id !== "") this.gridContainer.setAttribute("id", String(obj.id));
       obj.gap &&  (this.gridContainer.style.gap = obj.gap);
       obj.height && (this.gridContainer.style.height = obj.height);
       obj.width && (this.gridContainer.style.width = obj.width);

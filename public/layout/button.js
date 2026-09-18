@@ -264,7 +264,9 @@ this.options = obj;
     
     
    borderRadius(radius){
-        this.res.style.borderRadius = radius;
+        // A bare number is pixels, as everywhere else in the library; the
+        // CSSOM drops a unitless radius, so `radius: 999` did nothing.
+        this.res.style.borderRadius = typeof radius === "number" ? `${radius}px` : radius;
         return this;
     }
 	

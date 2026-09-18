@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.10
+ * nodality v1.3.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -30,6 +30,30 @@ class Animator {
              isMovedUp: false,
               isMovedDown: false
         }
+
+		// Every element may carry an `id`, and it has to survive the path a page
+		// actually takes: Des does not mount the instance the mapper built, it
+		// re-runs that instance's generated code. So the id cannot be written
+		// once onto a node; it has to be applied by `set()` whenever it runs.
+		// Rather than trust thirty-odd subclasses to remember — seventeen did
+		// not — the base class wraps whatever `set` the subclass defines and
+		// applies `obj.id` afterwards, unless the subclass already set one.
+		// `this.set` here resolves to the most-derived prototype, because the
+		// prototype chain exists before any constructor runs.
+		const ownSet = this.set;
+		if (typeof ownSet === "function" && !ownSet.__appliesId) {
+			const wrapped = function (obj, ...rest) {
+				const out = ownSet.call(this, obj, ...rest);
+				const id = obj && obj.id;
+				const node = this.res;
+				if (id != null && id !== "" && node && typeof node.setAttribute === "function" && !node.getAttribute("id")) {
+					node.setAttribute("id", String(id));
+				}
+				return out;
+			};
+			wrapped.__appliesId = true;
+			this.set = wrapped;
+		}
 
 		this.openedElements = new WeakMap();
 
@@ -678,8 +702,14 @@ _setupResponsiveManager() {
 
 resprop(arr, op) {
 
-	// alert(op);
-	this.options = op;
+	// The second argument is the component's options. Three components called
+	// this with the breakpoints alone — image, code and container (`wrap`) —
+	// which set this.options to undefined. For an image that crashed the page:
+	// its toCode() then ran Object.entries(undefined), Des threw during
+	// hydration, and the whole mount was left empty. Passing the breakpoints
+	// alone must not wipe what set() just stored.
+	if (op && typeof op === "object") this.options = op;
+	else if (!this.options || typeof this.options !== "object") this.options = {};
 
     // --- 1. CONFIGURATION & NORMALIZATION ---
     const breakpoints = {
@@ -1904,6 +1934,15 @@ this._on(window, this.openTag, () => {
 
 		if (!obj.transform ){ // 21:48:05 Nice!!! 30/03/25
 			transform = obj.op;
+		}
+
+		// A transform node without a `values` array used to be dereferenced
+		// here and again inside a timer, so the crash surfaced seconds later,
+		// as an uncaught exception far from the node that caused it — in every
+		// release back to at least 1.3.10.
+		if (!transform || !Array.isArray(transform.values)) {
+			console.warn('[nodality] reactOnTransform: a transform node needs a `values` array, e.g. ["ty:-20px"] - ignored');
+			return;
 		}
 
 		if (!transform.duration){

@@ -190,15 +190,28 @@ class ElementMapper { // 22:09:58 04/11/2024
             // FilePickera, `container` on Switcher. A mapper that returns
             // emitted CODE rather than an instance (cards, copy) carries the
             // id in the source it emits, and there is no node here to write.
+            // The generated code is what Des actually runs, so the id has to
+            // be IN it. Most components serialise `this.options` in toCode();
+            // a mapper that builds its own options object (table, circle,
+            // polygon…) leaves the id out of them, and the rendered element
+            // loses it. Put it back before the code is taken.
+            //
+            // The element's declared id also WINS over one a mapper hardcoded:
+            // `free` emitted `id: "#3"` for every free element on a page.
+            // SideNav keeps its config in `obj` rather than `options`.
+            const declared = String(id);
+            if (built && typeof built === "object") {
+                if (built.options && typeof built.options === "object") built.options.id = declared;
+                if (built.obj && typeof built.obj === "object") built.obj.id = declared;
+            }
             const node = built && (built.res || built.formElement || built.el || built.container);
             if (node && typeof node.setAttribute === "function") {
                 const current = node.getAttribute("id");
-                // `#hero` and `hero` name the same element everywhere else, so
-                // the attribute is written without the hash whether the id
-                // arrived here or was set by the component itself. An
-                // attribute spelled "#hero" matches no selector.
-                if (!current) node.setAttribute("id", String(id).replace(/^#/, ""));
-                else if (current.startsWith("#")) node.setAttribute("id", current.slice(1));
+                // Written exactly as declared, hash and all. Ids are compared in
+                // normalised form everywhere (see sameId), and the DOM keeps the
+                // author's spelling so that a page selecting [id="#hero"] keeps
+                // working — normalising here broke exactly such pages.
+                if (!current) node.setAttribute("id", String(id));
             }
         }
         return built;
@@ -509,7 +522,7 @@ animation: {
   justifyContent: "center",
   alignItems: "center",
   position: "absolute",
-  id: "${obj.el.id ? String(obj.el.id).replace(/^#/, "") : "first"}",
+  id: "${obj.el.id ? String(obj.el.id) : "#first"}",
   scale: 0.3,
   ${ft?.animation ? animation : ""}${
     // Wrapper routes its options through commonMethods(), so a raster
@@ -1707,7 +1720,7 @@ return new Circle()
 
 // Was `{ id: "hex" }` hardcoded, so every polygon on a page rendered the
   // same id and none could be targeted individually.
-  let elo = new Polygon({ id: el.id ? String(el.id).replace(/^#/, "") : "hex" })
+  let elo = new Polygon({ id: el.id ? String(el.id) : "hex" })
   .set({
     sides: count,
     size: 300,
@@ -1864,7 +1877,11 @@ return new Circle()
 
                    
 
-                    re["font"] = "Arial";
+                    // Arial is the default, not an override: this used to discard
+                    // the element's own font, so a link could never match the
+                    // page's typography — a nav in the page's mono rendered in
+                    // Arial with nothing reported.
+                    re["font"] = obj.el.font ?? "Arial";
                     re["fluidc"] = obj.el.fluidc;
                   //  re["index"] = obj.i + "", // add other options here
 
@@ -1881,7 +1898,8 @@ return new Circle()
                     // mapWrap. Link takes `raster` through commonMethods like
                     // every other component; only the wiring was missing.
                     re["raster"] = this.filteroRaster(obj.el.id, obj.customOptions);
-                    re["pad"] = [{ "a": 10 }];
+                    // Same pattern: the element's padding wins over the default.
+                    re["pad"] = obj.el.pad ?? [{ "a": 10 }];
 
                 if (bst.length > 0) {
                         ela = LinkStyler.style({

@@ -51,7 +51,11 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
 
    //   console.log(str);
 
-      return [`new Switcher().set({
+      // The id is applied in render(), but only if the generated code carries
+      // it — and this used to leave it out, so every nav, sideNav and
+      // multiswitcher rendered without the id its element declared.
+      const idLine = this._id ? `\n        id: ${JSON.stringify(String(this._id))},` : "";
+      return [`new Switcher().set({${idLine}
         breakpoints: [
         ${str}
         ]

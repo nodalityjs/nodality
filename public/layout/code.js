@@ -118,7 +118,7 @@ class Code extends Animator {
         obj.mar && this.mar(obj.mar);
         obj.respad && this.respad(obj.respad);
 		obj.resmar && this.resmar(obj.resmar);
-        obj.resprop && this.resprop(obj.resprop);
+        obj.resprop && this.resprop(obj.resprop, obj);
         obj.width && (this.res.style.width = obj.width);
         obj.background && (this.res.style.background = obj.background);
         obj.color && (this.res.style.color = obj.color);

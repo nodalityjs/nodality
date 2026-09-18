@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.10
+ * nodality v1.3.11
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -154,7 +154,7 @@ let obj = options;
 		options.index && (this.index = options.index);
 		options.index && (stra += `\n index: "${options.index}",`);
 
-		options.resprop && this.resprop(options.resprop);
+		options.resprop && this.resprop(options.resprop, options);
 		
 		if (options.centerSelf){
 			this.res.style.marginRight = "auto";
