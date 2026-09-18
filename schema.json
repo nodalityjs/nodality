@@ -1643,6 +1643,11 @@
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
+          "name": "reveal",
+          "unit": "object",
+          "description": "Reveal the image through a mask as it scrolls into view: {mask: \"square\", size: 0.3, duration: \"1.2s\", easing, zoom: 1.12, offset: 0.2, delay: \"0s\", once: true}. It starts as a centred square `size` × its shorter side and opens to the full frame once the square rises `offset` of the viewport height above the bottom edge. Owns clip-path and scale while it runs; reduced-motion visitors, and pages with no IntersectionObserver (the prerender), get the image unmasked."
+        },
+        {
           "name": "shadow"
         },
         {
@@ -2259,6 +2264,9 @@
           "name": "resprop",
           "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
+        },
+        {
+          "name": "reveal"
         },
         {
           "name": "rounded",
@@ -2883,6 +2891,9 @@
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
         },
         {
+          "name": "reveal"
+        },
+        {
           "name": "rounded",
           "description": "Apply the default corner radius. Use `radius` for a specific value."
         },
@@ -3448,6 +3459,9 @@
           "name": "resprop",
           "unit": "breakpoints",
           "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
+        },
+        {
+          "name": "reveal"
         },
         {
           "name": "rounded",

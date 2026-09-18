@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.11
+ * nodality v1.3.12
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -271,6 +271,9 @@ let obj = options;
 
 	options.clipPath && this.clipPath(options.clipPath);
 	options.clipPath && (stra += `clipPath: "${options.clipPath}", \n`);
+
+	//@ img.reveal {object}: Reveal the image through a mask as it scrolls into view: {mask: "square", size: 0.3, duration: "1.2s", easing, zoom: 1.12, offset: 0.2, delay: "0s", once: true}. It starts as a centred square `size` × its shorter side and opens to the full frame once the square rises `offset` of the viewport height above the bottom edge. Owns clip-path and scale while it runs; reduced-motion visitors, and pages with no IntersectionObserver (the prerender), get the image unmasked.
+	options.reveal && this.reveal(options.reveal);
 
 
 // console.log("261");
@@ -671,6 +674,94 @@ if (mqa.matches){
 	
 	cornerRadius(val){
 		this.res.style.borderRadius = val;
+		return this;
+	}
+
+	/**
+	 * Scroll reveal through a mask. The masked state is applied only where it
+	 * can be undone: with no window, no IntersectionObserver (the jsdom
+	 * prerender) or a reduced-motion preference the image stays unmasked,
+	 * because a mask that never opens hides the content for good.
+	 *
+	 * The square is a true square: clip-path's inset() percentages resolve
+	 * per axis, so on a portrait or wide frame a percentage inset draws a
+	 * rectangle. The insets are measured in px instead and re-measured when
+	 * the frame resizes; the percentage form is only the pre-layout guess.
+	 *
+	 * The zoom uses the `scale` property, not `transform`, so it composes with
+	 * any transform the page sets instead of overwriting it.
+	 */
+	reveal(opts) {
+		const el = this.res;
+		const o = opts && typeof opts === "object" ? opts : {};
+		const mask = o.mask ?? "square";
+		if (mask !== "square") {
+			console.warn(`nodality: img.reveal mask "${mask}" is not supported — use "square".`);
+			return this;
+		}
+		if (typeof window === "undefined" || typeof window.IntersectionObserver !== "function") return this;
+		const reduced = typeof window.matchMedia === "function" &&
+			window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		if (reduced) return this;
+
+		const size = Math.min(1, Math.max(0, Number(o.size ?? 0.3)));
+		const duration = o.duration ?? "1.2s";
+		const easing = o.easing ?? "cubic-bezier(0.76, 0, 0.24, 1)";
+		const delay = o.delay ?? "0s";
+		const zoom = Number(o.zoom ?? 1.12);
+		const once = o.once !== false;
+		const transition = ["clip-path", "scale"].map((p) => `${p} ${duration} ${easing} ${delay}`).join(", ");
+
+		let open = false;
+		const closed = () => {
+			const w = el.clientWidth, h = el.clientHeight;
+			if (!w || !h) return `inset(${(1 - size) * 50}% ${(1 - size) * 50}%)`;
+			const s = Math.min(w, h) * size;
+			return `inset(${(h - s) / 2}px ${(w - s) / 2}px)`;
+		};
+		// Re-measuring a closed mask must not animate: the frame's first
+		// layout would otherwise play as a 1.2s morph from the guess.
+		const settle = () => {
+			el.style.transition = "none";
+			el.style.clipPath = closed();
+			void el.offsetWidth;
+			el.style.transition = transition;
+		};
+
+		el.style.clipPath = closed();
+		el.style.scale = String(zoom);
+		el.style.willChange = "clip-path, scale";
+		el.style.transition = transition;
+
+		const ro = typeof window.ResizeObserver === "function"
+			? new window.ResizeObserver(() => { if (!open) settle(); })
+			: null;
+		ro && ro.observe(el);
+
+		// Triggered by a LINE, not an area ratio: the browser clips the target
+		// by its own clip-path when it measures the intersection, so a closed
+		// square never shows more than its own share of the frame (about 8% at
+		// size 0.3) and a `threshold` of 0.35 would never be reached. Instead
+		// the square opens once it rises `offset` of the viewport above the
+		// bottom edge.
+		const offset = Math.min(0.9, Math.max(0, Number(o.offset ?? 0.2)));
+		const io = new window.IntersectionObserver((entries) => {
+			for (const entry of entries) {
+				if (entry.isIntersecting && !open) {
+					open = true;
+					el.style.clipPath = "inset(0px 0px)";
+					el.style.scale = "1";
+					if (once) { io.disconnect(); ro && ro.disconnect(); }
+				} else if (!entry.isIntersecting && open && !once) {
+					open = false;
+					el.style.clipPath = closed();
+					el.style.scale = String(zoom);
+				}
+			}
+		}, { threshold: 0, rootMargin: `0px 0px ${-offset * 100}% 0px` });
+		io.observe(el);
+
+		el.addEventListener("transitionend", () => { if (open && once) el.style.willChange = "auto"; });
 		return this;
 	}
 
