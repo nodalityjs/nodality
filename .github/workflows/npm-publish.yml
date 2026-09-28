@@ -506,10 +506,22 @@ jobs:
             exit 1
           fi
 
-      # 8. Publish to npm
+      # 8. Publish to npm with trusted publishing: npm trusts this workflow
+      #    through GitHub's OIDC token (`id-token: write` above), so there is
+      #    no npm token to leak - the NPM_TOKEN secret is no longer used. It
+      #    replaces the token because npm ends direct publishing with
+      #    granular access tokens in January 2027.
+      #
+      #    Requires the trusted publisher on npmjs.com (nodality ▸ Settings ▸
+      #    Trusted Publisher: GitHub Actions, nodalityjs/nodality,
+      #    npm-publish.yml), and npm 11.5.1 or newer - Node 22 ships 10.9, so
+      #    npm is updated here, just before publishing, leaving `npm ci` above
+      #    on the npm that has always installed this project. Provenance is
+      #    generated automatically; --provenance stays to make it explicit.
+      - name: Update npm for trusted publishing
+        run: npm install -g npm@^11.5.1
+
       - name: Publish to NPM
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public --provenance
 
   # Draft a CHANGELOG entry for the release just published.
