@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.12
+ * nodality v1.3.13
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -117,8 +117,21 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
 
   applyView() {
 
+    // No matchMedia at all (a bare jsdom — the prerenderer installs its own,
+    // other hosts may not): show the widest view rather than an empty box.
+    // The browser re-runs this with real queries when it rebuilds the page.
+    if (typeof window.matchMedia !== "function") {
+      const widest = this.breakpoints.reduce((a, b) => (parseFloat(b.at) > parseFloat(a.at) ? b : a), this.breakpoints[0]);
+      if (widest && this.currentView !== widest.view.render()) {
+        this.internalDiv.innerHTML = "";
+        this.internalDiv.appendChild(widest.view.render());
+        this.currentView = widest.view.render();
+      }
+      return;
+    }
+
 // check if we are in range
-    
+
     const width = window.innerWidth;
 
     let rstart = this.breakpoints.map(el => el.at);

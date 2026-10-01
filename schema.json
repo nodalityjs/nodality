@@ -2476,7 +2476,7 @@
         {
           "name": "background",
           "unit": "color",
-          "description": "Background — any CSS colour or background shorthand."
+          "description": "The bar's background — any CSS colour, translucent ones included."
         },
         {
           "name": "backgroundCard"
@@ -2522,11 +2522,17 @@
           "name": "borderObja"
         },
         {
-          "name": "brand"
+          "name": "brand",
+          "description": "The name at the start of the bar: a string, or an element spec ({type: \"p\", text, keySet, …}) for full control of its type."
         },
         {
           "name": "breakWord",
           "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
+        },
+        {
+          "name": "breakpoint",
+          "unit": "px-or-length",
+          "description": "Width from which the full bar shows; below it the links collapse behind the menu button. Default \"1200px\"."
         },
         {
           "name": "breakpoints"
@@ -2565,7 +2571,7 @@
         {
           "name": "color",
           "unit": "color",
-          "description": "Text colour — any CSS colour."
+          "description": "Colour of the links, a string brand and, unless hamburgerColour is given, the menu button."
         },
         {
           "name": "column"
@@ -2650,7 +2656,9 @@
           "name": "fluidc"
         },
         {
-          "name": "font"
+          "name": "font",
+          "unit": "text",
+          "description": "Font family for the links (and a string brand)."
         },
         {
           "name": "ga",
@@ -2670,7 +2678,9 @@
           "name": "hamColour"
         },
         {
-          "name": "hamburgerColour"
+          "name": "hamburgerColour",
+          "unit": "color",
+          "description": "Colour of the menu button. Defaults to `color`."
         },
         {
           "name": "hamburgerInset"
@@ -2686,7 +2696,7 @@
         {
           "name": "hover",
           "unit": "object",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
+          "description": "Link hover styles, as on `a` — e.g. {color: \"#b83a0b\"}."
         },
         {
           "name": "icon"
@@ -2739,7 +2749,7 @@
         {
           "name": "keySet",
           "unit": "keyset",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+          "description": "Extra CSS on the bar itself, desktop and mobile — e.g. backdropFilter, boxShadow, fontSize."
         },
         {
           "name": "kind"
@@ -2766,7 +2776,7 @@
         {
           "name": "mar",
           "unit": "sides",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
+          "description": "Margin around the bar. Default [{a: 21}]; pass [{a: 0}] when a wrapper positions it."
         },
         {
           "name": "margin"
@@ -2787,6 +2797,14 @@
         {
           "name": "mboth",
           "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
+        },
+        {
+          "name": "menuId"
+        },
+        {
+          "name": "menuLabel",
+          "unit": "text",
+          "description": "Accessible name of the menu button. Default \"Menu\"."
         },
         {
           "name": "method"
@@ -2838,7 +2856,7 @@
         {
           "name": "pad",
           "unit": "sides",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
+          "description": "Padding inside the bar."
         },
         {
           "name": "padding"
@@ -2856,7 +2874,7 @@
         {
           "name": "radius",
           "unit": "px-or-length",
-          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
+          "description": "Corner radius of the bar. Default \"1rem\"."
         },
         {
           "name": "ranges"

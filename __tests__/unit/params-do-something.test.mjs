@@ -27,6 +27,17 @@ import assert from "node:assert/strict";
 
 let ElementMapper, ELEMENT_PARAM_UNITS, ELEMENT_PARAMS_BY_TYPE, dom;
 
+// The probe renders at two widths, and media queries are answered against the
+// one in force. It used to answer every query with false, which left a
+// Switcher — and so every `nav` — rendering no view at all: the whole type
+// read as inert, and its baseline below recorded the probe's blindness as the
+// component's. A parameter now counts as working if it changes the DOM at
+// either width, because a nav's menu button exists only below its breakpoint.
+// Queries that are not about width (reduced motion and the like) still answer
+// false, as before.
+const PROBE_WIDTHS = [390, 1440];
+let probeWidth = PROBE_WIDTHS[0];
+
 before(async () => {
 	const { JSDOM } = await import("jsdom");
 	dom = new JSDOM('<!doctype html><body><div id="mount"></div></body>', { pretendToBeVisual: true });
@@ -39,9 +50,12 @@ before(async () => {
 	dom.window.HTMLMediaElement.prototype.play = () => Promise.resolve();
 	dom.window.HTMLMediaElement.prototype.pause = () => {};
 	dom.window.Element.prototype.animate ||= () => ({ finished: Promise.resolve(), cancel() {}, pause() {}, play() {} });
-	if (!dom.window.matchMedia) {
-		dom.window.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} });
-	}
+	dom.window.matchMedia = (q) => {
+		const min = q.match(/min-width:\s*([\d.]+)px/), max = q.match(/max-width:\s*([\d.]+)px/);
+		const matches = (min || max) ? (!min || probeWidth >= +min[1]) && (!max || probeWidth <= +max[1]) : false;
+		return { matches, media: q, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} };
+	};
+	Object.defineProperty(dom.window, "innerWidth", { get: () => probeWidth, configurable: true });
 	({ ElementMapper } = await import("../../lib/element-mapper.js"));
 	({ ELEMENT_PARAM_UNITS, ELEMENT_PARAMS_BY_TYPE } = await import("../../lib/element-params.generated.js"));
 });
@@ -149,17 +163,11 @@ const KNOWN_INERT = new Set([
 	"labelInput.exact",
 	// nav
 	"nav.area",
-	"nav.background",
-	"nav.color",
 	"nav.cursor",
 	"nav.height",
-	"nav.keySet",
-	"nav.mar",
 	"nav.maxHeight",
 	"nav.maxWidth",
 	"nav.opacity",
-	"nav.pad",
-	"nav.radius",
 	"nav.size",
 	"nav.transform",
 	"nav.width",
@@ -195,8 +203,10 @@ test("every parameter with a declared shape changes the rendered DOM", () => {
 	const recovered = [];
 
 	for (const [type, names] of Object.entries(ELEMENT_PARAMS_BY_TYPE)) {
-		let baseline;
-		try { baseline = render(fixture(type), nodesFor(type)); } catch { continue; }
+		const baselines = new Map();
+		try {
+			for (const w of PROBE_WIDTHS) { probeWidth = w; baselines.set(w, render(fixture(type), nodesFor(type))); }
+		} catch { continue; }
 
 		for (const name of names) {
 			if (name === "type" || name === "id") continue;
@@ -213,10 +223,13 @@ test("every parameter with a declared shape changes the rendered DOM", () => {
 				: unit === "scale-step" ? ["S1", "S6"]
 				: [value];
 			let changed = false;
-			for (const v of values) {
-				let out;
-				try { out = render({ ...fixture(type), [name]: v }, nodesFor(type)); } catch { continue; }
-				if (out !== baseline) { changed = true; break; }
+			probe: for (const w of PROBE_WIDTHS) {
+				probeWidth = w;
+				for (const v of values) {
+					let out;
+					try { out = render({ ...fixture(type), [name]: v }, nodesFor(type)); } catch { continue; }
+					if (out !== baselines.get(w)) { changed = true; break probe; }
+				}
 			}
 			if (!changed && !KNOWN_INERT.has(key)) inert.push(key);
 			if (changed && KNOWN_INERT.has(key)) recovered.push(key);

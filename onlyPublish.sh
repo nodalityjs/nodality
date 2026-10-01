@@ -42,8 +42,11 @@ if [ "$NODE_MAJOR" -lt 21 ]; then
 fi
 
 
-auth_output=$(gh auth status 2>&1 || true)
-if echo "$auth_output" | grep -q 'github\.com as nodalityjs'; then
+# Ask GitHub which account is active rather than grepping `gh auth status`:
+# its wording changed ("Logged in to github.com as X" became "... account X")
+# and the old pattern refused a correctly logged-in release.
+active_login=$(gh api user --jq .login 2>/dev/null || true)
+if [ "$active_login" = "nodalityjs" ]; then
   echo "🚀 Logged in as nodalityjs — continuing."
 else
   echo "🚫 Not logged in as nodalityjs. Aborting."
@@ -370,6 +373,23 @@ if [ -f "$GEN" ]; then
   # regenerated from the tag, so publishing could revert the docs a release
   # had just written. One source removes the ambiguity entirely.
   if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+    # Sync the docs checkout BEFORE regenerating into it. CI commits every
+    # release's reference and pins to the docs repo, so this clone is behind
+    # by default — and regenerating into a stale clone produced a preview
+    # that disagreed with itself: API pages at the new version, the homepage
+    # banner and CDN snippets still at whatever the clone last pulled
+    # (v1.3.3, ten releases behind, while the live site said v1.3.13).
+    # --ff-only --autostash for the reasons deploy.sh gives; non-fatal, and
+    # a conflicted autostash is reported rather than previewed.
+    if git -C "$DOCS_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+      if git -C "$DOCS_DIR" pull -q --ff-only --autostash origin main; then
+        if git -C "$DOCS_DIR" grep -qE '^(<<<<<<<|>>>>>>>) ' -- . 2>/dev/null; then
+          echo "⚠️  Docs checkout has conflict markers after its autostash — resolve them in $DOCS_DIR." >&2
+        fi
+      else
+        echo "⚠️  Could not fast-forward $DOCS_DIR — the docs preview may show old versions." >&2
+      fi
+    fi
     # Non-fatal on purpose. The release is already out; a docs hiccup must
     # not make a successful publish look like a failure.
     # Captured so the "did anything change" answer can drive whether the
@@ -377,6 +397,27 @@ if [ -f "$GEN" ]; then
     # not spawn a dev server for a diff that does not exist.
     if GEN_OUT="$(LAUNCH_DIR="$PWD" node "$GEN" 2>&1)"; then
       echo "$GEN_OUT"
+      # The generator touches no prose, so move the version pins too — the
+      # homepage banner, the CDN snippets, the dependency range. CI does the
+      # same in its docs job, but it may not have pushed yet (it waits for
+      # npm too), and the preview below must not wait for it. Same edit as
+      # CI's, so the later pull in deploy.sh re-applies it cleanly.
+      if [ -f "$DOCS_DIR/scripts/check-pins.mjs" ]; then
+        if PIN_OUT="$(cd "$DOCS_DIR" && node scripts/check-pins.mjs "$VERSION" --write 2>&1)"; then
+          if echo "$PIN_OUT" | grep -q "moved to"; then
+            echo "$PIN_OUT" | grep -E "moved to|rewrote"
+            GEN_OUT="$GEN_OUT
+pins regenerated"
+            # check-pins leaves the lockfile to the caller; npm ci refuses a
+            # manifest its lock disagrees with.
+            ( cd "$DOCS_DIR" && npm install --package-lock-only --prefer-online --no-audit --no-fund --loglevel=error ) \
+              || echo "⚠️  Docs lockfile not updated — run: cd $DOCS_DIR && npm install --package-lock-only" >&2
+          fi
+        else
+          echo "$PIN_OUT"
+          echo "⚠️  Moving the docs version pins failed — the release itself is fine." >&2
+        fi
+      fi
       if echo "$GEN_OUT" | grep -q "regenerated" && [ "${OPEN_DOCS:-1}" != "0" ]; then
         # Serve the docs so the regenerated tables can be read in place.
         # Backgrounded with nohup: this is the last step of a release and

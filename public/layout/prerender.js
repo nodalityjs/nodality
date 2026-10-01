@@ -257,14 +257,19 @@ export async function prerender({
   window.matchMedia = (query) => {
     let matches = false;
     if (typeof query === "string" && query.includes("width")) {
-      // Parse a single "(min-width: 768px)" or "(max-width: 768px)"
-      // clause. Multi-clause queries (commas, `and`) fall through to
-      // false — Nodality's breakpoint code doesn't emit those.
-      const min = query.match(/min-width:\s*(\d+)\s*px/i);
-      const max = query.match(/max-width:\s*(\d+)\s*px/i);
-      if (min && !max) matches = vw >= Number(min[1]);
-      else if (max && !min) matches = vw <= Number(max[1]);
-      // Both present (range) or other → leave as false.
+      // Every min-width / max-width clause must hold, so a range —
+      // "(min-width: 0px) and (max-width: 1199px)" — resolves too. It
+      // used to fall through to false on the claim that Nodality never
+      // emits one, but the Switcher behind every `nav` does: no range
+      // matched during SSG, and every nav shipped as an empty box.
+      // Comma lists (OR) are still answered false.
+      if (!query.includes(",")) {
+        const min = query.match(/min-width:\s*([\d.]+)\s*px/i);
+        const max = query.match(/max-width:\s*([\d.]+)\s*px/i);
+        if (min || max) {
+          matches = (!min || vw >= Number(min[1])) && (!max || vw <= Number(max[1]));
+        }
+      }
     }
     return {
       matches,

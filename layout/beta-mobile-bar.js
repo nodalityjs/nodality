@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.12
+ * nodality v1.3.13
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -39,15 +39,18 @@ let repl = this.removeQuotesFromFirstWord(JSON.stringify(this.obj));
 
 // 23:38:35 Yes!!! 23/04/2025
 // Alway construct neste in this way
-let codeObj = `
-background: "${this.obj.background}",
-brand: ${this.obj.brand.toCode()},
-mar: ${JSON.stringify(this.obj.mar)},
-pad: ${JSON.stringify(this.obj.pad)},
-resmar: ${JSON.stringify(this.obj.resmar)},
-respad: ${JSON.stringify(this.obj.respad)},
-radius: ${JSON.stringify(this.obj.radius)},
-`;
+// Des renders by running this code, so an option left out of it never
+// reaches the page — hamburgerColour was read by set() and dropped here.
+// Every option set() reads is emitted; brand only when there is one (it
+// threw on a bar without a brand).
+const SERIALISED = ["background", "color", "mar", "pad", "resmar", "respad", "radius", "maxHeight", "hamburgerColour", "keySet", "menuLabel", "menuId"];
+let codeObj = SERIALISED
+    .filter((k) => this.obj[k] !== undefined)
+    .map((k) => `${k}: ${JSON.stringify(this.obj[k])},`)
+    .join("\n");
+if (this.obj.brand && typeof this.obj.brand.toCode === "function") {
+    codeObj += `\nbrand: ${[].concat(this.obj.brand.toCode()).join("")},`;
+}
 
         return `new MobileBar().set({${codeObj}}).add([
                          ${items.join(",")}
@@ -92,9 +95,12 @@ radius: ${JSON.stringify(this.obj.radius)},
           this.hamburgerColour = obj.hamburgerColour;
       }
 
-   
-
       this.setStyles(obj);
+
+      // After setStyles, so a page's values replace the defaults.
+      obj.color && (this.navbar.style.color = obj.color);
+      obj.pad && this.pad(obj.pad);
+      obj.keySet && this.keySet(obj.keySet);
         return this;
     }
 
@@ -143,7 +149,6 @@ console.log(newTextInstance.render());*/
 //} 
 
 if (obj.brand && typeof newTextInstance.render === "function") {
-    console.log("Appending brand:", newTextInstance.render());
     this.brand.appendChild(newTextInstance.render());
 } else {
 }
@@ -156,9 +161,25 @@ if (obj.brand && typeof newTextInstance.render === "function") {
         this.toggleButton = document.createElement('button');
         this.toggleButton.classList.add('navbar-toggle');
         this.toggleButton.innerHTML = '&#9776;'; // Hamburger icon
+        // A glyph is not a name: without these a screen reader announced the
+        // button as "☰" and could not tell whether the menu was open.
+        this.toggleButton.setAttribute('type', 'button');
+        this.toggleButton.setAttribute('aria-label', obj.menuLabel ?? 'Menu');
+        this.toggleButton.setAttribute('aria-expanded', 'false');
 
         this.navContent = document.createElement('div');
         this.navContent.classList.add('navbar-content');
+        if (obj.menuId) {
+            this.navContent.setAttribute('id', obj.menuId);
+            this.toggleButton.setAttribute('aria-controls', obj.menuId);
+        }
+        // Following a link closes the menu. On a one-page site the links are
+        // anchors, and a menu left open covered the section it had jumped to.
+        this.navContent.addEventListener('click', (e) => {
+            if (this.isMobileNavOpen && e.target && e.target.closest && e.target.closest('a')) {
+                this.toggleMobileNav();
+            }
+        });
 
         this.navbarHeader.appendChild(this.brand);
         this.navbarHeader.appendChild(this.toggleButton);
@@ -213,6 +234,7 @@ if (obj.brand && typeof newTextInstance.render === "function") {
 
     toggleMobileNav() {
         this.isMobileNavOpen = !this.isMobileNavOpen;
+        this.toggleButton.setAttribute('aria-expanded', String(this.isMobileNavOpen));
         this.navContent.style.display = this.isMobileNavOpen ? 'flex' : 'none';
         if (this.isMobileNavOpen) {
             this.navContent.style.flexDirection = 'column';

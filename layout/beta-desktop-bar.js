@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.12
+ * nodality v1.3.13
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -54,6 +54,9 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         if (obj.hamburgerColour) {
             this.hamburgerColour = obj.hamburgerColour;
         }
+        // Last, so a page's values replace the defaults setStyles() wrote.
+        obj.color && (this.res.style.color = obj.color);
+        obj.keySet && this.keySet(obj.keySet);
         return this;
     }
 
