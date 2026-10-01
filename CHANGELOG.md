@@ -2,6 +2,27 @@
 
 Generated per release from the source diff.
 
+## 1.3.14 — 2026-10-01
+
+### Added
+- `DesktopBar.set()` now applies `obj.color` (to the bar's text colour) and `obj.keySet` after default styles are written, so page-supplied values correctly override defaults.
+- `MobileBar.set()` now applies `obj.color`, `obj.pad` and `obj.keySet` after `setStyles()`, so page-supplied values correctly override defaults.
+- `MobileBar`'s toggle button now gets `type="button"`, `aria-label` (from new `menuLabel` option, default `"Menu"`), and `aria-expanded`, which is kept in sync in `toggleMobileNav()`. Its nav content gets an `id` when `menuId` is supplied, with the button's `aria-controls` pointing at it.
+- Clicking a link inside an open mobile nav now closes the menu automatically.
+- New options `menuLabel` and `menuId` for `MobileBar`/`nav`, listed in `ELEMENT_PARAM_NAMES` and `ELEMENT_PARAMS_BY_TYPE.nav`.
+- New documented `nav` options: `breakpoint`, `font` (also usable value shapes added to `ELEMENT_PARAM_UNITS` for `nav.breakpoint`, `nav.font`, `nav.hamburgerColour`, `nav.menuLabel`).
+- `element-mapper.js` adds a `pageNav(obj, navItems)` static method: when a `nav` element declares `items`, it now builds a real bar (brand, links, background, radius, margin/padding, keySet, hamburger colour, breakpoint, menuLabel/menuId) from those options instead of falling back to the built-in demo navigation.
+- `prerender()`'s stubbed `window.matchMedia` now evaluates combined `min-width`/`max-width` ranges (e.g. `"(min-width: 0px) and (max-width: 1199px)"`) instead of only single-clause queries, fixing `nav`/`Switcher` elements rendering as empty boxes during static generation. Comma-separated (OR) queries still resolve to `false`.
+- `MultiSwitcher.applyView()` now falls back to rendering the widest breakpoint's view when `window.matchMedia` is not a function, instead of leaving the container empty.
+
+### Changed
+- `MobileBar`'s generated `.render()` code (`toCode()`-style output) is now built from a declarative list of serialised options (`background`, `color`, `mar`, `pad`, `resmar`, `respad`, `radius`, `maxHeight`, `hamburgerColour`, `keySet`, `menuLabel`, `menuId`) instead of a fixed template, so previously-dropped options (e.g. `hamburgerColour`) are now included, and `brand` is only emitted when the bar actually has one.
+- Removed a `console.log("Appending brand:", ...)` debug statement from mobile bar rendering.
+
+### Fixed
+- Internal: tidied stray blank lines in `beta-mobile-bar.js`; no behavioural change.
+- Regenerated `ELEMENT_PARAM_NAMES`/`ELEMENT_PARAMS_BY_TYPE`/`ELEMENT_PARAM_UNITS` tables to include the new `nav` options and shapes (internal typo-detection data, keeps drift test passing).
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
