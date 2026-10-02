@@ -2,6 +2,26 @@
 
 Generated per release from the source diff.
 
+## 1.3.16 — 2026-10-02
+
+### Added
+- MCP `schema` tool: when a specific `type` is requested, the response now includes `summary` (`total`, `readByType`, `throughComponents`, `described`) and a reordered `params` list — own-mapper params first, then described params, then the rest, alphabetised within each group.
+- MCP `preview` tool: new `viewport` option (`"phone"` default 390×844, `"desktop"` 1440×900, or a custom `{width, height}`). Response now includes the resolved `viewport`, and an `empty`/`emptyNote` report listing element `id`s that rendered no visible content at the given viewport.
+- `nodality link-local --from=<repo> [--no-build]` CLI command: builds a local nodality checkout and swaps it into the current project's `node_modules/nodality` for pre-release testing. `nodality link-local --undo` reverts to the released version via the lockfile. Every other CLI command now prints a warning while a local build is linked.
+- `nodality mcp --register [--root=<dir>]` CLI command: writes the MCP server entry into `<dir>/.mcp.json` (defaulting to the current directory), so agent sessions started from a parent folder can still reach the project's installed nodality.
+- `install-skill.mjs` now exports `registerMcp(configPath, entry)`, accepting a custom entry object instead of always writing the default.
+- `form` element: new `title` param — sets `aria-label` on the form element and is used as the description for the agent surface's submit tool. Documented in the schema as `form.title`.
+- `check-page`: new `FAINT_TEXT` diagnostic using APCA perceptual contrast, flagging text under 24px that passes WCAG 2 contrast but reads faint, with suggested repairs.
+- `validate-nodes`: new `PARAM_INERT` warning for parameters that a type's schema lists but does not actually use, driven by a new baseline list exported from `lib/known-inert.js` (`KNOWN_INERT`).
+
+### Fixed
+- `a` element's `rounded` option now applies a 0.5rem corner radius via `radius("0.5rem")` instead of calling the deprecated, broken `round()` (which set `border-radius` to `undefined` and logged a deprecation warning).
+- `text-field`'s `radius` option now calls `radius()` instead of the deprecated `round()`, removing a deprecation warning that fired on every page containing a text field.
+- `form` component: string values (e.g. `title`, `action`) are now serialized with `JSON.stringify` instead of naive quoting, fixing generated code that broke when a value contained a quote character.
+
+### Changed
+- `check-page`'s internal contrast helper was refactored to expose background colour separately from luminance, enabling the new APCA-based check; no change to existing `LOW_CONTRAST` behavior.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
