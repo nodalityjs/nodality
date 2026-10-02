@@ -58,7 +58,10 @@ test("a looser mistake is a warning, so the page still validates", () => {
 
 test("correct values produce nothing at all", () => {
 	const r = validateNodes([], [
-		{ type: "p", id: "a", text: "x", width: "100%", mar: [{ a: 40 }], size: "S3" },
+		// Not `size`: on a text element the type picks the scale step, and
+		// validate_nodes says so (PARAM_INERT). This fixture listed it as
+		// correct until the validator learned the baseline.
+		{ type: "p", id: "a", text: "x", width: "100%", mar: [{ a: 40 }] },
 		{ type: "video", id: "v", url: "/a.mp4", autoplay: true, objectFit: "cover", opacity: 0.4 },
 		{ type: "gridOverlay", id: "g", columns: 4, rows: 2, inset: 16, marks: "square" },
 	]);

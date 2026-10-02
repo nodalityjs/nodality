@@ -73,7 +73,9 @@ class TextField extends Animator {
 		//@ exact: Font size as an exact CSS length, e.g. "0.875rem".
 		obj.exact && (this.res.style.fontSize = obj.exact);
 		//@ radius: Corner radius in pixels. A bare number, not a CSS length.
-		obj.radius && this.round(obj.radius);
+		// radius(), not the deprecated round(): the library's own component
+		// was the source of the deprecation error on every page with a field.
+		obj.radius && this.radius(obj.radius);
 		obj.color && (this.res.style.color = obj.color);
 		obj.background && (this.res.style.background = obj.background);
 		obj.font && (this.res.style.fontFamily = obj.font);

@@ -132,74 +132,8 @@ const NOT_OBSERVABLE = new Set([
 	"productMedia.alt",       // describes the static image, so only with `url`
 ]);
 
-const KNOWN_INERT = new Set([
-	// The mapper builds its own options and never consults the element, so
-	// the component's vocabulary is unreachable however faithfully it reads.
-	// Fixing one means changing how every existing page of that type renders,
-	// so each is recorded here rather than quietly patched.
-	// Text elements: the element TYPE picks the fluid step, because in Text
-	// the step also picks the tag — honouring `size` here turned an h2 into an
-	// h3 and changed the document outline. `tag` is the settable option.
-	"h1.size", "h2.size", "h3.size", "h4.size", "h5.size", "h6.size", "p.size",
-	// a
-	"a.transform",
-	// checkbox
-	"checkbox.area",
-	"checkbox.background",
-	"checkbox.color",
-	"checkbox.cursor",
-	"checkbox.height",
-	"checkbox.keySet",
-	"checkbox.mar",
-	"checkbox.maxWidth",
-	"checkbox.pad",
-	"checkbox.transform",
-	"checkbox.width",
-	// circle
-	"circle.transform",
-	// code
-	"code.transform",
-	// filePicker
-	"filePicker.radius",
-	// labelInput
-	"labelInput.color",
-	"labelInput.exact",
-	// nav
-	"nav.area",
-	"nav.cursor",
-	"nav.height",
-	"nav.maxHeight",
-	"nav.maxWidth",
-	"nav.opacity",
-	"nav.size",
-	"nav.transform",
-	"nav.width",
-	"nav.zIndex",
-	// polygon
-	"polygon.transform",
-	// radio
-	"radio.color",
-	"radio.exact",
-	// sideNav
-	"sideNav.area",
-	"sideNav.background",
-	"sideNav.color",
-	"sideNav.cursor",
-	"sideNav.height",
-	"sideNav.keySet",
-	"sideNav.mar",
-	"sideNav.maxHeight",
-	"sideNav.maxWidth",
-	"sideNav.opacity",
-	"sideNav.pad",
-	"sideNav.radius",
-	"sideNav.size",
-	"sideNav.transform",
-	"sideNav.width",
-	"sideNav.zIndex",
-	// table
-	"table.transform",
-]);
+// The baseline lives in the library, so validate_nodes can warn with it.
+import { KNOWN_INERT } from "../../lib/known-inert.js";
 
 test("every parameter with a declared shape changes the rendered DOM", () => {
 	const inert = [];

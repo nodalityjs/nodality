@@ -356,8 +356,11 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		obj.color && this.color(obj.color);
 
 
-  //@ rounded: Apply the default corner radius. Use `radius` for a specific value.
-		obj.rounded && this.round();
+  //@ rounded: Apply the default corner radius (0.5rem). Use `radius` for a specific value.
+		// It called the deprecated round() with no value, which set
+		// border-radius to undefined: no rounding, and a deprecation error in
+		// the console of every page that used it.
+		obj.rounded && this.radius("0.5rem");
 
   //@ new: Open in a new tab — sets target="_blank" and rel="noopener noreferrer".
 		if (obj.new){

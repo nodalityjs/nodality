@@ -34,7 +34,9 @@ class Form {
 
     let setCode = Object.entries(this.obj)
     .map(([key, value]) => {
-      let formattedValue = typeof value === "string" ? `"${value}"` : value;
+      // JSON for strings: a title or action containing a quote produced
+      // code that did not parse.
+      let formattedValue = typeof value === "string" ? JSON.stringify(value) : value;
       return `${key}: ${formattedValue}`;
     })
     .join(", ");
@@ -51,6 +53,11 @@ class Form {
     // test, by a script, or by the derived agent surface, which locates
     // a form by the id its descriptor declared.
     obj.id && (this.formElement.id = obj.id);
+    // The title names the form: for assistive technology (a named form is a
+    // landmark) and for the agent surface, which describes its submit tool
+    // with the same sentence. It was read only by the agent surface, so the
+    // schema reported it as ignored by the form.
+    obj.title && this.formElement.setAttribute("aria-label", obj.title);
     return this;
   }
 

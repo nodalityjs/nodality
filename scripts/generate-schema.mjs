@@ -385,8 +385,15 @@ for (const type of TYPES) {
       const unit = (UNIT_BY_TYPE[type] && UNIT_BY_TYPE[type][name])
         || where.map((f) => (UNIT_BY_FILE.get(f) || {})[name]).find(Boolean)
         || UNIT_GLOBAL[name];
+      // Where the name is read. "mapper": the type reads it off the element
+      // by name — its own vocabulary. "component": only reachable because the
+      // mapper forwards the element to a component that reads it — real, but
+      // inherited, and the bulk of a composite's list. Reported so a reader
+      // (or get_schema) can put the type's own parameters first.
+      const via = where.includes(MAPPER) ? "mapper" : "component";
       return {
         name,
+        via,
         ...(unit ? { unit } : {}),
         ...(description ? { description } : {}),
         ...(deprecated ? { deprecated } : {}),

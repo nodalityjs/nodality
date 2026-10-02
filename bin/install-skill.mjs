@@ -55,19 +55,19 @@ function place(src, dest, content) {
 // Merge our server into an existing config without touching anything
 // else in it. A file that exists but does not parse is left alone and
 // reported — clobbering a hand-edited config is worse than skipping.
-function registerMcp(configPath) {
+export function registerMcp(configPath, entry = MCP_ENTRY) {
   let config = {};
   if (fs.existsSync(configPath)) {
     try {
       config = JSON.parse(fs.readFileSync(configPath, "utf8"));
     } catch {
       log(`SKIPPED ${configPath} — existing file is not valid JSON; add this by hand:`);
-      log(`  "mcpServers": { "nodality": ${JSON.stringify(MCP_ENTRY)} }`);
+      log(`  "mcpServers": { "nodality": ${JSON.stringify(entry)} }`);
       return;
     }
   }
   const existed = fs.existsSync(configPath);
-  config.mcpServers = { ...config.mcpServers, nodality: MCP_ENTRY };
+  config.mcpServers = { ...config.mcpServers, nodality: entry };
   fs.mkdirSync(path.dirname(configPath), { recursive: true });
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n");
   log(`${existed ? "updated  " : "installed"} ${configPath} (mcpServers.nodality)`);

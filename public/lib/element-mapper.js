@@ -2427,6 +2427,8 @@ static form(obj){
         action: el.action ?? "",
         ...(el.method !== undefined ? { method: el.method } : {}),
         ...(el.id !== undefined ? { id: el.id } : {}),
+        //@ form.title {text}: What the form is for, in a sentence. Its accessible name, and the description of the tool the agent surface derives from it.
+        ...(el.title !== undefined ? { title: el.title } : {}),
     });
     const kids = Array.isArray(el.children) ? el.children : null;
     if (kids) form.add(kids.map((child) => this.mapType({ ...obj, el: child })));

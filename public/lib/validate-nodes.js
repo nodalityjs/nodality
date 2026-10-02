@@ -136,6 +136,7 @@ function shapeFor(unit) {
     return SHAPES[unit] || null;
 }
 import { didYouMean, suggest, levenshtein } from "./suggest.js";
+import { KNOWN_INERT } from "./known-inert.js";
 
 /**
  * Every key a morph node reads. Anything else on the node is ignored by
@@ -547,6 +548,18 @@ export function validateNodes(nodes, elements, defs) {
                             warn("PARAM_NOT_ON_TYPE", `${p}.${key}`, key, [],
                                 [`run \`npx nodality schema ${el.type}\` for what this type reads`],
                                 `"${el.type}" does not read "${key}" — it is accepted and ignored`);
+                        }
+
+                        // Advertised by the schema for this type, and known to
+                        // do nothing (the conformance baseline). Same failure
+                        // as above — accepted, ignored — but the name IS in
+                        // the type's vocabulary, so only this list knows.
+                        if (KNOWN_INERT.has(`${el.type}.${key}`)) {
+                            warn("PARAM_INERT", `${p}.${key}`, key, [],
+                                [key === "size" && /^(h[1-6]|p)$/.test(el.type)
+                                    ? "the element type sets the scale step; use `tag` for the heading level and keySet fontSize for the size"
+                                    : `see \`npx nodality schema ${el.type}\`; wrap the element in a \`wrap\` to style or place it`],
+                                `"${el.type}" lists "${key}" but ignores it — a known gap, recorded in lib/known-inert.js`);
                         }
 
                         // A value the parameter cannot use. Checked only where

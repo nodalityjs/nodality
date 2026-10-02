@@ -34,6 +34,60 @@ import path from "node:path";
 import { prerenderSite } from "../layout/prerender-site.js";
 import { prerender } from "../layout/prerender.js";
 
+// ─── link-local: test an unreleased library in a real site ─────────
+//
+// Pre-release testing used to be a manual copy of dist/, lib/, layout/ and the
+// schema into the site's node_modules — easy to get wrong, and invisible once
+// done: nothing said the site was running something other than the release.
+// This does the copy, leaves a marker every other command warns about, and
+// undoes itself from the lockfile.
+async function linkLocal(rest) {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const { execSync } = await import("node:child_process");
+  const target = path.join(process.cwd(), "node_modules", "nodality");
+  const marker = path.join(target, ".linked-local.json");
+
+  if (rest.includes("--undo")) {
+    if (!fs.existsSync(marker)) { console.log("[nodality] link-local: nothing to undo — the installed copy is a release"); return; }
+    fs.rmSync(target, { recursive: true, force: true });
+    execSync("npm install --no-audit --no-fund", { stdio: "inherit" });
+    const v = JSON.parse(fs.readFileSync(path.join(target, "package.json"), "utf8")).version;
+    console.log(`[nodality] link-local: restored the released nodality ${v}. Rebuild your bundle (e.g. npm run build or nodality stage).`);
+    return;
+  }
+
+  const fromArg = rest.find((a) => a.startsWith("--from="));
+  if (!fromArg) {
+    console.error("[nodality] link-local: --from=<path to the nodality repository> is required (or --undo)");
+    process.exit(1);
+  }
+  const from = path.resolve(fromArg.slice("--from=".length));
+  const pkg = path.join(from, "package.json");
+  if (!fs.existsSync(pkg) || JSON.parse(fs.readFileSync(pkg, "utf8")).name !== "nodality") {
+    console.error(`[nodality] link-local: ${from} is not the nodality repository`);
+    process.exit(1);
+  }
+  if (!fs.existsSync(target)) {
+    console.error("[nodality] link-local: install nodality in this project first (npm i nodality)");
+    process.exit(1);
+  }
+  if (!rest.includes("--no-build")) {
+    console.log(`[nodality] link-local: building ${from}…`);
+    execSync("npm run build", { cwd: from, stdio: "inherit" });
+  }
+  for (const part of ["dist", "lib", "layout", "bin", "schema.json"]) {
+    const src = path.join(from, part);
+    if (!fs.existsSync(src)) continue;
+    fs.rmSync(path.join(target, part), { recursive: true, force: true });
+    fs.cpSync(src, path.join(target, part), { recursive: true });
+  }
+  const version = JSON.parse(fs.readFileSync(pkg, "utf8")).version;
+  fs.writeFileSync(marker, JSON.stringify({ from, builtAt: new Date().toISOString(), baseVersion: version }, null, 2));
+  console.log(`[nodality] link-local: this project now runs the LOCAL build from ${from} (on top of ${version}).`);
+  console.log("[nodality] Rebuild your bundle (e.g. npm run build or nodality stage). Every nodality command will warn until: npx nodality link-local --undo");
+}
+
 // ─── Usage ──────────────────────────────────────────────────────
 
 function showUsage() {
@@ -55,6 +109,14 @@ function showUsage() {
                                               #   { "mcpServers": { "nodality": {
                                               #       "command": "npx",
                                               #       "args": ["nodality", "mcp"] } } }
+  nodality link-local --from=<repo> [--no-build]  # Build a local nodality checkout and run
+                                              # this project on it, for testing before a
+                                              # release; every command warns while linked.
+  nodality link-local --undo                  # Back to the released version (lockfile).
+  nodality mcp --register [--root=<dir>]      # Write that entry into <dir>/.mcp.json —
+                                              # the folder agent sessions start in
+                                              # (default: here). From a parent folder
+                                              # it runs this project's installed copy.
   nodality skill [flags]                      # Install the /nodality skill into agent
                                               # IDEs. No flags: interactive (or full
                                               # default install when not a TTY).
@@ -869,6 +931,20 @@ async function main() {
   }
 
   const [command, ...rest] = process.argv.slice(2);
+
+  // A site running a locally built library says so on every command, so a
+  // pre-release copy is never mistaken for the release (see link-local).
+  {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const marker = path.join(process.cwd(), "node_modules", "nodality", ".linked-local.json");
+    if (command !== "link-local" && fs.existsSync(marker)) {
+      try {
+        const m = JSON.parse(fs.readFileSync(marker, "utf8"));
+        console.warn(`[nodality] ⚠ using a LOCAL build of nodality from ${m.from} (built ${m.builtAt}). Undo: npx nodality link-local --undo`);
+      } catch {}
+    }
+  }
   if (!command || command === "help" || command === "--help" || command === "-h") {
     showUsage();
   } else if (command === "prerender") {
@@ -887,6 +963,33 @@ async function main() {
   } else if (command === "skill") {
     const { runSkillInstall } = await import("./install-skill.mjs");
     await runSkillInstall(rest);
+  } else if (command === "link-local") {
+    await linkLocal(rest);
+  } else if (command === "mcp" && rest.includes("--register")) {
+    // Register the server where agent sessions START, which is not always
+    // the project. A session opened one folder up never saw the project's
+    // own .mcp.json, and the agent drove the server by hand instead. From a
+    // parent root the entry runs npx with --prefix, so it is still the
+    // project's installed nodality that answers, not whatever npm resolves.
+    const path = await import("node:path");
+    const { registerMcp } = await import("./install-skill.mjs");
+    const rootArg = rest.find((a) => a.startsWith("--root="));
+    // Real paths on both sides: through a symlink (macOS /var is
+    // /private/var) the two spellings of one folder looked unrelated and a
+    // correct root was refused.
+    const fsMod = await import("node:fs");
+    const real = (p) => { try { return fsMod.realpathSync(p); } catch { return path.resolve(p); } };
+    const root = real(path.resolve(rootArg ? rootArg.slice("--root=".length) : process.cwd()));
+    const project = real(process.cwd());
+    const rel = path.relative(root, project);
+    if (rel.startsWith("..")) {
+      console.error(`[nodality] mcp --register: --root must be this project or a folder above it (${root})`);
+      process.exit(1);
+    }
+    const entry = rel === "" ? { command: "npx", args: ["nodality", "mcp"] }
+      : { command: "npx", args: ["--prefix", rel, "nodality", "mcp"] };
+    registerMcp(path.join(root, ".mcp.json"), entry);
+    console.log(`[nodality] start sessions in ${root} — the nodality tools are registered there`);
   } else if (command === "mcp") {
     // Lazily imported so that prerender/compile/stage pay nothing for a
     // subcommand they never touch, and so a broken morph core cannot

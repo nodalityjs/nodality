@@ -221,6 +221,7 @@ const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
+          viewport: { description: "\"phone\" (default, 390×844) or \"desktop\" (1440×900), or {width, height}. Width-dependent elements render their view for it." },
         elements: ELEMENTS_SCHEMA,
         nodes: NODES_SCHEMA,
         output: {
@@ -286,6 +287,25 @@ const IMPL = {
     const schema = JSON.parse(await readFile(join(here, "..", "schema.json"), "utf8"));
     const types = schema.types || {};
     if (!type) return ok(schema);
+    if (types[type] && Array.isArray(types[type].params)) {
+      // The type's own parameters first: what its mapper reads by name, then
+      // described ones, then the rest — inherited through components. A
+      // composite lists 150+, and the dozen that matter were alphabetised
+      // among them.
+      const t = types[type];
+      const rank = (p) => (p.via === "mapper" ? 0 : p.description ? 1 : 2);
+      const params = [...t.params].sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+      return ok({
+        type, ...t,
+        summary: {
+          total: params.length,
+          readByType: params.filter((p) => p.via === "mapper").length,
+          throughComponents: params.filter((p) => p.via !== "mapper").length,
+          described: params.filter((p) => p.description).length,
+        },
+        params,
+      });
+    }
     if (!types[type]) {
       // Same report shape as everything else, so an agent parses one thing.
       return ok({
@@ -312,7 +332,7 @@ const IMPL = {
     return ok(parseReport(String(html ?? ""), dom.window.document));
   },
 
-  preview: async ({ elements, nodes, output }) => {
+  preview: async ({ elements, nodes, output, viewport }) => {
     const N = nodes || [];
     const report = validateNodes(N, elements);
     if (!report.ok) return reportAsError(report);
@@ -338,10 +358,23 @@ const IMPL = {
       `<title>Nodality preview</title></head><body>` +
       `<div id="mount"></div></body></html>`, "utf8");
 
+    // The prerenderer emulates a phone by default, and anything chosen by
+    // width (a nav, a multiswitcher) renders as its phone view. "desktop"
+    // shows the other side.
+    const size = viewport === "desktop" ? { width: 1440, height: 900 }
+      : (viewport && typeof viewport === "object" ? viewport : { width: 390, height: 844 });
+    // Ids that rendered as an empty box, recorded while the DOM exists.
+    const empty = [];
+    const ids = [];
+    const collect = (list) => { for (const el of Array.isArray(list) ? list : []) {
+      if (el && typeof el === "object") { if (typeof el.id === "string") ids.push(el.id); collect(el.children); }
+    } };
+    collect(elements);
     await prerender({
       template,
       mount: "#mount",
       output: out,
+      viewport: size,
       // `build` is handed the jsdom window and is expected to render
       // into it. The Designer is imported HERE, inside the callback,
       // rather than at module scope: prerender installs the DOM globals
@@ -351,6 +384,13 @@ const IMPL = {
       build: async () => {
         const { Des } = await import("../lib/designer.js");
         new Des().nodes(N).add(elements).set({ mount: "#mount", code: false });
+        for (const id of ids) {
+          const node = document.querySelector(`[id="${id}"]`);
+          if (!node) { empty.push({ id, why: "not in the output" }); continue; }
+          const hasContent = node.children.length > 0 || (node.textContent || "").trim() !== ""
+            || /^(IMG|VIDEO|AUDIO|INPUT|SELECT|TEXTAREA|CANVAS|IFRAME|HR|BR|SVG)$/i.test(node.tagName);
+          if (!hasContent) empty.push({ id, why: "rendered empty" });
+        }
       },
     });
 
@@ -381,7 +421,12 @@ const IMPL = {
 
     return ok({
       path: out, bytes,
+      viewport: size,
       ...(surface ? { surface } : {}),
+      // An element that rendered nothing is said, not left to look like a
+      // finished page: a 181-byte preview of a nav was the only sign that
+      // its view is chosen at run time.
+      ...(empty.length ? { empty, emptyNote: "These ids rendered no content at this viewport. A runtime choice (multiswitcher, morph state), content that loads in the browser (commerce), or an element given nothing to show. Try viewport: \"desktop\", or open the file in a browser." } : {}),
       // Said plainly, because an agent cannot see the result and would
       // otherwise report a shader that never ran as working.
       note: "Prerendered DOM only. Raster effects and morph transitions " +

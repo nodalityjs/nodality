@@ -42,6 +42,10 @@ drift. If the MCP is not configured, add it:
 { "mcpServers": { "nodality": { "command": "npx", "args": ["nodality", "mcp"] } } }
 ```
 
+Or let the CLI write it: `npx nodality mcp --register` in the project, or
+`--root=<folder>` when sessions start in a folder above it — the tools only
+appear in sessions started where `.mcp.json` lives.
+
 1. **`list_ops` first.** Never guess an op name, a parameter, an easing
    name, a transition preset, or an element type. One call returns all
    of them as data.
@@ -58,7 +62,8 @@ drift. If the MCP is not configured, add it:
    against real ids and E itself is validated. The report never throws;
    repair from its `did-you-mean` suggestions and re-validate until
    clean.
-4. **`preview` to render.** It writes a self-contained HTML file through
+4. **`preview` to render.** Pass `viewport: "desktop"` to see the wide side of anything chosen by width (the default is a phone); the report lists ids that rendered `empty` instead of leaving a blank page to look finished.
+    It writes a self-contained HTML file through
    the jsdom prerenderer. Know the boundary: the file is prerendered DOM
    and morph scaffolding only and carries no runtime, so raster effects
    and transitions will not run from it. To see them, put the pair in a
@@ -76,6 +81,8 @@ does not do what you wrote:
 |---|---|
 | `BAD_PARAM_VALUE` | the value is not the shape the parameter takes — `width: 7` is not a CSS length, `mar: 7` is not `[{a: 7}]`. As an *error* where the value is provably inert; as a warning otherwise. |
 | `PARAM_NOT_ON_TYPE` | a real parameter name that THIS type does not read, so it is accepted and dropped — `keySet` on a `table`. |
+| `PARAM_INERT` | a parameter the type DOES list, and is known to ignore (the library's conformance baseline) — `size` on a `p`, `color` on a `checkbox`. The hint says what to use instead. |
+| `STORE_AFTER_PRODUCT` / `NO_STORE` | a commerce `product` placed before the page's `store`, or with none: it renders empty. |
 
 `get_schema <type>` carries a `unit` on every parameter whose shape the
 source declares, which is where those checks come from, and a
@@ -314,6 +321,9 @@ document is untrusted input.
 
 ## Verifying your work
 
+- **Read `FAINT_TEXT` from `check_page`.** It reports small text that passes
+  WCAG and still reads faint (APCA), the usual case on mid-tone backgrounds.
+  Fix with weight, a lighter or darker ground, or size; not by ignoring it.
 - **Verify a morph by progress, not by DOM presence.** The destination
   view is inserted before capture begins, so "the element exists" passes
   even when the transition hangs. Assert that the animation *progressed*
