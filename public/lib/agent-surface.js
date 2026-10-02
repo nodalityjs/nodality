@@ -309,6 +309,28 @@ export function deriveSurface(elements, nodes, { specDraft = null } = {}) {
         });
     }
 
+    // ── products, allow-listed by id ─────────────────────────────────
+    //
+    // Read-only. An agent can learn what is for sale, at what price and in
+    // which options; it cannot put anything in a cart. Paying stays a human
+    // act on the shop's own checkout.
+    const productIds = (Array.isArray(node.products) ? node.products : [])
+        .filter((s) => typeof s === "string").map((s) => s.replace(/^#/, ""));
+    for (const id of productIds) {
+        const product = byId.get(id) || byId.get(`#${id}`);
+        if (!product || product.type !== "product") continue;
+        tools.push({
+            name: named(`get_product_${id.replace(/[^a-zA-Z0-9_-]/g, "_")}`),
+            kind: "product",
+            productId: id,
+            description:
+                `Read the product "${product.handle}" as it is shown on this page: ` +
+                "name, price for the visitor's market, options and availability. " +
+                "Read-only; buying happens on the shop's checkout.",
+            inputSchema: { type: "object", properties: {} },
+        });
+    }
+
     // ── what is on screen ────────────────────────────────────────────
     tools.push({
         name: named("read_view"),
@@ -325,7 +347,7 @@ export function deriveSurface(elements, nodes, { specDraft = null } = {}) {
     // deciding whether to visit at all can actually read.
     const manifest = {
         spec: specDraft,
-        tools: tools.map(({ kind, formId, ...decl }) => decl),
+        tools: tools.map(({ kind, formId, productId, ...decl }) => decl),
         ...(graph
             ? {
                 views: {

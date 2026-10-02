@@ -127,6 +127,9 @@ const NOT_OBSERVABLE = new Set([
 	"video.muted",           // a property, set before the attribute exists in jsdom
 	"gridOverlay.breakpoint", // only matters at another viewport width
 	"gridOverlay.mobile",     // ditto
+	"buy.url",                // the link of the static form (no JS); the probe renders the live form
+	"buy.store",              // only read with mode: "buyNow"
+	"productMedia.alt",       // describes the static image, so only with `url`
 ]);
 
 const KNOWN_INERT = new Set([

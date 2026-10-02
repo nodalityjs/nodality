@@ -70,6 +70,7 @@ import { AreaSwitcher } from "../layout/grid-switcher.js";
 import { Polygon } from "../layout/polygon.js";
 import { Circle } from "../layout/circle.js";
 import { GridOverlay } from "../layout/grid-overlay.js";
+import { Shop } from "../layout/shop.js";
 
 
 
@@ -1440,7 +1441,7 @@ new Slider(texts, null, { tintColor: "#e74c3c", inactiveColor: "#ccc" })
   Text, Image, Link, FlexRow, UINavBar, Free, Audio, Progress, Center, Code,
   Stack, Wrapper, MetaAdder, Table, Dropdown, Modal, TextField, Card,
   Wrap, FlexGrid, ZoomCard, Switcher, MobileBar, DesktopBar, SideNav, Spacer, HScroller, Polygon, Circle, UList,
-  GridOverlay
+  GridOverlay, Shop
 };
 
 const formComponents = {

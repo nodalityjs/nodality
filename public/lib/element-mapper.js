@@ -65,6 +65,7 @@ import { AreaSwitcher } from "../layout/grid-switcher.js";
 import { Polygon } from "../layout/polygon.js";
 import { Circle } from "../layout/circle.js";
 import { GridOverlay } from "../layout/grid-overlay.js";
+import { Shop } from "../layout/shop.js";
 
 
 // The closed set of `type:` values mapType understands, in the order it
@@ -77,6 +78,7 @@ const ELEMENT_TYPES = [
     "audio", "multiswitcher", "button", "form", "checkbox", "stack",
     "simple", "copy", "wrap", "circle", "polygon", "code", "table", "ulist",
     "gridOverlay",
+    "store", "product", "price", "productData", "productMedia", "variantPicker", "buy", "cart",
 ];
 
 // A nav entry is {title, link}. A bare string is accepted as the title: that
@@ -151,6 +153,7 @@ const CONTENT_SLOT = Object.freeze({
     nav: "items", sideNav: "items",
     dropdown: "items", picker: "items", radio: "items",
     row: "children", form: "children", stack: "children", wrap: "children",
+    product: "children",
 });
 
 /** Warn when content was declared in the slot this type does not read. */
@@ -293,6 +296,22 @@ class ElementMapper { // 22:09:58 04/11/2024
             return this.mapUList(obj);
          } else if (obj.el.type === "gridOverlay"){
             return this.mapGridOverlay(obj);
+         } else if (obj.el.type === "store"){
+            return this.mapStore(obj);
+         } else if (obj.el.type === "product"){
+            return this.mapProduct(obj);
+         } else if (obj.el.type === "price"){
+            return this.mapPrice(obj);
+         } else if (obj.el.type === "productData"){
+            return this.mapProductData(obj);
+         } else if (obj.el.type === "productMedia"){
+            return this.mapProductMedia(obj);
+         } else if (obj.el.type === "variantPicker"){
+            return this.mapVariantPicker(obj);
+         } else if (obj.el.type === "buy"){
+            return this.mapBuy(obj);
+         } else if (obj.el.type === "cart"){
+            return this.mapCart(obj);
          }
 
         // Everything above returned. Falling through used to return
@@ -775,6 +794,102 @@ animation: {
     }
 
 
+
+    // ── Commerce: Shopify Storefront Web Components (layout/shop.js) ──────
+    //
+    // One method per type, each reading its own fields by name, so the
+    // schema credits each type with exactly what it reads. All of them build
+    // a Shop of the matching kind; style options (font, color, keySet) apply
+    // to every kind. Placed above `dropdown` for the reason mapGridOverlay
+    // gives.
+
+    static shop(kind, el, fields, obj) {
+        const options = { kind, id: el.id, font: el.font, color: el.color, keySet: el.keySet, ...fields };
+        // Inside a product's placeholder every commerce element renders its
+        // static form; the flag rides along through nested children.
+        if (obj.shopFallback) options.fallback = true;
+        for (const k of Object.keys(options)) if (options[k] == null) delete options[k];
+        return new Shop().set(options);
+    }
+
+    static mapStore(obj) {
+        const el = obj.el;
+        //@ store.domain {url}: The shop, e.g. "https://shop.example.com" or "https://mock.shop" for development. Place one store per page.
+        //@ store.token {text}: Storefront API public access token. Only needed for inventory and custom data; public product data works without one.
+        //@ store.country {text}: Market for prices and availability, ISO code such as "DE". Omit to use the shop's default.
+        //@ store.language {text}: Content language, ISO code such as "EN".
+        return this.shop("store", el, { domain: el.domain, token: el.token, country: el.country, language: el.language }, obj);
+    }
+
+    static mapProduct(obj) {
+        const el = obj.el;
+        //@ product.handle {text}: The product's handle in the shop — its URL name, e.g. "suitcase-n01".
+        //@ product.children: What to show for the product: price, variantPicker, buy, productData, productMedia, and any other element. Rendered live from the shop, and statically (from each element's `text`/`url`) until the data arrives and in the prerendered HTML.
+        // Its own layout options (background, pad, width, …) style the
+        // product box, as on a wrap.
+        const product = this.shop("product", el, { ...this.elOpts(el), handle: el.handle }, obj);
+        const kids = Array.isArray(el.children) ? el.children : [];
+        product.add(kids.map((child) => this.mapType({ ...obj, el: child, shopFallback: false })));
+        // The static copy carries different ids: once Shopify stamps the
+        // template, both copies are in the document at the same time.
+        const staticIds = (spec) => {
+            if (!spec || typeof spec !== "object") return spec;
+            const out = { ...spec };
+            if (out.id) out.id = `${String(out.id).replace(/^#/, "")}-static`;
+            if (Array.isArray(out.children)) out.children = out.children.map(staticIds);
+            return out;
+        };
+        product.fallback(kids.map((child) => this.mapType({ ...obj, el: staticIds(child), shopFallback: true })));
+        return product;
+    }
+
+    static mapPrice(obj) {
+        const el = obj.el;
+        //@ price.text {text}: The price as text, shown before the shop answers and in the prerendered HTML — e.g. from build-time data.
+        //@ price.query {text}: Storefront API field to show. Default "product.selectedOrFirstAvailableVariant.price".
+        return this.shop("price", el, { text: el.text, query: el.query }, obj);
+    }
+
+    static mapProductData(obj) {
+        const el = obj.el;
+        //@ productData.query {text}: Storefront API field to show, e.g. "product.title" or "product.selectedOrFirstAvailableVariant.quantityAvailable" (needs a store token).
+        //@ productData.text {text}: The value as text before the shop answers and in the prerendered HTML.
+        return this.shop("productData", el, { query: el.query, text: el.text }, obj);
+    }
+
+    static mapProductMedia(obj) {
+        const el = obj.el;
+        //@ productMedia.query {text}: Storefront API image field. Default "product.selectedOrFirstAvailableVariant.image", which follows the chosen options.
+        //@ productMedia.url {url}: Image shown before the shop answers and in the prerendered HTML.
+        //@ productMedia.alt {text}: Description of the static image.
+        //@ productMedia.width {count}: Requested width in px.
+        //@ productMedia.height {count}: Requested height in px.
+        return this.shop("productMedia", el, { query: el.query, url: el.url, alt: el.alt, width: el.width, height: el.height }, obj);
+    }
+
+    static mapVariantPicker(obj) {
+        const el = obj.el;
+        //@ variantPicker.text {text}: The options as text before the shop answers and in the prerendered HTML, e.g. "Size: Cabin · Check-in".
+        return this.shop("variantPicker", el, { text: el.text }, obj);
+    }
+
+    static mapBuy(obj) {
+        const el = obj.el;
+        //@ buy.text {text}: The button's label. Default "Add to cart".
+        //@ buy.mode {enum(cart|buyNow)}: "cart" adds the chosen variant and opens the cart; "buyNow" goes straight to checkout. Default "cart".
+        //@ buy.cart {text}: Id of the cart element to add to. Default "cart".
+        //@ buy.store {text}: Id of the store element, for buyNow. Default "store".
+        //@ buy.url {url}: Where the static link goes before the script loads and without JavaScript — the product on the shop.
+        return this.shop("buy", el, { text: el.text, mode: el.mode, cart: el.cart, store: el.store, url: el.url }, obj);
+    }
+
+    static mapCart(obj) {
+        const el = obj.el;
+        //@ cart.theme {object}: Styles for the cart dialog: {background, color, font, headingFont, accent, accentText, radius, buttonRadius}. Applied through the parts Shopify exposes.
+        //@ cart.target {text}: Where checkout opens. Default "_top".
+        //@ cart.discountCodes {text}: Comma-separated discount codes applied automatically.
+        return this.shop("cart", el, { theme: el.theme, target: el.target, discountCodes: el.discountCodes }, obj);
+    }
 
     static dropdown(obj){
         // A label for the trigger, which is what makes every declared option

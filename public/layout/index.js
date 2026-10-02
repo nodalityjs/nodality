@@ -64,6 +64,7 @@ import { AreaSwitcher } from "../layout/grid-switcher.js";
 import { Polygon } from "../layout/polygon.js";
 import { Circle } from "../layout/circle.js";
 import { GridOverlay } from "../layout/grid-overlay.js";
+import { Shop } from "../layout/shop.js";
 
 // SEO + data helpers — also surface via package.json subpath exports
 // (`nodality/seo`, `nodality/data`) for Node-side tree-shaking, but we
@@ -136,6 +137,7 @@ if (typeof window !== 'undefined') {
   window.Polygon = Polygon;
   window.Circle = Circle;
   window.GridOverlay = GridOverlay;
+  window.Shop = Shop;
   window.FloatingInput = FloatingInput;
   window.Form = Form;
 }
@@ -197,6 +199,7 @@ if (typeof global !== 'undefined') {
   global.Polygon = Polygon;
   global.Circle = Circle;
   global.GridOverlay = GridOverlay;
+  global.Shop = Shop;
   global.FloatingInput = FloatingInput;
   global.Form = Form;
 }
@@ -258,6 +261,7 @@ export {
   Polygon,
   Circle,
   GridOverlay,
+  Shop,
   FloatingInput,
   Form,
   // SEO + data helpers — see explanation above the imports block.

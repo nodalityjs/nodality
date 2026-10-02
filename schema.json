@@ -5604,11 +5604,1009 @@
           "description": "Stacking order of the overlay. Default 2 — keep navigation above it."
         }
       ]
+    },
+    "store": {
+      "resolved": true,
+      "mapper": "mapStore",
+      "forwardsElement": false,
+      "components": [
+        "Shop"
+      ],
+      "params": [
+        {
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "country",
+          "unit": "text",
+          "description": "Market for prices and availability, ISO code such as \"DE\". Omit to use the shop's default."
+        },
+        {
+          "name": "domain",
+          "unit": "url",
+          "description": "The shop, e.g. \"https://shop.example.com\" or \"https://mock.shop\" for development. Place one store per page."
+        },
+        {
+          "name": "font"
+        },
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "keySet",
+          "unit": "keyset",
+          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "language",
+          "unit": "text",
+          "description": "Content language, ISO code such as \"EN\"."
+        },
+        {
+          "name": "token",
+          "unit": "text",
+          "description": "Storefront API public access token. Only needed for inventory and custom data; public product data works without one."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        }
+      ]
+    },
+    "product": {
+      "resolved": true,
+      "mapper": "mapProduct",
+      "forwardsElement": true,
+      "components": [
+        "Link",
+        "Dropdown",
+        "Text",
+        "Wrapper",
+        "FlexRow",
+        "MobileBar",
+        "DesktopBar",
+        "Spacer",
+        "Switcher",
+        "UINavBar",
+        "SideNav",
+        "Free",
+        "Image",
+        "Circle",
+        "Polygon",
+        "Card",
+        "ZoomCard",
+        "FlexGrid",
+        "Checkbox",
+        "Stack",
+        "Form",
+        "AreaSwitcher",
+        "UList",
+        "Shop"
+      ],
+      "params": [
+        {
+          "name": "absolute"
+        },
+        {
+          "name": "action"
+        },
+        {
+          "name": "align"
+        },
+        {
+          "name": "alignItems"
+        },
+        {
+          "name": "alignIts",
+          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+        },
+        {
+          "name": "alignTo"
+        },
+        {
+          "name": "aligns"
+        },
+        {
+          "name": "alt",
+          "description": "Description for an icon that carries meaning; omit for decoration."
+        },
+        {
+          "name": "animate"
+        },
+        {
+          "name": "animation"
+        },
+        {
+          "name": "area",
+          "unit": "text",
+          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
+        },
+        {
+          "name": "ariaLabel"
+        },
+        {
+          "name": "as"
+        },
+        {
+          "name": "at"
+        },
+        {
+          "name": "backTo"
+        },
+        {
+          "name": "background",
+          "unit": "color",
+          "description": "Background — any CSS colour or background shorthand."
+        },
+        {
+          "name": "backgroundCard"
+        },
+        {
+          "name": "backgroundColor"
+        },
+        {
+          "name": "backgroundOp"
+        },
+        {
+          "name": "barPad"
+        },
+        {
+          "name": "behaviour"
+        },
+        {
+          "name": "blast"
+        },
+        {
+          "name": "blastData"
+        },
+        {
+          "name": "block",
+          "description": "Render as a block-level element rather than inline."
+        },
+        {
+          "name": "bold",
+          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
+        },
+        {
+          "name": "border"
+        },
+        {
+          "name": "borderBottom"
+        },
+        {
+          "name": "borderObj",
+          "unit": "object",
+          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
+        },
+        {
+          "name": "borderObja"
+        },
+        {
+          "name": "brand"
+        },
+        {
+          "name": "breakWord",
+          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
+        },
+        {
+          "name": "breakpoint"
+        },
+        {
+          "name": "breakpoints"
+        },
+        {
+          "name": "cart"
+        },
+        {
+          "name": "center",
+          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
+        },
+        {
+          "name": "centerColumn"
+        },
+        {
+          "name": "centerSelf"
+        },
+        {
+          "name": "checkedBackgroundColor"
+        },
+        {
+          "name": "child"
+        },
+        {
+          "name": "children",
+          "description": "What to show for the product: price, variantPicker, buy, productData, productMedia, and any other element. Rendered live from the shop, and statically (from each element's `text`/`url`) until the data arrives and in the prerendered HTML."
+        },
+        {
+          "name": "clampc"
+        },
+        {
+          "name": "class"
+        },
+        {
+          "name": "clipPath"
+        },
+        {
+          "name": "colat"
+        },
+        {
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "column"
+        },
+        {
+          "name": "contentWidth"
+        },
+        {
+          "name": "cursor",
+          "unit": "css-cursor",
+          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+        },
+        {
+          "name": "customAlign",
+          "description": "align-items, verbatim — for values `align` does not cover."
+        },
+        {
+          "name": "customJustify",
+          "description": "justify-items, verbatim."
+        },
+        {
+          "name": "customStyle"
+        },
+        {
+          "name": "data"
+        },
+        {
+          "name": "decoding"
+        },
+        {
+          "name": "desktopSize"
+        },
+        {
+          "name": "diameter"
+        },
+        {
+          "name": "discountCodes"
+        },
+        {
+          "name": "disp",
+          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
+        },
+        {
+          "name": "dropdown"
+        },
+        {
+          "name": "els"
+        },
+        {
+          "name": "em"
+        },
+        {
+          "name": "fetchPriority"
+        },
+        {
+          "name": "filter"
+        },
+        {
+          "name": "filtera"
+        },
+        {
+          "name": "fitContent"
+        },
+        {
+          "name": "fixMobileTap",
+          "description": "Suppress the mobile tap highlight and its 300ms delay."
+        },
+        {
+          "name": "fixed"
+        },
+        {
+          "name": "flex"
+        },
+        {
+          "name": "flexCenter"
+        },
+        {
+          "name": "flexDir",
+          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
+        },
+        {
+          "name": "fluid"
+        },
+        {
+          "name": "fluidc"
+        },
+        {
+          "name": "font"
+        },
+        {
+          "name": "ga",
+          "description": "CSS grid-area, verbatim."
+        },
+        {
+          "name": "gap"
+        },
+        {
+          "name": "gpos",
+          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
+        },
+        {
+          "name": "gradient"
+        },
+        {
+          "name": "hamColour"
+        },
+        {
+          "name": "hamburgerColour"
+        },
+        {
+          "name": "hamburgerInset"
+        },
+        {
+          "name": "handle",
+          "unit": "text",
+          "description": "The product's handle in the shop — its URL name, e.g. \"suitcase-n01\"."
+        },
+        {
+          "name": "height",
+          "unit": "css-length",
+          "description": "CSS height — a length with a unit."
+        },
+        {
+          "name": "hideOverflow"
+        },
+        {
+          "name": "hover",
+          "unit": "object",
+          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
+        },
+        {
+          "name": "icon"
+        },
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "index"
+        },
+        {
+          "name": "initLetter"
+        },
+        {
+          "name": "inline"
+        },
+        {
+          "name": "inpad"
+        },
+        {
+          "name": "isBackground"
+        },
+        {
+          "name": "isFull"
+        },
+        {
+          "name": "isHidden",
+          "description": "Hide the element."
+        },
+        {
+          "name": "isLink"
+        },
+        {
+          "name": "isNavA"
+        },
+        {
+          "name": "isSide"
+        },
+        {
+          "name": "italic"
+        },
+        {
+          "name": "items"
+        },
+        {
+          "name": "justifo"
+        },
+        {
+          "name": "justify"
+        },
+        {
+          "name": "keySet",
+          "unit": "keyset",
+          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "kind"
+        },
+        {
+          "name": "label",
+          "description": "Accessible name for the field."
+        },
+        {
+          "name": "layout"
+        },
+        {
+          "name": "left"
+        },
+        {
+          "name": "link"
+        },
+        {
+          "name": "loading"
+        },
+        {
+          "name": "map"
+        },
+        {
+          "name": "mar",
+          "unit": "sides",
+          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
+        },
+        {
+          "name": "margin"
+        },
+        {
+          "name": "marginOp"
+        },
+        {
+          "name": "maxHeight",
+          "unit": "css-length",
+          "description": "CSS max-height — a length with a unit."
+        },
+        {
+          "name": "maxWidth",
+          "unit": "css-length",
+          "description": "CSS max-width — a length with a unit."
+        },
+        {
+          "name": "mboth",
+          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
+        },
+        {
+          "name": "menuId"
+        },
+        {
+          "name": "menuLabel"
+        },
+        {
+          "name": "method"
+        },
+        {
+          "name": "minHeight"
+        },
+        {
+          "name": "mobile"
+        },
+        {
+          "name": "mobileSize"
+        },
+        {
+          "name": "mode"
+        },
+        {
+          "name": "name",
+          "description": "Form field name. What a submitted form actually SENDS."
+        },
+        {
+          "name": "new",
+          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
+        },
+        {
+          "name": "nowrap",
+          "description": "Keep the label on one line (white-space: nowrap)."
+        },
+        {
+          "name": "objectFit"
+        },
+        {
+          "name": "objectPosition"
+        },
+        {
+          "name": "offcanvas"
+        },
+        {
+          "name": "onScroll"
+        },
+        {
+          "name": "onTap"
+        },
+        {
+          "name": "opacity",
+          "unit": "ratio",
+          "description": "0 to 1."
+        },
+        {
+          "name": "openColor"
+        },
+        {
+          "name": "overflow"
+        },
+        {
+          "name": "owrap"
+        },
+        {
+          "name": "pad",
+          "unit": "sides",
+          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
+        },
+        {
+          "name": "padding"
+        },
+        {
+          "name": "position"
+        },
+        {
+          "name": "positions"
+        },
+        {
+          "name": "preffersId",
+          "description": "Prefer this id when the Designer emits code for the element."
+        },
+        {
+          "name": "query"
+        },
+        {
+          "name": "radius",
+          "unit": "px-or-length",
+          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
+        },
+        {
+          "name": "ranges"
+        },
+        {
+          "name": "raster",
+          "unit": "nodes",
+          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
+        },
+        {
+          "name": "react"
+        },
+        {
+          "name": "removeDecoration"
+        },
+        {
+          "name": "resmar",
+          "unit": "breakpoints",
+          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
+        },
+        {
+          "name": "respad",
+          "unit": "breakpoints",
+          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
+        },
+        {
+          "name": "responsive"
+        },
+        {
+          "name": "resprop",
+          "unit": "breakpoints",
+          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
+        },
+        {
+          "name": "reveal"
+        },
+        {
+          "name": "rounded",
+          "description": "Apply the default corner radius. Use `radius` for a specific value."
+        },
+        {
+          "name": "scale"
+        },
+        {
+          "name": "sequence"
+        },
+        {
+          "name": "shadow"
+        },
+        {
+          "name": "sides"
+        },
+        {
+          "name": "simpleBorder",
+          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
+        },
+        {
+          "name": "simpleCenter"
+        },
+        {
+          "name": "size",
+          "unit": "scale-step",
+          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
+          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
+        },
+        {
+          "name": "sizes"
+        },
+        {
+          "name": "spacing"
+        },
+        {
+          "name": "span"
+        },
+        {
+          "name": "srcset"
+        },
+        {
+          "name": "sticky",
+          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
+        },
+        {
+          "name": "store"
+        },
+        {
+          "name": "stretch"
+        },
+        {
+          "name": "stroke"
+        },
+        {
+          "name": "stype"
+        },
+        {
+          "name": "tag",
+          "description": "Heading level to render, independent of `size`/`fluid`."
+        },
+        {
+          "name": "tags"
+        },
+        {
+          "name": "target"
+        },
+        {
+          "name": "templateCols"
+        },
+        {
+          "name": "text"
+        },
+        {
+          "name": "theme",
+          "unit": "object",
+          "description": "Explicit light/dark overrides — {light: {...}, dark: {...}}."
+        },
+        {
+          "name": "title",
+          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
+        },
+        {
+          "name": "toColumn"
+        },
+        {
+          "name": "top"
+        },
+        {
+          "name": "transform",
+          "unit": "css-transform",
+          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
+        },
+        {
+          "name": "transition"
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        },
+        {
+          "name": "url"
+        },
+        {
+          "name": "useBrightness"
+        },
+        {
+          "name": "value"
+        },
+        {
+          "name": "vtn"
+        },
+        {
+          "name": "weight"
+        },
+        {
+          "name": "width",
+          "unit": "css-length",
+          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
+        },
+        {
+          "name": "wrap"
+        },
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        },
+        {
+          "name": "zIndex",
+          "unit": "count",
+          "description": "Stacking order, a whole number."
+        }
+      ]
+    },
+    "price": {
+      "resolved": true,
+      "mapper": "mapPrice",
+      "forwardsElement": false,
+      "components": [
+        "Shop"
+      ],
+      "params": [
+        {
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "font"
+        },
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "keySet",
+          "unit": "keyset",
+          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "query",
+          "unit": "text",
+          "description": "Storefront API field to show. Default \"product.selectedOrFirstAvailableVariant.price\"."
+        },
+        {
+          "name": "text",
+          "unit": "text",
+          "description": "The price as text, shown before the shop answers and in the prerendered HTML — e.g. from build-time data."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        }
+      ]
+    },
+    "productData": {
+      "resolved": true,
+      "mapper": "mapProductData",
+      "forwardsElement": false,
+      "components": [
+        "Shop"
+      ],
+      "params": [
+        {
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "font"
+        },
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "keySet",
+          "unit": "keyset",
+          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "query",
+          "unit": "text",
+          "description": "Storefront API field to show, e.g. \"product.title\" or \"product.selectedOrFirstAvailableVariant.quantityAvailable\" (needs a store token)."
+        },
+        {
+          "name": "text",
+          "unit": "text",
+          "description": "The value as text before the shop answers and in the prerendered HTML."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        }
+      ]
+    },
+    "productMedia": {
+      "resolved": true,
+      "mapper": "mapProductMedia",
+      "forwardsElement": false,
+      "components": [
+        "Shop"
+      ],
+      "params": [
+        {
+          "name": "alt",
+          "unit": "text",
+          "description": "Description of the static image."
+        },
+        {
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "font"
+        },
+        {
+          "name": "height",
+          "unit": "count",
+          "description": "Requested height in px."
+        },
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "keySet",
+          "unit": "keyset",
+          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "query",
+          "unit": "text",
+          "description": "Storefront API image field. Default \"product.selectedOrFirstAvailableVariant.image\", which follows the chosen options."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        },
+        {
+          "name": "url",
+          "unit": "url",
+          "description": "Image shown before the shop answers and in the prerendered HTML."
+        },
+        {
+          "name": "width",
+          "unit": "count",
+          "description": "Requested width in px."
+        }
+      ]
+    },
+    "variantPicker": {
+      "resolved": true,
+      "mapper": "mapVariantPicker",
+      "forwardsElement": false,
+      "components": [
+        "Shop"
+      ],
+      "params": [
+        {
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "font"
+        },
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "keySet",
+          "unit": "keyset",
+          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "text",
+          "unit": "text",
+          "description": "The options as text before the shop answers and in the prerendered HTML, e.g. \"Size: Cabin · Check-in\"."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        }
+      ]
+    },
+    "buy": {
+      "resolved": true,
+      "mapper": "mapBuy",
+      "forwardsElement": false,
+      "components": [
+        "Shop"
+      ],
+      "params": [
+        {
+          "name": "cart",
+          "unit": "text",
+          "description": "Id of the cart element to add to. Default \"cart\"."
+        },
+        {
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "font"
+        },
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "keySet",
+          "unit": "keyset",
+          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "mode",
+          "unit": "enum(cart|buyNow)",
+          "description": "\"cart\" adds the chosen variant and opens the cart; \"buyNow\" goes straight to checkout. Default \"cart\"."
+        },
+        {
+          "name": "store",
+          "unit": "text",
+          "description": "Id of the store element, for buyNow. Default \"store\"."
+        },
+        {
+          "name": "text",
+          "unit": "text",
+          "description": "The button's label. Default \"Add to cart\"."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        },
+        {
+          "name": "url",
+          "unit": "url",
+          "description": "Where the static link goes before the script loads and without JavaScript — the product on the shop."
+        }
+      ]
+    },
+    "cart": {
+      "resolved": true,
+      "mapper": "mapCart",
+      "forwardsElement": false,
+      "components": [
+        "Shop"
+      ],
+      "params": [
+        {
+          "name": "color",
+          "unit": "color",
+          "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "discountCodes",
+          "unit": "text",
+          "description": "Comma-separated discount codes applied automatically."
+        },
+        {
+          "name": "font"
+        },
+        {
+          "name": "id",
+          "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "keySet",
+          "unit": "keyset",
+          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
+        },
+        {
+          "name": "target",
+          "unit": "text",
+          "description": "Where checkout opens. Default \"_top\"."
+        },
+        {
+          "name": "theme",
+          "unit": "object",
+          "description": "Styles for the cart dialog: {background, color, font, headingFont, accent, accentText, radius, buttonRadius}. Applied through the parts Shopify exposes."
+        },
+        {
+          "name": "type",
+          "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
+        }
+      ]
     }
   },
   "summary": {
-    "types": 36,
-    "resolved": 36,
+    "types": 44,
+    "resolved": 44,
     "unresolved": 0
   }
 }
