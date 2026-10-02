@@ -2,6 +2,25 @@
 
 Generated per release from the source diff.
 
+## 1.3.15 — 2026-10-02
+
+### Added
+- New `Shop` component (`layout/shop.js`) for building static pages with Shopify Storefront Web Components, exported from `nodality` and available as `window.Shop` / `global.Shop`. One class with a `kind` per element type: `store`, `product`, `price`, `productData`, `productMedia`, `variantPicker`, `buy`, `cart`.
+  - Each kind supports a static `fallback: true` form (plain text, image or link) shown until Shopify's data arrives and used by the prerenderer.
+  - `Shop` instances support `.set()`, `.add()` (live children), `.fallback()` (static children), `.toCode()`, and `.render(selector)`.
+  - Also exports `SHOP_SCRIPT`.
+- New declarative element types usable in node specs: `store`, `product`, `price`, `productData`, `productMedia`, `variantPicker`, `buy`, `cart`, mapped via new `ElementMapper` methods (`mapStore`, `mapProduct`, `mapPrice`, `mapProductData`, `mapProductMedia`, `mapVariantPicker`, `mapBuy`, `mapCart`).
+  - `product` reads a `children` content slot.
+  - New per-type fields documented: `store.domain/token/country/language`, `product.handle/children`, `price.text/query`, `productData.query/text`, `productMedia.query/url/alt/width/height`, `variantPicker.text`, `buy.text/mode/cart/store/url`, `cart.theme/target/discountCodes`.
+- New `products` field on the agent-surface node, allow-listing products by id so an agent can read product name/price/options/availability via a generated `get_product_<id>` tool (read-only; no cart/checkout access).
+- New `webmcp-adapter` `product` tool handler: reads the live or static text/actions of a mounted product box.
+- New validation rules: `UNKNOWN_PRODUCT` (unknown id in `products`), `NO_STORE` and `STORE_AFTER_PRODUCT` (warns when a product is declared with no store, or before the page's store element). `products` is now a recognized `AGENT_SURFACE_FIELDS` entry, and a non-empty `products` list also satisfies the "non-empty agent surface" check (previously only `morph` chains or `forms`).
+- `Shop`/commerce param names (`domain`, `token`, `country`, `language`, `handle`, `query`, `mode`, `cart`, `store`, `target`, `discountCodes`, etc.) added to generated `ELEMENT_PARAM_NAMES`, `ELEMENT_PARAMS_BY_TYPE`, and `ELEMENT_PARAM_UNITS` tables.
+- CLI (`bin/nodality.mjs`): `Shop` added to the known-component list used for unused-import detection.
+
+### Changed
+- Agent-surface manifest tool declarations now also strip the internal `productId` field (alongside existing `kind`, `formId`) before being surfaced publicly.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
