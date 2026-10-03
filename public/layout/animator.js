@@ -43,6 +43,11 @@ class Animator {
 				if (id != null && id !== "" && node && typeof node.setAttribute === "function" && !node.getAttribute("id")) {
 					node.setAttribute("id", String(id));
 				}
+				//@ loop {object}: Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: "0px 0"}, {backgroundPosition: "99px 0"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender).
+				// An OBJECT only: `video` has its own boolean `loop` (restart the
+				// clip), and treating `loop: true` as an animation warned on every
+				// looping video.
+				if (obj && obj.loop && typeof obj.loop === "object") this.loop(obj.loop);
 				return out;
 			};
 			wrapped.__appliesId = true;
@@ -1063,6 +1068,38 @@ resmar(arr) {
 
 	font(font){
 		this.res.style.fontFamily = font;
+		return this;
+	}
+
+	/**
+	 * A looping animation, declared on the element. Pages used to need a
+	 * @keyframes rule in a stylesheet for anything that moves on its own; this
+	 * runs the same keyframes through the Web Animations API, owned by the
+	 * component like every other option. Re-applying replaces the running loop
+	 * rather than stacking another. Reduced-motion visitors get the first frame,
+	 * held still.
+	 */
+	loop(spec) {
+		const el = this.res;
+		const o = spec && typeof spec === "object" ? spec : {};
+		const frames = Array.isArray(o.keyframes) ? o.keyframes.filter((k) => k && typeof k === "object") : [];
+		if (!el || frames.length < 2) {
+			if (frames.length < 2) console.warn("nodality: loop needs at least two keyframes");
+			return this;
+		}
+		if (this._loop && typeof this._loop.cancel === "function") this._loop.cancel();
+		this._loop = null;
+		if (typeof window === "undefined" || typeof el.animate !== "function") return this;
+		const reduced = typeof window.matchMedia === "function" &&
+			window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		if (reduced) return this;
+		this._loop = el.animate(frames, {
+			duration: Number(o.duration) > 0 ? Number(o.duration) : 10000,
+			easing: o.easing || "linear",
+			direction: o.direction || "normal",
+			delay: Number(o.delay) || 0,
+			iterations: Infinity,
+		});
 		return this;
 	}
 

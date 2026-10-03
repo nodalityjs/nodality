@@ -361,6 +361,15 @@ for (const type of TYPES) {
   // Read off the element by every mapper regardless of component.
   for (const p of ["type", "id"]) contributed(p, MAPPER);
 
+  // Options the BASE CLASS applies to every component built on it, after the
+  // component's own set() — currently `loop`. Component scans never see them,
+  // because they are read in animator.js. Credited only where the type has no
+  // parameter of that name already: `video` has its own boolean `loop`.
+  const ANIMATOR = join(ROOT, "layout", "animator.js");
+  const onAnimator = files.some((f) => { try { return /extends\s+Animator\b/.test(readFileSync(f, "utf8")); } catch { return false; } });
+  // And only where the element's options reach the component at all.
+  if (onAnimator && forwardsElement) for (const p of ["loop"]) if (!params.has(p)) contributed(p, ANIMATOR);
+
   // NOTE. A `settable` flag was attempted here and removed. The question it
   // was meant to answer -- which of these parameters an AUTHOR can set on the
   // element, as opposed to which the components READ -- is real and still

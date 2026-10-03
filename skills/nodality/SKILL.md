@@ -205,6 +205,11 @@ A complete navigation graph is one node:
   element/op (extend the library), or the `keySet` option on an element
   (`keySet: { key, value }`) for one custom CSS property. Note the
   spelling: `keySet`, capital S.
+- **No CSS in the page either.** No `<style>` rules, no `@keyframes`, no
+  stylesheet files. Anything that moves on its own takes `loop` on the element —
+  `loop: { keyframes: [{…}, {…}], duration }` runs forever through the Web
+  Animations API and holds still for reduced motion. If something cannot be
+  expressed, extend the library.
 - **Elements take `text`, never `value`.**
 - **Every element that a node targets needs an `id`.** Short and stable
   (`"hero"`, `"topnav"`); ids are the joint between the two arrays and

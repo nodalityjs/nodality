@@ -162,6 +162,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "mar",
           "via": "component",
           "unit": "sides",
@@ -432,6 +438,12 @@
         {
           "name": "left",
           "via": "component"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "mar",
@@ -706,6 +718,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "mar",
           "via": "component",
           "unit": "sides",
@@ -976,6 +994,12 @@
         {
           "name": "left",
           "via": "component"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "mar",
@@ -1250,6 +1274,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "mar",
           "via": "component",
           "unit": "sides",
@@ -1520,6 +1550,12 @@
         {
           "name": "left",
           "via": "component"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "mar",
@@ -1794,6 +1830,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "mar",
           "via": "component",
           "unit": "sides",
@@ -2019,6 +2061,12 @@
         {
           "name": "loading",
           "via": "component"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "marginOp",
@@ -2248,6 +2296,12 @@
         {
           "name": "link",
           "via": "mapper"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "mar",
@@ -2711,6 +2765,12 @@
         {
           "name": "loading",
           "via": "component"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "map",
@@ -3498,6 +3558,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "map",
           "via": "component"
         },
@@ -4243,6 +4309,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "map",
           "via": "component"
         },
@@ -4755,6 +4827,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "mar",
           "via": "component",
           "unit": "sides",
@@ -4959,6 +5037,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "multiple",
           "via": "mapper"
         },
@@ -5021,6 +5105,12 @@
           "name": "label",
           "via": "component",
           "description": "Accessible name for the field."
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "mar",
@@ -5122,6 +5212,12 @@
           "description": "Accessible name for the field."
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "mar",
           "via": "component",
           "unit": "sides",
@@ -5196,6 +5292,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "name",
           "via": "component",
           "description": "Form field name. What a submitted form actually SENDS."
@@ -5262,6 +5364,12 @@
           "name": "label",
           "via": "component",
           "description": "Accessible name for the control, written to `aria-label`; a select with no adjacent text has none otherwise."
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "mar",
@@ -5578,6 +5686,12 @@
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "margin",
           "via": "component"
         },
@@ -5857,6 +5971,12 @@
           "via": "component"
         },
         {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
+        },
+        {
           "name": "mar",
           "via": "component",
           "unit": "sides",
@@ -6004,6 +6124,12 @@
           "name": "id",
           "via": "mapper",
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "sticky",
@@ -6323,6 +6449,12 @@
         {
           "name": "left",
           "via": "component"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "mar",
@@ -6797,6 +6929,12 @@
         {
           "name": "left",
           "via": "component"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "mar",
@@ -7573,6 +7711,12 @@
         {
           "name": "loading",
           "via": "component"
+        },
+        {
+          "name": "loop",
+          "via": "component",
+          "unit": "object",
+          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
           "name": "map",
