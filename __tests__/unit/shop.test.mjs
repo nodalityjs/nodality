@@ -111,6 +111,18 @@ test("a product box takes layout options like a wrap", () => {
 	assert.equal(ctx.style.background || ctx.style.backgroundColor, "rgb(1, 2, 3)");
 });
 
+// The suitcase configurator is a grid with a gap. Its placeholder was a plain
+// block, so until Shopify answered the static children lost the grid: the
+// price and the options — inline spans — ran into one line on a phone.
+test("the placeholder has no box: static children lay out in the product's own grid", () => {
+	render([{ ...PRODUCT, keySet: { key: "display", value: "grid" } }]);
+	const ctx = mount().querySelector("shopify-context");
+	const ph = ctx.querySelector("[shopify-loading-placeholder]");
+	assert.equal(ph.style.display, "contents");
+	assert.equal(ph.style.getPropertyPriority("display"), "", "not !important, so Shopify's [hidden] rule still hides it");
+	assert.equal(ph.parentElement, ctx, "a direct child, so its children are the grid's items");
+});
+
 test("buy: buyNow goes through the store, and ids that are not ids are refused", () => {
 	render([{ type: "buy", id: "b1", text: "Buy", mode: "buyNow", store: "shop" }]);
 	assert.equal(mount().querySelector("button").getAttribute("onclick"), "document.getElementById('shop').buyNow(event)");

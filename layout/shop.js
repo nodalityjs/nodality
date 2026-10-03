@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.16
+ * nodality v1.3.17
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -90,6 +90,13 @@ class Shop extends Animator {
 		this.template = document.createElement("template");
 		this.placeholder = document.createElement("div");
 		this.placeholder.setAttribute("shopify-loading-placeholder", "");
+		// No box of its own: the static children lay out as the product's
+		// own, in its grid or flex with its gap, exactly as the live children
+		// that replace them will. As a plain block it stacked them in normal
+		// flow, and the static price and options — inline spans — ran into
+		// one line. Shopify hides it with `[hidden] { display: none
+		// !important }`, which this inline value cannot override.
+		this.placeholder.style.display = "contents";
 		ctx.appendChild(this.template);
 		ctx.appendChild(this.placeholder);
 		return ctx;
