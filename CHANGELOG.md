@@ -2,6 +2,29 @@
 
 Generated per release from the source diff.
 
+## 1.3.21 — 2026-10-05
+
+### Added
+- New CSS-named style options available on element specs (via `STYLE_OPTIONS`): `alignContent`, `alignItems`, `justifyContent`, `justifyItems`, `justifySelf`, `aspectRatio`, `borderTop`, `borderRight`, `borderBottom`, `borderLeft`, `textDecoration`, `objectFit`, `objectPosition`, and `weight` (font-weight, previously only applied inside `commonMethods`).
+- Nav bars (`DesktopBar`, `MobileBar`) and shop elements (`price`, `productData`, `productMedia`, `variantPicker`, `buy`, and other non-`product`/`store`/`cart` shop kinds) now accept the full set of CSS-named style options plus `pad`/`mar`, instead of needing `keySet` for anything beyond `font`/`color`.
+- New exports from `layout/animator.js`: `STYLE_OPTIONS` and `styleOptionsOf`.
+- New method `Animator.prototype.applyStyleOptions(obj)`, usable standalone by components that build their own options object.
+- `Text` elements (`h1`–`h6`, `p`) now honor `exact` for font size even when `size`/`fluidc`/`clampc` are also set.
+- `element-mapper.js`: `nav` bar now forwards the element's CSS-named style options to the bar itself (excluding `font`, `color`, `background`, `radius`, which keep their own handling/defaults).
+
+### Fixed
+- Bare numeric values for pixel-based style options (`radius`, `width`, `height`, `maxWidth`, `maxHeight`, `minWidth`, `minHeight`, `top`, `left`, `right`, `bottom`, `gap`) are now converted to `px` instead of being silently dropped by the browser.
+- `gpos`: no longer writes `gridRow`/`gridColumn` as the literal string `"undefined"` when only one axis is given; each axis is now set only if provided.
+- Typo-suggestion scoring in `validate-nodes.js` now also favors candidates that contain every letter of the mistyped key in order (e.g. suggesting `color` over `cols` for `colr`).
+- `PARAM_INERT` warning message for `size` on headings/paragraphs now correctly points to `exact` instead of `keySet` for setting an exact font size.
+- `known-inert.js`: removed stale entries (`nav.area`, `nav.cursor`, `nav.height`, `nav.maxHeight`, `nav.maxWidth`, `nav.opacity`, `nav.width`, `nav.zIndex`) now that `nav` actually applies these; added `checkbox.exact` and `sideNav.exact` as newly-recognized inert params (these types render their text via `Text` but don't forward element options to it).
+
+### Changed
+- `layout/animator.js`: the style-options map (`styleMap`) moved out of `commonMethods` into a module-level `STYLE_OPTIONS` constant, with application logic factored into `applyStyleOptions`. Internal refactor; behavior for existing options is unchanged aside from the fixes above.
+- `lib/element-params.generated.js`: regenerated to include all new style option names across element types and units — reflects the additions above, no manual changes.
+- `beta-mobile-bar.js`: generated/serialized code (`toCode`) now also includes any CSS-named style options present on the bar's options, not just the previously fixed list.
+- `nav.keySet` documentation updated to clarify it's now an escape hatch only for CSS that has no dedicated option name.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
