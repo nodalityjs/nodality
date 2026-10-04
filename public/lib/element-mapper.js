@@ -1,5 +1,5 @@
 // CORE
-import { Animator } from "../layout/animator.js";
+import { Animator, styleOptionsOf } from "../layout/animator.js";
 import { RASTER_OP_NAMES } from "../lib/raster-ops.js";
 import { didYouMean } from "../lib/suggest.js";
 import { Base } from "../layout/base.js";
@@ -843,18 +843,27 @@ animation: {
         return product;
     }
 
+    // The visible commerce kinds take the element's CSS-named options
+    // (exact, lineHeight, weight, …) and pad/mar, as a wrap does; until 1.3.21
+    // only font, color and keySet reached them, so a styled price or buy button
+    // needed keySet for everything. store and cart draw nothing of their own
+    // and are not given them, so the schema does not offer them there.
+    static shopStyle(el) {
+        return { ...styleOptionsOf(el), pad: el.pad, mar: el.mar };
+    }
+
     static mapPrice(obj) {
         const el = obj.el;
         //@ price.text {text}: The price as text, shown before the shop answers and in the prerendered HTML — e.g. from build-time data.
         //@ price.query {text}: Storefront API field to show. Default "product.selectedOrFirstAvailableVariant.price".
-        return this.shop("price", el, { text: el.text, query: el.query }, obj);
+        return this.shop("price", el, { ...this.shopStyle(el), text: el.text, query: el.query }, obj);
     }
 
     static mapProductData(obj) {
         const el = obj.el;
         //@ productData.query {text}: Storefront API field to show, e.g. "product.title" or "product.selectedOrFirstAvailableVariant.quantityAvailable" (needs a store token).
         //@ productData.text {text}: The value as text before the shop answers and in the prerendered HTML.
-        return this.shop("productData", el, { query: el.query, text: el.text }, obj);
+        return this.shop("productData", el, { ...this.shopStyle(el), query: el.query, text: el.text }, obj);
     }
 
     static mapProductMedia(obj) {
@@ -864,13 +873,13 @@ animation: {
         //@ productMedia.alt {text}: Description of the static image.
         //@ productMedia.width {count}: Requested width in px.
         //@ productMedia.height {count}: Requested height in px.
-        return this.shop("productMedia", el, { query: el.query, url: el.url, alt: el.alt, width: el.width, height: el.height }, obj);
+        return this.shop("productMedia", el, { ...this.shopStyle(el), query: el.query, url: el.url, alt: el.alt, width: el.width, height: el.height }, obj);
     }
 
     static mapVariantPicker(obj) {
         const el = obj.el;
         //@ variantPicker.text {text}: The options as text before the shop answers and in the prerendered HTML, e.g. "Size: Cabin · Check-in".
-        return this.shop("variantPicker", el, { text: el.text }, obj);
+        return this.shop("variantPicker", el, { ...this.shopStyle(el), text: el.text }, obj);
     }
 
     static mapBuy(obj) {
@@ -880,7 +889,7 @@ animation: {
         //@ buy.cart {text}: Id of the cart element to add to. Default "cart".
         //@ buy.store {text}: Id of the store element, for buyNow. Default "store".
         //@ buy.url {url}: Where the static link goes before the script loads and without JavaScript — the product on the shop.
-        return this.shop("buy", el, { text: el.text, mode: el.mode, cart: el.cart, store: el.store, url: el.url }, obj);
+        return this.shop("buy", el, { ...this.shopStyle(el), text: el.text, mode: el.mode, cart: el.cart, store: el.store, url: el.url }, obj);
     }
 
     static mapCart(obj) {
@@ -1043,8 +1052,14 @@ alert("PP")
         //@ nav.radius {px-or-length}: Corner radius of the bar. Default "1rem".
         //@ nav.mar {sides}: Margin around the bar. Default [{a: 21}]; pass [{a: 0}] when a wrapper positions it.
         //@ nav.pad {sides}: Padding inside the bar.
-        //@ nav.keySet {keyset}: Extra CSS on the bar itself, desktop and mobile — e.g. backdropFilter, boxShadow, fontSize.
+        //@ nav.keySet {keyset}: Escape hatch for CSS on the bar that no option names. backdropFilter, boxShadow, exact, weight and the other CSS-named options are options of the nav itself.
+        // The element's CSS-named options style the bar too (STYLE_OPTIONS), so
+        // backdropFilter or boxShadow need no keySet. Except the four the nav
+        // reads with its own meaning above: font and color are the LINKS',
+        // background and radius have defaults of their own.
+        const { font: _f, color: _c, background: _b, radius: _r, ...barStyle } = styleOptionsOf(el);
         const bar = {
+            ...barStyle,
             background: el.background ?? "#ecf0f1",
             mar: el.mar ?? [{ a: 21 }],
             radius: el.radius ?? "1rem",

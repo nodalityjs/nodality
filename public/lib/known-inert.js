@@ -21,6 +21,10 @@ export const KNOWN_INERT = new Set([
 	// a
 	"a.transform",
 	// checkbox
+	// `exact` (1.3.21): Text now reads it, so the scan credits it to every type
+	// built with a Text; checkbox uses Text only for its label and sends the
+	// element's options to Checkbox, which does not size its text.
+	"checkbox.exact",
 	"checkbox.area",
 	"checkbox.background",
 	"checkbox.color",
@@ -42,22 +46,17 @@ export const KNOWN_INERT = new Set([
 	"labelInput.color",
 	"labelInput.exact",
 	// nav
-	"nav.area",
-	"nav.cursor",
-	"nav.height",
-	"nav.maxHeight",
-	"nav.maxWidth",
-	"nav.opacity",
 	"nav.size",
 	"nav.transform",
-	"nav.width",
-	"nav.zIndex",
 	// polygon
 	"polygon.transform",
 	// radio
 	"radio.color",
 	"radio.exact",
 	// sideNav
+	// `exact` (1.3.21): as on checkbox — sideNav renders Text for its labels
+	// and builds its root, SideNav, without the element's options.
+	"sideNav.exact",
 	"sideNav.area",
 	"sideNav.background",
 	"sideNav.color",

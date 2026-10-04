@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.19
+ * nodality v1.3.20
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -20,6 +20,168 @@ const notified = new Set();
 /** Called by `Des` at the start of a build so each page reports afresh. */
 export function resetDeprecationNotices() {
 	notified.clear();
+}
+
+// ── Style options ────────────────────────────────────────────────────
+//
+// The CSS-named options every component accepts: option name → style
+// property. Lived inside commonMethods until 1.3.21, which hid it twice over:
+// the schema generator, which credits options a component reads by name,
+// never saw a key read through this map, so `get_schema p` omitted
+// `lineHeight` and the validator reported working options as PARAM_NOT_ON_TYPE
+// ("accepted and ignored") — and components that do not run commonMethods
+// (the nav bars, the shop elements) could not apply them at all. Pages fell
+// back to keySet for properties the library already had.
+const STYLE_OPTIONS = {
+    // ── Typography / sizing (pre-existing) ─────────────────────────
+    exact: "fontSize",
+    cursor: "cursor",
+    width: "width",
+    maxWidth: "maxWidth",
+    height: "height",
+    maxHeight: "maxHeight",
+    radius: "borderRadius",
+    lineHeight: "lineHeight",
+    background: "background",
+    // `color` was missing while `background` was present, so a
+    // component that styles itself ONLY through commonMethods could be
+    // given a background but not a text colour. Picker was exactly
+    // that: `new Picker().set({ color: "#0d1117" })` silently did
+    // nothing and the <select> fell back to the browser's black, while
+    // a TextField beside it — which handles obj.color itself — took
+    // the colour. The two rendered differently from identical options.
+    //
+    // Components that already handle obj.color (Text, Link, Image,
+    // Wrapper, Button) now simply set the same property to the same
+    // value. Containers that never handled it (FlexGrid, FlexRow,
+    // Center, UList) gain it, where it was previously a silent no-op.
+    color: "color",
+    font: "fontFamily",
+    opacity: "opacity",
+    gap: "gap",
+    minHeight: "minHeight",
+
+    // ── Positioning ────────────────────────────────────────────────
+    position: "position",
+    inset: "inset",
+    top: "top",
+    right: "right",
+    bottom: "bottom",
+    left: "left",
+    zIndex: "zIndex",
+
+    // ── Flex item / wrapping ───────────────────────────────────────
+    flex: "flex",
+    flexShrink: "flexShrink",
+    flexGrow: "flexGrow",
+    flexBasis: "flexBasis",
+    flexWrap: "flexWrap",
+    alignSelf: "alignSelf",
+    // `display` accepts any value: "inline-flex", "grid", "block", etc.
+    display: "display",
+
+    // ── Grid ───────────────────────────────────────────────────────
+    gridTemplateColumns: "gridTemplateColumns",
+    gridTemplateRows: "gridTemplateRows",
+    rowGap: "rowGap",
+    columnGap: "columnGap",
+    // Extended 2026-08-11 — the shell vocabulary `bones` speaks, so a
+    // generated grid needs no keySet. `cols`/`rows` are short names for
+    // the two above; `areas` had no option at all, and `area` existed
+    // only on the three components that happened to dispatch it
+    // themselves (Wrapper, Text, Image) — those now set the same
+    // property to the same value, and everything else gains it.
+    //@ cols {css-track-list}: grid-template-columns, verbatim — e.g. "240px 1fr".
+    cols: "gridTemplateColumns",
+    //@ rows {css-track-list}: grid-template-rows, verbatim.
+    rows: "gridTemplateRows",
+    //@ areas {css-areas}: grid-template-areas, verbatim — e.g. '"nav main" "nav main"'.
+    areas: "gridTemplateAreas",
+    //@ area {text}: This element's grid-area — the name of a cell declared in the parent's `areas`.
+    area: "gridArea",
+
+    // ── Typography (extended) ──────────────────────────────────────
+    letterSpacing: "letterSpacing",
+    textTransform: "textTransform",
+    whiteSpace: "whiteSpace",
+    // Wrapping behaviour for long words. `overflowWrap: "break-word"` (or
+    // "anywhere") lets a label that's longer than its flex-shrunken cell
+    // break mid-word instead of overflowing horizontally.
+    overflowWrap: "overflowWrap",
+    wordBreak: "wordBreak",
+    wordWrap: "wordWrap",
+
+    // ── Shadows / effects ──────────────────────────────────────────
+    boxShadow: "boxShadow",
+    backdropFilter: "backdropFilter",
+    WebkitBackdropFilter: "WebkitBackdropFilter",
+
+    // ── Overflow ───────────────────────────────────────────────────
+    overflow: "overflow",
+    overflowX: "overflowX",
+    overflowY: "overflowY",
+    WebkitOverflowScrolling: "WebkitOverflowScrolling",
+    WebkitTapHighlightColor: "WebkitTapHighlightColor",
+
+    // ── Sizing (extended) ──────────────────────────────────────────
+    minWidth: "minWidth",
+    boxSizing: "boxSizing",
+
+    // ── Pointer / selection ────────────────────────────────────────
+    pointerEvents: "pointerEvents",
+    userSelect: "userSelect",
+    WebkitUserSelect: "WebkitUserSelect",
+
+    // ── Convenience extras ─────────────────────────────────────────
+    // textAlign here lets non-Text classes (Wrapper, FlexRow) align
+    // child text without falling through to keySet. Text already
+    // exposes `align` separately.
+    textAlign: "textAlign",
+    transition: "transition",
+    // ── Added in 1.3.21: the properties pages still reached for keySet for ──
+    // Grid and flex alignment, side borders, aspect ratio and text decoration.
+    // With these, a page can say every property the suitcase site used as an
+    // option, so keySet is left for what no option names.
+    alignContent: "alignContent",
+    alignItems: "alignItems",
+    justifyContent: "justifyContent",
+    justifyItems: "justifyItems",
+    justifySelf: "justifySelf",
+    aspectRatio: "aspectRatio",
+    borderTop: "borderTop",
+    borderRight: "borderRight",
+    borderBottom: "borderBottom",
+    borderLeft: "borderLeft",
+    textDecoration: "textDecoration",
+    objectFit: "objectFit",
+    objectPosition: "objectPosition",
+    // Font weight. Was applied only inside commonMethods (beside `bold`), so
+    // the nav bars and shop elements, which do not run commonMethods, had no
+    // way to take it. `bold` still wins where both are given.
+    weight: "fontWeight",
+};
+
+// Apply styles safely
+// A bare number where CSS wants a length is dropped by the CSSOM without
+// a word, so `radius: 12` did nothing while `radius: "12px"` worked — and
+// the documentation promised the opposite ("a bare number, not a CSS
+// length"). Rather than correct the docs to match an awkward behaviour,
+// the number is read as pixels, which is what every caller meant.
+const PIXELS_WHEN_BARE = new Set([
+    "radius", "width", "height", "maxWidth", "maxHeight", "minWidth",
+    "minHeight", "top", "left", "right", "bottom", "gap",
+]);
+
+/**
+ * The style options present on an element spec — what a mapper forwards to a
+ * component that builds its own options object (the nav bars, the shop
+ * elements) so that the element's own CSS-named options still reach it.
+ */
+function styleOptionsOf(el) {
+    const out = {};
+    if (!el || typeof el !== "object") return out;
+    for (const key in STYLE_OPTIONS) if (el[key] != null) out[key] = el[key];
+    return out;
 }
 
 class Animator {
@@ -251,138 +413,29 @@ class Animator {
 	height, maxHeight,
 
 	*/
+	/**
+	 * Apply the CSS-named options (STYLE_OPTIONS) present on `obj`. Run by
+	 * commonMethods; callable on its own by components that build their own
+	 * options and would otherwise skip them.
+	 */
+	applyStyleOptions(obj){
+	    if (!obj || !this.res) return this;
+	    for (const key in STYLE_OPTIONS) {
+	        if (obj[key] != null) {
+	            const value = (typeof obj[key] === "number" && obj[key] !== 0 && PIXELS_WHEN_BARE.has(key))
+	                ? `${obj[key]}px`
+	                : obj[key];
+	            this.res.style[STYLE_OPTIONS[key]] = value;
+	        }
+	    }
+	    return this;
+	}
+
 		commonMethods(obj){ // define in anim
 
-  // Map of obj keys → style properties
-  // Extended 2026-04-27 — first-class CSS props so callers don't need keySet.
-  // Categories: positioning, flex-item, grid, typography, shadows/effects,
-  // overflow, sizing, pointer/selection.
-    const styleMap = {
-        // ── Typography / sizing (pre-existing) ─────────────────────────
-        exact: "fontSize",
-        cursor: "cursor",
-        width: "width",
-        maxWidth: "maxWidth",
-        height: "height",
-        maxHeight: "maxHeight",
-        radius: "borderRadius",
-        lineHeight: "lineHeight",
-        background: "background",
-        // `color` was missing while `background` was present, so a
-        // component that styles itself ONLY through commonMethods could be
-        // given a background but not a text colour. Picker was exactly
-        // that: `new Picker().set({ color: "#0d1117" })` silently did
-        // nothing and the <select> fell back to the browser's black, while
-        // a TextField beside it — which handles obj.color itself — took
-        // the colour. The two rendered differently from identical options.
-        //
-        // Components that already handle obj.color (Text, Link, Image,
-        // Wrapper, Button) now simply set the same property to the same
-        // value. Containers that never handled it (FlexGrid, FlexRow,
-        // Center, UList) gain it, where it was previously a silent no-op.
-        color: "color",
-        font: "fontFamily",
-        opacity: "opacity",
-        gap: "gap",
-        minHeight: "minHeight",
-
-        // ── Positioning ────────────────────────────────────────────────
-        position: "position",
-        inset: "inset",
-        top: "top",
-        right: "right",
-        bottom: "bottom",
-        left: "left",
-        zIndex: "zIndex",
-
-        // ── Flex item / wrapping ───────────────────────────────────────
-        flex: "flex",
-        flexShrink: "flexShrink",
-        flexGrow: "flexGrow",
-        flexBasis: "flexBasis",
-        flexWrap: "flexWrap",
-        alignSelf: "alignSelf",
-        // `display` accepts any value: "inline-flex", "grid", "block", etc.
-        display: "display",
-
-        // ── Grid ───────────────────────────────────────────────────────
-        gridTemplateColumns: "gridTemplateColumns",
-        gridTemplateRows: "gridTemplateRows",
-        rowGap: "rowGap",
-        columnGap: "columnGap",
-        // Extended 2026-08-11 — the shell vocabulary `bones` speaks, so a
-        // generated grid needs no keySet. `cols`/`rows` are short names for
-        // the two above; `areas` had no option at all, and `area` existed
-        // only on the three components that happened to dispatch it
-        // themselves (Wrapper, Text, Image) — those now set the same
-        // property to the same value, and everything else gains it.
-        //@ cols {css-track-list}: grid-template-columns, verbatim — e.g. "240px 1fr".
-        cols: "gridTemplateColumns",
-        //@ rows {css-track-list}: grid-template-rows, verbatim.
-        rows: "gridTemplateRows",
-        //@ areas {css-areas}: grid-template-areas, verbatim — e.g. '"nav main" "nav main"'.
-        areas: "gridTemplateAreas",
-        //@ area {text}: This element's grid-area — the name of a cell declared in the parent's `areas`.
-        area: "gridArea",
-
-        // ── Typography (extended) ──────────────────────────────────────
-        letterSpacing: "letterSpacing",
-        textTransform: "textTransform",
-        whiteSpace: "whiteSpace",
-        // Wrapping behaviour for long words. `overflowWrap: "break-word"` (or
-        // "anywhere") lets a label that's longer than its flex-shrunken cell
-        // break mid-word instead of overflowing horizontally.
-        overflowWrap: "overflowWrap",
-        wordBreak: "wordBreak",
-        wordWrap: "wordWrap",
-
-        // ── Shadows / effects ──────────────────────────────────────────
-        boxShadow: "boxShadow",
-        backdropFilter: "backdropFilter",
-        WebkitBackdropFilter: "WebkitBackdropFilter",
-
-        // ── Overflow ───────────────────────────────────────────────────
-        overflow: "overflow",
-        overflowX: "overflowX",
-        overflowY: "overflowY",
-        WebkitOverflowScrolling: "WebkitOverflowScrolling",
-        WebkitTapHighlightColor: "WebkitTapHighlightColor",
-
-        // ── Sizing (extended) ──────────────────────────────────────────
-        minWidth: "minWidth",
-        boxSizing: "boxSizing",
-
-        // ── Pointer / selection ────────────────────────────────────────
-        pointerEvents: "pointerEvents",
-        userSelect: "userSelect",
-        WebkitUserSelect: "WebkitUserSelect",
-
-        // ── Convenience extras ─────────────────────────────────────────
-        // textAlign here lets non-Text classes (Wrapper, FlexRow) align
-        // child text without falling through to keySet. Text already
-        // exposes `align` separately.
-        textAlign: "textAlign",
-        transition: "transition",
-    };
-
-    // Apply styles safely
-    // A bare number where CSS wants a length is dropped by the CSSOM without
-    // a word, so `radius: 12` did nothing while `radius: "12px"` worked — and
-    // the documentation promised the opposite ("a bare number, not a CSS
-    // length"). Rather than correct the docs to match an awkward behaviour,
-    // the number is read as pixels, which is what every caller meant.
-    const PIXELS_WHEN_BARE = new Set([
-        "radius", "width", "height", "maxWidth", "maxHeight", "minWidth",
-        "minHeight", "top", "left", "right", "bottom", "gap",
-    ]);
-    for (const key in styleMap) {
-        if (obj[key] != null) {
-            const value = (typeof obj[key] === "number" && obj[key] !== 0 && PIXELS_WHEN_BARE.has(key))
-                ? `${obj[key]}px`
-                : obj[key];
-            this.res.style[styleMap[key]] = value;
-        }
-    }
+    // CSS-named options (first-class since 2026-04-27, so callers need no
+    // keySet): see STYLE_OPTIONS at the top of this file.
+    this.applyStyleOptions(obj);
 
     // `transform` is overloaded: a string is a plain CSS transform, an
     // object is a Nodality animation descriptor handled by reactOnTransform
@@ -1376,9 +1429,12 @@ resmar(arr) {
 
 
 	gpos(obj){
-		//alert(obj.col);
-		this.res.style.gridColumn = obj.col;
-		this.res.style.gridRow = obj.row;
+		// Only the axes given. `gpos: {col: "1 / -1"}` wrote gridRow = undefined,
+		// and a browser reads the string "undefined" as a grid LINE NAME, so the
+		// element left its place in the auto-flow for an implicit row at the end
+		// of the grid. Found in 1.3.21, converting a page's keySet gridColumn.
+		if (obj && obj.col != null) this.res.style.gridColumn = obj.col;
+		if (obj && obj.row != null) this.res.style.gridRow = obj.row;
 		return this;
 	  }
 
@@ -2224,4 +2280,4 @@ removeQuotesFromFirstWord(jsonString) {
     
 } // 2600-1870
 
-export { Animator };
+export { Animator, STYLE_OPTIONS, styleOptionsOf };

@@ -273,6 +273,34 @@ function annotationFor(table, name, from, type, qualified) {
   return (qualified ? DESC_GLOBAL : DEPR_GLOBAL)[name];
 }
 
+// ── 6b. what commonMethods applies ───────────────────────────────────
+// Read from animator.js itself, so the list cannot drift from the code.
+const ANIMATOR = join(ROOT, "layout", "animator.js");
+const ANIMATOR_SRC = readFileSync(ANIMATOR, "utf8");
+const STYLE_MAP = (() => {
+  const m = ANIMATOR_SRC.match(/const STYLE_OPTIONS = \{([\s\S]*?)\n\};/);
+  const map = {};
+  if (m) for (const e of m[1].matchAll(/^\s*([A-Za-z][A-Za-z0-9]*)\s*:\s*"([A-Za-z]+)"/gm)) map[e[1]] = e[2];
+  return map;
+})();
+const STYLE_OPTIONS = Object.keys(STYLE_MAP);
+const PIXELS_WHEN_BARE = new Set((ANIMATOR_SRC.match(/const PIXELS_WHEN_BARE = new Set\(\[([\s\S]*?)\]\)/) || [, ""])[1]
+  .match(/"([A-Za-z]+)"/g)?.map((s) => s.slice(1, -1)) || []);
+// Of the options commonMethods reads by name, the ones it applies to the
+// element itself on every component. The rest (theme, noTheme, hide, size,
+// center, raster, …) depend on the component or on a theme being set, and are
+// credited where a component reads them, if at all.
+const COMMON_CREDITED = ["pad", "mar", "weight", "bold", "borderObj", "respad", "resmar"];
+const COMMON_READS = (() => {
+  const start = ANIMATOR_SRC.search(/\bcommonMethods\s*\(\s*obj\s*\)\s*\{/);
+  if (start < 0) return [];
+  // The method ends at the first line that closes it at its own indentation.
+  const rest = ANIMATOR_SRC.slice(start);
+  const end = rest.search(/\n\t\t\}\s*\n/);
+  const body = end > 0 ? rest.slice(0, end) : rest.slice(0, 20000);
+  return [...new Set([...body.matchAll(/\bobj\.([a-zA-Z][a-zA-Z0-9]*)/g)].map((x) => x[1]))];
+})();
+
 // ── 7. assemble ──────────────────────────────────────────────────────
 const schema = { generated: "scripts/generate-schema.mjs", types: {} };
 let resolved = 0;
@@ -365,10 +393,59 @@ for (const type of TYPES) {
   // component's own set() — currently `loop`. Component scans never see them,
   // because they are read in animator.js. Credited only where the type has no
   // parameter of that name already: `video` has its own boolean `loop`.
-  const ANIMATOR = join(ROOT, "layout", "animator.js");
   const onAnimator = files.some((f) => { try { return /extends\s+Animator\b/.test(readFileSync(f, "utf8")); } catch { return false; } });
   // And only where the element's options reach the component at all.
   if (onAnimator && forwardsElement) for (const p of ["loop"]) if (!params.has(p)) contributed(p, ANIMATOR);
+
+  // Options commonMethods applies, for every component that runs it. Two
+  // kinds, both read in animator.js where no component scan looks: the
+  // CSS-named options of STYLE_OPTIONS (lineHeight, gap, exact, weight, …),
+  // read through a map rather than by name, and the ones commonMethods reads
+  // by name (pad, mar, hover, borderObj, …). Missing them made the schema
+  // omit working options and the validator report them as PARAM_NOT_ON_TYPE —
+  // "accepted and ignored" — so pages used keySet for options the library
+  // had. Until 1.3.21.
+  //
+  // Credited only through the component that RECEIVES the element's options:
+  // a type is often built from several classes, and the one that runs
+  // commonMethods may be a helper — checkbox renders its label with Text,
+  // which runs it, while the element's options go to Checkbox, which does not.
+  // Crediting by "some component runs it" claimed working options for a
+  // checkbox that ignores every one of them. Where the receiving class cannot
+  // be identified, nothing is credited.
+  // Each `new X(` owns the code up to the next one; X receives the element's
+  // options if that stretch hands them over (elOpts, a spread, or an alias).
+  // Looked for in the mapper's OWN body, not in the helpers it calls: sideNav
+  // hands the element's options to a Link inside a helper while its root,
+  // SideNav, takes none, and crediting through the helper claimed every
+  // style option for a component that applies not one. A mapper whose own
+  // body constructs nothing is a delegate, and its helpers are its body.
+  // Capped at the next static declaration: methodBody's brace matcher loses
+  // its place in sideNav's 300-line body and returned 52 kB — the rest of the
+  // file — so every later mapper's construction counted as sideNav's own.
+  const ownRaw = method ? methodBody(method) : "";
+  const nextStatic = ownRaw.search(/\n\s{4}static\s+[A-Za-z_]\w*\s*\(/);
+  const ownBody = nextStatic > 0 ? ownRaw.slice(0, nextStatic) : ownRaw;
+  const scope = /\bnew\s+[A-Z]/.test(ownBody) ? ownBody : body;
+  const news = [...scope.matchAll(/\bnew\s+([A-Z]\w*)\s*\(/g)];
+  const receivers = news.filter((h, i) => {
+    const seg = scope.slice(h.index, i + 1 < news.length ? news[i + 1].index : h.index + 3000);
+    return /\.set\s*\(/.test(seg) && (/\belOpts\s*\(/.test(seg) || /\.\.\.el\b/.test(seg)
+      || aliases.some((a) => new RegExp(`\\.set\\(\\s*${a}\\s*[,)]`).test(seg)));
+  }).map((h) => h[1]);
+  const runsCommon = receivers.some((c) => {
+    const f = fileFor(c);
+    try { return !!f && /\bcommonMethods\s*\(/.test(readFileSync(f, "utf8")); } catch { return false; }
+  });
+  if (runsCommon && forwardsElement) {
+    for (const p of [...STYLE_OPTIONS, ...COMMON_CREDITED]) if (!params.has(p)) contributed(p, ANIMATOR);
+  }
+  // A mapper that builds its own options but forwards the element's style
+  // options with styleOptionsOf(el) (nav, the commerce types) is credited
+  // with exactly those.
+  if (/\bstyleOptionsOf\s*\(/.test(body)) {
+    for (const p of STYLE_OPTIONS) if (!params.has(p)) contributed(p, ANIMATOR);
+  }
 
   // NOTE. A `settable` flag was attempted here and removed. The question it
   // was meant to answer -- which of these parameters an AUTHOR can set on the
@@ -389,7 +466,11 @@ for (const type of TYPES) {
     components: classes,
     params: [...params].sort().map((name) => {
       const where = from.get(name) || [];
-      const description = annotationFor(DESC_BY_FILE, name, where, type, true);
+      const description = annotationFor(DESC_BY_FILE, name, where, type, true)
+        || (where.includes(ANIMATOR) && STYLE_MAP[name]
+          ? `CSS ${STYLE_MAP[name].replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())}, written verbatim.`
+            + (PIXELS_WHEN_BARE.has(name) ? " A bare number is read as px." : "")
+          : undefined);
       const deprecated = annotationFor(DEPR_BY_FILE, name, where, type, false);
       const unit = (UNIT_BY_TYPE[type] && UNIT_BY_TYPE[type][name])
         || where.map((f) => (UNIT_BY_FILE.get(f) || {})[name]).find(Boolean)

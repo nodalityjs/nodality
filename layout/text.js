@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.19
+ * nodality v1.3.20
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -215,6 +215,12 @@ this.res.style.position = "absolute";
 	
 		super.setClass(this.options.class);
 		obj.clampc && this.clampCopy(obj.clampc);
+		// An exact size is the more specific instruction. commonMethods applied
+		// it, and then the scale step (`size`, which every text type sets by
+		// default) and fluidc/clampc above replaced it, so `exact` on a p or an
+		// h2 did nothing and only keySet, applied last, could size text. Until
+		// 1.3.21.
+		obj.exact != null && (this.res.style.fontSize = obj.exact);
 
 // stra +=  // 2345 06/03
 	

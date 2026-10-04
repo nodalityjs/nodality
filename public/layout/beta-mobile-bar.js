@@ -1,4 +1,4 @@
-import {Animator} from "./animator.js";
+import {Animator, STYLE_OPTIONS} from "./animator.js";
 import { keyPattern } from "../lib/codegen.js";
 class /*Beta*/MobileBar extends Animator {
     constructor() {
@@ -38,7 +38,10 @@ let repl = this.removeQuotesFromFirstWord(JSON.stringify(this.obj));
 // Every option set() reads is emitted; brand only when there is one (it
 // threw on a bar without a brand).
 const SERIALISED = ["background", "color", "mar", "pad", "resmar", "respad", "radius", "maxHeight", "hamburgerColour", "keySet", "menuLabel", "menuId"];
-let codeObj = SERIALISED
+// Plus every CSS-named option (STYLE_OPTIONS) the bar was given: set()
+// applies them, so the code Des runs has to carry them too.
+const keys = [...SERIALISED, ...Object.keys(this.obj).filter((k) => k in STYLE_OPTIONS && !SERIALISED.includes(k))];
+let codeObj = keys
     .filter((k) => this.obj[k] !== undefined)
     .map((k) => `${k}: ${JSON.stringify(this.obj[k])},`)
     .join("\n");
@@ -94,6 +97,13 @@ if (this.obj.brand && typeof this.obj.brand.toCode === "function") {
       // After setStyles, so a page's values replace the defaults.
       obj.color && (this.navbar.style.color = obj.color);
       obj.pad && this.pad(obj.pad);
+      // CSS-named options (backdropFilter, boxShadow, exact, weight, …) on the
+      // bar itself, so a page need not reach for keySet. The four this bar
+      // already applies above are left to it.
+      {
+        const { background, color, radius, maxHeight, ...style } = obj;
+        this.applyStyleOptions(style);
+      }
       obj.keySet && this.keySet(obj.keySet);
         return this;
     }

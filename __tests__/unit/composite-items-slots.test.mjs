@@ -80,7 +80,10 @@ test("each composite with no content renders exactly what it did before S4", () 
     //           shipped empty. textContent works in both.
     ["row", 367, "ae12d009272b8665"],
     ["table", 3620, "51c8a2dc0e6e35d2"],
-    ["nav", 1441, "57cd4af92e30179e"],
+    // nav re-pinned in 1.3.21, same length: `weight` joined the shared
+    // style options, so the demo's "More" label gets font-weight before its
+    // padding instead of after. Same declarations, in another order.
+    ["nav", 1441, "2ee56b9017bf249b"],
     ["sideNav", 1964, "83db854bfe92d163"],
   ]) {
     const html = render({ type });

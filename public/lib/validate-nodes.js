@@ -557,7 +557,7 @@ export function validateNodes(nodes, elements, defs) {
                         if (KNOWN_INERT.has(`${el.type}.${key}`)) {
                             warn("PARAM_INERT", `${p}.${key}`, key, [],
                                 [key === "size" && /^(h[1-6]|p)$/.test(el.type)
-                                    ? "the element type sets the scale step; use `tag` for the heading level and keySet fontSize for the size"
+                                    ? "the element type sets the scale step; use `tag` for the heading level and `exact` for an exact size"
                                     : `see \`npx nodality schema ${el.type}\`; wrap the element in a \`wrap\` to style or place it`],
                                 `"${el.type}" lists "${key}" but ignores it — a known gap, recorded in lib/known-inert.js`);
                         }
@@ -585,9 +585,16 @@ export function validateNodes(nodes, elements, defs) {
                         // the commonest typo there is, so a candidate built
                         // from exactly the same characters ranks ahead of an
                         // equal-distance one that is not.
+                        // And a candidate that holds every letter of the typo
+                        // in order — the typo DROPPED letters, the next most
+                        // common slip — ranks ahead of an equal-distance one
+                        // that needs a letter changed: `colr` is `color` short
+                        // an o, not `cols` with an s for an r.
                         const sorted = (w) => [...w].sort().join("");
+                        const within = (small, big) => { let i = 0; for (const ch of big) if (ch === small[i]) i++; return i === small.length; };
                         const score = (c) => levenshtein(key, c)
                             - (sorted(c) === sorted(key) ? 1.5 : 0)
+                            - (c.length > key.length && within(key, c) ? 0.5 : 0)
                             - (c[0] === key[0] ? 0.25 : 0);
                         const near = suggest(key, ELEMENT_PARAM_NAMES)
                             .sort((a, b) => score(a) - score(b)

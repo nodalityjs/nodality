@@ -50,6 +50,12 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         }
         // Last, so a page's values replace the defaults setStyles() wrote.
         obj.color && (this.res.style.color = obj.color);
+        // CSS-named options on the bar itself, as on MobileBar; the four
+        // applied above are left to them.
+        {
+            const { background, color, radius, maxHeight, ...style } = obj;
+            this.applyStyleOptions(style);
+        }
         obj.keySet && this.keySet(obj.keySet);
         return this;
     }

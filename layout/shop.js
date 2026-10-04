@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.19
+ * nodality v1.3.20
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -67,6 +67,14 @@ class Shop extends Animator {
 		obj.id && this.res.setAttribute("id", String(obj.id));
 		obj.font && (this.res.style.fontFamily = obj.font);
 		obj.color && (this.res.style.color = obj.color);
+		// Every visible kind takes the CSS-named options and pad/mar, as a
+		// product box does through commonMethods. store and cart draw nothing
+		// of their own here (the cart is themed through ::part rules).
+		if (kind !== "product" && kind !== "store" && kind !== "cart") {
+			this.applyStyleOptions(obj);
+			obj.pad && this.pad(obj.pad);
+			obj.mar && this.mar(obj.mar);
+		}
 		obj.keySet && this.keySet(obj.keySet);
 		return this;
 	}

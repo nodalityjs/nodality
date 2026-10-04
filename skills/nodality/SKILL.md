@@ -202,9 +202,16 @@ A complete navigation graph is one node:
 - **Never touch the DOM to style or fix a Nodality page.** No
   `el.style.*`, no `createElement` in page code, no post-render DOM
   patching. If the library cannot express something, the fix is a custom
-  element/op (extend the library), or the `keySet` option on an element
-  (`keySet: { key, value }`) for one custom CSS property. Note the
-  spelling: `keySet`, capital S.
+  element/op (extend the library).
+- **Style with options, not keySet.** Elements take styling as options:
+  the library's own names (`exact` for font size, `weight`, `pad`, `mar`,
+  `radius`, `gpos`, `borderObj`) and the CSS-named options every element
+  accepts (`lineHeight`, `letterSpacing`, `textTransform`, `gap`,
+  `alignContent`, `justifyContent`, `boxShadow`, `backdropFilter`,
+  `borderTop`, …). `get_schema <type>` lists them. Responsive values go in
+  `resprop`, which takes CSS names. `keySet: [{ key, value }]` is the escape
+  hatch for a property no option names — reach for it last, and if the same
+  property keeps needing it, extend the library instead.
 - **No CSS in the page either.** No `<style>` rules, no `@keyframes`, no
   stylesheet files. Anything that moves on its own takes `loop` on the element —
   `loop: { keyframes: [{…}, {…}], duration }` runs forever through the Web
