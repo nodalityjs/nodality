@@ -326,6 +326,12 @@ document is untrusted input.
 
 ## Verifying your work
 
+- **`check_page` works without the MCP too:** `npx nodality check
+  upload/*.html --base=http://localhost:4000/` (or `import { checkPage }
+  from "nodality/check"`). Pass `--base` for a prerendered site, or its fonts
+  and `/assets/` do not load and text is measured in a fallback face. It exits
+  1 on findings, and on a shop page reports `LOADING_LAYOUT_SHIFT` when the
+  product's loading copy sits somewhere other than the loaded element.
 - **Read `FAINT_TEXT` from `check_page`.** It reports small text that passes
   WCAG and still reads faint (APCA), the usual case on mid-tone backgrounds.
   Fix with weight, a lighter or darker ground, or size; not by ignoring it.

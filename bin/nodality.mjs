@@ -126,6 +126,13 @@ function showUsage() {
                                               #   --dir=<path>        copy SKILL.md anywhere
                                               #   --no-mcp            skip MCP registration
                                               # Re-run after upgrading to refresh in place.
+  nodality check <page.html>... [--base=<url>] # Check rendered pages in a real browser
+                                              # (Playwright): overflow, clipping,
+                                              # contrast, labels, tap targets, a shop
+                                              # product's loading shift. --base is the
+                                              # origin they are served from, so fonts
+                                              # and /assets/ load. Exit 1 on findings.
+                                              # The same check as the MCP check_page.
   nodality schema [type] [--check]            # Print the machine-readable element
                                               # schema, derived from the source
                                               # at run time. With a type, print
@@ -916,6 +923,35 @@ async function runFanoutStandalone(rawArgs) {
   }
 }
 
+// ─── check subcommand ──────────────────────────────────────────
+
+async function runCheck(rest) {
+  const fs = await import("node:fs");
+  const files = rest.filter((a) => !a.startsWith("--"));
+  const baseArg = rest.find((a) => a.startsWith("--base="));
+  if (!files.length) {
+    console.error("[nodality] check: name one or more HTML files, e.g. npx nodality check upload/index.html --base=http://localhost:4000/");
+    process.exit(1);
+  }
+  const { checkPage } = await import("../lib/check-page.js");
+  let findings = 0;
+  for (const file of files) {
+    const html = fs.readFileSync(file, "utf8");
+    const opts = baseArg ? { base: baseArg.slice("--base=".length), waitUntil: "networkidle" } : {};
+    const r = await checkPage(html, opts);
+    if (r.errors[0]?.code === "MISSING_PEER_DEPENDENCY") {
+      console.error(`[nodality] check: ${r.errors[0].detail}\n  ${r.errors[0].suggestions.join("\n  ")}`);
+      process.exit(1);
+    }
+    findings += r.errors.length;
+    console.log(r.errors.length ? `✗ ${file} — ${r.errors.length} finding(s)` : `✓ ${file}`);
+    for (const e of r.errors) {
+      console.log(`  ${e.code}  ${e.path}  ${e.got ?? ""}  [${e.viewport}]${e.detail ? `\n    ${e.detail}` : ""}${e.suggestions.length ? `\n    → ${e.suggestions[0]}` : ""}`);
+    }
+  }
+  if (findings) process.exit(1);
+}
+
 // ─── Dispatch ──────────────────────────────────────────────────
 
 async function main() {
@@ -960,6 +996,11 @@ async function main() {
     // should cost nothing, and a broken generator must not take the CLI down.
     const { runSchema } = await import("./schema-cli.mjs");
     await runSchema(rest);
+  } else if (command === "check") {
+    // check_page without the MCP. A session where the server is not loaded
+    // (it needs approving per project) had no way to run it: the module was
+    // not exported and no command reached it.
+    await runCheck(rest);
   } else if (command === "skill") {
     const { runSkillInstall } = await import("./install-skill.mjs");
     await runSkillInstall(rest);

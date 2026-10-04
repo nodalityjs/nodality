@@ -148,7 +148,11 @@ const TOOLS = [
       "width and reports horizontal overflow, elements past the viewport, " +
       "clipped content, images with no description, tap targets under 24px, " +
       "controls with no accessible name, skipped heading levels and text " +
-      "below the WCAG contrast minimum. Same report shape as validate_nodes; " +
+      "below the WCAG contrast minimum, and a shop product whose loading " +
+      "copy sits somewhere other than the loaded element (the shop script is " +
+      "blocked, so this needs no store). For a prerendered site page, pass " +
+      "`base` (the dev server's origin) so its fonts and assets load. Same " +
+      "report shape as validate_nodes; " +
       "`path` in an error is a CSS selector into the rendered page. It " +
       "reports facts, never taste \u2014 it will not tell you whether a " +
       "design is good.",
@@ -157,6 +161,7 @@ const TOOLS = [
       properties: {
         html: { type: "string", description: "Rendered HTML: a document or a fragment." },
         path: { type: "string", description: "Path to an HTML file, e.g. what `preview` returned." },
+        base: { type: "string", description: "Origin the page is served from, e.g. http://localhost:4000/ — resolves its /assets/ fonts and styles." },
       },
     },
   },
@@ -259,7 +264,7 @@ const IMPL = {
   // generator is a build-time script and this server answers in-process. The
   // drift test keeps the committed copy honest, so reading it is not a second
   // source of truth, it is the same one at rest.
-  check_page: async ({ html, path: file } = {}) => {
+  check_page: async ({ html, path: file, base } = {}) => {
     const { checkPage } = await import("../lib/check-page.js");
     let source = html;
     if (!source && file) {
@@ -276,7 +281,7 @@ const IMPL = {
         }],
       });
     }
-    return ok(await checkPage(source));
+    return ok(await checkPage(source, base ? { base, waitUntil: "networkidle" } : {}));
   },
 
   get_schema: async ({ type } = {}) => {
