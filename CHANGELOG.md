@@ -2,6 +2,24 @@
 
 Generated per release from the source diff.
 
+## 1.3.19 — 2026-10-04
+
+### Added
+- `checkPage` now detects `LOADING_LAYOUT_SHIFT`: for Shopify product contexts (`shopify-context`), the loading placeholder is compared against the stamped loaded template, and a finding is raised if a matching element moves or resizes by more than 8px between the two states.
+- `checkPage` now blocks requests to `cdn.shopify.com/storefront/` while checking a page, so products are always evaluated in their initial (unloaded) state.
+- `raster-ops.js` exports a new `DRIVER_DOCS` object describing each driver's behaviour, including whether its effect is visible at rest.
+- `describeOps()` output now includes `driverDocs` (name + summary per driver) and, for ops with a `needs` stage dependency, a `needs` field.
+- `validateNodes` now warns with `INERT_RASTER_OP` when a raster op requiring an earlier stage (e.g. `edges` needing a `cell`-stage op like `hexalize`) has no qualifying op earlier in the chain on the same target.
+- Image layout: `width()` and `height()` now track which dimensions were explicitly declared via a new internal `declaresDimension(dim)` check (covering options, `keySet` entries, or direct method calls), so setting one dimension no longer resets the other to `"auto"` if that other dimension was explicitly declared.
+
+### Fixed
+- Image: a `resprop` breakpoint that set only `height` (or only `width`) no longer silently resets an explicitly-declared `width` (or `height`) to `"auto"`, which previously shrank the image to its intrinsic ratio.
+- Live raster mode: the 1500ms "no paint event" fallback-to-snapshot timer no longer starts while the document is hidden (e.g. a tab opened in the background); it now starts once the page becomes visible, so backgrounded pages are no longer forced into snapshot mode by default.
+- Snapshot raster mode comment/behavior note corrected: web fonts used by the captured subtree are now fetched and embedded as `data:` URIs rather than never loading (this was already true in code; the doc comment previously said otherwise).
+
+### Changed
+- `hexalize` documentation clarifies that cells away from the active driver focus are left untouched (no magnification, no border), so `by: "hover"` effects are pixel-identical at rest.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
