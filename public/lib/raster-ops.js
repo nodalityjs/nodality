@@ -15,8 +15,12 @@
 //   snapshot (default) — XMLSerializer -> SVG foreignObject -> Image ->
 //     texture. Works in every browser. Nodality output is inline-styled,
 //     so fidelity is high. Static: recaptured on resize (or via
-//     handle.refresh()). External images / webfonts do not load inside
-//     the SVG image context — system fonts and data: URIs only.
+//     handle.refresh()). External images do not load inside the SVG
+//     image context (data: URIs do). Web fonts DO arrive: the faces the
+//     subtree uses are fetched and embedded as data: URIs (see "Web fonts
+//     inside the snapshot"); only a font host that refuses CORS falls back
+//     to a local typeface. (This line said web fonts never load until
+//     October 2026, long after embedding shipped.)
 //   live (the DEFAULT where it applies; opt OUT with `live: false` on any
 //     node) — the emerging HTML-in-Canvas API (WICG, Chrome origin trial):
 //     the mount subtree moves inside the effect <canvas layoutsubtree> and
@@ -102,12 +106,26 @@ const DRIVERS = {
 };
 const DRIVER_NAMES = Object.keys(DRIVERS);
 
+// What each driver does, for describeOps(). The resting behaviour is the part
+// an agent cannot infer from a name: whether the effect is visible before
+// anyone interacts, which decides whether a page looks the same at rest.
+const DRIVER_DOCS = {
+    static: "The element's centre at full strength, always on. The default for ops that need a focus.",
+    mouse: "Follows the pointer at full strength, and stays on where the pointer last was — visible at rest.",
+    hover: "Follows the pointer, faded in and out with hover — nothing shows at rest or without a pointer (a phone).",
+    scroll: "A band that travels up the element as it crosses the viewport, at full strength.",
+    time: "Hands-free: the focus drifts on a Lissajous path, always on.",
+};
+
 const REGISTRY = {
     hexalize: {
         doc: {
             summary: "Hexagonal cell grid. Snaps sampling to a hex lattice and "
                 + "draws cell borders; with `lift`, cells near the driver swell "
-                + "toward the viewer and their content magnifies to match.",
+                + "toward the viewer and their content magnifies to match. Away "
+                + "from the focus a lifted chain is untouched — no magnification, "
+                + "no border — so with `by: \"hover\"` the element is "
+                + "pixel-identical at rest and the cells appear only under the pointer.",
             params: {
                 size: { default: 24, unit: "px", summary: "lattice pitch — the width of one cell" },
                 lift: {
@@ -436,6 +454,10 @@ ${NB.map(([x, y]) => probe(x, y)).join("")}
             },
         },
         stage: "color",
+        // It colours `edge`, which only a cell-stage op writes. Declared so the
+        // validator can say so (INERT_RASTER_OP) instead of the chain
+        // validating clean and drawing nothing.
+        needs: "cell",
         decl: (p) => `uniform vec3 ${p}color; uniform float ${p}strength;`,
         code: (p) => `
         {
@@ -4088,11 +4110,26 @@ function applyRasterPipeline(el, rasterNodes, opts) {
 
     if (live) {
         canvas.addEventListener("paint", onPaint);
-        setTimeout(() => {
+        // The 1500ms is a budget for a page someone is looking at. A hidden
+        // document — a tab opened in the background — paints nothing at all,
+        // so timing it from load sent every background-opened page to the
+        // snapshot for good, even in a browser with the live API. The clock
+        // starts when the page is first shown.
+        const startPaintClock = () => setTimeout(() => {
             if (!destroyed && mode === "live" && !textureReady) {
                 fallbackToSnapshot("no paint event within 1500ms");
             }
         }, 1500);
+        if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+            const onShown = () => {
+                if (document.visibilityState === "hidden") return;
+                document.removeEventListener("visibilitychange", onShown);
+                if (!destroyed) startPaintClock();
+            };
+            document.addEventListener("visibilitychange", onShown);
+        } else {
+            startPaintClock();
+        }
     }
 
     // Pointer -> u_mouse (listen on the host so the overlay stays
@@ -4957,7 +4994,7 @@ function applyRasterPipeline(el, rasterNodes, opts) {
 
 export {
     applyRasterPipeline, registerRasterOp, RASTER_OP_NAMES,
-    isHTMLInCanvasAvailable, DRIVER_NAMES,
+    isHTMLInCanvasAvailable, DRIVER_NAMES, DRIVER_DOCS,
     // Phase H3. The registry is already effectively public — registerRasterOp
     // mutates it — and a dev tool needs to read an op's stage and params to
     // show them. `isStructuralChange` is exported so the inspector can label

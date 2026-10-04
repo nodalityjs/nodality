@@ -1,5 +1,5 @@
 /*!
- * nodality v1.3.17
+ * nodality v1.3.18
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -527,8 +527,10 @@ let obj = options;
 	}
 	
 	height(h){
+		 this._declared = this._declared || {};
+		 this._declared.height = true;
 		 this.res.style.height = h;
-		 this.res.style.width = "auto";
+		 if (!this.declaresDimension("width")) this.res.style.width = "auto";
 			return this;
 	}
 
@@ -596,10 +598,27 @@ if (mqa.matches){
 	}
 	
 	
+	// width() and height() each reset the OTHER dimension to auto, so an image
+	// given one keeps its ratio. That is only right when the caller never set
+	// the other one. A resprop breakpoint calls these methods, and a
+	// `resprop: [{ height: "52vh" }]` on an image whose width was declared
+	// (`width: "100%"`, a keySet width, or .width()) shrank it to its intrinsic
+	// ratio, silently. A dimension the caller declared is kept.
 	width(w){
+		 this._declared = this._declared || {};
+		 this._declared.width = true;
 		 this.res.style.width = w;
-		 this.res.style.height = "auto";
+		 if (!this.declaresDimension("height")) this.res.style.height = "auto";
 		return this;
+	}
+
+	/** Did the caller set this dimension: an option, a keySet entry or the method? */
+	declaresDimension(dim) {
+		if (this._declared && this._declared[dim]) return true;
+		const o = this.options || {};
+		if (o[dim] != null && o[dim] !== "") return true;
+		const ks = Array.isArray(o.keySet) ? o.keySet : (o.keySet ? [o.keySet] : []);
+		return ks.some((e) => e && e.key === dim);
 	}
 
 
