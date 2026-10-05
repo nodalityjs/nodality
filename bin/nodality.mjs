@@ -99,7 +99,9 @@ function showUsage() {
                                               # runs automatically before \`prerender\`)
   nodality stage [--upload=DIR]               # Copy the installed ESM bundle to
                                               # upload/dist/lib.bundle.js + stamp the
-                                              # version into upload/_nodality-version.js.
+                                              # version into upload/_nodality-version.js,
+                                              # and ?v=<version> into each page's link to
+                                              # the bundle (--no-cache-bust to skip).
                                               # Run from consumer upgrade.sh after
                                               # \`npm install nodality@latest\`.
   nodality mcp                                # Model Context Protocol server over stdio,
@@ -1065,6 +1067,8 @@ async function main() {
 //   --no-bundle        skip the dist/lib.bundle.js copy (some
 //                      consumers don't ship the browser ESM)
 //   --no-version       skip _nodality-version.js stamping
+//   --no-cache-bust    leave the importmap and the staged modules' import
+//                      URLs without the ?v=<version> query
 //
 // Idempotent: writes only when content changes. Safe to re-run.
 async function runStage(args) {
@@ -1100,6 +1104,22 @@ async function runStage(args) {
   );
   const version = pkg.version;
 
+  // Cache-busting. A host that caches JavaScript by URL (sls3.cz's does, for
+  // a day or more) kept serving the PREVIOUS bundle at /dist/lib.bundle.js
+  // after an upgrade, while the pages beside it were new. The version goes
+  // into every URL stage controls: the importmap's link to the bundle, and
+  // the bundle's own imports of the modules staged beside it — otherwise a
+  // new bundle would load cached old copies of those, which is worse than
+  // either version alone. ESM keys modules by URL, so every copy is stamped
+  // the same way and each module still loads once.
+  const bust = flags["no-cache-bust"] !== true;
+  const RELSPEC = /(?:import|export)[^'"]*?from\s*["'](\.[^"']+)["']|import\s*\(\s*["'](\.[^"']+)["']\s*\)|import\s*["'](\.[^"']+)["']/g;
+  const stampSpecs = (code) => !bust ? code : code.replace(RELSPEC, (full, a, b, c) => {
+    const spec = a || b || c;
+    const bare = spec.replace(/\?v=[^"']*$/, "");
+    return full.replace(spec, `${bare}?v=${version}`);
+  });
+
   // 1. Bundle copy — `upload/dist/lib.bundle.js` is what the consumer's
   //    HTML importmap pins `"nodality"` to. Keep it in lockstep with
   //    the installed package's ESM build.
@@ -1110,7 +1130,7 @@ async function runStage(args) {
       console.warn(`[nodality] stage: ${src} missing — skipping bundle copy`);
     } else {
       fs.mkdirSync(path.dirname(dst), { recursive: true });
-      fs.copyFileSync(src, dst);
+      fs.writeFileSync(dst, stampSpecs(fs.readFileSync(src, "utf8")));
       console.log(`[nodality] stage: bundle → ${path.relative(cwd, dst)}`);
 
       // 1b. The bundle does not contain everything it needs. The build
@@ -1162,7 +1182,7 @@ async function runStage(args) {
         }
         const dest = path.join(uploadDir, rel);
         fs.mkdirSync(path.dirname(dest), { recursive: true });
-        fs.writeFileSync(dest, code);
+        fs.writeFileSync(dest, stampSpecs(code));
         copied++;
         for (const spec of relSpecs(code)) {
           queue.push(path.resolve(path.dirname(abs), spec));
@@ -1203,6 +1223,31 @@ async function runStage(args) {
     } else {
       console.log(`[nodality] stage: version already at ${version} (no change)`);
     }
+  }
+
+  // 3. The pages' link to the bundle: `"nodality": "/dist/lib.bundle.js"` in
+  //    each importmap becomes `…/lib.bundle.js?v=<version>`, replacing an
+  //    older stamp. Only inside <script type="importmap"> blocks, and only
+  //    the link to the staged bundle — nothing else in a page is touched.
+  if (bust && flags["no-bundle"] !== true) {
+    const SKIP = new Set(["node_modules", "dist", "lib", "layout", ".git"]);
+    const pages = [];
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (entry.isDirectory()) { if (!SKIP.has(entry.name)) walk(path.join(dir, entry.name)); }
+        else if (entry.name.endsWith(".html")) pages.push(path.join(dir, entry.name));
+      }
+    };
+    walk(uploadDir);
+    const LINK = /(["'])((?:\.{0,2}\/)?(?:[\w.-]+\/)*dist\/lib\.bundle\.js)(?:\?v=[^"']*)?\1/g;
+    let stamped = 0;
+    for (const file of pages) {
+      const html = fs.readFileSync(file, "utf8");
+      const next = html.replace(/(<script[^>]*type=["']importmap["'][^>]*>)([\s\S]*?)(<\/script>)/gi,
+        (whole, open, body, close) => open + body.replace(LINK, (m, q, url) => `${q}${url}?v=${version}${q}`) + close);
+      if (next !== html) { fs.writeFileSync(file, next); stamped++; }
+    }
+    if (stamped) console.log(`[nodality] stage: importmap → ?v=${version} in ${stamped} page(s)`);
   }
 }
 

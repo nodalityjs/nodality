@@ -181,8 +181,11 @@ let obj = options;
 		options.gpos && (this.gposObject = options.gpos);
 
 		if (options.gpos){
-			this.res.style.gridColumn = options.gpos.col;
-			this.res.style.gridRow = options.gpos.row;
+			// Through Animator.gpos, which writes only the axes given. Writing
+			// both here put the string "undefined" into gridRow for a column-only
+			// gpos, which a browser reads as a grid line NAME — the image left
+			// its place for an implicit row at the end of the grid (1.3.22).
+			this.gpos(options.gpos);
 
 			stra += `\n gpos: ${this.removeQuotesFromFirstWord(JSON.stringify(options.gpos))}, `;
 

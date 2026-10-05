@@ -151,3 +151,13 @@ test("gpos with one axis leaves the other alone", () => {
 	assert.equal(s.gridRow, "", "no row was given, so none is written");
 	assert.ok(!/undefined/.test(byId("g").getAttribute("style") || ""));
 });
+
+test("an image's gpos with one axis leaves the other alone too", () => {
+	// Image wrote both axes itself, so it kept the bug after 1.3.21 fixed it
+	// in Animator.gpos: a column-only gpos made the row "undefined".
+	render({ type: "img", id: "gi", url: "a.jpg", alt: "", gpos: { col: "2 / span 2" } });
+	const img = byId("gi");
+	assert.equal(img.style.gridColumn, "2 / span 2");
+	assert.equal(img.style.gridRow, "");
+	assert.ok(!/undefined/.test(img.getAttribute("style") || ""));
+});
