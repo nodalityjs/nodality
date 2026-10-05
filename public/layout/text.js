@@ -156,8 +156,8 @@ this.res.style.position = "absolute";
 
 		obj.maxWidth && (this.res.style.maxWidth = obj.maxWidth);
 
-  //@ cursor: Show a pointer cursor. Any truthy value; the cursor style itself is fixed.
-		obj.cursor && (this.res.style.cursor = "hand");
+		// `cursor` is applied by commonMethods above. This line used to overwrite
+		// it with "hand", which no browser but Internet Explorer accepts.
 		
   //@ gpos: Grid placement — {col, row}, written to grid-column and grid-row.
 		obj.gpos && this.gpos(obj.gpos);

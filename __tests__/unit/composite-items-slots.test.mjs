@@ -83,7 +83,10 @@ test("each composite with no content renders exactly what it did before S4", () 
     // nav re-pinned in 1.3.21, same length: `weight` joined the shared
     // style options, so the demo's "More" label gets font-weight before its
     // padding instead of after. Same declarations, in another order.
-    ["nav", 1441, "2ee56b9017bf249b"],
+    // Re-pinned in 1.3.23, +17 characters: the "More" label's cursor was
+    // "hand", which jsdom (like every browser but IE) rejects, so nothing was
+    // written. It is now `cursor: pointer;`, and that is the whole difference.
+    ["nav", 1458, "9eb18279b87a0264"],
     ["sideNav", 1964, "83db854bfe92d163"],
   ]) {
     const html = render({ type });

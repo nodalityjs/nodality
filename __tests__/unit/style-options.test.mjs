@@ -161,3 +161,26 @@ test("an image's gpos with one axis leaves the other alone too", () => {
 	assert.equal(img.style.gridRow, "");
 	assert.ok(!/undefined/.test(img.getAttribute("style") || ""));
 });
+
+test("cursor: true means pointer, a CSS name is written as given, and IE's \"hand\" is read as pointer", () => {
+	// Text wrote cursor = "hand" for any truthy cursor. "hand" is Internet
+	// Explorer's name for the pointer and every other browser rejects it, so
+	// `cursor: true` did nothing, and `cursor: "pointer"` only worked because
+	// the browser threw the later "hand" away. The mapper passed "hand" itself
+	// to its dropdown labels, which therefore showed the default arrow.
+	render([
+		{ type: "p", id: "c-true", text: "x", cursor: true },
+		{ type: "p", id: "c-help", text: "x", cursor: "help" },
+		{ type: "p", id: "c-hand", text: "x", cursor: "hand" },
+		{ type: "wrap", id: "c-wrap", cursor: true, children: [] },
+		{ type: "img", id: "c-img", url: "a.jpg", alt: "", cursor: "hand" },
+	]);
+	assert.equal(byId("c-true").style.cursor, "pointer");
+	assert.equal(byId("c-help").style.cursor, "help");
+	assert.equal(byId("c-hand").style.cursor, "pointer");
+	assert.equal(byId("c-wrap").style.cursor, "pointer");
+	assert.equal(byId("c-img").style.cursor, "pointer");
+	// …and the validator no longer calls `true` a bad value.
+	const r = validateNodes([], [{ type: "p", id: "v", text: "x", cursor: true }]);
+	assert.deepEqual(r.warnings.filter((w) => /cursor/.test(w.path || "")), []);
+});

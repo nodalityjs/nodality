@@ -961,7 +961,7 @@ animation: {
             fluidc: "S6",
           weight: "bold",
           align: "center",
-          cursor: "hand",
+          cursor: "pointer",
           icon: {
             padding: 30,
             url: "https://cdn-icons-png.flaticon.com/512/60/60995.png"
@@ -1204,7 +1204,7 @@ if (obj.el.dropdown){
           }).add([
      new Text("First")
      .set({
-     cursor: "hand",
+     cursor: "pointer",
      icon: {padding:30,url:"https://cdn-icons-png.flaticon.com/512/60/60995.png"},
      fluidc: "S6",
      pad: [{l:20,r:10}], 
@@ -1323,7 +1323,7 @@ if (obj.el.dropdown){
                     }).add([
                         new Text("More")
                             .set({
-                                cursor: "hand",
+                                cursor: "pointer",
                                 icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
                                 fluidc: "S6",
                                 pad: [{ l: 10, r: 10 }],
@@ -1335,7 +1335,7 @@ if (obj.el.dropdown){
 
                             new Text("Our story")
                             .set({
-                                cursor: "hand",
+                                cursor: "pointer",
                                // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
                                 fluidc: "S6",
                                 pad: [{ l: 10, r: 10 }],
@@ -1347,7 +1347,7 @@ if (obj.el.dropdown){
 
                             new Text("Team")
                             .set({
-                                cursor: "hand",
+                                cursor: "pointer",
                                // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
                                 fluidc: "S6",
                                 pad: [{ l: 10, r: 10 }],
@@ -1401,7 +1401,7 @@ if (obj.el.dropdown){
                            }).add([
                                new Text("More")
                                    .set({
-                                       cursor: "hand",
+                                       cursor: "pointer",
                                        icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
                                        fluidc: "S6",
                                        pad: [{ l: 10, r: 10 }],
@@ -1424,7 +1424,7 @@ new Wrapper().set({
                                    .set({
                                     text: "Who we are", // BEWARE
                                     url: "jk",
-                                       cursor: "hand",
+                                       cursor: "pointer",
                                       // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
                                        fluidc: "S6",
                                        pad: [{ l: 10, r: 10 }],
@@ -1437,7 +1437,7 @@ new Wrapper().set({
                                    .set({
                                     text: "Info", 
                                     url: "#u",
-                                       cursor: "hand",
+                                       cursor: "pointer",
                                       // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
                                        fluidc: "S6",
                                        pad: [{ l: 10, r: 10 }],
@@ -1451,7 +1451,7 @@ new Wrapper().set({
                                    .set({
                                     text: "About", 
                                     url: "#u",
-                                       cursor: "hand",
+                                       cursor: "pointer",
                                       // icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
                                        fluidc: "S6",
                                        pad: [{ l: 10, r: 10 }],
@@ -1615,7 +1615,7 @@ new Wrapper().set({
         }).add([
             new Text("More")
                 .set({
-                    cursor: "hand",
+                    cursor: "pointer",
                     icon: { padding: 30, url: "https://cdn-icons-png.flaticon.com/512/60/60995.png" },
                     fluidc: "S6",
                     pad: [{ l: 10, r: 10 }],

@@ -34,7 +34,7 @@ class Image extends Animator {
 
 
 	hand(){
-		this.res.style.cursor = "hand";
+		this.res.style.cursor = "pointer";
 		return this;
 	}
 

@@ -166,6 +166,12 @@ const PIXELS_WHEN_BARE = new Set([
     "minHeight", "top", "left", "right", "bottom", "gap",
 ]);
 
+// "hand" is Internet Explorer's name for the pointer cursor. Every other
+// browser rejects it and keeps the default arrow, so `cursor: "hand"` — which
+// Text wrote for any truthy cursor, and the mapper passed to its dropdown
+// labels — did nothing. `true` means "this is clickable", as Text documented.
+const cursorValue = (v) => (v === true || v === "hand") ? "pointer" : v;
+
 /**
  * The style options present on an element spec — what a mapper forwards to a
  * component that builds its own options object (the nav bars, the shop
@@ -418,7 +424,7 @@ class Animator {
 	        if (obj[key] != null) {
 	            const value = (typeof obj[key] === "number" && obj[key] !== 0 && PIXELS_WHEN_BARE.has(key))
 	                ? `${obj[key]}px`
-	                : obj[key];
+	                : key === "cursor" ? cursorValue(obj[key]) : obj[key];
 	            this.res.style[STYLE_OPTIONS[key]] = value;
 	        }
 	    }
@@ -450,7 +456,7 @@ class Animator {
     //@ zIndex {count}: Stacking order, a whole number.
     //@ radius {px-or-length}: Corner radius. A bare number is read as pixels; a string is used verbatim.
     //@ exact {css-length}: Font size as an exact CSS length, e.g. "0.875rem".
-    //@ cursor {css-cursor}: CSS cursor keyword, e.g. "pointer".
+    //@ cursor {css-cursor}: CSS cursor keyword, e.g. "pointer". `true` means "pointer".
     //@ pad {sides}: Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: "2rem"}` works.
     obj.pad && this.pad(obj.pad);
     //@ mar {sides}: Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: "center"` sets left and right to auto, as does `{a: "auto"}` or `{center: true}`.

@@ -187,7 +187,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -796,7 +796,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -1405,7 +1405,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -2014,7 +2014,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -2623,7 +2623,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -3232,7 +3232,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -3841,7 +3841,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -4435,7 +4435,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "decoding",
@@ -5015,7 +5015,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "data",
@@ -5673,7 +5673,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "customAlign",
@@ -6646,7 +6646,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "customAlign",
@@ -7568,7 +7568,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "customAlign",
@@ -8325,7 +8325,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -8995,7 +8995,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -9622,7 +9622,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -10292,7 +10292,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -10756,12 +10756,6 @@
           "via": "component",
           "unit": "color",
           "description": "Text colour — any CSS colour."
-        },
-        {
-          "name": "cursor",
-          "via": "component",
-          "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
         },
         {
           "name": "customStyle",
@@ -11308,7 +11302,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "customAlign",
@@ -12110,7 +12104,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -13035,7 +13029,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "Show a pointer cursor. Any truthy value; the cursor style itself is fixed."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "customAlign",
@@ -13935,7 +13929,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -14354,7 +14348,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -14779,7 +14773,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -15198,7 +15192,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",
@@ -15617,7 +15611,7 @@
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\"."
+          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
           "name": "display",

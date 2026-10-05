@@ -87,7 +87,7 @@ const SHAPES = {
     color: { want: "a CSS colour", bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"#0B1B2B"'] },
     url: { want: "a URL string", bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"/path/to/file"'] },
     text: { want: "a string", bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"…"'] },
-    "css-cursor": { want: 'a CSS cursor keyword, e.g. "pointer"', bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"pointer"'] },
+    "css-cursor": { want: 'a CSS cursor keyword, e.g. "pointer"', bad: (v) => typeof v !== "string" && v !== true, level: "warning", fix: () => ['"pointer"'] },
     "css-transform": { want: 'a CSS transform, e.g. "rotate(3deg)"', bad: (v) => typeof v !== "string" && !isPlainObject(v), level: "warning", fix: () => ['"rotate(3deg)"'] },
     "css-track-list": { want: 'a CSS track list, e.g. "repeat(4, 1fr)"', bad: (v) => typeof v !== "string", level: "warning", fix: () => ['"repeat(4, 1fr)"'] },
     "css-areas": { want: 'CSS grid-template-areas, e.g. \'"nav main"\'', bad: (v) => typeof v !== "string", level: "warning", fix: () => ['\'"nav main"\''] },
