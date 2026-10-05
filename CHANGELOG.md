@@ -2,6 +2,17 @@
 
 Generated per release from the source diff.
 
+## 1.3.23 — 2026-10-05
+
+### Fixed
+- `cursor: "hand"` and `cursor: true` now correctly produce a real pointer cursor (`cursor: "pointer"`) instead of the non-standard `"hand"` keyword, which every browser except Internet Explorer ignores. Affects any element going through the common style handling in `Animator`, as well as `Image`'s `hand()` method and `Text`'s `cursor` option.
+- `checkbox` elements lost the (non-functional) `cursor` option from their declared param list; `cursor` is no longer listed for `checkbox` in `ELEMENT_PARAMS_BY_TYPE`/`ELEMENT_PARAM_UNITS`.
+- Bundled example markup in `element-mapper.js` updated to use `cursor: "pointer"` instead of `cursor: "hand"`.
+
+### Changed
+- `css-cursor` validation now accepts `true` as a valid value, in addition to strings, reflecting that `true` is shorthand for "pointer".
+- Doc comment for `cursor` updated to note `true` means "pointer".
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
