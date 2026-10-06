@@ -138,6 +138,19 @@ class Video extends Animator {
 
 		//@ video.background {color}: CSS background behind the frame — visible while the poster loads.
 		obj.background && (v.style.background = obj.background);
+
+		//@ video.posterBehind {bool}: Also paint the poster behind the frame, sized like it (objectFit). On by default whenever there is a poster; pass false for a clip with transparency, which would show it through.
+		// Browsers stop drawing the poster when play() starts, not when the
+		// first frame arrives. In between the element shows only its
+		// background, so an autoplaying loop that starts as it scrolls into
+		// view flashed blank for a frame or more before the picture.
+		if (obj.poster && obj.posterBehind !== false && !/url\(|gradient\(/.test(String(obj.background || ""))) {
+			const fit = obj.objectFit || "contain";
+			v.style.backgroundImage = `url(${JSON.stringify(String(obj.poster))})`;
+			v.style.backgroundSize = fit === "cover" ? "cover" : fit === "fill" ? "100% 100%" : fit === "none" ? "auto" : "contain";
+			v.style.backgroundPosition = "center";
+			v.style.backgroundRepeat = "no-repeat";
+		}
 		//@ video.height {css-length}: CSS height of the element.
 		obj.height && (v.style.height = obj.height);
 		//@ video.maxWidth {css-length}: CSS max-width of the element.

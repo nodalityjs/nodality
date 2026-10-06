@@ -173,6 +173,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -780,6 +785,11 @@
           "via": "mapper",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -1391,6 +1401,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -1998,6 +2013,11 @@
           "via": "mapper",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -2609,6 +2629,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -3216,6 +3241,11 @@
           "via": "mapper",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -3827,6 +3857,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -4421,6 +4456,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -4999,6 +5039,11 @@
           "via": "component",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -5653,6 +5698,11 @@
           "via": "component",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -6562,6 +6612,12 @@
           "description": "The name at the start of the bar: a string, or an element spec ({type: \"p\", text, keySet, …}) for full control of its type."
         },
         {
+          "name": "brandLink",
+          "via": "mapper",
+          "unit": "url",
+          "description": "Where the brand leads, e.g. \"/\". Without it the brand is not a link."
+        },
+        {
           "name": "breakWord",
           "via": "component",
           "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
@@ -6622,6 +6678,11 @@
           "via": "mapper",
           "unit": "color",
           "description": "Colour of the links, a string brand and, unless hamburgerColour is given, the menu button."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -8307,6 +8368,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -8981,6 +9047,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -9608,6 +9679,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -10040,6 +10116,12 @@
           "description": "Image shown before the first frame decodes. Give one on any autoplaying clip: it is what holds the layout still and what reduced-motion visitors see instead of the video."
         },
         {
+          "name": "posterBehind",
+          "via": "component",
+          "unit": "bool",
+          "description": "Also paint the poster behind the frame, sized like it (objectFit). On by default whenever there is a poster; pass false for a clip with transparency, which would show it through."
+        },
+        {
           "name": "preload",
           "via": "component",
           "unit": "enum(none|metadata|auto)",
@@ -10276,6 +10358,11 @@
           "via": "component",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -11284,6 +11371,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -12088,6 +12180,11 @@
           "via": "component",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -12942,6 +13039,10 @@
           "via": "mapper"
         },
         {
+          "name": "brandLink",
+          "via": "mapper"
+        },
+        {
           "name": "breakWord",
           "via": "component",
           "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
@@ -13005,6 +13106,11 @@
           "via": "mapper",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -13915,6 +14021,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -14332,6 +14443,11 @@
           "via": "mapper",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",
@@ -14759,6 +14875,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -15178,6 +15299,11 @@
           "description": "Text colour — any CSS colour."
         },
         {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
+        },
+        {
           "name": "cols",
           "via": "component",
           "unit": "css-track-list",
@@ -15595,6 +15721,11 @@
           "via": "mapper",
           "unit": "color",
           "description": "Text colour — any CSS colour."
+        },
+        {
+          "name": "colorScheme",
+          "via": "component",
+          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
         },
         {
           "name": "cols",

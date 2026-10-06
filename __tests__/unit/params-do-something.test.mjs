@@ -64,6 +64,8 @@ const fixture = (type) => {
 	const el = { type, id: "probe" };
 	if (["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "button", "code", "copy", "simple"].includes(type)) el.text = "Probe";
 	if (["img", "video", "audio", "a"].includes(type)) el.url = "/probe.mp4";
+	// A video's posterBehind paints its poster, so it needs one to show.
+	if (type === "video") el.poster = "/probe.jpg";
 	if (["cards", "nav", "sideNav", "table", "ulist", "dropdown", "picker", "radio"].includes(type)) el.items = ["One", "Two"];
 	if (["row", "form", "stack", "wrap", "free"].includes(type)) el.children = [{ type: "p", id: "kid", text: "Kid" }];
 	if (type === "multiswitcher") el.breakpoints = [{ at: "600px", view: { type: "p", id: "v", text: "View" } }];

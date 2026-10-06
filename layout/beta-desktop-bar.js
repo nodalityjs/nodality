@@ -1,10 +1,10 @@
 /*!
- * nodality v1.3.22
+ * nodality v1.3.23
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-import {Animator} from "./animator.js";
+import {Animator, linkWrap} from "./animator.js";
 class /*Beta*/DesktopBar extends Animator { // add set method for background color and try to publish
     constructor() {
         super();
@@ -99,7 +99,10 @@ class /*Beta*/DesktopBar extends Animator { // add set method for background col
         this.items = ele;
         for (var i = 0; i < ele.length; i++){
             let item = ele[i];
-            this.navContent.appendChild(ele[i].render());
+            // The first item is the brand (see the nav mapper); brandLink
+            // makes it a link, as on MobileBar.
+            const node = ele[i].render();
+            this.navContent.appendChild(i === 0 && this.obj && this.obj.brandLink ? linkWrap(node, this.obj.brandLink) : node);
         }
 
         return this;

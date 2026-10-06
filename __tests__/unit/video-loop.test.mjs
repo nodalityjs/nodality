@@ -171,7 +171,9 @@ test("box options hold the layout before the first frame", () => {
 	const v = loop({ aspectRatio: "16 / 9", objectFit: "cover", background: "#0B1B2B", maxWidth: "1200px" });
 	assert.equal(v.res.style.aspectRatio, "16 / 9");
 	assert.equal(v.res.style.objectFit, "cover");
-	assert.equal(v.res.style.background, "rgb(11, 27, 43)");
+	// The colour holds the box; the poster (posterBehind, on by default) is
+	// painted over it, sized like the frame.
+	assert.equal(v.res.style.backgroundColor, "rgb(11, 27, 43)");
 	assert.equal(v.res.style.maxWidth, "1200px");
 });
 
@@ -193,4 +195,32 @@ test("toCode() round-trips the loop options", () => {
 	assert.match(code, /^new Video\("\/clip\.mp4"\)\.set\(/);
 	assert.match(code, /autoplay: true/);
 	assert.match(code, /preload: "metadata"/);
+});
+
+// ── the poster stays behind the frame ────────────────────────────────
+//
+// Browsers stop drawing the poster when play() starts, not when the first
+// frame arrives. In between the element shows only its background, so a
+// loop that starts as it scrolls into view flashed blank — on the suitcase
+// site, behind its frosted nav, which read as the nav flashing.
+
+test("the poster is also painted behind the frame, sized like it", () => {
+	const v = loop({ objectFit: "cover", background: "#0B1B2B" });
+	assert.match(v.res.style.backgroundImage, /poster\.jpg/);
+	assert.equal(v.res.style.backgroundSize, "cover");
+	assert.equal(v.res.style.backgroundColor, "rgb(11, 27, 43)", "the colour stays under it");
+	assert.equal(loop({ objectFit: "contain" }).res.style.backgroundSize, "contain");
+});
+
+test("posterBehind: false leaves it out, for a clip with transparency", () => {
+	assert.equal(loop({ posterBehind: false }).res.style.backgroundImage, "");
+});
+
+test("a background image of the page's own is kept", () => {
+	assert.match(loop({ background: "linear-gradient(red, blue)" }).res.style.backgroundImage, /gradient/);
+});
+
+test("no poster, nothing painted", () => {
+	const v = new Video("/clip.mp4").set({ autoplay: true, loop: true, controls: false });
+	assert.equal(v.res.style.backgroundImage, "");
 });

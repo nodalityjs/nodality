@@ -1,4 +1,4 @@
-import {Animator, STYLE_OPTIONS} from "./animator.js";
+import {Animator, STYLE_OPTIONS, linkWrap} from "./animator.js";
 import { keyPattern } from "../lib/codegen.js";
 class /*Beta*/MobileBar extends Animator {
     constructor() {
@@ -37,7 +37,7 @@ let repl = this.removeQuotesFromFirstWord(JSON.stringify(this.obj));
 // reaches the page — hamburgerColour was read by set() and dropped here.
 // Every option set() reads is emitted; brand only when there is one (it
 // threw on a bar without a brand).
-const SERIALISED = ["background", "color", "mar", "pad", "resmar", "respad", "radius", "maxHeight", "hamburgerColour", "keySet", "menuLabel", "menuId"];
+const SERIALISED = ["background", "color", "mar", "pad", "resmar", "respad", "radius", "maxHeight", "hamburgerColour", "keySet", "menuLabel", "menuId", "brandLink"];
 // Plus every CSS-named option (STYLE_OPTIONS) the bar was given: set()
 // applies them, so the code Des runs has to carry them too.
 const keys = [...SERIALISED, ...Object.keys(this.obj).filter((k) => k in STYLE_OPTIONS && !SERIALISED.includes(k))];
@@ -153,7 +153,9 @@ console.log(newTextInstance.render());*/
 //} 
 
 if (obj.brand && typeof newTextInstance.render === "function") {
-    this.brand.appendChild(newTextInstance.render());
+    // brandLink: the brand is a link (e.g. home). It was never one, and a
+    // logo that does not lead home is a dead end people click anyway.
+    this.brand.appendChild(linkWrap(newTextInstance.render(), obj.brandLink));
 } else {
 }
           

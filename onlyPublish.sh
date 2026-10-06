@@ -329,13 +329,58 @@ fi
 #
 # Blocking here makes this script's exit mean what everyone assumes it
 # already means — the version is installable.
-echo "⏳ Waiting for npm to serve $VERSION (GitHub publishes it; usually 3-5 min)…"
-WAIT_DEADLINE=$(( SECONDS + 900 ))
-until [ "$(npm view nodality version 2>/dev/null || true)" = "$VERSION" ]; do
-  if [ "$SECONDS" -ge "$WAIT_DEADLINE" ]; then
-    echo "⚠️  npm still does not serve $VERSION after 15 minutes."
-    echo "    The tag is pushed, so the release may still be in flight."
-    echo "    Check the workflow:  gh run list --limit 3"
+#
+# Two things made this report failure for releases that had worked — 1.3.19,
+# 1.3.21 and 1.3.23 all exited 1 with the package published:
+#   - `npm view` answers from npm's own packument cache, which lags the
+#     registry, so it could keep saying the previous version;
+#   - the 15 minutes ran from the tag push, but the workflow takes about ten
+#     before it calls `npm publish`, and the registry a few more after that.
+# So: follow the publish job itself, which fails fast if it fails, then ask
+# the registry directly, uncached, until it serves the version.
+echo "⏳ Waiting for the publish workflow for v$VERSION…"
+RUN_ID=""
+for _ in $(seq 1 40); do
+  RUN_ID=$(gh run list --branch "v$VERSION" --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)
+  [ -n "$RUN_ID" ] && break
+  sleep 3
+done
+if [ -n "$RUN_ID" ]; then
+  PUBLISH_DEADLINE=$(( SECONDS + 2400 ))
+  while :; do
+    # Only the npm job decides. The docs job can fail on its own (an expired
+    # token) without the package being any less published.
+    JOB=$(gh run view "$RUN_ID" --json jobs --jq '.jobs[] | select(.name=="Publish to NPM") | "\(.status) \(.conclusion)"' 2>/dev/null || true)
+    RUN=$(gh run view "$RUN_ID" --json status --jq '.status' 2>/dev/null || true)
+    case "$JOB" in
+      "completed success") echo "✅ The workflow published v$VERSION to npm."; break ;;
+      completed*) echo "❌ The publish job ended '${JOB#completed }' — v$VERSION is NOT on npm."
+                  echo "   See: gh run view $RUN_ID --log-failed"; exit 1 ;;
+    esac
+    if [ -z "$JOB" ] && [ "$RUN" = "completed" ]; then
+      echo "❌ The workflow finished without a 'Publish to NPM' job. See: gh run view $RUN_ID"; exit 1
+    fi
+    if [ "$SECONDS" -ge "$PUBLISH_DEADLINE" ]; then
+      echo "⚠️  The publish job has not finished after 40 minutes. See: gh run view $RUN_ID"; exit 1
+    fi
+    sleep 15
+  done
+else
+  echo "⚠️  No workflow run found for v$VERSION; waiting on the registry alone."
+fi
+
+registry_latest() {
+  curl -fsSL -H 'Accept: application/vnd.npm.install-v1+json' -H 'Cache-Control: no-cache' \
+    "https://registry.npmjs.org/nodality?cb=$(date +%s)" 2>/dev/null \
+  | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{process.stdout.write(JSON.parse(d)["dist-tags"].latest)}catch{}})' \
+  || true
+}
+echo "⏳ Waiting for the registry to serve $VERSION…"
+REGISTRY_DEADLINE=$(( SECONDS + 1800 ))
+until [ "$(registry_latest)" = "$VERSION" ]; do
+  if [ "$SECONDS" -ge "$REGISTRY_DEADLINE" ]; then
+    echo "⚠️  npm accepted $VERSION but the registry still does not serve it after 30 minutes."
+    echo "    Check: curl -s https://registry.npmjs.org/nodality | grep '\"$VERSION\"'"
     exit 1
   fi
   sleep 15

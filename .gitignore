@@ -5,3 +5,8 @@ release.sh
 *.tgz
 scripts/playwright.config.js
 
+
+# Test output, rewritten by every run. Tracked, it dirtied the tree on each
+# one (and once blocked a `git stash pop` mid-release).
+test-results/
+playwright-report/

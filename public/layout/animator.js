@@ -153,6 +153,8 @@ const STYLE_OPTIONS = {
     // the nav bars and shop elements, which do not run commonMethods, had no
     // way to take it. `bold` still wins where both are given.
     weight: "fontWeight",
+    //@ colorScheme: CSS color-scheme, e.g. "light": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name="color-scheme" content="light dark">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme "light" on its sections keeps them light.
+    colorScheme: "colorScheme",
 };
 
 // Apply styles safely
@@ -171,6 +173,25 @@ const PIXELS_WHEN_BARE = new Set([
 // Text wrote for any truthy cursor, and the mapper passed to its dropdown
 // labels — did nothing. `true` means "this is clickable", as Text documented.
 const cursorValue = (v) => (v === true || v === "hand") ? "pointer" : v;
+
+/**
+ * Wrap a rendered element in a link — the nav bars' `brandLink`. The anchor
+ * only lines its content up, so the brand looks as it did, and its
+ * accessible name is the brand's own (an image's alt, a text's words).
+ */
+function linkWrap(node, href) {
+    if (!href || !node) return node;
+    const a = document.createElement("a");
+    a.setAttribute("href", href);
+    // flex, not inline-flex: an inline box sits on a text line, and the
+    // line's descender space made a phone's bar 3px taller.
+    a.style.display = "flex";
+    a.style.alignItems = "center";
+    a.style.textDecoration = "none";
+    a.style.color = "inherit";
+    a.appendChild(node);
+    return a;
+}
 
 /**
  * The style options present on an element spec — what a mapper forwards to a
@@ -855,19 +876,50 @@ resprop(arr, op) {
         });
     });
 
-    // Fill defaultItem with fallback values
+    // Fill defaultItem with fallback values: the option set() was given,
+    // else the element's own value — what set() has already written, or ""
+    // for none, which hands the property back to the stylesheet. It used to
+    // be "initial", the CSS initial value, which is not the element's own:
+    // display: initial is inline, so a div given `display` at one
+    // breakpoint became an inline box at every other width.
+    //
+    // The own value is read on the task's first run, not here: set() has not
+    // finished when it calls resprop (Text applies its scale step and then
+    // `exact` after commonMethods), so a value read now could be one set()
+    // is about to replace.
+    //
+    // Kept here, not in defaultItem: the breakpoints array is the page's own
+    // and is serialised into the code Des runs, so a marker stored in it
+    // would reach the second build as a value.
+    const own = new Map();          // key -> its own value, once read
     responsiveProps.forEach(key => {
-        if (defaultItem[key] === undefined) {
-             defaultItem[key] = this.options[key] || "initial";
-        }
+        if (defaultItem[key] !== undefined) return;
+        if (this.options[key] != null) { defaultItem[key] = this.options[key]; return; }
+        if (key === "keySet") return;
+        own.set(key, undefined);
     });
+    const ownProp = (key) => key === "exact" ? "fontSize" : (PROP_ALIASES[key] || key);
 
     // --- 3. CORE LOGIC ---
+    // Each responsive key takes ONE value at a given width — the matched
+    // breakpoint's, else the default — and is written once, and only when
+    // it differs from what is there. The task used to reset every key to its
+    // default and then overwrite it: two writes per key on every resize
+    // event, and on a phone the address bar fires one per scroll gesture.
+    const write = (prop, value) => {
+        const v = value == null ? "" : value;
+        if (this.res.style[prop] !== String(v)) this.res.style[prop] = v;
+    };
     const respropTask = () => {
+        for (const [key, value] of own) {
+            if (value !== undefined) continue;
+            const v = this.res.style[ownProp(key)];
+            own.set(key, typeof v === "string" ? v : "");
+        }
         const width = Animator.viewportWidth();
-        let applied = defaultItem; 
+        let applied = defaultItem;
 
-        // 1. Find the first matching range. 
+        // 1. Find the first matching range.
         // Because we sorted ascending, the smallest matching "max-width" wins.
         for (let i = 0; i < arr.length; i++) {
             const bp = arr[i];
@@ -879,55 +931,23 @@ resprop(arr, op) {
                 break;
             }
         }
-        
-        // --- Apply Styles ---
-        
-        // B. Reset: Apply base values first
+
         responsiveProps.forEach(key => {
-            // Special handling for keySet during reset
-            if (key === 'keySet') {
-                const ks = defaultItem[key];
-                if (ks && ks.key) this.res.style[ks.key] = ks.value;
-            } else {
-                this.res.style[resolveProp(key)] = defaultItem[key];
+            const fromBreakpoint = applied !== defaultItem && key in applied;
+            const value = fromBreakpoint ? applied[key] : (own.has(key) ? own.get(key) : defaultItem[key]);
+            // keySet: {key: "...", value: "..."} — one property it names.
+            if (key === "keySet") {
+                if (value && value.key) write(value.key, value.value);
+                return;
             }
+            // `exact` is a font size. Applied directly rather than through
+            // this.set(), which re-ran the whole set() pipeline on every resize.
+            if (key === "exact") { write("fontSize", value); return; }
+            // A component method (e.g. this.width("300px")) for a breakpoint's
+            // value; defaults are plain style, as they always were.
+            if (fromBreakpoint && typeof this[key] === "function") { this[key](value); return; }
+            write(resolveProp(key), value);
         });
-
-		
-        
-        // C. Overrides: Apply matching breakpoint values
-        for (const key in applied) {
-
-			// `exact` is a font-size. It used to call this.set(applied) —
-			// re-entering the component's whole set() pipeline (re-registering
-			// hover handlers, re-parsing every option) on EVERY resize event.
-			// Apply the property directly instead.
-			if (key === "exact"){
-				this.res.style.fontSize = applied[key];
-				continue;
-			}
-
-
-            if (!excludedKeys.includes(key) && key !== 'range') {
-                const value = applied[key];
-
-                // NEW: Handle your keySet object {key: "...", value: "..."}
-                if (key === 'keySet' && value && value.key) {
-                    this.res.style[value.key] = value.value;
-                } 
-                // Handle internal methods (e.g., this.width("300px"))
-                else if (typeof this[key] === 'function') {
-                    this[key](value);
-                }
-                // Handle direct CSS property assignment
-                else {
-                    this.res.style[resolveProp(key)] = value;
-                }
-
-
-				
-            }
-        }
     };
 
     // --- 4. REGISTRATION ---
@@ -2280,4 +2300,4 @@ removeQuotesFromFirstWord(jsonString) {
     
 } // 2600-1870
 
-export { Animator, STYLE_OPTIONS, styleOptionsOf };
+export { Animator, STYLE_OPTIONS, styleOptionsOf, linkWrap };

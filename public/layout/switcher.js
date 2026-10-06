@@ -16,17 +16,9 @@ class Switcher extends Animator {
      
       }
   
-      let area = document.createElement("textarea");
-      area.style.fontWeight = "bold";
-      area.style.height = 1000;
-      area.style.width = 1000;
-  
-  
-  
-     /* te.value = te.value.replace(".mount('#mount');,", ".mount('#mount');");
-      te.value = te.value.replace(" ,new Wrapper", "new Wrapper");
-  */
-  
+      // (A debug <textarea> holding the generated code used to be appended
+      // to the page body here, visible on every page that used this.)
+
   this.codeArr  = [...this.code];
   
      this.code =  this.code.toString().replaceAll(", .", ".")
@@ -36,8 +28,6 @@ class Switcher extends Animator {
      .replaceAll("[,", "[")
      .replace(/,+/g, ',');
   
-      area.value = this.code;
-      document.body.appendChild(area);
   
      
       /* {
@@ -57,25 +47,19 @@ class Switcher extends Animator {
     this.res = document.createElement("div"); // move out of the loop
     // 17:27:15 29/09/23
    
+    // Rebuild only when the matched view CHANGES. This emptied the box and
+    // rendered the view again on every resize event, and on a phone the
+    // address bar fires one per scroll gesture: the content was torn down
+    // and put back (a flash), losing focus, scroll and a playing video.
+    let current = null;
     const innerSwitch = () => {
-
-
-  // alert("LK")
-
-
-this.res.innerHTML = "";
-   // this.code.push(` \n .switchElements()`)
-    let mq = window.matchMedia(`(max-width: ${this.obj.breakpoint})`).matches;
-
-    if (mq){
-    //  alert("O")
-    
-      this.res.appendChild(this.obj.first.render());
-    } else {
-    
-      this.res.appendChild(this.obj.second.render());
-    }
-  }
+      const mq = window.matchMedia(`(max-width: ${this.obj.breakpoint})`).matches;
+      const view = mq ? this.obj.first : this.obj.second;
+      if (view === current) return;
+      current = view;
+      this.res.innerHTML = "";
+      this.res.appendChild(view.render());
+    };
 
   innerSwitch();
 

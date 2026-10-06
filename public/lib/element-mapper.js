@@ -1066,6 +1066,8 @@ alert("PP")
             ...(el.pad !== undefined ? { pad: el.pad } : {}),
             ...(el.color !== undefined ? { color: el.color } : {}),
             ...(el.keySet !== undefined ? { keySet: el.keySet } : {}),
+            //@ nav.brandLink {url}: Where the brand leads, e.g. "/". Without it the brand is not a link.
+            ...(el.brandLink ? { brandLink: el.brandLink } : {}),
         };
 
         //@ nav.breakpoint {px-or-length}: Width from which the full bar shows; below it the links collapse behind the menu button. Default "1200px".
