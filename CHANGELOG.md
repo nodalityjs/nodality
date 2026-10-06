@@ -2,6 +2,28 @@
 
 Generated per release from the source diff.
 
+## 1.3.24 — 2026-10-06
+
+### Added
+- `colorScheme` style option (e.g. `"light"`) for setting CSS `color-scheme` on an element and its descendants, independent of the page's own color-scheme declaration.
+- `nav.brandLink` option: makes the nav bar's brand a link (e.g. `"/"`) in both `DesktopBar` and `MobileBar`. Without it, the brand is not wrapped in a link.
+- `video.posterBehind` option (bool): paints the poster image behind the video frame, sized per `objectFit`, so autoplaying video no longer flashes blank before the first frame renders. On by default when a poster is set; set `false` if the clip has transparency.
+- New export `linkWrap` from `layout/animator.js`.
+
+### Fixed
+- `Switcher` no longer tears down and re-renders its content on every resize event — it now rebuilds only when the matched view actually changes, preventing flashes, lost focus/scroll state, and interrupted video playback on mobile (where the address bar fires resize events on scroll).
+- Responsive properties set via `resprop`/breakpoints no longer reset to the CSS `initial` value as a fallback; they now fall back to the element's own current value, fixing cases like `display` incorrectly becoming `inline` outside a matched breakpoint.
+- Responsive style updates are now written only when the value actually changes, instead of resetting and re-applying every property on every resize event.
+- `exact` (font size) responsive updates are applied directly instead of re-running the whole `set()` pipeline on every resize.
+
+### Changed
+- `beta-desktop-bar.js` and `beta-mobile-bar.js`: internal use of the new `linkWrap` helper to wrap the rendered brand element in an anchor; the anchor uses `flex` display (not `inline-flex`) to avoid adding extra height from line descender space.
+- `MobileBar`'s serialized option list now includes `brandLink` so it is carried into generated code.
+- Internal rewrite of `resprop`'s breakpoint-application logic in `animator.js` (consolidated reset/override passes into a single pass); no documented behavior change beyond the fixes listed above.
+
+### Removed
+- Removed a leftover debug `<textarea>` that `Switcher` used to append to `document.body`, containing generated code; it was visible on every page using `Switcher`.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
