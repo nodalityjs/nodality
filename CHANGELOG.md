@@ -2,6 +2,11 @@
 
 Generated per release from the source diff.
 
+## 1.3.18 — 2026-10-03
+
+### Fixed
+- `Shop`'s loading placeholder now renders with `display: contents` instead of as a plain block, so its static children lay out using the product's own grid/flex and gap instead of stacking in normal flow with inline elements (like price and options) collapsing onto one line.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
