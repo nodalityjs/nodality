@@ -2,6 +2,17 @@
 
 Generated per release from the source diff.
 
+## 1.3.13 — 2026-09-18
+
+### Added
+- New `img.reveal` option to reveal an image through an animated mask as it scrolls into view. Accepts `{mask: "square", size, duration, easing, zoom, offset, delay, once}` and animates `clip-path` and `scale` on scroll.
+- New `reveal()` method on the image layout for applying the scroll-mask effect programmatically.
+- `reveal` recognised as a valid parameter for `img`, `cards`, `nav`, and `sideNav` element types (generated parameter tables updated accordingly).
+
+### Changed
+- `img.reveal` mask starts unmasked (no visible effect) when `window`, `IntersectionObserver`, or `prefers-reduced-motion: reduce` conditions make the reveal impossible to undo, so content is never hidden permanently.
+- Mask geometry is measured in pixels (via `ResizeObserver`) rather than percentage `clip-path` insets, to keep the mask square on non-square frames.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
