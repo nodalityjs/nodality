@@ -2,6 +2,12 @@
 
 Generated per release from the source diff.
 
+## 1.3.10 — 2026-09-17
+
+### Added
+
+- `video.id`: sets the DOM `id` attribute on a `Video` element, allowing it to be targeted by a node's `target` reference (e.g. for raster ops).
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
