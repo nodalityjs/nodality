@@ -2,6 +2,16 @@
 
 Generated per release from the source diff.
 
+## 1.3.8 — 2026-09-10
+
+### Fixed
+
+- Fixed a snapshot-rendering bug on mobile Chrome and Safari where content rasterised via `foreignObject` could be laid out and scaled incorrectly, causing effects (e.g. headlines) to render undersized and confined to the top-left corner of the output at high `dpr` values. The SVG is now generated at 1:1 CSS size, and the `dpr` upscale is applied explicitly via a canvas `drawImage` call with a stated destination size, so output is now consistent across engines instead of depending on how each browser interprets `foreignObject`/SVG intrinsic sizing.
+
+### Changed
+
+- The snapshot pipeline's internal image-loading step now resolves with a `<canvas>` element instead of an `<img>` element in the high-dpr rasterisation path (falls back to the `<img>` if a 2D context can't be obtained). This may be visible to code that inspects the resolved object's type, though its rendered output is unchanged/corrected.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
