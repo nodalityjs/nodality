@@ -2,6 +2,25 @@
 
 Generated per release from the source diff.
 
+## 1.3.9 — 2026-09-17
+
+### Added
+- New `GridOverlay` layout component/export: draws a blueprint-style grid (lines, intersection registration marks, and positioned readout labels) over a page. Configured via `.set()` with options `columns`, `rows`, `inset`, `color`, `lineWidth`, `lineOpacity`, `marks`, `markSize`, `position`, `zIndex`, `font`, `fontSize`, `letterSpacing`, `uppercase`, `breakpoint`, `mobile`, `readouts`, `raster`, `id`. Exposes `readout(id, text)` to update a label live and `geometry()` to read the current grid layout.
+- New `"gridOverlay"` element `type` supported by `ElementMapper` (via new `mapGridOverlay`).
+- New internal module `lib/grid-geometry.js` exporting `gridGeometry`, `resolveGridOptions`, and `readoutPosition`, the shared grid math used by `GridOverlay`.
+- `Video` gains a second "ambient loop" mode alongside its existing player mode, configurable via new `.set()` options: `sources` (multiple encodings, with MIME type inferred from extension), `poster`, `preload`, `controls`, `loop`, `playsinline`, `muted`, `autoplay` (auto-implies `muted` and `playsinline`, pauses off-screen/hidden-tab, cancelled by `prefers-reduced-motion`), `lazy`, `objectFit`, `aspectRatio`, `label`, `decorative`, `background`, `height`, `maxWidth`, `radius`, `width`, `opacity`, `raster`.
+- `Video` gains new `play()` and `pause()` methods.
+- CLI compiler (`bin/nodality.mjs`) now recognizes `GridOverlay` in its emitted-component tracking.
+- `GridOverlay` added to `lib/designer.js`'s `layout` export map.
+
+### Changed
+- `Video`'s `toCode()` now omits `null`/`undefined` option values and uses shared `toObjectSource` serialization instead of raw `JSON.stringify`, matching other components' generated-code style.
+- `Video.render(el)` now uses optional chaining when querying the selector instead of assuming a match.
+- `element-params.generated.js` regenerated to include the many new parameter names introduced by `GridOverlay` and the expanded `Video` (e.g. `columns`, `rows`, `inset`, `readouts`, `sources`, `autoplay`, `muted`, `playsinline`, `poster`, `preload`, `loop`, etc.).
+
+### Breaking
+- None noted — existing `new Video(url)` player usage and prior `Video.set()` options (`radius`, `width`, `opacity`) continue to work as before.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
