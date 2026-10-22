@@ -2,6 +2,17 @@
 
 Generated per release from the source diff.
 
+## 1.3.17 — 2026-10-03
+
+### Added
+- New `loop` option for most elements (e.g. `h1`–`h6`, `p`, `img`, `a`, `cards`, `nav`, `sideNav`, `row`, `radio`, `input`, `labelInput`, `filePicker`, `picker`, `button`, `checkbox`, `stack`, `wrap`, `ulist`, `product`): runs a looping Web Animations API animation from a declared `{keyframes, duration, easing, direction, delay}` object, without needing a stylesheet `@keyframes` rule.
+- New `Animator.loop(spec)` method that drives this animation, replacing any previously running loop on re-application rather than stacking it.
+- Respects `prefers-reduced-motion: reduce` by holding on the first frame instead of animating; also skipped when the Web Animations API (`el.animate`) isn't available.
+- Warns via `console.warn` if `loop` is given fewer than two keyframes.
+
+### Changed
+- `video`'s existing boolean `loop` (clip restart) is now distinguished from the new animation `loop`: only an object value triggers the new looping animation, so `loop: true` on `video` no longer gets misinterpreted as an animation request.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
