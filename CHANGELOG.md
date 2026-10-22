@@ -2,6 +2,21 @@
 
 Generated per release from the source diff.
 
+## 1.3.20 — 2026-10-04
+
+### Added
+- New `nodality check <page.html>...` CLI subcommand that runs `check_page`-style checks on rendered HTML files in a real browser, without needing the MCP server. Supports multiple files and a `--base=<url>` flag, and exits with code 1 if findings are reported.
+- `check_page` MCP tool now accepts a `base` parameter: the origin a prerendered page is served from, used to resolve its `/assets/` fonts and stylesheets so layout checks reflect what a visitor actually sees.
+- `checkPage()` (`lib/check-page.js`) accepts a `base` option, which is injected as a `<base href>` tag into the document before other resources load.
+- `check_page`'s report now also covers a shop product whose loading copy appears somewhere other than the loaded element.
+- CLI usage text documents the new `check` subcommand.
+
+### Changed
+- MCP tool description for `check_page` updated to mention the new shop-loading-shift check and the `base` parameter.
+
+### Fixed
+- Prerendered pages checked via `check_page`/`checkPage()` without a `base` previously measured text in a fallback font (absolute `/assets/...` paths didn't resolve), producing inaccurate clipping/overflow findings.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
