@@ -2,6 +2,18 @@
 
 Generated per release from the source diff.
 
+## 1.3.22 — 2026-10-05
+
+### Added
+- `nodality stage` now stamps `?v=<version>` cache-busting query strings into staged modules' relative import specifiers and into the bundle link inside each page's `<script type="importmap">` block, keeping bundle and modules in lockstep after an upgrade.
+- New `--no-cache-bust` flag for `nodality stage` to skip this cache-busting behavior.
+
+### Fixed
+- `layout/image.js`: setting a `gpos` with only a column (or only a row) no longer writes `"undefined"` into the other grid axis, which previously caused the image to be misplaced in an implicit grid row/column.
+
+### Changed
+- `nodality stage` now writes the bundle via read/transform/write instead of a plain file copy, so it can apply cache-busting stamps.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
