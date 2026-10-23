@@ -2,6 +2,11 @@
 
 Generated per release from the source diff.
 
+## 1.3.26 — 2026-10-23
+
+### Fixed
+- Fixed a bug affecting React 19.0–19.2 where typing into a field whose value the parent kept in state could wipe the entire rendered host. This happened because the host container's `dangerouslySetInnerHTML` prop was a new `{ __html: "" }` object on every render, causing React to re-apply and clear `innerHTML` even though the content hadn't changed. The prop now uses a single frozen `EMPTY_HTML` constant so the object reference stays stable across renders. React 18 and 19.3+ were unaffected since they compare the `__html` string rather than the object reference.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
