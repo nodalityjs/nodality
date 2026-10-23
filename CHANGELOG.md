@@ -2,6 +2,17 @@
 
 Generated per release from the source diff.
 
+## 1.3.25 — 2026-10-23
+
+### Added
+- New `nodality/react` entry point exporting `Nodality` (default and named export), a React component for hosting a Nodality render inside a React tree.
+  - Supports a specification regime via `elements`, `nodes`, and `defs` props (rendered through `Des`, with `defs` passed to `Des.defs()`).
+  - Supports a component-code regime via a `view` factory prop, rebuilt according to a `deps` array (same semantics as `useEffect` dependencies).
+  - Accepts `className` and `style` props on the host element.
+  - Emits a `<script type="application/json" data-nodality-for="...">` tag alongside the host `div` so a prerenderer can locate and prerender the specification at build time.
+  - Marked `"use client"` for Next.js App Router compatibility; requires React 18+ (uses `useId`). React is an optional peer dependency.
+  - Ships hand-written type declarations in `lib/react.d.ts`, including exported types `NodalityRenderable` and `NodalityProps`.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
