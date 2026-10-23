@@ -2,8 +2,11 @@
 //
 // Imported by PACKAGE NAME, so the exports map and the "nodality"
 // self-import inside lib/react.js are exercised the way a React app
-// resolves them. React 18 on purpose: it is the floor the component
-// declares (useId), and what create-nodality-react scaffolds.
+// resolves them. React is pinned to exactly 19.2.4 in devDependencies on
+// purpose: 1.3.25 passed this suite on React 18 and was broken on 19.0–19.2,
+// which re-apply dangerouslySetInnerHTML whenever the prop OBJECT changes
+// (see the re-render test below). 19.3 compares the string again, so a
+// looser range would let the test pass without testing anything.
 //
 // Covered:
 //   - view regime: mounts the component's render(), rebuilds only when
@@ -29,7 +32,7 @@ before(async () => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
   React = await import("react");
-  ({ act } = await import("react-dom/test-utils"));
+  ({ act } = React);
   ({ createRoot } = await import("react-dom/client"));
   N = await import("nodality");
   const mod = await import("nodality/react");
@@ -72,6 +75,28 @@ test("view regime: mounts, rebuilds on deps, not on a new inline factory", async
 
   await act(async () => root.unmount());
   assert.equal(container.innerHTML, "", "unmount removes the host");
+});
+
+test("a parent re-render with unchanged deps keeps the view (React 19)", async () => {
+  // React 19 compares dangerouslySetInnerHTML by object identity and writes
+  // innerHTML again when it differs. A fresh { __html: "" } on every render
+  // therefore wiped the built view on any parent re-render — typing into a
+  // field the parent tracks in state emptied a whole login form — and since
+  // `deps` had not changed, nothing rebuilt it.
+  let builds = 0;
+  const view = () => { builds++; return new N.Text("kept").set({}); };
+  const root = createRoot(container);
+  await act(async () => root.render(h(Nodality, { view, deps: ["a"], className: "one" })));
+  const host = container.querySelector("div[id^='nod-']");
+  assert.match(host.textContent, /kept/);
+
+  // Re-render the host with a different unrelated prop and the same deps.
+  await act(async () => root.render(h(Nodality, { view, deps: ["a"], className: "two" })));
+  assert.equal(host.className, "two", "the re-render reached the host");
+  assert.match(host.textContent, /kept/, "the view survives the re-render");
+  assert.equal(builds, 1, "and was not rebuilt to get there");
+
+  await act(async () => root.unmount());
 });
 
 test("spec regime: renders through Des and carries the spec for a prerenderer", async () => {
