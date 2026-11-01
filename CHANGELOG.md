@@ -2,6 +2,30 @@
 
 Generated per release from the source diff.
 
+## 1.4.0 — 2026-11-01
+
+### Added
+- New `arrange` design node for responsive layout: switches a `row`, `cards`, or `nav` element's arrangement within a viewport width range (`op: { name: "arrange", mode }`, `target`, `range`). It is lowered automatically onto existing `resprop`/`breakpoint` mechanics, so no component needs native support.
+- New `lib/responsive.js` module exporting `findGroups`, `eligibleGroups`, `ensureIds`, `affineRoot`, `fitAffine`, `brackets`, `nextProbe`, `narrowIntervals`, `toRuntimeRange`, `partition`, `navHull`, `synthesize`, `lowerArrange`, `PROBE`, `harnessHTML`, `respond`, and constants `ARRANGE`, `MAX_WIDTH`, `DEFAULT_SAMPLE_WIDTHS`, `LIBRARY_WIDTHS`. `respond()` drives a browser page to measure content width and synthesize breakpoints/`arrange` nodes automatically.
+- New `nodalityTransition()` export from new `lib/view-transition.js`, implementing shader-based transitions for SPA route changes using the View Transitions API calling convention (matches elements by `view-transition-name`, supports `effect`, `duration`, `fade`, `crossfade`, `root` options). Falls back to the native `startViewTransition` (or a plain update) when reduced motion is preferred or WebGL is unavailable.
+- New raster op `particles` (and preset `t-particles`): breaks an image into per-cell particles that scatter and re-form, intended for transitions. Params: `size`, `amount`, `reach` (structural), `seed`.
+- New preset `t-fluid`: liquid-style morph combining `flow` and `aberration`.
+- Transition pipeline gains `fit: "width"` (capture keeps its own aspect ratio rather than stretching to the box) and `crossfade: [a, b]` (confines the old/new handover to a slice of progress) options.
+- `morph-node.js` now exports `captureStill` (the internal `capture` helper), shared with `view-transition.js`.
+- `raster-ops.js` exports new `htmlInCanvasGeneration` helper, and supports the newer Chrome 155+ HTML-in-Canvas generation (`texElementSubImage2D` with `content="drawable"` opt-in and caller-allocated texture storage), alongside the older `texElementImage2D`/`layoutsubtree` generation. Live canvases now carry a `data-nodality-raster-api` attribute indicating which generation is in use.
+- `validate-nodes.js` now recognizes `arrange` as a design op name and validates its `op.mode` (must be one of `row`, `column`, `expand`, `collapse`), `range` (`[lo, hi]`, `0 <= lo <= hi`), and `target`.
+
+### Fixed
+- `resprop`, `respad`, and `resmar` breakpoint matching now floors the measured width before comparing against a range, so adjacent integer ranges (e.g. `[0, 640]` and `[641, 900]`) no longer leave a gap at fractional (zoomed) viewport widths.
+- `morph-node.js` still-capture no longer forces `box-sizing: content-box`, instead copying the element's own `box-sizing`, fixing double-counted padding (and a visible jump) on pages using `* { box-sizing: border-box }`.
+- Still captures now also copy `margin` (for non-root elements), `color`, `background-color`, `background-image`, border properties, `border-radius`, and `box-shadow` from computed style, so painted styles (previously lost) no longer flash incorrectly between the captured still and the live element.
+
+### Changed
+- `capture()` in `morph-node.js` accepts a new `scale` parameter, letting a still be rasterised sharper than the source element's own size (capped to stay within common GPU texture limits) — used when a captured element is expected to grow substantially during a transition.
+- Internal: `isHTMLInCanvasAvailable()` and the live-pipeline detection in `raster-ops.js` now check both HTML-in-Canvas generations instead of only `texElementImage2D`.
+- Internal: various comments updated to describe the two HTML-in-Canvas API generations; no behavior change beyond what's listed above.
+- `lib/designer.js` now lowers `arrange` nodes via `lowerArrange` before building CSS/HTML, warning (via `console.warn`) when an `arrange` node is ignored.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added
