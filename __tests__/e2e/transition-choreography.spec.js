@@ -120,6 +120,8 @@ const meanDiff = (a, b) => {
 
 test('T3: t-particles breaks the morph into dots and leaves nothing at either end',
   async ({ browser, baseURL }) => {
+    // ~29 s locally; CI runners are slower and hit the global 30 s limit
+    test.setTimeout(90_000);
     const frames = async (ops) => {
       const page = await browser.newPage();
       await load(page, baseURL, ops);
