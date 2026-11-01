@@ -926,7 +926,10 @@ resprop(arr, op) {
             const [min, max] = bp.range;
             if (bp.breakpoint === "default") continue;
 
-            if (width >= min && width <= max) {
+            // Ranges are integers; a zoomed visual viewport can be fractional.
+            // Matching its integer part makes [lo, hi] cover [lo, hi + 1), so
+            // adjacent ranges such as [0, 640] and [641, 900] leave no gap.
+            if (Math.floor(width) >= min && Math.floor(width) <= max) {
                 applied = bp;
                 break;
             }
@@ -1011,7 +1014,10 @@ respad(arr) {
 
             if (bp.breakpoint === "default") continue;
 
-            if (width >= min && width <= max) {
+            // Ranges are integers; a zoomed visual viewport can be fractional.
+            // Matching its integer part makes [lo, hi] cover [lo, hi + 1), so
+            // adjacent ranges such as [0, 640] and [641, 900] leave no gap.
+            if (Math.floor(width) >= min && Math.floor(width) <= max) {
                 applied = bp;
                 break;
             }
@@ -1091,7 +1097,10 @@ resmar(arr) {
 
             if (bp.breakpoint === "default") continue;
 
-            if (width >= min && width <= max) {
+            // Ranges are integers; a zoomed visual viewport can be fractional.
+            // Matching its integer part makes [lo, hi] cover [lo, hi + 1), so
+            // adjacent ranges such as [0, 640] and [641, 900] leave no gap.
+            if (Math.floor(width) >= min && Math.floor(width) <= max) {
                 applied = bp;
                 break;
             }

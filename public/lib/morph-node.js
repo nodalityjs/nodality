@@ -51,7 +51,7 @@ const rectIn = (host, el) => {
  *     and ~89px on a wide window. Computed type is copied onto the clone
  *     so the still matches the layout it replaces.
  */
-async function capture(el, w, h) {
+async function capture(el, w, h, scale = 1) {
     const clone = el.cloneNode(true);
     clone.style.position = "static";
     clone.style.left = clone.style.top = "0";
@@ -80,11 +80,40 @@ async function capture(el, w, h) {
         dst[i].style.width = cs.width;
         dst[i].style.height = cs.height;
         dst[i].style.padding = cs.padding;
-        dst[i].style.boxSizing = "content-box";
+        // The element's OWN box-sizing, because the computed width above
+        // is measured under it: for border-box it already includes the
+        // padding. Forcing content-box added the padding a second time, so
+        // any page using `* { box-sizing: border-box }` captured every
+        // padded box too wide and the still jumped at the handover.
+        dst[i].style.boxSizing = cs.boxSizing;
+        // Margins below the root, for the same reason as paint: a rule
+        // like `h2 { margin: 40px 0 16px }` does not reach the still, and
+        // the user agent's default heading margins moved every line under
+        // it. The root's own margin stays 0, set above.
+        if (i > 0) dst[i].style.margin = cs.margin;
+        // PAINT too. A foreignObject carries no page stylesheet, so
+        // anything a CSS rule painted is gone from the still: white text
+        // on a coloured panel came out black on it, and the real element
+        // popped back to white at t=1.
+        dst[i].style.color = cs.color;
+        dst[i].style.backgroundColor = cs.backgroundColor;
+        dst[i].style.backgroundImage = cs.backgroundImage;
+        dst[i].style.borderStyle = cs.borderStyle;
+        dst[i].style.borderWidth = cs.borderWidth;
+        dst[i].style.borderColor = cs.borderColor;
+        dst[i].style.borderRadius = cs.borderRadius;
+        dst[i].style.boxShadow = cs.boxShadow;
     }
 
-    const R = Math.max(1, Math.min(
+    // `scale` asks for a still sharper than the element's own size: one
+    // that will be drawn larger (a name growing into a full-screen panel)
+    // is rasterised at the size it reaches, which is free — the
+    // foreignObject is vector until this point. Capped so the longer side
+    // stays within a texture every GPU accepts.
+    const dpr = Math.max(1, Math.min(
         (typeof window !== "undefined" && window.devicePixelRatio) || 1, 3));
+    const R = Math.max(1, Math.min(dpr * Math.max(1, scale || 1),
+        4096 / Math.max(w, h, 1)));
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w * R}" ` +
         `height="${h * R}" viewBox="0 0 ${w} ${h}">` +
         `<foreignObject width="100%" height="100%">` +
@@ -568,8 +597,9 @@ function setUpMorph(mount, m, resolve) {
         // alone — no `visibility: hidden` anywhere.
         //
         // That matters beyond flicker. HTML-in-Canvas uploads an element
-        // through its PAINT RECORD, and a hidden element has none:
-        // `texElementImage2D` then throws "No cached paint record for
+        // through its PAINT RECORD, and a hidden element has none: the
+        // upload (`texElementImage2D`, or `texElementSubImage2D` from
+        // Chrome 155) then throws "No cached paint record for
         // element" and the pipeline falls back to snapshot mid-flight.
         // Measuring something while hiding it is not an option on the
         // live backend — it has to be painted, and merely covered.
@@ -866,4 +896,6 @@ function setUpMorph(mount, m, resolve) {
 // there would have drifted the first time either side changed — which
 // is precisely how the validator came to accept a `#id` the runtime
 // refused to resolve.
-export { applyMorphNodes, normalizeEdges };
+// `capture` is shared with view-transition.js, which freezes route
+// changes the same way a morph freezes its states.
+export { applyMorphNodes, normalizeEdges, capture as captureStill };

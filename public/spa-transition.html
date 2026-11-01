@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nodality — route transitions</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 Helvetica, Arial, sans-serif; color: #0B1B2B; background: #F4F1EA; }
+  header { display: flex; gap: 16px; align-items: center; padding: 20px 28px; }
+  header h1 { font-size: 20px; margin: 0; flex: 1; }
+  select { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid #c9c2b4; background: #fff; }
+  main { padding: 8px 28px 60px; max-width: 640px; }
+  .dropdown { background: #fff; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: hidden; }
+  .dropdown > button { all: unset; display: flex; justify-content: space-between; width: 100%;
+    padding: 16px 20px; font-weight: 700; cursor: pointer; box-sizing: border-box; }
+  .dropdown ul { list-style: none; margin: 0; padding: 0 0 8px; }
+  .dropdown li { padding: 10px 20px; border-top: 1px solid #eee7da; }
+  .who { display: inline-block; cursor: pointer; padding: 6px 12px; border-radius: 10px; color: #fff; }
+  .who small { opacity: .85; margin-left: 8px; }
+  .overlay { position: fixed; inset: 0; padding: 48px 36px; color: #fff; overflow: auto; }
+  .overlay h2 { font-size: clamp(40px, 8vw, 84px); line-height: 1; margin: 40px 0 16px; }
+  .overlay p { max-width: 560px; font-size: 18px; }
+  .overlay button { font: inherit; padding: 10px 18px; border-radius: 999px; border: 2px solid #fff;
+    background: transparent; color: #fff; cursor: pointer; }
+  .note { font-size: 13px; color: #6b6458; margin-top: 18px; }
+</style></head>
+<body>
+<header>
+  <h1>Team</h1>
+  <label>Effect
+    <select id="effect">
+      <option value="t-fluid">t-fluid</option>
+      <option value="t-particles">t-particles</option>
+      <option value="t-vhs">t-vhs</option>
+      <option value="native">native View Transition</option>
+    </select>
+  </label>
+</header>
+<main id="app"></main>
+
+<script type="module">
+  import { nodalityTransition } from '../lib/view-transition.js';
+
+  const PEOPLE = [
+    { id: 'ada',   name: 'Ada Novak',   role: 'Design lead',  colour: '#1F6F5C',
+      bio: 'Ada runs the design system and the type scale it is built on. Before that she drew maps.' },
+    { id: 'tomas', name: 'Tomáš Král',  role: 'Engineering',  colour: '#B4452F',
+      bio: 'Tomáš builds the renderer, the compiler and most of the tests that keep them honest.' },
+    { id: 'lin',   name: 'Lin Zhou',    role: 'Research',     colour: '#3B4C9B',
+      bio: 'Lin measures what the rest of the team assumes, and writes the numbers down.' },
+    { id: 'marek', name: 'Marek Dvořák', role: 'Operations',  colour: '#8A6A1F',
+      bio: 'Marek keeps the releases, the servers and the calendar from colliding.' },
+  ];
+
+  const app = document.getElementById('app');
+  // ?duration=4000 slows every transition down, to watch it or test it.
+  const DURATION = Number(new URLSearchParams(location.search).get('duration')) || 900;
+  let open = true;
+  let lastId = null;   // the person the overlay was opened from
+
+  // The router: two routes, rendered from the hash.
+  //   #/            the team dropdown
+  //   #/p/<id>      the same page with that person's full-screen overlay
+  //
+  // Exactly ONE element carries view-transition-name "hero" in each state:
+  // the overlay while it is open, and the name it came from once it closes.
+  // That pairing is the whole of the transition's input — the same contract
+  // the native API uses.
+  function render() {
+    const m = /^#\/p\/(\w+)/.exec(location.hash);
+    const person = m && PEOPLE.find((p) => p.id === m[1]);
+    if (person) lastId = person.id;
+    app.innerHTML = `
+      <div class="dropdown">
+        <button id="toggle" aria-expanded="${open}">Team members <span>${open ? '▴' : '▾'}</span></button>
+        ${open ? `<ul>${PEOPLE.map((p) => `
+          <li><span class="who" data-id="${p.id}" style="background:${p.colour};${
+            !person && p.id === lastId ? 'view-transition-name:hero;' : ''}">${p.name}<small>${p.role}</small></span></li>`).join('')}
+        </ul>` : ''}
+      </div>
+      <p class="note">Tap a name. Each route change runs through
+        <code>nodalityTransition()</code>, paired by <code>view-transition-name</code>.</p>
+      ${person ? `
+      <section class="overlay" style="background:${person.colour};view-transition-name:hero">
+        <button id="close">← Back</button>
+        <h2>${person.name}</h2>
+        <p><strong>${person.role}</strong></p>
+        <p>${person.bio}</p>
+      </section>` : ''}`;
+  }
+
+  function navigate(hash) {
+    const effect = document.getElementById('effect').value;
+    const update = () => { history.pushState(null, '', hash); render(); };
+    window.__transition = (effect === 'native' && document.startViewTransition)
+      ? document.startViewTransition(update)
+      : nodalityTransition(update, { effect, duration: DURATION });
+  }
+
+  app.addEventListener('click', (e) => {
+    const who = e.target.closest('.who');
+    if (who) {
+      // The tapped name is the old side of the pair, so it gets the name
+      // BEFORE the transition freezes the page.
+      who.style.viewTransitionName = 'hero';
+      navigate('#/p/' + who.dataset.id);
+    } else if (e.target.closest('#close')) {
+      navigate('#/');
+    } else if (e.target.closest('#toggle')) {
+      open = !open;
+      render();
+    }
+  });
+  window.addEventListener('popstate', () => nodalityTransition(render,
+    { effect: document.getElementById('effect').value, duration: DURATION }));
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && /^#\/p\//.test(location.hash)) navigate('#/');
+  });
+
+  render();
+  window.__navigate = navigate;
+  window.__ready = true;
+</script>
+</body></html>

@@ -34,12 +34,37 @@ const backendOf = (page) =>
 
 const logs = (page) => page.evaluate(() => (window.__logs || []).join('\n'));
 
+// Either generation of the upload counts: Chrome 155 renamed
+// texElementImage2D to texElementSubImage2D. Testing for the old name
+// alone would read "no API" once Chrome drops it, and every live test
+// below would skip instead of failing.
 const apiAvailable = (page) =>
-  page.evaluate(() =>
-    (typeof WebGL2RenderingContext !== 'undefined' &&
-      'texElementImage2D' in WebGL2RenderingContext.prototype) ||
-    (typeof WebGLRenderingContext !== 'undefined' &&
-      'texElementImage2D' in WebGLRenderingContext.prototype));
+  page.evaluate(() => [
+    typeof WebGL2RenderingContext !== 'undefined' && WebGL2RenderingContext.prototype,
+    typeof WebGLRenderingContext !== 'undefined' && WebGLRenderingContext.prototype,
+  ].some((p) => p && ('texElementSubImage2D' in p || 'texElementImage2D' in p)));
+
+const hasMethod = (page, name) =>
+  page.evaluate((n) => typeof WebGL2RenderingContext !== 'undefined' &&
+    n in WebGL2RenderingContext.prototype, name);
+
+// Colour statistics of a PNG, decoded in the page (no image library here).
+const pixelStats = (page, png) =>
+  page.evaluate(async (b64) => {
+    const im = new Image();
+    im.src = 'data:image/png;base64,' + b64;
+    await im.decode();
+    const c = document.createElement('canvas');
+    c.width = im.width; c.height = im.height;
+    const x = c.getContext('2d');
+    x.drawImage(im, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height).data;
+    const colours = new Set();
+    for (let i = 0; i < d.length; i += 4) {
+      colours.add((d[i] >> 4) << 8 | (d[i + 1] >> 4) << 4 | (d[i + 2] >> 4));
+    }
+    return { colours: colours.size, width: c.width, height: c.height, data: Array.from(d) };
+  }, png.toString('base64'));
 
 test.describe('module surface', () => {
   test('registry and drivers are exported', async ({ page, baseURL }) => {
@@ -128,7 +153,7 @@ test.describe('DOM contract', () => {
 });
 
 test.describe('ops compile and attach', () => {
-  for (const ops of ['inplace', 'overlay', 'halftone', 'aberration', 'all',
+  for (const ops of ['inplace', 'overlay', 'halftone', 'aberration', 'particles', 'all',
                      'dither', 'ditherMono', 'ditherDriver',
                      'flowFull', 'flowDriver', 'flowSeeded', 'flowMasked', 'flowPrint',
                      'mask', 'maskAt', 'noiseField', 'copyRing', 'copyPoints',
@@ -194,7 +219,8 @@ test.describe('HTML-in-Canvas API', () => {
       const r = await page.evaluate(() => ({
         reported: window.__raster.isHTMLInCanvasAvailable(),
         raw: typeof WebGLRenderingContext !== 'undefined' &&
-          'texElementImage2D' in WebGLRenderingContext.prototype,
+          ('texElementSubImage2D' in WebGLRenderingContext.prototype ||
+            'texElementImage2D' in WebGLRenderingContext.prototype),
       }));
       expect(r.reported).toBe(r.raw);
     });
@@ -202,8 +228,10 @@ test.describe('HTML-in-Canvas API', () => {
   test('texElementImage2D accepts a known signature when the flag is on',
     async ({ page, baseURL }) => {
       await load(page, baseURL, 'none');
-      if (!(await apiAvailable(page))) {
-        test.skip(true, 'needs chrome://flags/#canvas-draw-element');
+      // This one exercises the OLD method specifically, so it needs the old
+      // method, not just the API.
+      if (!(await hasMethod(page, 'texElementImage2D'))) {
+        test.skip(true, 'needs the pre-Chrome-155 texElementImage2D (flag on)');
         return;
       }
       // The call is only valid once the browser has a paint record for
@@ -321,12 +349,142 @@ test.describe('HTML-in-Canvas API', () => {
         // of the host tag.
         hostsContent: (c.textContent || '').includes('Raster'),
         wrapped: !!c.querySelector('div'),
+        api: c.getAttribute('data-nodality-raster-api'),
         layoutsubtree: c.hasAttribute('layoutsubtree'),
+        content: c.getAttribute('content'),
+        wrapDrawable: !!(c.firstElementChild && c.firstElementChild.hasAttribute('drawable')),
       };
     });
     expect(state.hostsContent).toBe(true);
     expect(state.wrapped).toBe(true);
-    expect(state.layoutsubtree).toBe(true);
+    // The opt-in matches the upload generation, and only that one.
+    if (state.api === 'sub-image') {
+      expect(state.content).toBe('drawable');
+      expect(state.wrapDrawable).toBe(true);
+      expect(state.layoutsubtree).toBe(false);
+    } else {
+      expect(state.api).toBe('image');
+      expect(state.layoutsubtree).toBe(true);
+      expect(state.content).toBeNull();
+    }
+  });
+
+  test('the newest upload a browser has is the one used', async ({ page, baseURL }) => {
+    await load(page, baseURL, 'inplace');
+    if ((await backendOf(page)) !== 'live') {
+      test.skip(true, 'needs chrome://flags/#canvas-draw-element');
+      return;
+    }
+    const expected = (await hasMethod(page, 'texElementSubImage2D')) ? 'sub-image' : 'image';
+    const api = await page.evaluate(() =>
+      document.querySelector('[data-nodality-raster]').getAttribute('data-nodality-raster-api'));
+    expect(api).toBe(expected);
+  });
+
+  test('texElementSubImage2D uploads into pre-allocated storage when the flag is on',
+    async ({ page, baseURL }) => {
+      await load(page, baseURL, 'none');
+      if (!(await hasMethod(page, 'texElementSubImage2D'))) {
+        test.skip(true, 'needs Chrome 155+ with the flag on');
+        return;
+      }
+      // Chrome 155's form, from inside the paint event like the pipeline:
+      // allocate from captureElementImage, then write at offset 0,0.
+      const result = await page.evaluate(() => new Promise((resolve) => {
+        const c = document.createElement('canvas');
+        c.setAttribute('content', 'drawable');
+        c.width = 64; c.height = 64;
+        const gl = c.getContext('webgl2');
+        const inner = document.createElement('div');
+        inner.setAttribute('drawable', '');
+        inner.style.cssText = 'font:16px Helvetica;color:#fff;';
+        inner.textContent = 'probe';
+        c.appendChild(inner);
+        document.body.appendChild(c);
+        gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+        let settled = false; let paints = 0; let last = null;
+        const finish = (r) => { if (settled) return; settled = true; c.remove(); resolve({ ...r, paints }); };
+        c.addEventListener('paint', () => {
+          paints++;
+          try {
+            const im = c.captureElementImage(inner);
+            const w = Math.ceil(im.width), h = Math.ceil(im.height);
+            if (im.close) im.close();
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, inner);
+            finish({ ok: true, glError: gl.getError(), size: [w, h] });
+          } catch (e) {
+            last = `${e.name}: ${e.message}`;
+          }
+        });
+        setTimeout(() => finish({ ok: false, error: last }), 4000);
+      }));
+      expect(result.paints, 'the canvas never emitted a paint event').toBeGreaterThan(0);
+      expect(result.ok, `upload threw: ${result.error}`).toBe(true);
+      expect(result.glError).toBe(0);
+      expect(result.size[0]).toBeGreaterThan(0);
+    });
+
+  test('live mode is still live after the paint budget and draws the content',
+    async ({ page, baseURL }) => {
+      // A live backend that fails quietly ends up as 'snapshot-fallback'
+      // 1500ms after load, or as a live canvas showing a blank box. Neither
+      // is visible to the tests above, which look right after load.
+      await load(page, baseURL, 'inplace');
+      if ((await backendOf(page)) !== 'live') {
+        test.skip(true, 'needs chrome://flags/#canvas-draw-element');
+        return;
+      }
+      await page.waitForTimeout(2500);
+      expect(await backendOf(page)).toBe('live');
+      const stats = await pixelStats(page, await page.locator('[data-nodality-raster]').screenshot());
+      expect(stats.colours, 'the live canvas is a flat box').toBeGreaterThan(8);
+    });
+
+  test('both upload generations draw the same picture', async ({ browser, baseURL }) => {
+    // Chrome 156 has both methods, so the old path can be forced by hiding
+    // the new one. Size, orientation and content must agree.
+    const shoot = async (hideNew) => {
+      const page = await browser.newPage({ viewport: { width: 700, height: 800 } });
+      if (hideNew) {
+        await page.addInitScript(() => {
+          for (const C of [window.WebGL2RenderingContext, window.WebGLRenderingContext]) {
+            if (C) delete C.prototype.texElementSubImage2D;
+          }
+        });
+      }
+      await load(page, baseURL, 'inplace');
+      const ok = (await backendOf(page)) === 'live';
+      const api = await page.evaluate(() => {
+        const c = document.querySelector('[data-nodality-raster]');
+        return c && c.getAttribute('data-nodality-raster-api');
+      });
+      await page.waitForTimeout(800);
+      const png = ok ? await page.locator('[data-nodality-raster]').screenshot() : null;
+      const stats = png ? await pixelStats(page, png) : null;
+      await page.close();
+      return { ok, api, stats };
+    };
+    const probe = await browser.newPage();
+    await probe.goto(`${baseURL}${PAGE}#ops=none`);
+    const both = await probe.evaluate(() => typeof WebGL2RenderingContext !== 'undefined' &&
+      'texElementSubImage2D' in WebGL2RenderingContext.prototype &&
+      'texElementImage2D' in WebGL2RenderingContext.prototype);
+    await probe.close();
+    if (!both) {
+      test.skip(true, 'needs a browser with both upload generations (Chrome 155+ with the flag on)');
+      return;
+    }
+    const fresh = await shoot(false);
+    const old = await shoot(true);
+    expect(fresh.api).toBe('sub-image');
+    expect(old.api).toBe('image');
+    expect(fresh.ok && old.ok).toBe(true);
+    expect([fresh.stats.width, fresh.stats.height]).toEqual([old.stats.width, old.stats.height]);
+    let diff = 0;
+    for (let i = 0; i < fresh.stats.data.length; i++) diff += Math.abs(fresh.stats.data[i] - old.stats.data[i]);
+    const mean = diff / fresh.stats.data.length;
+    expect(mean, 'the two generations disagree on the picture').toBeLessThan(2);
   });
 
   test('live mode captures a wrapper that fills the canvas box', async ({ page, baseURL }) => {

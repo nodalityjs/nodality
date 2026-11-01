@@ -92,3 +92,59 @@ test('T3: a preset renders, and vanishes at both ends', async ({ page, baseURL }
   expect(mid.equals(t0)).toBe(false);
   expect(mid.equals(t1)).toBe(false);
 });
+
+// t-particles. The op gathers: every pixel looks for the particle that
+// covers it, and where none does the sample lands outside both boxes,
+// which in a transition is transparent. So mid-flight the page behind
+// shows through between the dots, and at both ends nothing is left.
+const pixelsOf = (page, png) => page.evaluate(async (b64) => {
+  const im = new Image();
+  im.src = 'data:image/png;base64,' + b64;
+  await im.decode();
+  const c = document.createElement('canvas');
+  c.width = im.width; c.height = im.height;
+  const x = c.getContext('2d');
+  x.drawImage(im, 0, 0);
+  return Array.from(x.getImageData(0, 0, c.width, c.height).data);
+}, png.toString('base64'));
+
+// The body is #0d1520; both captures are bright (teal, orange).
+const isBackdrop = (d, i) =>
+  Math.abs(d[i] - 13) + Math.abs(d[i + 1] - 21) + Math.abs(d[i + 2] - 32) < 24;
+
+const meanDiff = (a, b) => {
+  let s = 0;
+  for (let i = 0; i < a.length; i++) s += Math.abs(a[i] - b[i]);
+  return s / a.length;
+};
+
+test('T3: t-particles breaks the morph into dots and leaves nothing at either end',
+  async ({ browser, baseURL }) => {
+    const frames = async (ops) => {
+      const page = await browser.newPage();
+      await load(page, baseURL, ops);
+      const out = {};
+      for (const t of [0, 0.5, 1]) out[t] = await pixelsOf(page, await at(page, t));
+      out.errors = await page.evaluate(() => window.__errors);
+      await page.close();
+      return out;
+    };
+    const plain = await frames('plain');
+    const part = await frames('tpart');
+    expect(part.errors).toEqual([]);
+
+    // Identity at both ends: the same picture as no effect at all.
+    expect(meanDiff(part[0], plain[0])).toBeLessThan(0.5);
+    expect(meanDiff(part[1], plain[1])).toBeLessThan(0.5);
+
+    // Mid-flight the shape has come apart: of the pixels a plain morph
+    // covers, a good share now shows the backdrop between particles.
+    let shape = 0, through = 0;
+    for (let i = 0; i < plain[0.5].length; i += 4) {
+      if (isBackdrop(plain[0.5], i)) continue;
+      shape++;
+      if (isBackdrop(part[0.5], i)) through++;
+    }
+    expect(shape).toBeGreaterThan(1000);
+    expect(through / shape).toBeGreaterThan(0.25);
+  });

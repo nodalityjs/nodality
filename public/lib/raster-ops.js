@@ -23,10 +23,14 @@
 //     October 2026, long after embedding shipped.)
 //   live (the DEFAULT where it applies; opt OUT with `live: false` on any
 //     node) — the emerging HTML-in-Canvas API (WICG, Chrome origin trial):
-//     the mount subtree moves inside the effect <canvas layoutsubtree> and
-//     is uploaded per frame with gl.texElementImage2D(), staying
-//     interactive and live. Falls back to snapshot when the API is absent,
-//     and again if no paint event arrives within 1500ms.
+//     the mount subtree moves inside the effect canvas and is uploaded per
+//     frame, staying interactive and live. Two generations of the API are
+//     spoken (see htmlInCanvasGeneration): Chrome 155+ opts in with
+//     <canvas content="drawable"> and uploads with gl.texElementSubImage2D()
+//     into storage allocated here; the trial before it opted in with
+//     <canvas layoutsubtree> and uploaded with gl.texElementImage2D().
+//     Falls back to snapshot when the API is absent, and again if no paint
+//     event arrives within 1500ms.
 //
 //     "Where it applies" = any chain that is not PURE overlay. A
 //     pure-overlay chain (blobs alone) restructures nothing, so there is
@@ -689,6 +693,101 @@ ${NB.map(([x, y]) => probe(x, y)).join("")}
         uniforms: (node, dpr) => ({
             amount: ["1f", (node.amount != null ? node.amount : 6) * dpr],
             radius: ["1f", (node.radius || 240) * dpr],
+        }),
+    },
+
+    // Particle scatter. The image breaks into one particle per cell; each
+    // shrinks to a dot, is carried off on its own heading and comes back.
+    // Built for transitions — `t-particles` keyframes it to be absent at
+    // both ends — where the gaps between particles are transparent, so the
+    // two captures read as one cloud of dots changing shape while the
+    // morph's boxes carry it from the old rect to the new.
+    //
+    //   { op: "particles", size: 5, amount: [0, 1, 0] }   // in a transition
+    //
+    // A gather, not a scatter. The pipeline only runs per-pixel programs,
+    // so each output pixel searches the cells a particle could have come
+    // from and keeps the topmost one that covers it. That search is what
+    // bounds the travel — a particle moves at most reach - 1 cells — and
+    // why `reach` is compiled in: a GLSL loop bound must be a constant,
+    // and it is also the cost, (2·reach + 1)² cells per pixel.
+    particles: {
+        doc: {
+            summary: "Breaks the image into one particle per cell, which shrinks to a dot "
+                + "and scatters on its own heading. Built for transitions (t-particles), "
+                + "where the gaps are transparent; elsewhere they show the image unmoved.",
+            params: {
+                size: { default: 6, unit: "px", summary: "particle size: one particle per cell this big" },
+                amount: { default: 1, unit: "ratio", summary: "0 is the intact image, 1 fully scattered" },
+                reach: {
+                    default: 4, unit: "count", structural: true,
+                    summary: "travel limit: a particle moves at most reach - 1 cells. Compiled in, "
+                        + "and the cost: each pixel searches (2·reach + 1)² cells.",
+                },
+                seed: { default: 0, unit: "count", summary: "picks a different scatter of the same character" },
+            },
+        },
+        structural: ["reach"],
+        stage: "displace",
+        decl: (p) => `
+            uniform float ${p}size;
+            uniform float ${p}amount;
+            uniform float ${p}seed;
+            // Polynomial hash, as in flow: trig hashes band on Apple
+            // silicon and differ between GPU vendors.
+            float ${p}h(vec2 v) {
+                vec3 q = fract(vec3(v.xyx) * 0.1031 + ${p}seed * 0.1);
+                q += dot(q, q.yzx + 33.33);
+                return fract((q.x + q.y) * q.z);
+            }`,
+        code: (p, node) => {
+            const R = Math.max(1, Math.min(6, Math.round(node.reach != null ? node.reach : 4)));
+            return `
+        {
+            float sz = max(${p}size, 1.0);
+            float a = clamp(${p}amount, 0.0, 1.0);
+            if (a > 0.0) {
+                vec2 x = sampleP;
+                vec2 q = floor(x / sz);
+                // Square and full-size at rest, so at a = 0 the cells tile
+                // the image exactly; round and at 45% in full flight.
+                float h = sz * 0.5 * (1.0 - 0.55 * a);
+                float travel = ${R - 1}.0 * sz * a;
+                float best = -1.0;
+                vec2 hit = vec2(-1.0e5);
+                for (int j = -${R}; j <= ${R}; j++) {
+                    for (int i = -${R}; i <= ${R}; i++) {
+                        vec2 c = q + vec2(float(i), float(j));
+                        vec2 dir = vec2(${p}h(c), ${p}h(c + vec2(57.3, 11.9))) * 2.0 - 1.0;
+                        // How far this one goes, and how high it stacks.
+                        float k = ${p}h(c + vec2(31.7, 83.1));
+                        vec2 home = (c + 0.5) * sz;
+                        vec2 d = x - (home + dir * travel * (0.35 + 0.65 * k));
+                        float dist = mix(max(abs(d.x), abs(d.y)), length(d), a);
+                        if (dist <= h && k > best) {
+                            best = k;
+                            // The particle carries its own cell, shrunk.
+                            hit = home + d * (0.5 * sz / h);
+                        }
+                    }
+                }
+#ifdef NOD_TRANSITION
+                // A gap lands outside both boxes, which is transparent.
+                sampleP = hit;
+#else
+                // No backdrop outside a transition: a gap would clamp to an
+                // edge texel, so it shows the image unmoved instead.
+                if (best >= 0.0) sampleP = hit;
+#endif
+            }
+        }`;
+        },
+        uniforms: (node, dpr) => ({
+            // A length, so dpr-scaled.
+            size: ["1f", (node.size != null ? node.size : 6) * dpr],
+            amount: ["1f", node.amount != null ? node.amount : 1],
+            // Selects a scatter; not a length.
+            seed: ["1f", node.seed != null ? node.seed : 0],
         }),
     },
 
@@ -2025,9 +2124,43 @@ function registerRasterOp(name, def) {
     return def;
 }
 
+// Which generation of the HTML-in-Canvas WebGL upload `target` (a context
+// or a context prototype) speaks:
+//   "sub-image" — Chrome 155+: texElementSubImage2D() into texture storage
+//                 the caller allocates; the canvas opts in with
+//                 content="drawable" and the uploaded element carries
+//                 `drawable`.
+//   "image"     — the origin trial before that: texElementImage2D(), which
+//                 allocates by itself; the canvas opts in with layoutsubtree.
+//   null        — neither.
+// Chrome 156 exposes BOTH methods, so the newer one is checked first.
+// Testing for the old name alone kept working only because Chrome left it
+// in place after the rename; the day it goes, that test reads "no API" and
+// every live pipeline quietly becomes a snapshot.
+function htmlInCanvasGeneration(target) {
+    if (!target) return null;
+    if ("texElementSubImage2D" in target) return "sub-image";
+    if ("texElementImage2D" in target) return "image";
+    return null;
+}
+
+// The canvas opt-in for each generation. It must be present before the
+// context is created, so the browser prepares the canvas for laid-out
+// children.
+function setLiveOptIn(canvas, generation) {
+    if (generation === "sub-image") canvas.setAttribute("content", "drawable");
+    else canvas.setAttribute("layoutsubtree", "");
+}
+
+function clearLiveOptIn(canvas) {
+    canvas.removeAttribute("content");
+    canvas.removeAttribute("layoutsubtree");
+    canvas.removeAttribute("data-nodality-raster-api");
+}
+
 function isHTMLInCanvasAvailable() {
     if (typeof WebGLRenderingContext === "undefined") return false;
-    return "texElementImage2D" in WebGLRenderingContext.prototype;
+    return htmlInCanvasGeneration(WebGLRenderingContext.prototype) !== null;
 }
 
 // ── Shader assembly ──────────────────────────────────────────────────
@@ -2244,6 +2377,23 @@ function buildFragmentShader(recs, flat, probe, transition) {
     // "opaque" (default) keeps the union solid; "dissolve" is a true
     // cross-dissolve. See nodBlend.
     const fade = (transition && transition.fade) || "opaque";
+    // Optional transition shaping, both compiled in (they are fixed for
+    // the life of a transition):
+    //   fit: "width"     each capture keeps its own aspect ratio — drawn
+    //                    at its box's width, top-aligned, clipped to the
+    //                    box — instead of being stretched to fill it. A
+    //                    small element growing into a large one otherwise
+    //                    smears its text across the whole new shape. Same
+    //                    sizing the platform gives ::view-transition-old/new.
+    //   crossfade: [a,b] the old-to-new handover happens inside that slice
+    //                    of t, while the boxes still travel the whole way.
+    //                    The container-transform pattern: the old content
+    //                    goes early, before it has been blown up.
+    const glf = (v) => { const x = Number(v); return (Number.isFinite(x) ? x : 0).toFixed(5); };
+    const aspectOf = (r) => (r && r.w > 0 && r.h > 0 ? r.h / r.w : 0);
+    const fitWidth = !!(transition && transition.fit === "width");
+    const xf = transition && Array.isArray(transition.crossfade) &&
+        transition.crossfade.length === 2 ? transition.crossfade : null;
     let decls = "";
 
     // Every field any node writes or reads, declared up front at 1.0 so
@@ -2378,9 +2528,13 @@ ${b.color}
     gl_FragColor = vec4(hi.x, lo.x, hi.y, lo.y) / 255.0;
 }`;
 
+    // NOD_TRANSITION lets an op's GLSL tell the two modes apart. Only a
+    // transition has a backdrop: a sample outside both captures' boxes is
+    // transparent there, while the single-image path clamps it to the
+    // nearest edge texel.
     return `
 precision highp float;
-uniform sampler2D u_tex;
+${transition ? "#define NOD_TRANSITION 1\n" : ""}uniform sampler2D u_tex;
 uniform vec2 u_res;
 uniform vec2 u_mouse;
 uniform float u_time;
@@ -2469,9 +2623,15 @@ vec2 nodBoxUV(vec4 box, vec2 p) {
 float nodInBox(vec2 uv) {
     return step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
 }
-vec4 nodSampleAt(vec2 p) {
-    vec2 uo = nodBoxUV(u_boxOld, p);
-    vec2 un = nodBoxUV(u_boxNew, p);
+${fitWidth ? `// fit: "width" — the capture's own height at this box width.
+vec2 nodFitUV(vec4 box, vec2 p, float aspect) {
+    return vec2((p.x - box.x) / max(box.z, 1.0),
+                1.0 - (p.y - box.y) / max(box.z * aspect, 1.0));
+}
+` : ""}vec4 nodSampleAt(vec2 p) {
+${fitWidth ? `    vec2 uo = nodFitUV(u_boxOld, p, ${glf(aspectOf(transition.oldRect))});
+    vec2 un = nodFitUV(u_boxNew, p, ${glf(aspectOf(transition.newRect))});` : `    vec2 uo = nodBoxUV(u_boxOld, p);
+    vec2 un = nodBoxUV(u_boxNew, p);`}
     vec4 o = texture2D(u_old, clamp(uo, 0.001, 0.999));
     // With newImage the new side is a capture of the ELEMENT, so both
     // sides can travel between their own rects and converge into one
@@ -2483,7 +2643,11 @@ vec4 nodSampleAt(vec2 p) {
                        clamp(un, 0.001, 0.999));
     o.a *= nodInBox(uo);
     n.a *= nodInBox(un);
-${oldSideCode}${newSideCode}
+${fitWidth ? `    // Clipped to the travelling box as well, so a tall capture in a
+    // short box shows its top rather than spilling below it.
+    o.a *= nodInBox(nodBoxUV(u_boxOld, p));
+    n.a *= nodInBox(nodBoxUV(u_boxNew, p));
+` : ""}${oldSideCode}${newSideCode}
     // The threshold each pixel flips at. Mostly a COHERENT ramp down the
     // box with a little grain on top — pure white noise chooses correctly
     // (never two legible images at once) but reads as television static
@@ -2492,7 +2656,7 @@ ${oldSideCode}${newSideCode}
     float grain = fract(sin(dot(floor(p / 3.0), vec2(12.9898, 78.233))) * 43758.5453);
     float ramp = clamp(un.y, 0.0, 1.0);
     float d = ramp * 0.82 + grain * 0.18;
-    return nodBlend(o, n, u_t, d);
+    return nodBlend(o, n, ${xf ? `smoothstep(${glf(xf[0])}, ${glf(xf[1])}, u_t)` : "u_t"}, d);
 }` : ""}
 void main() {
     vec2 fc = ${fragCoord};
@@ -3295,7 +3459,7 @@ function applyRasterPipeline(el, rasterNodes, opts) {
     const pureOverlay = rasterNodes.length > 0 && !transition &&
         rasterNodes.every((n) => (REGISTRY[n.op] || {}).overlay);
     // Live-first (HTML-in-Canvas). The live backend captures content that
-    // lives INSIDE the canvas (texElementImage2D over the restructured
+    // lives INSIDE the canvas (the live upload over the restructured
     // subtree) — the same model canvasUI's bubble uses: content in the
     // canvas, the lens drawn over that live capture. So live is viable
     // whenever the host is hidden and its content moves into the canvas,
@@ -3327,33 +3491,36 @@ function applyRasterPipeline(el, rasterNodes, opts) {
     const forceLive = !!(transition && transition.live === true);
     const wantLive = !pureOverlay && (!transition || forceLive) &&
         !rasterNodes.some((n) => n.live === false);
-    const apiAvailable =
-        (typeof WebGL2RenderingContext !== "undefined" &&
-            "texElementImage2D" in WebGL2RenderingContext.prototype) ||
-        (typeof WebGLRenderingContext !== "undefined" &&
-            "texElementImage2D" in WebGLRenderingContext.prototype);
-    let live = wantLive && apiAvailable;
+    const apiGeneration =
+        htmlInCanvasGeneration(typeof WebGL2RenderingContext !== "undefined" &&
+            WebGL2RenderingContext.prototype) ||
+        htmlInCanvasGeneration(typeof WebGLRenderingContext !== "undefined" &&
+            WebGLRenderingContext.prototype);
+    let live = wantLive && apiGeneration !== null;
     if (wantLive && !live) {
         console.info("[nodality] HTML-in-Canvas API not available - raster ops fall back to snapshot capture.");
     }
 
     const canvas = document.createElement("canvas");
-    // layoutsubtree must be present before context creation so the
-    // browser prepares the canvas for laid-out children (origin trial).
-    if (live) canvas.setAttribute("layoutsubtree", "");
+    if (live) setLiveOptIn(canvas, apiGeneration);
     const ctxOpts = { alpha: true, premultipliedAlpha: false };
     // WebGL2-first everywhere: NPOT mipmaps (offset-scaled blur for the
-    // glassy ops) and texElementImage2D both need it; WebGL1 remains as
-    // a sharp-rendering fallback (mip blur simply disables).
+    // glassy ops) and the live upload's sized RGBA8 format both need it;
+    // WebGL1 remains as a sharp-rendering fallback (mip blur simply
+    // disables).
     const gl = canvas.getContext("webgl2", ctxOpts) ||
         canvas.getContext("webgl", ctxOpts);
     if (!gl) return null;
     const isGL2 = (typeof WebGL2RenderingContext !== "undefined") &&
         (gl instanceof WebGL2RenderingContext);
     const needMips = isGL2 && rasterNodes.some((n) => (REGISTRY[n.op] || {}).mips);
-    if (live && !("texElementImage2D" in gl)) {
-        console.info("[nodality] texElementImage2D missing on the created context - snapshot fallback.");
-        canvas.removeAttribute("layoutsubtree");
+    // The generation that counts is the one on the context actually
+    // created. It has to match the opt-in already set from the prototype.
+    const liveGeneration = live ? htmlInCanvasGeneration(gl) : null;
+    if (live && liveGeneration !== apiGeneration) {
+        console.info("[nodality] HTML-in-Canvas upload missing on the created context (" +
+            liveGeneration + " vs " + apiGeneration + ") - snapshot fallback.");
+        clearLiveOptIn(canvas);
         live = false;
     }
 
@@ -3365,7 +3532,11 @@ function applyRasterPipeline(el, rasterNodes, opts) {
     canvas.width = Math.round(rect.width * dpr);
     canvas.height = Math.round(rect.height * dpr);
     canvas.setAttribute("data-nodality-raster", live ? "live" : "snapshot");
-    console.info("[nodality] raster backend:", live ? "html-in-canvas (live)" : "snapshot");
+    // Which upload generation a live canvas runs on, so a test or an
+    // inspector can tell the two apart; Chrome 156 can run either.
+    if (live) canvas.setAttribute("data-nodality-raster-api", liveGeneration);
+    console.info("[nodality] raster backend:",
+        live ? "html-in-canvas (live, " + liveGeneration + ")" : "snapshot");
 
     // In live mode the canvas fills the host's CONTENT box, not its border
     // box (it is a child of the host). Filled in below when live attaches.
@@ -3373,15 +3544,15 @@ function applyRasterPipeline(el, rasterNodes, opts) {
     let sourceEl = el; // element uploaded as the texture in live mode
     if (live) {
         // HTML-in-Canvas: the subtree becomes canvas children (wrapped in
-        // a single div we can pass to texElementImage2D) so it keeps
+        // a single div we can pass to the live upload) so it keeps
         // layout, interactivity and its accessibility-tree presence while
         // the canvas paints it (WICG proposal; Chrome origin trial behind
-        // chrome://flags/#canvas-draw-element). layoutsubtree was already
-        // set before context creation above.
+        // chrome://flags/#canvas-draw-element). The canvas opt-in was
+        // already set before context creation above.
         const wrap = document.createElement("div");
         // The wrapper MUST fill the canvas box. Left to itself it
         // shrink-wraps its content — a headline wraps to the text width,
-        // not the element width — and texElementImage2D then captures
+        // not the element width — and the live upload then captures
         // that narrower box while the shader maps the texture across the
         // whole canvas. Everything comes out stretched horizontally by
         // canvasWidth/contentWidth, so the drawn glyphs no longer sit
@@ -3440,6 +3611,8 @@ function applyRasterPipeline(el, rasterNodes, opts) {
             wrap.style.justifyContent = hostCS.justifyContent;
             wrap.style.gap            = hostCS.gap;
         }
+        // Chrome 155+ draws only canvas descendants marked `drawable`.
+        if (liveGeneration === "sub-image") wrap.setAttribute("drawable", "");
         while (el.firstChild) wrap.appendChild(el.firstChild);
         canvas.appendChild(wrap);
         sourceEl = wrap;
@@ -4037,6 +4210,39 @@ function applyRasterPipeline(el, rasterNodes, opts) {
     // renders or redraws. Uploading outside of it yields an empty
     // (fully transparent) texture — which looks like a blank box.
     //
+    // Chrome 155+ (`sub-image`) no longer allocates the destination: the
+    // texture's storage has to exist before texElementSubImage2D writes
+    // into it, sized to the element's image as captureElementImage()
+    // reports it. That size follows the canvas box, so it is measured
+    // again only when the backing store changes rather than on every
+    // paint.
+    //
+    // updateElementGeometry() is deliberately NOT called. In this
+    // generation it is what makes canvas descendants hit-testable, and the
+    // pipeline already hit-tests the hosted subtree itself (see
+    // hostedElementAt), retargeting each event to where the shader drew
+    // the content. With native hit testing switched on as well, a
+    // displaced click would reach the element under the cursor natively
+    // AND the one under the drawn pixel through the retarget.
+    let storageFor = "";
+    const allocateSubImageStorage = () => {
+        const key = canvas.width + "x" + canvas.height;
+        if (key === storageFor) return;
+        let w = canvas.width, h = canvas.height;
+        if (typeof canvas.captureElementImage === "function") {
+            const image = canvas.captureElementImage(sourceEl);
+            try {
+                w = Math.ceil(image.width);
+                h = Math.ceil(image.height);
+            } finally {
+                if (image && typeof image.close === "function") image.close();
+            }
+        }
+        gl.texImage2D(gl.TEXTURE_2D, 0, isGL2 ? (gl.RGBA8 || 0x8058) : gl.RGBA,
+            Math.max(1, w), Math.max(1, h), 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        storageFor = key;
+    };
+
     // The trial's texElementImage2D signature has drifted across Chrome
     // builds (the element parameter has moved as the arg list shrank),
     // so the working call form is discovered at runtime — guided by the
@@ -4045,6 +4251,21 @@ function applyRasterPipeline(el, rasterNodes, opts) {
     const onPaint = () => {
         if (destroyed || mode !== "live") return;
         gl.bindTexture(gl.TEXTURE_2D, tex);
+        if (liveGeneration === "sub-image") {
+            try {
+                allocateSubImageStorage();
+                gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, sourceEl);
+            } catch (e) {
+                // Measured again next time, in case storage was the problem.
+                storageFor = "";
+                fallbackToSnapshot("texElementSubImage2D failed: " +
+                    (e && e.name ? e.name : "?") + ": " + (e && e.message ? e.message : e));
+                return;
+            }
+            finishUpload();
+            textureReady = true;
+            return;
+        }
         // Confirmed signature in Chrome 148+ (origin trial):
         //   texElementImage2D(target, internalformat, element)
         // where internalformat must be a *sized* WebGL2 format
@@ -4098,7 +4319,7 @@ function applyRasterPipeline(el, rasterNodes, opts) {
         canvas.removeEventListener("paint", onPaint);
         while (sourceEl.firstChild) el.appendChild(sourceEl.firstChild);
         if (sourceEl.parentNode === canvas) canvas.removeChild(sourceEl);
-        canvas.removeAttribute("layoutsubtree");
+        clearLiveOptIn(canvas);
         canvas.style.cssText =
             "position:absolute;top:0;left:0;" +
             `width:${rect.width}px;height:${rect.height}px;` +
@@ -4994,7 +5215,7 @@ function applyRasterPipeline(el, rasterNodes, opts) {
 
 export {
     applyRasterPipeline, registerRasterOp, RASTER_OP_NAMES,
-    isHTMLInCanvasAvailable, DRIVER_NAMES, DRIVER_DOCS,
+    isHTMLInCanvasAvailable, htmlInCanvasGeneration, DRIVER_NAMES, DRIVER_DOCS,
     // Phase H3. The registry is already effectively public — registerRasterOp
     // mutates it — and a dev tool needs to read an op's stage and params to
     // show them. `isStructuralChange` is exported so the inspector can label

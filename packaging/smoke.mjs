@@ -92,7 +92,7 @@ for (const rel of [...advertised].sort()) {
 const nodeSubpaths = [
   "nodality",
   "nodality/ssg", "nodality/ssg-site", "nodality/seo", "nodality/data",
-  "nodality/morph", "nodality/presets",
+  "nodality/morph", "nodality/presets", "nodality/responsive",
   // NOT "nodality/inspect": it is a DOM dev tool. It has no module-scope
   // DOM access (P1's rule still applies) but importing it here would
   // prove nothing this list is for.

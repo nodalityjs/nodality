@@ -189,10 +189,13 @@ const BARE_DESIGN_OPS = [
  * over-reporting costs more than under-reporting.
  */
 const DESIGN_OP_NAMES = [
-    "animation", "background", "blast", "card-style", "filter", "gradient",
+    "animation", "arrange", "background", "blast", "card-style", "filter", "gradient",
     "layout", "link-style", "margin", "navStyle", "shadow", "slayout",
     "span", "transform",
 ];
+
+/** What an `arrange` node can switch its target to inside its range. */
+const ARRANGE_MODES = ["row", "column", "expand", "collapse"];
 
 /**
  * Every top-level key a design node reads.
@@ -763,6 +766,28 @@ export function validateNodes(nodes, elements, defs) {
                 push("MISSING_FIELD", `${path}.op.gradient`, undefined, [],
                     ["a CSS gradient, e.g. \"linear-gradient(#1d6fe0, #7fd1ff)\"",
                      "or direction: \"radial\" to take the built-in one"]);
+            }
+
+            // An `arrange` node does nothing without a target and a range, and
+            // a mode outside the two it knows would be dropped in silence.
+            if (!bare && name === "arrange") {
+                const mode = node.op.mode;
+                if (mode !== undefined && !ARRANGE_MODES.includes(mode)) {
+                    push("BAD_FIELD", `${path}.op.mode`, mode,
+                        suggest(String(mode), ARRANGE_MODES), ARRANGE_MODES);
+                }
+                const r = node.range;
+                const num = (x) => (typeof x === "number" ? x : parseInt(x, 10));
+                const rangeOk = Array.isArray(r) && r.length === 2 &&
+                    r.every((x) => Number.isFinite(num(x))) && num(r[0]) >= 0 && num(r[0]) <= num(r[1]);
+                if (!rangeOk) {
+                    push("BAD_FIELD", `${path}.range`, r, [],
+                        ["[lo, hi] viewport widths in CSS px, 0 <= lo <= hi"]);
+                }
+                if (!Array.isArray(node.target) || node.target.length === 0) {
+                    push("MISSING_FIELD", `${path}.target`, node.target, [],
+                        ["the id of the row, cards or nav it switches"]);
+                }
             }
             return;
         }

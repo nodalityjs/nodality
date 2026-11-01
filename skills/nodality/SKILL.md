@@ -185,6 +185,15 @@ Rules that are not obvious from the schema:
 - **`agent-surface` is opt-in and allow-listed.** No form is exposed
   unless named in `forms`. Do not add it unless the user asks for an
   agent-operable page.
+- **`arrange` switches a group's arrangement inside a width range.**
+  `{ op: { name: "arrange", mode: "column" }, target: ["hero"], range: [0, 640] }`
+  stacks a `row` or `cards` grid at 0–640 px, and `mode: "row"` keeps it
+  side by side; on a `nav`, `mode: "collapse"` shows the menu button up to
+  the range's end and `mode: "expand"` the full bar. Ranges are inclusive
+  CSS px. Do not guess them: `nodality/responsive`'s `respond()` measures
+  the page in a browser and emits one node per interval, covering every
+  width, switching exactly where a group stops fitting (experimental). Of
+  two overlapping ranges on one element, the first declared wins.
 
 A complete navigation graph is one node:
 

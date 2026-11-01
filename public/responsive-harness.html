@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive harness</title>
+</head>
+<body>
+  <div id="mount"></div>
+  <script type="module">
+import { Des } from '../lib/designer.js';
+
+// Renders whatever spec it is handed, so a test can drive nodality/responsive's
+// respond() through a real browser: one fresh page per measurement.
+window.__nodalityRender = (spec) => {
+  const m = document.querySelector('#mount');
+  m.innerHTML = '';
+  const d = new Des();
+  if (spec.defs) d.defs(spec.defs);
+  d.nodes(spec.nodes || []).add(spec.elements || []).set({ mount: '#mount', code: false, elements: false });
+};
+window.__nodalityReady = true;
+  </script>
+</body>
+</html>

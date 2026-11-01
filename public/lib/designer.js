@@ -9,6 +9,7 @@ import { installAgentSurface } from "../lib/webmcp-adapter.js";
 import { annotateRoundTrip } from "../lib/parse-html.js";
 import { resolveRefs, collectRefs } from "../lib/resolve-refs.js";
 import { normalizeSpec } from "../lib/normalize-spec.js";
+import { lowerArrange } from "../lib/responsive.js";
 import { Animator, resetDeprecationNotices } from "../layout/animator.js";
 import { Base } from "../layout/base.js";
 import { Text } from "../layout/text.js";
@@ -464,6 +465,18 @@ new Text("row.").set({
                 throw new Error(
                     `[nodality] no definition for $ref "${dangling[0].name}" at ` +
                     `${dangling[0].path}. Defined: ${defined.length ? defined.join(", ") : "(none)"}`);
+            }
+        }
+
+        // `arrange` nodes switch a group's arrangement inside a width range.
+        // They are lowered here onto what the runtime already applies on
+        // resize (`resprop`, a nav's `breakpoint`), so no component needs to
+        // know about them. A page without one takes the old path untouched.
+        if (Array.isArray(this.options) && this.options.some((n) => n && n.op && n.op.name === "arrange")) {
+            const lowered = lowerArrange(arr, this.options);
+            arr = lowered.elements;
+            for (const s of lowered.skipped) {
+                if (typeof console !== "undefined") console.warn(`[nodality] arrange node ${s.node}${s.target ? ` on "${s.target}"` : ""} ignored: ${s.reason}.`);
             }
         }
 

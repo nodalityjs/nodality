@@ -47,6 +47,8 @@
       ditherMono: [{ op: 'dither', mono: true, ink: '#0B1B2B' }],
       ditherDriver: [{ op: 'dither', levels: 4, by: 'mouse', radius: 180 }],
       aberration: [{ op: 'aberration', amount: 8 }],
+      // Outside a transition: the gaps show the image unmoved.
+      particles:  [{ op: 'particles', size: 6, amount: 0.8 }],
       driverMouse:  [{ op: 'offset', by: 'mouse', strength: 10 }],
       driverHover:  [{ op: 'offset', by: 'hover', strength: 10 }],
       driverScroll: [{ op: 'offset', by: 'scroll', strength: 10 }],

@@ -87,6 +87,37 @@ const PRESETS = {
 		],
 	},
 
+	// Particles travel a few cells at most (the op gathers rather than
+	// scatters). The long journey from the old rect to the new one is the
+	// morph's geometry; what this adds is the shape coming apart into
+	// dots on the way and re-forming as the other one.
+	// A current through the morph: both stills are carried along a
+	// divergence-free flow that rises and settles, so the shape seems to
+	// pour into its new box. flow needs no solver and no float targets, so
+	// it runs wherever the transition runs. `speed` keeps the field moving
+	// during the morph; at both ends strength is 0 and it does nothing.
+	"t-fluid": {
+		summary: "Liquid morph: the old state is carried on a current and pours " +
+			"into the new one, calm at both ends.",
+		nodes: [
+			{ op: "flow", strength: [0, 46, 0], scale: 130, speed: 0.8, ease: "in-out" },
+			{ op: "aberration", amount: [0, 4, 0], window: [0.2, 0.8] },
+		],
+	},
+
+	//
+	// Held at full scatter through the middle third: a single [0, 1, 0]
+	// peak is over in an instant at ordinary morph durations, and on pale
+	// content the dots barely register. reach 5 lets a 9px particle travel
+	// 36px, at (2·5 + 1)² = 121 cells searched per pixel.
+	"t-particles": {
+		summary: "Particle morph: the old state breaks into dots that scatter and " +
+			"re-form as the new one, with see-through gaps in between.",
+		nodes: [
+			{ op: "particles", size: 9, amount: [0, 1, 1, 0], reach: 5, ease: "in-out" },
+		],
+	},
+
 	// ── fluid ────────────────────────────────────────────────────────
 	// The two `stir` numbers are the PROVEN values from
 	// designerTest/raster-spot.html, not fresh guesses: radius 0.055 is

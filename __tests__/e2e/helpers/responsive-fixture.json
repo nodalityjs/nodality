@@ -1,0 +1,98 @@
+{
+  "elements": [
+    {
+      "type": "nav",
+      "id": "top",
+      "brand": "Northwind",
+      "items": [
+        {
+          "title": "Overview",
+          "link": "/overview"
+        },
+        {
+          "title": "Engineering",
+          "link": "/engineering"
+        },
+        {
+          "title": "Collections",
+          "link": "/collections"
+        },
+        {
+          "title": "Sustainability",
+          "link": "/sustainability"
+        },
+        {
+          "title": "Partnerships",
+          "link": "/partnerships"
+        },
+        {
+          "title": "Documentation",
+          "link": "/documentation"
+        },
+        {
+          "title": "Contact",
+          "link": "/contact"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": "hero",
+      "children": [
+        {
+          "type": "h3",
+          "text": "Incomprehensibilities"
+        },
+        {
+          "type": "h3",
+          "text": "Characteristically"
+        },
+        {
+          "type": "h3",
+          "text": "Internationalisation"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": "features",
+      "children": [
+        {
+          "type": "a",
+          "text": "Documentation",
+          "url": "/documentation"
+        },
+        {
+          "type": "a",
+          "text": "Configuration",
+          "url": "/configuration"
+        },
+        {
+          "type": "a",
+          "text": "Accessibility",
+          "url": "/accessibility"
+        },
+        {
+          "type": "a",
+          "text": "Performance",
+          "url": "/performance"
+        },
+        {
+          "type": "a",
+          "text": "Reliability",
+          "url": "/reliability"
+        }
+      ]
+    },
+    {
+      "type": "cards",
+      "id": "grid",
+      "items": [
+        "One",
+        "Two",
+        "Three"
+      ]
+    }
+  ],
+  "nodes": []
+}
