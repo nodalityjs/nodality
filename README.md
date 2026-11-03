@@ -1,9 +1,13 @@
 <h1 align="center">Nodality</h1>
 
+<h3 align="center">
+  A user interface is two arrays: what exists, and what is done to it.<br>
+  Built for agents and people alike.
+</h3>
+
 <p align="center">
-  <strong>A user interface is two arrays: what exists, and what is done to it. Built for agents and people alike.</strong><br>
   Both are plain data – so the pipeline that builds your page is inspectable,
-  diffable, and executable at build time <em>and</em> in the browser.<br>
+  diffable, and executable at build time and in the browser.<br>
   Plain data is also what a coding agent writes well, and what a validator
   can check before anything renders.
 </p>
