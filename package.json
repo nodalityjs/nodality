@@ -1,7 +1,7 @@
 {
   "name": "nodality",
   "version": "1.4.0",
-  "description": "A lightweight library for declarative UI elements.",
+  "description": "A UI is two arrays: what exists, and what is done to it. Zero-dependency declarative UI library with build-time prerendering, composable WebGL effects, and an MCP server and validator for coding agents.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "bin": {
@@ -89,7 +89,15 @@
     "nodality",
     "effects",
     "style",
-    "open-source"
+    "open-source",
+    "ai",
+    "llm",
+    "agents",
+    "ai-agents",
+    "mcp",
+    "model-context-protocol",
+    "code-generation",
+    "static-site-generator"
   ],
   "devDependencies": {
     "@babel/core": "^7.28.0",

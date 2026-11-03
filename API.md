@@ -28,7 +28,24 @@ new Des()
 Full documentation: https://nodalityjs.github.io
 Machine-readable index: https://nodalityjs.github.io/llms.txt
 
+## For coding agents
+
+Read the vocabulary instead of guessing it: `npx nodality mcp` serves
+`list_ops` (nodes) and `get_schema` (elements), and `validate_nodes`
+checks a pair before it renders. Without MCP: `schema.json` next to this
+file, and `validateNodes` from `nodality/validate`.
+Guide: https://nodalityjs.github.io/docs/agents/start
+
 ## Pages
+
+### agents
+
+- **Agents – getting started** — Nodality is written by people and by coding agents.
+  https://nodalityjs.github.io/docs/agents/start
+- **MCP tools** — `npx nodality mcp` runs a Model Context Protocol server over stdio with six tools.
+  https://nodalityjs.github.io/docs/agents/tools
+- **Validation** — A misspelled op does not throw – it renders nothing.
+  https://nodalityjs.github.io/docs/agents/validation
 
 ### api
 
@@ -63,7 +80,7 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/basics/animation
 - **CDN** — To use Nodality with CDN, use this code:
   https://nodalityjs.github.io/docs/basics/cdn
-- **Custom elements** — To create a custom element using Nodality library, you extend the  class.
+- **Custom elements** — To create a custom element using Nodality library, you extend the `Base` class.
   https://nodalityjs.github.io/docs/basics/customElements
 - **Designer** — Designer instance accepts nodes and elements arrays.
   https://nodalityjs.github.io/docs/basics/designer
@@ -74,11 +91,11 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
 
 ### elements
 
-- **Card** — Create  elements containing ,  and  elements.
+- **Card** — Create `Card` elements containing `Image`, `Text` and `Link` elements.
   https://nodalityjs.github.io/docs/elements/cards
-- **Circle** — You can use the  element to display a simple circle.
+- **Circle** — You can use the `circle` element to display a simple circle.
   https://nodalityjs.github.io/docs/elements/circle
-- **Code** — You can use the  element to display a block of code.
+- **Code** — You can use the `code` element to display a block of code.
   https://nodalityjs.github.io/docs/elements/code
 - **Dropdown** — Dropdown is used to create expand area upon click or hover.
   https://nodalityjs.github.io/docs/elements/dropdown
@@ -86,7 +103,7 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/elements/free
 - **AreaGrid** — The `grid` creates an instance of the `AreaGrid` element, designed to organize child elements in a grid layout.
   https://nodalityjs.github.io/docs/elements/grid
-- **HScroller** — You can use the  to make a horizontally scrolling gallery.
+- **HScroller** — You can use the `HScroller` to make a horizontally scrolling gallery.
   https://nodalityjs.github.io/docs/elements/hscroller
 - **Image** — Image allows you to create simple image
   https://nodalityjs.github.io/docs/elements/image
@@ -96,11 +113,11 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/elements/link
 - **Modal** — To create a simple modal.
   https://nodalityjs.github.io/docs/elements/modal
-- **Navigation** — To create a simple navigation use  element
+- **Navigation** — To create a site navigation use the `nav` element.
   https://nodalityjs.github.io/docs/elements/navigation
-- **Offcanvas** — To create a simple navigation use  element.
+- **Offcanvas** — To create a simple navigation use `sideNav` element.
   https://nodalityjs.github.io/docs/elements/offcanvas
-- **Polygon** — You can use the  element to display a block of code.
+- **Polygon** — You can use the `polygon` element to display a block of code.
   https://nodalityjs.github.io/docs/elements/polygon
 - **Elements** — Elements are used to create UI.
   https://nodalityjs.github.io/docs/elements/readme
@@ -108,13 +125,13 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/elements/responsive-wrapper
 - **Complex** — The `Wrapper` class allows you to create a responsive element that can dynamically switch its layout between row and column orientations based on specified…
   https://nodalityjs.github.io/docs/elements/responsive
-- **Row** — Row creates a simple  element to allow you to organise children in a row.
+- **Row** — Row creates a simple `FlexRow` element to allow you to organise children in a row.
   https://nodalityjs.github.io/docs/elements/row
-- **SideNavigation** — To create side navigation use the  structure.
+- **SideNavigation** — To create side navigation use the `SideNav` structure.
   https://nodalityjs.github.io/docs/elements/sidenavigation
-- **Slider** — To create a simple slider, use  structure
+- **Slider** — To create a simple slider, use `slider` structure
   https://nodalityjs.github.io/docs/elements/slider
-- **Stack** — To create a simple stack, use  object.
+- **Stack** — To create a simple stack, use `stack` object.
   https://nodalityjs.github.io/docs/elements/stack
 - **Switcher** — Switcher allows you to display different views at different breakpoints.
   https://nodalityjs.github.io/docs/elements/switcher
@@ -122,13 +139,13 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/elements/table
 - **Text** — Headers are used to display text.
   https://nodalityjs.github.io/docs/elements/text
-- **UList** — You can use the  element to display a list of items.
+- **UList** — You can use the `UList` element to display a list of items.
   https://nodalityjs.github.io/docs/elements/ulist
-- **WeightLayout** — WeightLayout allows you to create flexible layout using attraction weights inside  element.
+- **WeightLayout** — WeightLayout allows you to create flexible layout using attraction weights inside `Free` element.
   https://nodalityjs.github.io/docs/elements/weightLayout
 - **Wrap** — Creates a simple wrapper that wraps other elements.
   https://nodalityjs.github.io/docs/elements/wrap
-- **ZoomCard** — To use image as background for the entire card use the  element with a background.
+- **ZoomCard** — To use image as background for the entire card use the `ZoomCard` element with a background.
   https://nodalityjs.github.io/docs/elements/zoom-card
 
 ### forms
@@ -143,13 +160,13 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/forms/filepicker
 - **LabelField** — LabelField allows you to create textfield that turns placeholder text into a label.
   https://nodalityjs.github.io/docs/forms/labelfield
-- **Picker** — To create the picker, use the the  delcaration in the elements array.
+- **Picker** — To create the picker, use the the `picker` delcaration in the elements array.
   https://nodalityjs.github.io/docs/forms/picker
 - **Radio** — The `radio` element creates a group of radio buttons for user selection.
   https://nodalityjs.github.io/docs/forms/radio
 - **Basics** — You can create forms easily with this library.
   https://nodalityjs.github.io/docs/forms/readme
-- **TextField** — To create a simple textfield, use the  element.
+- **TextField** — To create a simple textfield, use the `input` element.
   https://nodalityjs.github.io/docs/forms/textfield
 - **Usage with PHP** — You can use the form with PHP.
   https://nodalityjs.github.io/docs/forms/usewithphp
@@ -183,11 +200,11 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/nodes/gradient
 - **Layout** — To quickly generate common layout variation, we can use the following:
   https://nodalityjs.github.io/docs/nodes/layout
-- **LinkStyle** — Link style operation allows you to style links ( elements.).
+- **LinkStyle** — Link style operation allows you to style links (`<a>` elements.).
   https://nodalityjs.github.io/docs/nodes/linkStyle
 - **Nodes** — Nodes allow you to edit design of the elements.
   https://nodalityjs.github.io/docs/nodes/nodes
-- **Shadow** — To use the default shadow, we use the  op.
+- **Shadow** — To use the default shadow, we use the `shadow` op.
   https://nodalityjs.github.io/docs/nodes/shadow
 - **Span** — Span is a part of text that can have different contents and design from the rest of your text.
   https://nodalityjs.github.io/docs/nodes/span
@@ -215,7 +232,7 @@ Machine-readable index: https://nodalityjs.github.io/llms.txt
   https://nodalityjs.github.io/docs/scrollanimation/index
 - **ScrollVideo** — Play video as you scroll.
   https://nodalityjs.github.io/docs/scrollanimation/scrollvideo
-- **Together** — Here is how you can combine the elements using the  element.
+- **Together** — Here is how you can combine the elements using the `Stacker` element.
   https://nodalityjs.github.io/docs/scrollanimation/together
 - **TransformAnimation** — Transform element as you scroll down.
   https://nodalityjs.github.io/docs/scrollanimation/transformanimation

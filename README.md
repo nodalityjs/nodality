@@ -1,9 +1,11 @@
 <h1 align="center">Nodality</h1>
 
 <p align="center">
-  <strong>A user interface is two arrays: what exists, and what is done to it.</strong><br>
+  <strong>A user interface is two arrays: what exists, and what is done to it. Built for agents and people alike.</strong><br>
   Both are plain data – so the pipeline that builds your page is inspectable,
-  diffable, and executable at build time <em>and</em> in the browser.
+  diffable, and executable at build time <em>and</em> in the browser.<br>
+  Plain data is also what a coding agent writes well, and what a validator
+  can check before anything renders.
 </p>
 
 <p align="center">
@@ -110,14 +112,12 @@ backends chosen automatically.
 pointer, scroll or time, composed into one pass.
 [Docs →](https://nodalityjs.github.io/docs/raster/ops/)
 
-**An agent-operable surface, derived.** One node exposes your page to an
-AI agent as callable tools – traversing views, submitting a form you
-allowed, reading what is on screen – derived from the graph you already
-wrote rather than authored a second time, and also written into the
-prerendered HTML as a static manifest.
-[Docs →](https://nodalityjs.github.io/docs/raster/agent-surface/)
+## Built for agents
 
-## For AI agents
+Nodality is written by people and by coding agents, and a page can be
+operated by an agent once it is built. Both use the same `(E, N)` pair.
+
+### Agents that write pages
 
 One command sets up an agent IDE end to end:
 
@@ -132,27 +132,59 @@ the MCP server below in the project's config. Flags: `--claude`,
 `--cursor`, `--global`, `--dir=<path>` for any other agent, `--no-mcp`.
 Re-run it after upgrading nodality to refresh the skill in place.
 
-`nodality mcp` runs a Model Context Protocol server over stdio, so a
-generator writes against the real vocabulary instead of guessing at it:
+`nodality mcp` runs a Model Context Protocol server over stdio, so an
+agent writes against the real vocabulary instead of guessing at it:
 
 ```json
 { "mcpServers": { "nodality": { "command": "npx", "args": ["nodality", "mcp"] } } }
 ```
 
-Three tools. `list_ops` returns the op registry as data – every op with
-its stage, parameters, units and defaults. `validate_nodes` checks a node
-array and returns a machine-readable report with did-you-mean
-suggestions, so `{ op: "dithr" }` comes back as `UNKNOWN_OP` suggesting
-`dither` rather than rendering nothing at all. `preview` renders an
-`(E, N)` pair to a self-contained HTML file (needs `jsdom` in your
-project; it is required only for prerendering, so the library does not
-bundle it).
+| Tool | What it returns |
+|---|---|
+| `list_ops` | The vocabulary of `N` as data: every op with its stage, parameters, units and defaults, plus the transition presets and the element types. Built from the live registry, so it cannot drift. |
+| `get_schema` | One element type's parameters, on demand – the vocabulary of `E`. Ask for the type you are about to write instead of carrying the whole schema in context. |
+| `validate_nodes` | A machine-readable report for a node array (and its elements): a code, the failing path, the value, did-you-mean suggestions. Never throws. |
+| `preview` | The `(E, N)` pair rendered to a self-contained HTML file through the build-time prerenderer. |
+| `check_page` | What the rendered page actually does, at a phone and a desktop width: overflow, clipped text, missing alt text, small tap targets, contrast, skipped headings. Facts, not taste. |
+| `parse_html` | A rendered page read back into an `E` array, so a page can be edited rather than regenerated. |
 
-The validator is available directly too:
+Together they close a generate → check → repair loop: `{ op: "dithr" }`
+comes back as `UNKNOWN_OP` suggesting `dither` rather than rendering
+nothing at all, and content placed in the wrong slot of a composite comes
+back as `WRONG_CONTENT_SLOT` rather than as placeholder cards. The
+validator and the page checker are available without MCP too:
 
 ```js
 import { validateNodes, describeOps } from "nodality/validate";
+import { checkPage } from "nodality/check"; // needs Playwright in your project
 ```
+
+`schema.json` and `API.md` ship inside the package, so an agent reading
+`node_modules/nodality/` has the vocabulary without fetching a website,
+and [`llms.txt`](https://nodalityjs.github.io/llms.txt) indexes the docs.
+
+**What this buys, measured.** On 24 UI briefs, the same model (Claude
+Sonnet 5) writing Nodality instead of React with Tailwind produced a
+layout or accessibility defect on 1 page against 6, and React needed a
+median of 2.1–4.2× as many output tokens, depending on how the
+specification is serialised. With one repair turn using only the
+library's own reports, two models reached 24 of 24 defect-free pages.
+Method and limits are in the FLLM 2026 paper (see [Citing](#citing)).
+
+### Agents that use pages
+
+One node exposes a finished page to an AI agent as callable tools –
+moving between views, submitting a form you allowed, reading what is on
+screen – derived from the graph you already wrote rather than authored a
+second time, and also written into the prerendered HTML as a static
+manifest. It is opt-in: no node, no surface, and no form is exposed
+unless you name it.
+
+```js
+{ op: "agent-surface", name: "studio", forms: ["contact-form"] }
+```
+
+[Docs →](https://nodalityjs.github.io/docs/raster/agent-surface/)
 
 ## What this is not
 
@@ -198,7 +230,10 @@ The published measurements were produced on Node.js v25.6.0.
 | `layout/` | Element definitions — the *what exists* half of the pair. |
 | `lib/` | Transformation nodes and the pipeline — the *what is done to it* half. |
 | `dist/` | Built bundles: `index.cjs.js` (CommonJS), `index.esm.js` (ES module), `index.d.ts`. |
-| `bin/` | The command-line entry points, including `prerender`. |
+| `bin/` | The command-line entry points: `prerender`, `skill` (agent setup) and `mcp` (the MCP server). |
+| `skills/` | The `/nodality` agent skill that `npx nodality skill` installs. |
+| `schema.json` | The element schema, generated from the source – what `get_schema` serves. |
+| `evals/` | The 24 UI briefs, cached agent generations and the scripts that run, score and repair them. |
 | `__tests__/` | Playwright regression tests that assert deterministic output. |
 | `examples/` | Runnable pairs, smallest first. |
 | `API.md` | Full API reference. |
@@ -237,6 +272,11 @@ repository:
 
 > Vabroušek, F. Nodality: a node-based declarative transformation pipeline for
 > static UI generation. *PeerJ Computer Science*. (Under review.)
+
+For agent generation (the generate → check → repair loop and the token counts):
+
+> Vabroušek, F., Jašek, R., Vala, R. Token-Optimal Declarative UI Generation
+> for AI-Assisted Software Engineering. *IEEE FLLM 2026*. (To appear.)
 
 For the measurements specifically, cite the data deposit:
 
