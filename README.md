@@ -112,6 +112,12 @@ whole chain, with per-edge effects, history-based `back`, and two capture
 backends chosen automatically.
 [Docs →](https://nodalityjs.github.io/docs/raster/morph/)
 
+**Breakpoints from content** *(experimental)*. Instead of guessing device
+widths, `respond()` from `nodality/responsive` measures each row, card grid
+and nav in a browser and switches it exactly where its content stops
+fitting – emitted as ordinary `arrange` nodes you can read and edit.
+[Docs →](https://nodalityjs.github.io/docs/nodes/arrange/)
+
 **Composable GPU effects.** Fifteen first-party raster ops, driveable by
 pointer, scroll or time, composed into one pass.
 [Docs →](https://nodalityjs.github.io/docs/raster/ops/)

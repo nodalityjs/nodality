@@ -2,6 +2,20 @@
 
 Generated per release from the source diff.
 
+## 1.4.0 — 2026-11-01
+
+### Added
+- **Breakpoints from content** (`nodality/responsive`, experimental). `respond(page, spec, renderAt)` measures every `row`, `cards` grid and `nav` in a browser, solves the width at which each group's wide arrangement stops fitting, and returns the pair with one `arrange` node per interval. Deterministic; groups with authored responsive settings are skipped; nested groups are re-solved until they settle; widths where no arrangement fits are reported as `infeasible`. Needs Playwright in the caller's project. `harnessHTML()` returns a page `respond()` can drive.
+- **`arrange` node.** `{ op: { name: "arrange", mode }, target, range }` switches a group's arrangement inside an inclusive width range: `column`/`row` for rows and card grids, `collapse`/`expand` for a nav. Lowered by `Des` onto `resprop` (rows, cards) or the nav `breakpoint`, replacing the built-in 700 px and 1200 px switches. Of two overlapping ranges on one element, the first declared wins. Validated by `validateNodes`.
+- **Shader transitions for single-page apps** (`nodality/view-transition`). `nodalityTransition(update, { effect })` has the View Transitions API's calling convention – a router swaps `document.startViewTransition` for it – pairs elements by `view-transition-name`, and morphs each pair with a raster transition.
+- **`particles` raster op** and the **`t-fluid`** and **`t-particles`** transition presets.
+- The `/nodality` agent skill documents `arrange` and `respond()`.
+
+### Fixed
+- `resprop` ranges now match the integer part of a fractional (zoomed) viewport width, so adjacent ranges such as `[0, 640]` and `[641, …]` leave no half-pixel gap.
+- Morph stills now respect the element's own `box-sizing` (padded boxes under `border-box` were captured too wide), drop inherited margins below the root, and keep colours painted by page CSS (white text on a coloured panel no longer flashes black).
+- The live HTML-in-Canvas backend speaks both generations of the upload API (`texElementImage2D` and Chrome 155's `texElementSubImage2D`, `layoutsubtree` and `content="drawable"`) and prefers the newer one, instead of silently falling back to snapshots once the old name is removed.
+
 ## 1.3.6 — 2026-09-06
 
 ### Added

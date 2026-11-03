@@ -190,6 +190,8 @@ Guide: https://nodalityjs.github.io/docs/agents/start
 
 - **Animation** — Animation allows you to animate elements.
   https://nodalityjs.github.io/docs/nodes/animation
+- **Responsive – breakpoints from content** — *Experimental, opt-in.
+  https://nodalityjs.github.io/docs/nodes/arrange
 - **Blast** — Blast allows user to create outline around element contents.
   https://nodalityjs.github.io/docs/nodes/blast
 - **Copy** — To use the copy operation, we use these nodes:
