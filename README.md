@@ -1,18 +1,18 @@
-<h1 align="center">Nodality</h1>
+<h1>Nodality</h1>
 
-<h3 align="center">
+<h3>
   A user interface is two arrays: what exists, and what is done to it.<br>
   Built for agents and people alike.
 </h3>
 
-<p align="center">
+<p>
   Both are plain data – so the pipeline that builds your page is inspectable,
   diffable, and executable at build time and in the browser.<br>
   Plain data is also what a coding agent writes well, and what a validator
   can check before anything renders.
 </p>
 
-<p align="center">
+<p>
   <a href="https://www.npmjs.com/package/nodality"><img alt="npm" src="https://img.shields.io/npm/v/nodality?color=0f53a8"></a>
   <img alt="dependencies" src="https://img.shields.io/badge/dependencies-0-0f53a8">
   <a href="https://github.com/nodalityjs/nodality/blob/main/LICENSE"><img alt="license" src="https://img.shields.io/npm/l/nodality?color=0f53a8"></a>
