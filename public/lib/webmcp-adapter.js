@@ -324,11 +324,28 @@ export function installAgentSurface({ mount, elements, nodes, morphs }) {
             const accepts = (field) => field.tagName === "SELECT"
                 ? [...field.options].map((o) => o.value) : [];
 
+            /**
+             * The control a schema key names.
+             *
+             * A `labelInput` puts its `id` on the WRAPPER and renders an
+             * <input> with no name or id inside it. Matching `#key` alone
+             * found the div: the value was set on it as an expando, the
+             * read-back saw that same expando and reported the field as
+             * filled, and the form went out empty while the tool said
+             * `ok: true`. When the match is not itself a control, the
+             * control is the one inside it.
+             */
+            const CONTROL = "input, select, textarea";
+            const controlFor = (key) => {
+                const hit = form.querySelector(`[name="${key}"], #${CSS.escape(key)}`);
+                if (!hit || hit.matches(CONTROL)) return hit;
+                return hit.querySelector(CONTROL);
+            };
+
             for (const key of Object.keys(props)) {
                 if (args[key] === undefined) continue;
                 const want = args[key];
-                const field = form.querySelector(
-                    `[name="${key}"], #${CSS.escape(key)}`);
+                const field = controlFor(key);
                 // Named by the schema and carried by nothing. Also silent
                 // before, and the same lie by omission.
                 if (!field) { absent.push(key); continue; }

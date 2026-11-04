@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Nodality — agent surface over labelInput fields</title>
+<style>:root { color-scheme: light; } body { margin: 0; font-family: system-ui, sans-serif; }
+  #stage { max-width: 60ch; margin: 0 auto; padding: 24px; }</style>
+<script>
+// The same minimal registry as agent-surface.html: what the adapter
+// touches, plus the agent-side getTools/executeTool the spec drives.
+(function () {
+  const tools = new Map();
+  document.modelContext = {
+    registerTool(t) { tools.set(t.name, t); },
+    unregisterTool(name) { tools.delete(name); },
+    getTools() { return [...tools.values()].map(({ execute, ...d }) => d); },
+    executeTool(name, args) {
+      const t = tools.get(name);
+      if (!t) throw new Error("no such tool: " + name);
+      return t.execute(typeof args === "string" ? JSON.parse(args) : (args || {}));
+    },
+  };
+  window.__submissions = [];
+})();
+</script>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<script type="module">
+import { Des } from "../lib/designer.js";
+
+// Two things this fixture exists for, both found by the M6 agent study:
+//
+// 1. `labelInput` puts its `id` on a WRAPPER and renders an <input> with
+//    no name or id. The derived submit matched the wrapper, set a value on
+//    the div, reported `ok: true`, and sent the form empty.
+// 2. The form comes BEFORE the card's own back button. The back control
+//    used to be the first unclaimed button in the view – the form's
+//    submit – so submitting also navigated back.
+const SIGNUP = {
+  id: "signup", type: "form", title: "Newsletter",
+  children: [
+    { type: "labelInput", id: "nl-name", label: "Name", inputType: "text" },
+    { type: "labelInput", id: "nl-email", label: "Email", inputType: "email" },
+    { type: "button", id: "nl-send", text: "Subscribe" },
+  ],
+};
+
+const CARD = { type: "wrap", background: "#eef2f7", radius: "14px",
+               pad: [{ a: 18 }], width: "min(520px, 92vw)", color: "#0b1420" };
+
+const E = [
+  { id: "home", ...CARD, children: [
+      { id: "home-t", type: "h3", text: "Club" },
+      { id: "home-plans", type: "button", text: "Plans",
+        background: "#0f53a8", color: "#fff", radius: "8px" },
+  ]},
+  { id: "plans", ...CARD, children: [
+      { id: "plans-t", type: "h3", text: "Plans" },
+      SIGNUP,
+      { id: "plans-back", type: "button", text: "← back",
+        background: "#0b1420", color: "#eef2f7", radius: "8px" },
+  ]},
+];
+
+const N = [
+  { op: "morph", effect: "t-vhs", duration: 300, back: true,
+    chain: [{ from: "home", to: { Plans: "plans" } }] },
+  { op: "agent-surface", forms: ["signup"] },
+];
+
+new Des().nodes(N).add(E).set({ mount: "#stage", code: false });
+
+// The stub endpoint: record what the form really carries, read from its
+// controls (labelInput fields have no name, so FormData would be empty).
+addEventListener("submit", (e) => {
+  e.preventDefault();
+  const fields = {};
+  for (const el of e.target.querySelectorAll("input, select, textarea")) {
+    fields[el.getAttribute("aria-label") || el.name || el.id] = el.value;
+  }
+  window.__submissions.push({ form: e.target.id || null, fields });
+}, true);
+
+window.__ready = true;
+</script>
+</body>
+</html>
