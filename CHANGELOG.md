@@ -5,6 +5,15 @@ Generated per release from the source diff.
 ## 1.4.2 — 2026-11-04
 
 ### Fixed
+- Agent form submission no longer reports `ok: true` for forms that exist only in a detached morph view — attempting to submit such a form now returns a refusal with reason `FORM_NOT_IN_VIEW`, naming the view(s) the form lives on.
+- Agent form submission now detects when `requestSubmit()` is silently blocked by a failed constraint. In that case it returns a refusal with reason `NOT_SUBMITTED` and a list of invalid fields (`field`/`message`) instead of falsely reporting success.
+
+### Changed
+- Submission success is now confirmed by observing the form's `submit` event rather than assuming success once `requestSubmit()`/`submit()` is called.
+
+## 1.4.2 — 2026-11-04
+
+### Fixed
 - A derived submit tool no longer reports `ok: true` for a submission that did not happen. A form on a view that is not showing is refused with `FORM_NOT_IN_VIEW`, naming the view to `navigate` to; a form that its own validation stops is refused with `NOT_SUBMITTED`, naming the fields. The report now comes from the form's `submit` event.
 
 ## 1.4.1 — 2026-11-04
