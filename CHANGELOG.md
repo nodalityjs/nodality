@@ -2,6 +2,15 @@
 
 Generated per release from the source diff.
 
+## 1.4.3 — 2026-11-05
+
+### Fixed
+- `input` elements now correctly render the `type` attribute from `obj.type` (e.g. `inputType: "email"` previously fell back to a plain text box).
+- `required: true` on `floating-input` now sets the `required` attribute on the underlying `input`, so forms actually enforce it instead of silently accepting empty values.
+
+### Changed
+- `labelInput` now declares `required` as an accepted parameter in generated element params metadata, matching its underlying `input`.
+
 ## 1.4.3 — 2026-11-04
 
 ### Fixed
