@@ -2,6 +2,13 @@
 
 Generated per release from the source diff.
 
+## 1.4.1 — 2026-11-04
+
+### Fixed
+
+- Morph "back" navigation no longer claims a `<button>` that belongs to a `<form>`. Previously, if a form appeared before a card's own back button, the form's submit button could be wrongly wired as the back control, causing it to both submit the form and navigate back.
+- WebMCP adapter (`installAgentSurface`) now correctly resolves the actual input/select/textarea control for a schema key instead of a wrapping element. Previously, for fields like `labelInput` where the `id` is on a wrapper div, values were set as an expando property on the div: the form was submitted empty even though the tool reported `ok: true`.
+
 ## 1.4.0 — 2026-11-01
 
 ### Added
