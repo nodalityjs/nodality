@@ -1,5 +1,5 @@
 /*!
- * nodality v1.4.1
+ * nodality v1.4.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -105,7 +105,16 @@ input.addEventListener("focusout", () => {
      label.style.opacity = "0.0";
 });
 
-obj.name && input.setAttribute("name", obj.name);            
+obj.name && input.setAttribute("name", obj.name);
+
+// These two were dropped. `inputType: "email"` rendered a plain text box and
+// `required: true` rendered nothing, so the form enforced neither, while a
+// derived agent surface still declared the field required. "input" is the
+// mapper's default and means no particular type; a textarea has none.
+if (input.tagName === "INPUT" && obj.type && obj.type !== "input") {
+    input.setAttribute("type", obj.type);
+}
+obj.required && input.setAttribute("required", "");
             
             
             
