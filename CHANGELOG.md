@@ -2,6 +2,17 @@
 
 Generated per release from the source diff.
 
+## 1.4.2 — 2026-11-04
+
+### Fixed
+- A derived submit tool no longer reports `ok: true` for a submission that did not happen. A form on a view that is not showing is refused with `FORM_NOT_IN_VIEW`, naming the view to `navigate` to; a form that its own validation stops is refused with `NOT_SUBMITTED`, naming the fields. The report now comes from the form's `submit` event.
+
+## 1.4.1 — 2026-11-04
+
+### Fixed
+- A derived submit over `labelInput` fields sent the form empty while reporting `ok: true`; the value is now set on the control, not on its wrapper.
+- `morph` with `back: true` no longer claims a form's submit button as the back control.
+
 ## 1.4.0 — 2026-11-01
 
 ### Added

@@ -6,6 +6,11 @@
 //    what the form actually carried, never by the tool's own report.
 // 2. With `back: true`, the first unclaimed button in a view became the
 //    back control – a form's submit button when the form came first.
+// 3. A submit that never happened reported `ok: true`, twice over: from a view
+//    other than the form's (morph keeps other views out of the document, and
+//    `requestSubmit` on a disconnected form does nothing), and with a value
+//    the form's own validation stopped. Five of five Haiku agents told the
+//    user the signup had worked.
 
 const { test, expect } = require('@playwright/test');
 
@@ -64,4 +69,45 @@ test('a form\'s submit button is never claimed as the back control',
     // The card's own back button still goes back.
     await page.getByRole('button', { name: '← back' }).click();
     await expect.poll(() => view(page), { timeout: 10000 }).toBe('home');
+  });
+
+test('a form on another view is refused, not reported as sent, and says where it is',
+  async ({ page, baseURL }) => {
+    await load(page, baseURL);
+    expect(await view(page)).toBe('home');
+
+    const res = await call(page, 'submit_signup',
+      { 'nl-name': 'Jana Nováková', 'nl-email': 'jana@example.cz' });
+    expect(res.ok, JSON.stringify(res)).toBe(false);
+    expect(res.code).toBe('FORM_NOT_IN_VIEW');
+    expect(res.valid).toEqual(['plans']);
+    expect(await page.evaluate(() => window.__submissions)).toEqual([]);
+    expect(await view(page)).toBe('home');
+
+    // The refusal is repairable in one step.
+    expect((await call(page, 'navigate', { destination: res.valid[0] })).ok).toBe(true);
+    const again = await call(page, 'submit_signup',
+      { 'nl-name': 'Jana Nováková', 'nl-email': 'jana@example.cz' });
+    expect(again.ok, JSON.stringify(again)).toBe(true);
+    const sent = await page.evaluate(() => window.__submissions);
+    expect(sent.length).toBe(1);
+    expect(sent[0].fields).toEqual({ Name: 'Jana Nováková', Email: 'jana@example.cz' });
+  });
+
+test('a value the form\'s own validation stops is refused, and names the field',
+  async ({ page, baseURL }) => {
+    await load(page, baseURL);
+    expect((await call(page, 'navigate', { destination: 'plans' })).ok).toBe(true);
+
+    // Set here because `labelInput` renders neither its `inputType` nor
+    // `required`: as authored this control has no constraint to fail.
+    await page.evaluate(() => { document.querySelector('#nl-email input').type = 'email'; });
+
+    const res = await call(page, 'submit_signup',
+      { 'nl-name': 'Jana', 'nl-email': 'not-an-address' });
+    expect(res.ok, JSON.stringify(res)).toBe(false);
+    expect(res.code).toBe('NOT_SUBMITTED');
+    expect(res.submitted).toBeNull();
+    expect(res.valid.map((v) => v.field)).toEqual(['nl-email']);
+    expect(await page.evaluate(() => window.__submissions)).toEqual([]);
   });
