@@ -44,7 +44,7 @@ import { Des } from "../lib/designer.js";
 const SIGNUP = {
   id: "signup", type: "form", title: "Newsletter",
   children: [
-    { type: "labelInput", id: "nl-name", label: "Name", inputType: "text" },
+    { type: "labelInput", id: "nl-name", label: "Name", inputType: "text", required: true },
     { type: "labelInput", id: "nl-email", label: "Email", inputType: "email" },
     { type: "button", id: "nl-send", text: "Subscribe" },
   ],

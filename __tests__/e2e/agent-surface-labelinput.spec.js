@@ -99,10 +99,6 @@ test('a value the form\'s own validation stops is refused, and names the field',
     await load(page, baseURL);
     expect((await call(page, 'navigate', { destination: 'plans' })).ok).toBe(true);
 
-    // Set here because `labelInput` renders neither its `inputType` nor
-    // `required`: as authored this control has no constraint to fail.
-    await page.evaluate(() => { document.querySelector('#nl-email input').type = 'email'; });
-
     const res = await call(page, 'submit_signup',
       { 'nl-name': 'Jana', 'nl-email': 'not-an-address' });
     expect(res.ok, JSON.stringify(res)).toBe(false);
@@ -110,4 +106,31 @@ test('a value the form\'s own validation stops is refused, and names the field',
     expect(res.submitted).toBeNull();
     expect(res.valid.map((v) => v.field)).toEqual(['nl-email']);
     expect(await page.evaluate(() => window.__submissions)).toEqual([]);
+  });
+
+test('labelInput renders its inputType and required, so the form can enforce them',
+  async ({ page, baseURL }) => {
+    await load(page, baseURL);
+    expect((await call(page, 'navigate', { destination: 'plans' })).ok).toBe(true);
+
+    const email = page.locator('#nl-email input');
+    await expect(email).toHaveAttribute('type', 'email');
+    await expect(page.locator('#nl-name input')).toHaveAttribute('required', '');
+    // Still found by role and label: an email input is a textbox.
+    await expect(page.getByRole('textbox', { name: 'Email' })).toBeVisible();
+
+    // A person is held to the same constraints as an agent.
+    await page.getByRole('button', { name: 'Subscribe' }).click();
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => window.__submissions)).toEqual([]);
+
+    await page.getByRole('textbox', { name: 'Name' }).fill('Petr');
+    await email.fill('not-an-address');
+    await page.getByRole('button', { name: 'Subscribe' }).click();
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => window.__submissions)).toEqual([]);
+
+    await email.fill('petr@example.cz');
+    await page.getByRole('button', { name: 'Subscribe' }).click();
+    await expect.poll(() => page.evaluate(() => window.__submissions.length)).toBe(1);
   });

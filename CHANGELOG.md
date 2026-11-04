@@ -2,6 +2,11 @@
 
 Generated per release from the source diff.
 
+## 1.4.3 — 2026-11-04
+
+### Fixed
+- `labelInput` now renders `inputType` and `required`. `inputType: "email"` used to produce a plain text box and `required: true` nothing, so the form enforced neither, for people and agents alike.
+
 ## 1.4.2 — 2026-11-04
 
 ### Fixed
