@@ -9454,6 +9454,11 @@
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
         },
         {
+          "name": "required",
+          "via": "component",
+          "description": "Marks the field required for native validation."
+        },
+        {
           "name": "text",
           "via": "mapper"
         },
