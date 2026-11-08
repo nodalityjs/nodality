@@ -1,9 +1,3 @@
-/*!
- * nodality v1.4.2
- * (c) 2026 Filip Vabrousek
- * License: MIT
- */
-
 
 
 import { Theme } from "../lib/theme.js";
@@ -247,6 +241,27 @@ class Animator {
 			};
 			wrapped.__appliesId = true;
 			this.set = wrapped;
+		}
+
+		// `nodality dev` only: remember where the page created this component
+		// (pages/index.js:60:5), so the inspector can point at code in a page
+		// written with the imperative layer, where there is no (E, N) pair and
+		// usually no id. Skipped while Des runs its generated code — those
+		// elements are addressed by id — and absent the dev flag entirely.
+		const dev = typeof globalThis !== "undefined" && globalThis.__NODALITY_DEV__;
+		if (dev && !dev.inDes && typeof dev.sourceOf === "function") {
+			try { this.__nodSrc = dev.sourceOf(new Error().stack); } catch (e) { /* no source, no pointer */ }
+			if (this.__nodSrc) {
+				const tagged = this.set;
+				const src = this.__nodSrc;
+				this.set = function (obj, ...rest) {
+					const out = tagged.call(this, obj, ...rest);
+					const node = this.res;
+					if (node && typeof node.setAttribute === "function" && !node.hasAttribute("data-nod-src")) node.setAttribute("data-nod-src", src);
+					return out;
+				};
+				this.set.__appliesId = true;
+			}
 		}
 
 		this.openedElements = new WeakMap();

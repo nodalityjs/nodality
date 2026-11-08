@@ -135,10 +135,39 @@ One command sets up an agent IDE end to end:
 npx nodality skill
 ```
 
-It installs the `/nodality` skill – the authoring workflow, the node
-families, and the house rules the schema cannot encode – into Claude
-Code (`.claude/skills/`) and Cursor (`.cursor/rules/`), and registers
-the MCP server below in the project's config. Flags: `--claude`,
+It installs the Nodality skills into Claude Code (`.claude/skills/`) and
+Cursor (`.cursor/rules/`), and registers the MCP server below in the
+project's config:
+
+- `/nodality` – the workflow and the house rules the schema cannot
+  encode, with short references (composites, node families, editing,
+  verifying, …) the agent reads only when the task needs them.
+- `/nodality-new-page` – build a page from a brief in small steps,
+  validating after each.
+- `/nodality-edit-page` – change one thing on a rendered page without
+  regenerating it.
+- `/nodality-current` – read which element the person picked in
+  `npx nodality dev`, fresh on every turn that says "this".
+- `/nodality-apply-comments` – apply the notes they left on the page, by
+  element id, and resolve them.
+
+Cursor and `--dir` get all of it as one combined file.
+
+### Pointing at what you mean
+
+```bash
+npx nodality dev            # serves upload/ on http://localhost:4000/
+```
+
+The dev server adds an inspector to every page it serves; a built or
+deployed page never carries it. Press **S** and click an element to pick
+it, or **C** to leave a note on it (drag across several to note them
+together); **Esc** turns it off. Picks and notes are saved by element id (on a page
+written with the imperative layer, by the line of code that created the
+element) in `.nodality/` in the project folder, where the agent reads them through the
+MCP tools `current_selection`, `list_comments` and `resolve_comment`.
+`npx nodality check` warns about notes still open and fails on a note whose
+element id is gone. Pages reload when anything under `upload/` changes. Flags: `--claude`,
 `--cursor`, `--global`, `--dir=<path>` for any other agent, `--no-mcp`.
 Re-run it after upgrading nodality to refresh the skill in place.
 
@@ -241,7 +270,7 @@ The published measurements were produced on Node.js v25.6.0.
 | `lib/` | Transformation nodes and the pipeline — the *what is done to it* half. |
 | `dist/` | Built bundles: `index.cjs.js` (CommonJS), `index.esm.js` (ES module), `index.d.ts`. |
 | `bin/` | The command-line entry points: `prerender`, `skill` (agent setup) and `mcp` (the MCP server). |
-| `skills/` | The `/nodality` agent skill that `npx nodality skill` installs. |
+| `skills/` | The agent skills that `npx nodality skill` installs: `/nodality` with its references, `/nodality-new-page`, `/nodality-edit-page`, `/nodality-current`, `/nodality-apply-comments`. |
 | `schema.json` | The element schema, generated from the source – what `get_schema` serves. |
 | `evals/` | The 24 UI briefs, cached agent generations and the scripts that run, score and repair them. |
 | `__tests__/` | Playwright regression tests that assert deterministic output. |
