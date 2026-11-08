@@ -23,6 +23,7 @@ import {
     REGISTRY, RASTER_OP_NAMES, DRIVER_NAMES, DRIVER_DOCS, RASTER_UNITS,
     FRAMEWORK_DOC, EASING_NAMES,
 } from "./raster-ops.js";
+import { OP_SEMANTICS, shadowedNodes } from "./op-semantics.js";
 import { presetNames, presetInfo } from "./raster-presets.js";
 import { collectRefs, isRef, resolveRefs } from "./resolve-refs.js";
 import { normalizeSpec, aliasConflicts, ALIASES } from "./normalize-spec.js";
@@ -188,7 +189,7 @@ const BARE_DESIGN_OPS = [
  * node that works, and `preview` refuses to render an invalid pair, so
  * over-reporting costs more than under-reporting.
  */
-const DESIGN_OP_NAMES = [
+export const DESIGN_OP_NAMES = [
     "animation", "arrange", "background", "blast", "card-style", "filter", "gradient",
     "layout", "link-style", "margin", "navStyle", "shadow", "slayout",
     "span", "transform",
@@ -1074,6 +1075,13 @@ export function validateNodes(nodes, elements, defs) {
         seen.set(key, have);
     });
 
+    // Nodes that can never apply under the declared combine rules
+    // (lib/op-semantics.js): a later node an earlier one shadows, and ops no
+    // renderer code reads. Warnings, because the page still renders.
+    for (const f of shadowedNodes(nodes)) {
+        warn(f.code, `nodes[${f.index}]`, f.lost, [], [], f.detail);
+    }
+
     return { ok: errors.length === 0, errors, warnings };
 }
 
@@ -1126,6 +1134,9 @@ export function describeOps() {
         driverDocs: DRIVER_NAMES.map((name) => ({ name, summary: DRIVER_DOCS[name] || "" })),
         easings: EASING_NAMES,
         units: RASTER_UNITS,
+        // How the nodes of each op combine: first (later ones ignored),
+        // sequence (all apply in order) or inert. See lib/op-semantics.js.
+        semantics: OP_SEMANTICS,
     };
 }
 

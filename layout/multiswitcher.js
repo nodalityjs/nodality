@@ -1,11 +1,12 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
 
+import { jsString } from "../lib/codegen.js";
 class /*Multi*/Switcher extends Animator {
   constructor(/*it*/) {
     super();
@@ -53,7 +54,7 @@ class /*Multi*/Switcher extends Animator {
 
       let str = "";
       for (var i = 0; i < this.options.breakpoints.length; i++){
-str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoints[i].view.toCode()} }, \n` }
+str += `{ at: ${jsString(this.options.breakpoints[i].at)}, view: ${this.options.breakpoints[i].view.toCode()} }, \n` }
 
    //   console.log(str);
 

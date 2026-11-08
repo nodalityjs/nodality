@@ -1,6 +1,6 @@
 import {Animator} from "./animator.js";
 
-import { keyPattern } from "../lib/codegen.js";
+import { toObjectSource } from "../lib/codegen.js";
 class FlexRow extends Animator {
 	constructor(frs, saveEl) {
 		super();
@@ -366,13 +366,7 @@ let stringified = JSON.stringify(options.borderObj);
     }
 
     // stringify cleaned object
-    const objString = JSON.stringify(clean, null, 4)
-        .replace(keyPattern(), "$1:")  // unquote identifier keys
-        .replace(/"([^"]*)"/g, (m, p1) => {
-            // wrap multiline text/code in backticks
-            if (p1.includes("\n")) return "`" + p1.replace(/`/g, "\\`") + "`";
-            return `"${p1}"`;
-        });
+    const objString = toObjectSource(clean, 4);
 
     // recurse into children that support toCode()
     const itemsCode = (this.items || [])

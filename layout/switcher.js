@@ -1,10 +1,11 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
+import { jsString } from "../lib/codegen.js";
 class Switcher extends Animator {
     constructor(obj){
 		super();
@@ -18,7 +19,7 @@ class Switcher extends Animator {
       if (obj.first.toCode && obj.second.toCode){
 
       
-          this.code.push(`, new Switcher({breakpoint: "${this.obj.breakpoint}", first: ${this.obj.first.toCode()}, second: ${this.obj.second.toCode()}})`);
+          this.code.push(`, new Switcher({breakpoint: ${jsString(this.obj.breakpoint)}, first: ${this.obj.first.toCode()}, second: ${this.obj.second.toCode()}})`);
      
       }
   

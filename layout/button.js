@@ -1,11 +1,12 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
 
+import { jsString } from "../lib/codegen.js";
 class Button extends Animator {
 	constructor(text, val){
 		super();
@@ -140,13 +141,13 @@ this.options = obj;
 		}
 
 		obj.fluidc && this.fluidButtonCopy(obj.fluidc);
-		obj.fluidc && (stra += `\n fluidc: "${obj.fluidc}",`); // 233559, correct collon 23:35:35 06/03
+		obj.fluidc && (stra += `\n fluidc: ${jsString(obj.fluidc)},`); // 233559, correct collon 23:35:35 06/03
 
 		obj.onTap && (this.onTap(obj.onTap))//this.onTap(obj.onTap);
 
 
 		obj.frame  && this.frame(obj.frame);
-		obj.frame && (stra += `\n frame: "${obj.frame}",`);
+		obj.frame && (stra += `\n frame: ${jsString(obj.frame)},`);
 
 
 		obj.keySet && this.keySet(obj.keySet); // 165411 22/01/25 Nice!
@@ -357,13 +358,14 @@ this.options = obj;
         return value;
     }, 4);
 
+	// Only a serialised arrow function is unwrapped, and its body is unescaped
+	// with JSON.parse; every other string stays an escaped JSON literal, so
+	// option text can never close its quotes in the emitted code.
 	const formattedString = objString
 	.replace(/"(\w+)":/g, '$1:') // Remove quotes from keys
-	.replace(/"(\(\)\s*=>\s*{[^}]*})"/gs, '$1') // Handle arrow functions correctly
-	.replace(/\\n/g, '') // Remove escaped newlines
-	.replace(/\\"/g, '"'); // Remove escaped quotes within the function
+	.replace(/"(\(\)\s*=>\s*{[^}]*})"/gs, (m) => JSON.parse(m));
 
-        return [`new Button("${this.text}").set(${formattedString})`];
+        return [`new Button(${jsString(this.text)}).set(${formattedString})`];
 
 		// 22/01/25 09:10:50 thanks for amazing RegEx ChatGPT!
     }

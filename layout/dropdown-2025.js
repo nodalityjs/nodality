@@ -1,11 +1,12 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import { Animator } from "./animator.js";
 
+import { jsString } from "../lib/codegen.js";
 class Dropdown extends Animator {
     constructor() {
         super();
@@ -227,7 +228,7 @@ if (!(firstIsTrigger && i === 0)){
         const props = this.options
             ? Object.entries(this.options)
                   .map(([key, value]) => {
-                      if (typeof value === "string") return `${key}: \"${value}\"`;
+                      if (typeof value === "string") return `${key}: ${jsString(value)}`;
                       if (typeof value === "object") return `${key}: ${JSON.stringify(value)}`;
                       return `${key}: ${value}`;
                   })

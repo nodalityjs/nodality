@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -7,6 +7,7 @@
 import {Animator} from "./animator.js";
 
 
+import { jsString } from "../lib/codegen.js";
 class Image extends Animator {
 	constructor(url, type, mode, gcs) {
 		super();
@@ -24,10 +25,10 @@ class Image extends Animator {
 		this.code = [];
 
 		if (type === "exact"){ // Has to be there
-			const str = `new Image("${this.url}", "exact")`;
+			const str = `new Image(${jsString(this.url)}, "exact")`;
 			this.code.push(str);
 		} else if (type === "uncover"){ // Has to be there
-			const str = `new Image("${this.url}", "uncover")`;
+			const str = `new Image(${jsString(this.url)}, "uncover")`;
 			this.code.push(str);
 		} else {
 			this.code.push(`new Image('${this.url}')`);
@@ -129,16 +130,16 @@ let obj = options;
 		}
 
 		  options.id && this.res.setAttribute("id",  options.id);
-		options.id && (stra += ` id: "${options.id}", \n`);
+		options.id && (stra += ` id: ${jsString(options.id)}, \n`);
 		this.id = options.id;
 
 		
 	//	alert("Thrice?");
 
 			if (type === "exact"){ // Has to be there
-				const str = `new Image("${this.url}", "exact")`;
+				const str = `new Image(${jsString(this.url)}, "exact")`;
 			} else if (type === "uncover"){ // Has to be there
-				const str = `new Image("${this.url}", "uncover")`;
+				const str = `new Image(${jsString(this.url)}, "uncover")`;
 			} else {
 			}
 
@@ -152,7 +153,7 @@ let obj = options;
 
 		options.index && super.setIndex(options.index);
 		options.index && (this.index = options.index);
-		options.index && (stra += `\n index: "${options.index}",`);
+		options.index && (stra += `\n index: ${jsString(options.index)},`);
 
 		options.resprop && this.resprop(options.resprop, options);
 		
@@ -170,12 +171,12 @@ let obj = options;
 		}
 
 		options.objectFit && (this.res.style.objectFit = /*"cover")*/ options.objectFit);
-		options.objectFit && (stra += `\n objectFit: "${options.objectFit}",`);
+		options.objectFit && (stra += `\n objectFit: ${jsString(options.objectFit)},`);
 
 		// Companion to objectFit — chooses which part of a cropped image stays
 		// visible (e.g. "center 38%" to favour faces over foreground).
 		options.objectPosition && (this.res.style.objectPosition = options.objectPosition);
-		options.objectPosition && (stra += `\n objectPosition: "${options.objectPosition}",`);
+		options.objectPosition && (stra += `\n objectPosition: ${jsString(options.objectPosition)},`);
 
 
 		options.as && this.as(options.as);
@@ -236,11 +237,11 @@ let obj = options;
 
 		options.isBackground && (this.isBackground = options.isBackground);
 
-		options.zIndex && (stra += `\n zIndex: "${options.zIndex}", \n`);
+		options.zIndex && (stra += `\n zIndex: ${jsString(options.zIndex)}, \n`);
 
 	
 			options.area && this.setArea(options.area);
-			options.area && (stra += `area: "${options.area}", \n`);
+			options.area && (stra += `area: ${jsString(options.area)}, \n`);
 		
 		
 			options.opacity && (this.res.style.opacity = options.opacity);
@@ -248,24 +249,24 @@ let obj = options;
 
 		// alert(options.height);
 		options.width && (this.res.style.width = options.width);
-		options.width && (stra += `width: "${options.width}", `);
+		options.width && (stra += `width: ${jsString(options.width)}, `);
 
 		options.maxWidth && (this.res.style.maxWidth = options.maxWidth);
-		options.maxWidth && (stra += `maxWidth: "${options.maxWidth}", `);
+		options.maxWidth && (stra += `maxWidth: ${jsString(options.maxWidth)}, `);
 
 		options.height && (this.res.style.height = options.height);
-		options.height && (stra += `height: "${options.height}", `);
+		options.height && (stra += `height: ${jsString(options.height)}, `);
 
 
 		options.maxWidth && this.maxWidth(options.maxWidth);
 
-		options.maxWidth && (stra += `maxWidth: "${options.maxWidth}", \n`);
+		options.maxWidth && (stra += `maxWidth: ${jsString(options.maxWidth)}, \n`);
 		
 
 		options.radius && this.cornerRadius(options.radius);
 
 
-	options.radius && (stra += `radius: "${options.radius}", \n`);
+	options.radius && (stra += `radius: ${jsString(options.radius)}, \n`);
 
 	if (options.marginOp) {
 		let stringified = this.removeQuotesFromFirstWord(JSON.stringify(options.marginOp));
@@ -273,7 +274,7 @@ let obj = options;
 	}
 
 	options.clipPath && this.clipPath(options.clipPath);
-	options.clipPath && (stra += `clipPath: "${options.clipPath}", \n`);
+	options.clipPath && (stra += `clipPath: ${jsString(options.clipPath)}, \n`);
 
 	//@ img.reveal {object}: Reveal the image through a mask as it scrolls into view: {mask: "square", size: 0.3, duration: "1.2s", easing, zoom: 1.12, offset: 0.2, delay: "0s", once: true}. It starts as a centred square `size` × its shorter side and opens to the full frame once the square rises `offset` of the viewport height above the bottom edge. Owns clip-path and scale while it runs; reduced-motion visitors, and pages with no IntersectionObserver (the prerender), get the image unmasked.
 	options.reveal && this.reveal(options.reveal);

@@ -1,6 +1,6 @@
 import {Animator} from "./animator.js";
 
-import { toObjectSource } from "../lib/codegen.js";
+import { toObjectSource, jsString } from "../lib/codegen.js";
 import { keyPattern } from "../lib/codegen.js";
 // 13:28 07/04/2020 - BEGIN NOTHING GONNA STOP US NOW  Lets go!
 
@@ -17,7 +17,7 @@ class Text extends Animator {
 		this.elCSS = [];
 		this.html = [];
 		this.react = [];
-		this.code.push(`new Text("${this.text}")`);
+		this.code.push(`new Text(${jsString(this.text)})`);
 		//console.log("15/12/25 cool");
 	}
 
@@ -35,7 +35,7 @@ class Text extends Animator {
 
 		const objString = toObjectSource(cleanedObj, 4);
 
-        return [`new Text("${this.text}").set(${objString})`];
+        return [`new Text(${jsString(this.text)}).set(${objString})`];
 	}
 
 
@@ -114,26 +114,34 @@ class Text extends Animator {
     return /(\*\*.*\*\*|\*.*\*|`[^`]+`|\[.*?\]\(.*?\)|^# )/m.test(str);
   }
 
-  // Minimal Markdown parser
+  // Minimal Markdown parser. The text is escaped first and only the
+  // tags below are added back, so text can never inject markup; a link keeps
+  // its href only for http(s), mailto, tel or a relative URL.
   parseMarkdown(mdString) {
-    let html = mdString;
+    let html = String(mdString)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
     // Headers: # H1, ## H2, ### H3
     html = html.replace(/^### (.*$)/gim, "<h3>$1</h3>");
     html = html.replace(/^## (.*$)/gim, "<h2>$1</h2>");
     html = html.replace(/^# (.*$)/gim, "<h1>$1</h1>");
 
-    // Bold: **text**
-    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-    // Italic: *text*
-    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    // Bold and italic only when the asterisks hug text, so "2 * 3 * 4" stays.
+    html = html.replace(/\*\*(?=\S)(.+?)(?<=\S)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/\*(?=\S)([^*\n]+?)(?<=\S)\*/g, "<em>$1</em>");
 
     // Inline code: `code`
     html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
 
-    // Links: [text](url)
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    // Links: [text](url). Browsers drop tabs and newlines inside a URL, so the
+    // scheme is checked after removing them ("java\tscript:" is javascript:).
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, label, url) => {
+      const bare = url.replace(/[\u0000-\u0020]/g, "");
+      const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(bare);
+      const safe = !scheme || /^(https?|mailto|tel)$/i.test(scheme[1]);
+      return safe ? `<a href="${bare}">${label}</a>` : label;
+    });
 
     // Line breaks
     html = html.replace(/\n/g, "<br>");

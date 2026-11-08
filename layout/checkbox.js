@@ -1,11 +1,12 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import { Animator } from "./animator.js";
 
+import { jsString } from "../lib/codegen.js";
 class Checkbox extends Animator {
     constructor() {
         super();
@@ -147,7 +148,7 @@ obj.resmar && this.resmar(obj.resmar);
 		const entries = Object.entries(this.options)
         .map(([key, value]) => {
             if (typeof value === "string") {
-                return `${key}: "${value}"`; // Wrap strings in quotes
+                return `${key}: ${jsString(value)}`; // Wrap strings in quotes
             } else if (typeof value === "object" && value !== null) {
                 if (typeof value.toCode === "function") {
                     // Call the object's toCode method if available

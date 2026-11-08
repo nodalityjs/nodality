@@ -21,6 +21,7 @@
  *   unquoteKeys(jsonString)  // already have the JSON? just fix the keys
  *   IDENT_KEY                // the pattern, for call sites that chain
  *                            // further replaces onto the same string
+ *   jsString(value)          // a value as a quoted, escaped JS string
  */
 
 // A quoted JSON key whose bare form is a valid JS identifier. Anything
@@ -53,4 +54,12 @@ function toObjectSource(value, indent = 4) {
 	return unquoteKeys(JSON.stringify(value, null, indent));
 }
 
-export { toObjectSource, unquoteKeys, keyPattern };
+/**
+ * A value as a JavaScript string literal. Every value pasted into generated
+ * source goes through this, so page text can never close the string it sits in.
+ */
+function jsString(value) {
+	return JSON.stringify(String(value));
+}
+
+export { toObjectSource, unquoteKeys, keyPattern, jsString };

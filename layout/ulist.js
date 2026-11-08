@@ -1,11 +1,12 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
 
+import { jsString } from "../lib/codegen.js";
 class UList extends Animator {
     constructor() {
         super();
@@ -195,7 +196,7 @@ toCode(indent = 0) {
             code += `\n${pad}  .setItems([\n` +
                 this.items.map(c =>
                     typeof c === "string"
-                        ? `${" ".repeat(indent + 4)}"${c}"`
+                        ? `${" ".repeat(indent + 4)}${jsString(c)}`
                         : c.toCode(indent + 4)
                 ).join(",\n") +
                 `\n${pad}  ])`;

@@ -1,6 +1,7 @@
 import {Animator} from "./animator.js";
 
 
+import { jsString } from "../lib/codegen.js";
 // Add code-gen after backup
 class FlexGrid extends Animator {
 	constructor(){
@@ -61,7 +62,7 @@ class FlexGrid extends Animator {
 
 			
 			options.colat && this.toColumnAt(options.colat);
-			options.colat && this.code.push(`\n colat: "${options.colat}",`);
+			options.colat && this.code.push(`\n colat: ${jsString(options.colat)},`);
 		
 
 
@@ -174,7 +175,7 @@ class FlexGrid extends Animator {
 	 flex(str){
 		this.arra = Array.from(str.replace(/\s/g, ''));
 		this.areas = Array.from(Array(str.replace(/\s/g, '')).join(""));
-		this.save = `"${str}"`;
+		this.save = `${jsString(str)}`;
 		return this;
 	}
 	

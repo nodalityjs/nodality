@@ -82,6 +82,8 @@ does not do what you wrote:
 | `BAD_PARAM_VALUE` | the value is not the shape the parameter takes — `width: 7` is not a CSS length, `mar: 7` is not `[{a: 7}]`. As an *error* where the value is provably inert; as a warning otherwise. |
 | `PARAM_NOT_ON_TYPE` | a real parameter name that THIS type does not read, so it is accepted and dropped — `keySet` on a `table`. |
 | `PARAM_INERT` | a parameter the type DOES list, and is known to ignore (the library's conformance baseline) — `size` on a `p`, `color` on a `checkbox`. The hint says what to use instead. |
+| `SHADOWED_NODE` | an earlier node with the same op already decides this element (or the page), so this one does nothing there; `got` lists where it loses. Edit the earlier node instead of appending a new one. `list_ops` → `semantics` says which ops keep the first node (`first`) and which apply all in order (`sequence`). |
+| `INERT_OP` | an op the validator accepts but nothing renders (`navStyle`). |
 | `STORE_AFTER_PRODUCT` / `NO_STORE` | a commerce `product` placed before the page's `store`, or with none: it renders empty. |
 
 `get_schema <type>` carries a `unit` on every parameter whose shape the
@@ -145,16 +147,12 @@ Read only what the task needs. Each file is short and stands alone.
 | checking a page before you call it done | `references/verifying.md` |
 | prerendering a static site | `references/prerender.md` |
 
-Four task skills sit beside this one and carry the step-by-step procedure:
+Two task skills sit beside this one and carry the step-by-step procedure:
 
 - **`nodality-new-page`**: building a page from a brief, in small validated
   steps.
 - **`nodality-edit-page`**: changing one thing on a rendered page without
   regenerating it.
-- **`nodality-current`**: finding the element the person means by "this":
-  what they picked in `npx nodality dev`, read fresh every turn.
-- **`nodality-apply-comments`**: applying the notes they left on the page
-  in `npx nodality dev`, by element id, then resolving them.
 
 ## When NOT to use Nodality
 

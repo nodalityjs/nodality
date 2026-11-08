@@ -75,6 +75,7 @@ import { Shop } from "../layout/shop.js";
 
 
 
+import { jsString } from "./codegen.js";
 // Audio, progress, TextField, import navFactor
 class Des {
     constructor() {
@@ -1440,7 +1441,7 @@ new Slider(texts, null, { tintColor: "#e74c3c", inactiveColor: "#ccc" })
         let codea = document.createElement("code");
 
 
-        const prepare = this.code.map(c => `${c}.render("${target}"); \n \n`);
+        const prepare = this.code.map(c => `${c}.render(${jsString(target)}); \n \n`);
         this.code = prepare;
        
         codea.textContent = this.code;//.replaceAll(",.", ".").replaceAll(",, new", "new").replaceAll(/\[\s*\n*,\s*\n*/g, "["); // replace with your code
@@ -1492,7 +1493,7 @@ new Slider(texts, null, { tintColor: "#e74c3c", inactiveColor: "#ccc" })
         // when run from the CLI — no rendering side effects.
         if (typeof globalThis !== "undefined" && globalThis.NODALITY_EMIT === true) {
             // Populate this.code without triggering DOM work.
-            const prepare = this.code.map((c) => `${c}.render("${(obj && obj.mount) || "#mount"}")`);
+            const prepare = this.code.map((c) => `${c}.render(${jsString((obj && obj.mount) || "#mount")})`);
             globalThis.__NODALITY_EMITTED__ = prepare;
             return this;
         }

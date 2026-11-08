@@ -1,11 +1,11 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import { Animator } from "./animator.js";
-import { toObjectSource } from "../lib/codegen.js";
+import { toObjectSource, jsString } from "../lib/codegen.js";
 
 // Video — a <video> element as data.
 //
@@ -231,7 +231,7 @@ class Video extends Animator {
 		const cleaned = Object.fromEntries(
 			Object.entries(this.options || {}).filter(([, v]) => v != null)
 		);
-		return [`new Video("${this.url}").set(${toObjectSource(cleaned, 4)})`];
+		return [`new Video(${jsString(this.url)}).set(${toObjectSource(cleaned, 4)})`];
 	}
 
 	render(el) {

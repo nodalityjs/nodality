@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -8,6 +8,7 @@ import {Animator} from "./animator.js";
 
 
 	
+import { jsString } from "../lib/codegen.js";
 	// NExt
 	
 	class NAudio extends Animator {
@@ -48,7 +49,7 @@ import {Animator} from "./animator.js";
 
 		toCode() {
 			const objString = JSON.stringify(this.options, null, 4);
-			return [`new NAudio("${this.url}")`];
+			return [`new NAudio(${jsString(this.url)})`];
 		}
 
 

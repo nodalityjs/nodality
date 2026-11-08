@@ -1,7 +1,7 @@
 import {Animator} from "./animator.js";
 
 
-import { keyPattern } from "../lib/codegen.js";
+import { toObjectSource } from "../lib/codegen.js";
 class Code extends Animator {
     constructor(){
         super();
@@ -28,15 +28,9 @@ class Code extends Animator {
     Object.keys(obj).forEach(k => obj[k] === undefined && delete obj[k]);
 
     // pretty JSON, but keep functions/nested objects readable
-    const str = JSON.stringify(obj, null, 2)
-        .replace(keyPattern(), "$1:")   // remove quotes from identifier keys
-        .replace(/"([^"]+)"/g, (m, p1) => {
-            // keep colors and class names quoted, but escape code safely
-            if (p1.includes("\n") || p1.includes("'") || p1.includes('"')) {
-                return "`" + p1.replace(/`/g, "\\`") + "`"; // wrap multiline in backticks
-            }
-            return `"${p1}"`;
-        });
+    // Strings stay JSON literals: re-wrapping them in backticks let a
+    // `${...}` in the shown code run when the emitted source was executed.
+    const str = toObjectSource(obj, 2);
 
     return `new Code().set(${str})`;
     }

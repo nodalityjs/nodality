@@ -1,12 +1,12 @@
 /*!
- * nodality v1.5.1
+ * nodality v1.5.2
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
 
-import { toObjectSource } from "../lib/codegen.js";
+import { toObjectSource, jsString } from "../lib/codegen.js";
 class Wrapper extends Animator { // 12:10:02 found grep 06/03
 	constructor(obj) {
         super();
@@ -30,7 +30,7 @@ class Wrapper extends Animator { // 12:10:02 found grep 06/03
 
     const pad = " ".repeat(indent);
 
-    let code = `${pad}new Wrapper("${this.constrObj}")`;
+    let code = `${pad}new Wrapper(${jsString(this.constrObj)})`;
 
 	if (!this.constrObj){
 code = `${pad}new Wrapper()`;
@@ -214,26 +214,26 @@ code = `${pad}new Wrapper()`;
 		obj.radius && this.corner(obj.radius);
 
 	
-		obj.radius && (stra += `\n radius: "${obj.radius}",`);
+		obj.radius && (stra += `\n radius: ${jsString(obj.radius)},`);
 		obj.border && this.border(obj.border);
 
   //@ simpleBorder: Border as one CSS shorthand string, e.g. "1px solid #eee".
 		obj.simpleBorder && (this.res.style.border = obj.simpleBorder);
 
 		obj.width && this.width(obj.width);
-		obj.width && (stra += `\n width: "${obj.width}",`);	
+		obj.width && (stra += `\n width: ${jsString(obj.width)},`);	
 
 
 		// Overflow is handled by commonMethods (styleMap) — it now respects
 		// the actual value (visible / hidden / auto / scroll / clip), not
 		// just hard-coded "hidden". Kept here only for codegen output.
-		obj.overflow && (stra += `\n overflow: "${obj.overflow}",`);
+		obj.overflow && (stra += `\n overflow: ${jsString(obj.overflow)},`);
 
 		obj.height && this.heightNoAuto(obj.height);
-		obj.height && (stra += `\n height: "${obj.height}",`);	
+		obj.height && (stra += `\n height: ${jsString(obj.height)},`);	
 
 		obj.align && this.flexAlign(obj.align);
-		obj.align && (stra += `\n align: "${obj.align}",`);	
+		obj.align && (stra += `\n align: ${jsString(obj.align)},`);	
 
 	
 
@@ -261,20 +261,20 @@ code = `${pad}new Wrapper()`;
 		}
 
 		obj.font && this.font(obj.font);
-		obj.font && (stra += `font: "${obj.font}",`);	
+		obj.font && (stra += `font: ${jsString(obj.font)},`);	
 		obj.maxWidth && this.maxWidth(obj.maxWidth);
 		obj.flexCenter && this.deprecatedOption("flexCenter", 'center: "y"');
 		obj.color && this.color(obj.color);
 		obj.background && this.background(obj.background);
-		obj.background && (stra += `background: "${obj.background}",`);	
+		obj.background && (stra += `background: ${jsString(obj.background)},`);	
 
 		obj.weight && this.weight(obj.weight);
   //@ paddings: Padding via the paddingo() form.
 
 		obj.area && this.setArea(obj.area);
-		obj.area && (stra += `area: "${obj.area}"`);
+		obj.area && (stra += `area: ${jsString(obj.area)}`);
 		obj.column && this.makeCol();
-		obj.column && (stra += `\n column: "${obj.column}",`);
+		obj.column && (stra += `\n column: ${jsString(obj.column)},`);
 
 
   //@deprecated alignIts: obsolete. Its body sets background:"gray" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`.
@@ -291,7 +291,7 @@ code = `${pad}new Wrapper()`;
   //@ flexDir: Flex direction. Also sets display:flex, so it is enough on its own.
 		obj.flexDir && (this.res.style.flexDirection = obj.flexDir);
 		obj.flexDir && (this.res.style.display = "flex");
-		obj.flexDir && (stra += `\n flexDir: "${obj.flexDir}",`)
+		obj.flexDir && (stra += `\n flexDir: ${jsString(obj.flexDir)},`)
 
   //@ center: Centres this element's CHILDREN. `true` for both axes, `"x"` horizontal, `"y"` vertical. Axis-aware: in a flex column `"y"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: "center"`.
 		// After disp and flexDir on purpose: center() reads the layout mode
@@ -309,7 +309,7 @@ code = `${pad}new Wrapper()`;
 		obj.responsive && this.rsp(obj.responsive);
 
 		/*if (obj.makeResponsiveBehaviour){
-			stra += `\n makeResponsiveBehaviour: "${obj.makeResponsiveBehaviour}",`
+			stra += `\n makeResponsiveBehaviour: ${jsString(obj.makeResponsiveBehaviour)},`
 		}*/ // 08/01/2025 COMEMMENTED OUT
 
 		if (obj.stretch){

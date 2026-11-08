@@ -68,6 +68,7 @@ import { GridOverlay } from "../layout/grid-overlay.js";
 import { Shop } from "../layout/shop.js";
 
 
+import { jsString } from "./codegen.js";
 // The closed set of `type:` values mapType understands, in the order it
 // tests them. Kept beside the dispatch so a new branch without a new entry
 // is visible in review — the vocabulary and the router should not drift.
@@ -551,7 +552,7 @@ animation: {
   justifyContent: "center",
   alignItems: "center",
   position: "absolute",
-  id: "${obj.el.id ? String(obj.el.id) : "#first"}",
+  id: ${jsString(obj.el.id ? String(obj.el.id) : "#first")},
   scale: 0.3,
   ${ft?.animation ? animation : ""}${
     // Wrapper routes its options through commonMethods(), so a raster

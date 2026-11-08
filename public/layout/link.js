@@ -1,7 +1,7 @@
 import {Animator} from "./animator.js";
 
 
-import { toObjectSource } from "../lib/codegen.js";
+import { toObjectSource, jsString } from "../lib/codegen.js";
 import { keyPattern } from "../lib/codegen.js";
 class Link extends Animator {
 	constructor(text, link, stopEM){
@@ -194,7 +194,7 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		(obj.preffersId != undefined) && (stra += `\n preffersId: ${obj.preffersId},`);
 
 		obj.class && super.setClass(obj.class);
-		obj.class && (stra += `\n class: "${obj.class}",`);
+		obj.class && (stra += `\n class: ${jsString(obj.class)},`);
 		//alert(obj.class);
 
 		if (obj.borderObj){
@@ -222,11 +222,11 @@ obj.pad && (stra += `\n pad: ${rempad},`);
   //@ nowrap: Keep the label on one line (white-space: nowrap).
 		obj.nowrap && (this.res.style.whiteSpace = "nowrap");
 		obj.font && this.font(obj.font);
-		obj.font && (stra += `\n font: "${obj.font}",`);
+		obj.font && (stra += `\n font: ${jsString(obj.font)},`);
 		obj.font && (this.elCSS.push(`font-family: "${obj.font}"; \n`));
 		
 	   obj.fluidc && this.fluidCopy(obj.fluidc);
-		obj.fluidc && (stra += `\n fluidc: "${obj.fluidc}",`);
+		obj.fluidc && (stra += `\n fluidc: ${jsString(obj.fluidc)},`);
 
 	//	obj.size && (stra += `\n size: "${obj.size}",`);
 
@@ -234,16 +234,16 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		obj.clampc && this.clampCopy(obj.clampc);
 
 
-		this.options.id && (stra += `\n id: "${this.options.id}",`);
+		this.options.id && (stra += `\n id: ${jsString(this.options.id)},`);
 
 
 		obj.align && this.leftAlign(obj.align); // 1145 WOW
-		obj.align && (stra += `\n align: "${obj.align}",`);
+		obj.align && (stra += `\n align: ${jsString(obj.align)},`);
 
 
 		obj.type && (this.res.style.display = "block");
 		obj.color && this.color(obj.color);
-		obj.color && (stra += `\n color: "${obj.color}",`);
+		obj.color && (stra += `\n color: ${jsString(obj.color)},`);
 		obj.color && (this.elCSS.push(`color: "${obj.color}"; \n`));
 
 		obj.background && this.background(obj.background);
@@ -268,9 +268,9 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 		obj.block && (stra += `\n block: ${obj.block},`);
 
 
-		obj.radius && (stra += `\n radius: "${obj.radius}",`);
+		obj.radius && (stra += `\n radius: ${jsString(obj.radius)},`);
 
-		obj.width && (stra += `\n width: "${obj.width}",`);
+		obj.width && (stra += `\n width: ${jsString(obj.width)},`);
 
 		
 
@@ -282,10 +282,10 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 
 
 		obj.url && this.res.setAttribute("href", obj.url);
-		stra += `\n url: "${obj.url}",`;
+		stra += `\n url: ${jsString(obj.url)},`;
 
 		obj.text && (this.res.textContent = obj.text);
-		stra += `\n text: "${obj.text}",`;
+		stra += `\n text: ${jsString(obj.text)},`;
 
 		
 		// stra += `\n text: "${obj.text}",`;
