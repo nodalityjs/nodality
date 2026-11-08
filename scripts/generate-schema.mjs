@@ -107,6 +107,13 @@ function methodBody(name) {
   // "code" | "line" | "block" | "'" | '"' | "`"
   let state = "code";
   // Template literals nest: `${ ... `inner` ... }` returns to code inside ${}.
+  // Each entry is the depth its ${ opened at, so the } that brings depth back
+  // there resumes the template. This compared depth with the stack's LENGTH,
+  // which only matched by accident: inside any block (a method body is depth
+  // 1 already) a ${ was never closed, the rest of the template was read as
+  // code, and the body ran on into the methods below it. sideNav, nav,
+  // product and cards were credited with whole-library vocabularies that way
+  // (nav advertised 222 parameters).
   const stack = [];
 
   for (let j = start; j < src.length; j++) {
@@ -121,7 +128,7 @@ function methodBody(name) {
     if (state === "`") {
       if (c === "\\") { j++; continue; }
       if (c === "`") { state = "code"; continue; }
-      if (c === "$" && next === "{") { stack.push("`"); state = "code"; depth++; j++; }
+      if (c === "$" && next === "{") { depth++; stack.push(depth); state = "code"; j++; }
       continue;
     }
     // code
@@ -130,8 +137,8 @@ function methodBody(name) {
     if (c === "'" || c === '"' || c === "`") { state = c; continue; }
     if (c === "{") { depth++; continue; }
     if (c === "}") {
+      if (stack.length && depth === stack[stack.length - 1]) { stack.pop(); depth--; state = "`"; continue; }
       depth--;
-      if (stack.length && depth === stack.length) { stack.pop(); state = "`"; continue; }
       if (!depth) return src.slice(start, j);
     }
   }

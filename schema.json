@@ -5458,13 +5458,7 @@
         "Text",
         "Link",
         "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "AreaSwitcher",
-        "Wrapper",
-        "UList"
+        "FlexGrid"
       ],
       "params": [
         {
@@ -5492,10 +5486,6 @@
           "via": "component"
         },
         {
-          "name": "action",
-          "via": "mapper"
-        },
-        {
           "name": "align",
           "via": "component"
         },
@@ -5508,11 +5498,6 @@
           "name": "alignItems",
           "via": "component",
           "description": "CSS align-items, written verbatim."
-        },
-        {
-          "name": "alignIts",
-          "via": "component",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
         },
         {
           "name": "alignSelf",
@@ -5554,10 +5539,6 @@
           "via": "component"
         },
         {
-          "name": "backTo",
-          "via": "component"
-        },
-        {
           "name": "backdropFilter",
           "via": "component",
           "description": "CSS backdrop-filter, written verbatim."
@@ -5571,10 +5552,6 @@
         {
           "name": "backgroundCard",
           "via": "mapper"
-        },
-        {
-          "name": "backgroundColor",
-          "via": "component"
         },
         {
           "name": "backgroundOp",
@@ -5619,10 +5596,6 @@
           "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
         },
         {
-          "name": "borderObja",
-          "via": "component"
-        },
-        {
           "name": "borderRight",
           "via": "component",
           "description": "CSS border-right, written verbatim."
@@ -5655,27 +5628,11 @@
         {
           "name": "center",
           "via": "component",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn",
-          "via": "component"
+          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items; a grid uses justify-items/align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
         },
         {
           "name": "centerSelf",
           "via": "component"
-        },
-        {
-          "name": "checkedBackgroundColor",
-          "via": "component"
-        },
-        {
-          "name": "child",
-          "via": "component"
-        },
-        {
-          "name": "children",
-          "via": "mapper"
         },
         {
           "name": "clampc",
@@ -5711,10 +5668,6 @@
           "description": "grid-template-columns, verbatim — e.g. \"240px 1fr\"."
         },
         {
-          "name": "column",
-          "via": "component"
-        },
-        {
           "name": "columnGap",
           "via": "component",
           "description": "CSS column-gap, written verbatim."
@@ -5726,31 +5679,12 @@
           "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
         },
         {
-          "name": "customAlign",
-          "via": "component",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "via": "component",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle",
-          "via": "component"
-        },
-        {
           "name": "data",
           "via": "component"
         },
         {
           "name": "decoding",
           "via": "component"
-        },
-        {
-          "name": "disp",
-          "via": "component",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
         },
         {
           "name": "display",
@@ -5769,10 +5703,6 @@
         },
         {
           "name": "fetchPriority",
-          "via": "component"
-        },
-        {
-          "name": "filter",
           "via": "component"
         },
         {
@@ -5796,15 +5726,6 @@
           "name": "flexBasis",
           "via": "component",
           "description": "CSS flex-basis, written verbatim."
-        },
-        {
-          "name": "flexCenter",
-          "via": "component"
-        },
-        {
-          "name": "flexDir",
-          "via": "component",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
         },
         {
           "name": "flexGrow",
@@ -5831,16 +5752,11 @@
         },
         {
           "name": "font",
-          "via": "mapper"
-        },
-        {
-          "name": "ga",
-          "via": "component",
-          "description": "CSS grid-area, verbatim."
+          "via": "component"
         },
         {
           "name": "gap",
-          "via": "mapper"
+          "via": "component"
         },
         {
           "name": "gpos",
@@ -5863,13 +5779,9 @@
         },
         {
           "name": "height",
-          "via": "mapper",
+          "via": "component",
           "unit": "css-length",
           "description": "CSS height — a length with a unit."
-        },
-        {
-          "name": "hideOverflow",
-          "via": "component"
         },
         {
           "name": "hover",
@@ -5912,15 +5824,6 @@
           "via": "component"
         },
         {
-          "name": "isHidden",
-          "via": "component",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink",
-          "via": "component"
-        },
-        {
           "name": "isNavA",
           "via": "component"
         },
@@ -5955,15 +5858,6 @@
           "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
         },
         {
-          "name": "kind",
-          "via": "mapper"
-        },
-        {
-          "name": "label",
-          "via": "mapper",
-          "description": "Accessible name for the field."
-        },
-        {
           "name": "layout",
           "via": "component"
         },
@@ -5992,10 +5886,6 @@
           "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
-          "name": "map",
-          "via": "component"
-        },
-        {
           "name": "mar",
           "via": "component",
           "unit": "sides",
@@ -6018,15 +5908,6 @@
           "description": "CSS max-width — a length with a unit."
         },
         {
-          "name": "mboth",
-          "via": "component",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "method",
-          "via": "mapper"
-        },
-        {
           "name": "minHeight",
           "via": "component"
         },
@@ -6034,11 +5915,6 @@
           "name": "minWidth",
           "via": "component",
           "description": "CSS min-width, written verbatim. A bare number is read as px."
-        },
-        {
-          "name": "name",
-          "via": "component",
-          "description": "Form field name. What a submitted form actually SENDS."
         },
         {
           "name": "new",
@@ -6074,7 +5950,8 @@
         },
         {
           "name": "overflow",
-          "via": "component"
+          "via": "component",
+          "description": "CSS overflow, written verbatim."
         },
         {
           "name": "overflowWrap",
@@ -6108,7 +5985,8 @@
         },
         {
           "name": "position",
-          "via": "component"
+          "via": "component",
+          "description": "CSS position, written verbatim."
         },
         {
           "name": "preffersId",
@@ -6122,18 +6000,10 @@
           "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
         },
         {
-          "name": "ranges",
-          "via": "component"
-        },
-        {
           "name": "raster",
           "via": "component",
           "unit": "nodes",
           "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react",
-          "via": "mapper"
         },
         {
           "name": "removeDecoration",
@@ -6187,24 +6057,7 @@
           "description": "grid-template-rows, verbatim."
         },
         {
-          "name": "scale",
-          "via": "component"
-        },
-        {
-          "name": "sequence",
-          "via": "component"
-        },
-        {
           "name": "shadow",
-          "via": "component"
-        },
-        {
-          "name": "simpleBorder",
-          "via": "component",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter",
           "via": "component"
         },
         {
@@ -6224,15 +6077,6 @@
         },
         {
           "name": "srcset",
-          "via": "component"
-        },
-        {
-          "name": "sticky",
-          "via": "component",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch",
           "via": "component"
         },
         {
@@ -6272,23 +6116,19 @@
           "description": "CSS text-transform, written verbatim."
         },
         {
-          "name": "title",
-          "via": "mapper",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
-        },
-        {
           "name": "top",
           "via": "component"
         },
         {
           "name": "transform",
-          "via": "mapper",
+          "via": "component",
           "unit": "css-transform",
           "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
         },
         {
           "name": "transition",
-          "via": "component"
+          "via": "component",
+          "description": "CSS transition, written verbatim."
         },
         {
           "name": "type",
@@ -6314,7 +6154,8 @@
         },
         {
           "name": "weight",
-          "via": "component"
+          "via": "component",
+          "description": "CSS font-weight, written verbatim."
         },
         {
           "name": "whiteSpace",
@@ -6386,7 +6227,7 @@
     "nav": {
       "resolved": true,
       "mapper": "protoNav",
-      "forwardsElement": true,
+      "forwardsElement": false,
       "components": [
         "Link",
         "Dropdown",
@@ -6396,20 +6237,7 @@
         "Switcher",
         "MobileBar",
         "DesktopBar",
-        "Spacer",
-        "SideNav",
-        "Free",
-        "Image",
-        "Circle",
-        "Polygon",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "AreaSwitcher",
-        "UList"
+        "Spacer"
       ],
       "params": [
         {
@@ -6433,44 +6261,19 @@
           "description": "CSS -webkit-user-select, written verbatim."
         },
         {
-          "name": "absolute",
-          "via": "component"
-        },
-        {
-          "name": "action",
-          "via": "mapper"
-        },
-        {
-          "name": "align",
-          "via": "component"
-        },
-        {
           "name": "alignContent",
           "via": "component",
           "description": "CSS align-content, written verbatim."
         },
         {
           "name": "alignItems",
-          "via": "component"
-        },
-        {
-          "name": "alignIts",
           "via": "component",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
+          "description": "CSS align-items, written verbatim."
         },
         {
           "name": "alignSelf",
           "via": "component",
           "description": "CSS align-self, written verbatim."
-        },
-        {
-          "name": "alt",
-          "via": "component",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animate",
-          "via": "component"
         },
         {
           "name": "animation",
@@ -6489,25 +6292,9 @@
           "description": "grid-template-areas, verbatim — e.g. '\"nav main\" \"nav main\"'."
         },
         {
-          "name": "ariaLabel",
-          "via": "component"
-        },
-        {
-          "name": "as",
-          "via": "component"
-        },
-        {
           "name": "aspectRatio",
           "via": "component",
           "description": "CSS aspect-ratio, written verbatim."
-        },
-        {
-          "name": "at",
-          "via": "component"
-        },
-        {
-          "name": "backTo",
-          "via": "component"
         },
         {
           "name": "backdropFilter",
@@ -6521,65 +6308,14 @@
           "description": "The bar's background — any CSS colour, translucent ones included."
         },
         {
-          "name": "backgroundCard",
-          "via": "mapper"
-        },
-        {
-          "name": "backgroundColor",
-          "via": "component"
-        },
-        {
-          "name": "backgroundOp",
-          "via": "component"
-        },
-        {
-          "name": "barPad",
-          "via": "component"
-        },
-        {
-          "name": "behaviour",
-          "via": "component"
-        },
-        {
-          "name": "blast",
-          "via": "component"
-        },
-        {
-          "name": "blastData",
-          "via": "component"
-        },
-        {
-          "name": "block",
-          "via": "component",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "via": "component",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
-        },
-        {
-          "name": "border",
-          "via": "component"
-        },
-        {
           "name": "borderBottom",
-          "via": "component"
+          "via": "component",
+          "description": "CSS border-bottom, written verbatim."
         },
         {
           "name": "borderLeft",
           "via": "component",
           "description": "CSS border-left, written verbatim."
-        },
-        {
-          "name": "borderObj",
-          "via": "component",
-          "unit": "object",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja",
-          "via": "component"
         },
         {
           "name": "borderRight",
@@ -6618,60 +6354,10 @@
           "description": "Where the brand leads, e.g. \"/\". Without it the brand is not a link."
         },
         {
-          "name": "breakWord",
-          "via": "component",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
           "name": "breakpoint",
           "via": "mapper",
           "unit": "px-or-length",
           "description": "Width from which the full bar shows; below it the links collapse behind the menu button. Default \"1200px\"."
-        },
-        {
-          "name": "breakpoints",
-          "via": "component"
-        },
-        {
-          "name": "center",
-          "via": "component",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn",
-          "via": "component"
-        },
-        {
-          "name": "centerSelf",
-          "via": "component"
-        },
-        {
-          "name": "checkedBackgroundColor",
-          "via": "component"
-        },
-        {
-          "name": "child",
-          "via": "component"
-        },
-        {
-          "name": "children",
-          "via": "mapper"
-        },
-        {
-          "name": "clampc",
-          "via": "component"
-        },
-        {
-          "name": "class",
-          "via": "mapper"
-        },
-        {
-          "name": "clipPath",
-          "via": "component"
-        },
-        {
-          "name": "colat",
-          "via": "component"
         },
         {
           "name": "color",
@@ -6691,58 +6377,15 @@
           "description": "grid-template-columns, verbatim — e.g. \"240px 1fr\"."
         },
         {
-          "name": "column",
-          "via": "component"
-        },
-        {
           "name": "columnGap",
           "via": "component",
           "description": "CSS column-gap, written verbatim."
-        },
-        {
-          "name": "contentWidth",
-          "via": "component"
         },
         {
           "name": "cursor",
           "via": "component",
           "unit": "css-cursor",
           "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
-        },
-        {
-          "name": "customAlign",
-          "via": "component",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "via": "component",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle",
-          "via": "component"
-        },
-        {
-          "name": "data",
-          "via": "component"
-        },
-        {
-          "name": "decoding",
-          "via": "component"
-        },
-        {
-          "name": "desktopSize",
-          "via": "component"
-        },
-        {
-          "name": "diameter",
-          "via": "component"
-        },
-        {
-          "name": "disp",
-          "via": "component",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
         },
         {
           "name": "display",
@@ -6754,61 +6397,20 @@
           "via": "mapper"
         },
         {
-          "name": "els",
-          "via": "mapper"
-        },
-        {
-          "name": "em",
-          "via": "component"
-        },
-        {
           "name": "exact",
           "via": "component",
           "unit": "css-length",
           "description": "Font size as an exact CSS length, e.g. \"0.875rem\"."
         },
         {
-          "name": "fetchPriority",
-          "via": "component"
-        },
-        {
-          "name": "filter",
-          "via": "component"
-        },
-        {
-          "name": "filtera",
-          "via": "component"
-        },
-        {
-          "name": "fitContent",
-          "via": "component"
-        },
-        {
-          "name": "fixMobileTap",
-          "via": "component",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "fixed",
-          "via": "component"
-        },
-        {
           "name": "flex",
-          "via": "component"
+          "via": "component",
+          "description": "CSS flex, written verbatim."
         },
         {
           "name": "flexBasis",
           "via": "component",
           "description": "CSS flex-basis, written verbatim."
-        },
-        {
-          "name": "flexCenter",
-          "via": "component"
-        },
-        {
-          "name": "flexDir",
-          "via": "component",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
         },
         {
           "name": "flexGrow",
@@ -6826,36 +6428,15 @@
           "description": "CSS flex-wrap, written verbatim."
         },
         {
-          "name": "fluid",
-          "via": "component"
-        },
-        {
-          "name": "fluidc",
-          "via": "mapper"
-        },
-        {
           "name": "font",
           "via": "mapper",
           "unit": "text",
           "description": "Font family for the links (and a string brand)."
         },
         {
-          "name": "ga",
-          "via": "component",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
           "name": "gap",
-          "via": "mapper"
-        },
-        {
-          "name": "gpos",
           "via": "component",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient",
-          "via": "component"
+          "description": "CSS gap, written verbatim. A bare number is read as px."
         },
         {
           "name": "gridTemplateColumns",
@@ -6868,28 +6449,16 @@
           "description": "CSS grid-template-rows, written verbatim."
         },
         {
-          "name": "hamColour",
-          "via": "component"
-        },
-        {
           "name": "hamburgerColour",
           "via": "mapper",
           "unit": "color",
           "description": "Colour of the menu button. Defaults to `color`."
         },
         {
-          "name": "hamburgerInset",
-          "via": "component"
-        },
-        {
           "name": "height",
-          "via": "mapper",
+          "via": "component",
           "unit": "css-length",
           "description": "CSS height — a length with a unit."
-        },
-        {
-          "name": "hideOverflow",
-          "via": "component"
         },
         {
           "name": "hover",
@@ -6898,29 +6467,9 @@
           "description": "Link hover styles, as on `a` — e.g. {color: \"#b83a0b\"}."
         },
         {
-          "name": "icon",
-          "via": "component"
-        },
-        {
           "name": "id",
           "via": "mapper",
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
-        },
-        {
-          "name": "index",
-          "via": "component"
-        },
-        {
-          "name": "initLetter",
-          "via": "component"
-        },
-        {
-          "name": "inline",
-          "via": "component"
-        },
-        {
-          "name": "inpad",
-          "via": "component"
         },
         {
           "name": "inset",
@@ -6928,42 +6477,9 @@
           "description": "CSS inset, written verbatim."
         },
         {
-          "name": "isBackground",
-          "via": "component"
-        },
-        {
-          "name": "isFull",
-          "via": "mapper"
-        },
-        {
-          "name": "isHidden",
-          "via": "component",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink",
-          "via": "component"
-        },
-        {
-          "name": "isNavA",
-          "via": "component"
-        },
-        {
-          "name": "isSide",
-          "via": "component"
-        },
-        {
-          "name": "italic",
-          "via": "component"
-        },
-        {
           "name": "items",
           "via": "mapper",
           "description": "The links, each `{ title, link }` -- or a plain string."
-        },
-        {
-          "name": "justify",
-          "via": "component"
         },
         {
           "name": "justifyContent",
@@ -6987,21 +6503,9 @@
           "description": "Escape hatch for CSS on the bar that no option names. backdropFilter, boxShadow, exact, weight and the other CSS-named options are options of the nav itself."
         },
         {
-          "name": "kind",
-          "via": "mapper"
-        },
-        {
-          "name": "label",
-          "via": "mapper",
-          "description": "Accessible name for the field."
-        },
-        {
-          "name": "layout",
-          "via": "component"
-        },
-        {
           "name": "left",
-          "via": "component"
+          "via": "component",
+          "description": "CSS left, written verbatim. A bare number is read as px."
         },
         {
           "name": "letterSpacing",
@@ -7014,36 +6518,10 @@
           "description": "CSS line-height, written verbatim."
         },
         {
-          "name": "link",
-          "via": "mapper"
-        },
-        {
-          "name": "loading",
-          "via": "component"
-        },
-        {
-          "name": "loop",
-          "via": "component",
-          "unit": "object",
-          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
-        },
-        {
-          "name": "map",
-          "via": "component"
-        },
-        {
           "name": "mar",
           "via": "mapper",
           "unit": "sides",
           "description": "Margin around the bar. Default [{a: 21}]; pass [{a: 0}] when a wrapper positions it."
-        },
-        {
-          "name": "margin",
-          "via": "component"
-        },
-        {
-          "name": "marginOp",
-          "via": "component"
         },
         {
           "name": "maxHeight",
@@ -7058,27 +6536,15 @@
           "description": "CSS max-width — a length with a unit."
         },
         {
-          "name": "mboth",
-          "via": "component",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "menuId",
-          "via": "component"
-        },
-        {
           "name": "menuLabel",
           "via": "mapper",
           "unit": "text",
           "description": "Accessible name of the menu button. Default \"Menu\"."
         },
         {
-          "name": "method",
-          "via": "mapper"
-        },
-        {
           "name": "minHeight",
-          "via": "component"
+          "via": "component",
+          "description": "CSS min-height, written verbatim. A bare number is read as px."
         },
         {
           "name": "minWidth",
@@ -7086,43 +6552,14 @@
           "description": "CSS min-width, written verbatim. A bare number is read as px."
         },
         {
-          "name": "mobileSize",
-          "via": "component"
-        },
-        {
-          "name": "name",
-          "via": "component",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "via": "component",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "via": "component",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
           "name": "objectFit",
-          "via": "component"
+          "via": "component",
+          "description": "CSS object-fit, written verbatim."
         },
         {
           "name": "objectPosition",
-          "via": "component"
-        },
-        {
-          "name": "offcanvas",
-          "via": "mapper"
-        },
-        {
-          "name": "onScroll",
-          "via": "component"
-        },
-        {
-          "name": "onTap",
-          "via": "component"
+          "via": "component",
+          "description": "CSS object-position, written verbatim."
         },
         {
           "name": "opacity",
@@ -7131,12 +6568,9 @@
           "description": "0 to 1."
         },
         {
-          "name": "openColor",
-          "via": "component"
-        },
-        {
           "name": "overflow",
-          "via": "component"
+          "via": "component",
+          "description": "CSS overflow, written verbatim."
         },
         {
           "name": "overflowWrap",
@@ -7160,26 +6594,14 @@
           "description": "Padding inside the bar."
         },
         {
-          "name": "padding",
-          "via": "component"
-        },
-        {
           "name": "pointerEvents",
           "via": "component",
           "description": "CSS pointer-events, written verbatim."
         },
         {
           "name": "position",
-          "via": "component"
-        },
-        {
-          "name": "positions",
-          "via": "component"
-        },
-        {
-          "name": "preffersId",
           "via": "component",
-          "description": "Prefer this id when the Designer emits code for the element."
+          "description": "CSS position, written verbatim."
         },
         {
           "name": "radius",
@@ -7188,58 +6610,9 @@
           "description": "Corner radius of the bar. Default \"1rem\"."
         },
         {
-          "name": "ranges",
-          "via": "component"
-        },
-        {
-          "name": "raster",
-          "via": "component",
-          "unit": "nodes",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react",
-          "via": "mapper"
-        },
-        {
-          "name": "removeDecoration",
-          "via": "component"
-        },
-        {
-          "name": "resmar",
-          "via": "component",
-          "unit": "breakpoints",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "via": "component",
-          "unit": "breakpoints",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive",
-          "via": "component"
-        },
-        {
-          "name": "resprop",
-          "via": "mapper",
-          "unit": "breakpoints",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "reveal",
-          "via": "component"
-        },
-        {
           "name": "right",
           "via": "component",
           "description": "CSS right, written verbatim. A bare number is read as px."
-        },
-        {
-          "name": "rounded",
-          "via": "component",
-          "description": "Apply the default corner radius (0.5rem). Use `radius` for a specific value."
         },
         {
           "name": "rowGap",
@@ -7251,88 +6624,6 @@
           "via": "component",
           "unit": "css-track-list",
           "description": "grid-template-rows, verbatim."
-        },
-        {
-          "name": "scale",
-          "via": "component"
-        },
-        {
-          "name": "sequence",
-          "via": "component"
-        },
-        {
-          "name": "shadow",
-          "via": "component"
-        },
-        {
-          "name": "sides",
-          "via": "mapper"
-        },
-        {
-          "name": "simpleBorder",
-          "via": "component",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter",
-          "via": "component"
-        },
-        {
-          "name": "size",
-          "via": "mapper",
-          "unit": "scale-step",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes",
-          "via": "component"
-        },
-        {
-          "name": "spacing",
-          "via": "component"
-        },
-        {
-          "name": "span",
-          "via": "component"
-        },
-        {
-          "name": "srcset",
-          "via": "component"
-        },
-        {
-          "name": "sticky",
-          "via": "component",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch",
-          "via": "component"
-        },
-        {
-          "name": "stroke",
-          "via": "component"
-        },
-        {
-          "name": "stype",
-          "via": "component"
-        },
-        {
-          "name": "tag",
-          "via": "mapper",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags",
-          "via": "component"
-        },
-        {
-          "name": "templateCols",
-          "via": "component"
-        },
-        {
-          "name": "text",
-          "via": "mapper"
         },
         {
           "name": "textAlign",
@@ -7350,23 +6641,14 @@
           "description": "CSS text-transform, written verbatim."
         },
         {
-          "name": "title",
-          "via": "mapper",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
-        },
-        {
           "name": "top",
-          "via": "component"
-        },
-        {
-          "name": "transform",
-          "via": "mapper",
-          "unit": "css-transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
+          "via": "component",
+          "description": "CSS top, written verbatim. A bare number is read as px."
         },
         {
           "name": "transition",
-          "via": "component"
+          "via": "component",
+          "description": "CSS transition, written verbatim."
         },
         {
           "name": "type",
@@ -7374,29 +6656,14 @@
           "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
         },
         {
-          "name": "url",
-          "via": "mapper"
-        },
-        {
-          "name": "useBrightness",
-          "via": "component"
-        },
-        {
           "name": "userSelect",
           "via": "component",
           "description": "CSS user-select, written verbatim."
         },
         {
-          "name": "value",
-          "via": "mapper"
-        },
-        {
-          "name": "vtn",
-          "via": "component"
-        },
-        {
           "name": "weight",
-          "via": "component"
+          "via": "component",
+          "description": "CSS font-weight, written verbatim."
         },
         {
           "name": "whiteSpace",
@@ -7405,7 +6672,7 @@
         },
         {
           "name": "width",
-          "via": "mapper",
+          "via": "component",
           "unit": "css-length",
           "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
         },
@@ -7420,18 +6687,6 @@
           "description": "CSS word-wrap, written verbatim."
         },
         {
-          "name": "wrap",
-          "via": "component"
-        },
-        {
-          "name": "x",
-          "via": "component"
-        },
-        {
-          "name": "y",
-          "via": "component"
-        },
-        {
           "name": "zIndex",
           "via": "component",
           "unit": "count",
@@ -7442,335 +6697,22 @@
     "sideNav": {
       "resolved": true,
       "mapper": "sideNav",
-      "forwardsElement": true,
+      "forwardsElement": false,
       "components": [
         "Link",
         "Dropdown",
         "Text",
         "Wrapper",
-        "SideNav",
-        "Free",
-        "Image",
-        "Circle",
-        "Polygon",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "AreaSwitcher",
-        "UList"
+        "SideNav"
       ],
       "params": [
-        {
-          "name": "absolute",
-          "via": "component"
-        },
-        {
-          "name": "action",
-          "via": "mapper"
-        },
-        {
-          "name": "align",
-          "via": "component"
-        },
-        {
-          "name": "alignIts",
-          "via": "component",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
-        },
-        {
-          "name": "alt",
-          "via": "component",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animate",
-          "via": "component"
-        },
         {
           "name": "animation",
           "via": "mapper"
         },
         {
-          "name": "area",
-          "via": "component",
-          "unit": "text",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "as",
-          "via": "component"
-        },
-        {
-          "name": "at",
-          "via": "component"
-        },
-        {
-          "name": "backTo",
-          "via": "component"
-        },
-        {
-          "name": "background",
-          "via": "component",
-          "unit": "color",
-          "description": "Background — any CSS colour or background shorthand."
-        },
-        {
-          "name": "backgroundCard",
-          "via": "mapper"
-        },
-        {
-          "name": "backgroundColor",
-          "via": "component"
-        },
-        {
-          "name": "backgroundOp",
-          "via": "component"
-        },
-        {
-          "name": "behaviour",
-          "via": "component"
-        },
-        {
-          "name": "blast",
-          "via": "component"
-        },
-        {
-          "name": "blastData",
-          "via": "component"
-        },
-        {
-          "name": "block",
-          "via": "component",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "via": "component",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
-        },
-        {
-          "name": "border",
-          "via": "component"
-        },
-        {
-          "name": "borderObj",
-          "via": "component",
-          "unit": "object",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja",
-          "via": "component"
-        },
-        {
-          "name": "breakWord",
-          "via": "component",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
-          "name": "center",
-          "via": "component",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn",
-          "via": "component"
-        },
-        {
-          "name": "centerSelf",
-          "via": "component"
-        },
-        {
-          "name": "checkedBackgroundColor",
-          "via": "component"
-        },
-        {
-          "name": "child",
-          "via": "component"
-        },
-        {
-          "name": "children",
-          "via": "mapper"
-        },
-        {
-          "name": "clampc",
-          "via": "component"
-        },
-        {
-          "name": "class",
-          "via": "mapper"
-        },
-        {
-          "name": "clipPath",
-          "via": "component"
-        },
-        {
-          "name": "colat",
-          "via": "component"
-        },
-        {
-          "name": "color",
-          "via": "mapper",
-          "unit": "color",
-          "description": "Text colour — any CSS colour."
-        },
-        {
-          "name": "column",
-          "via": "component"
-        },
-        {
-          "name": "contentWidth",
-          "via": "component"
-        },
-        {
-          "name": "cursor",
-          "via": "component",
-          "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
-        },
-        {
-          "name": "customAlign",
-          "via": "component",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "via": "component",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle",
-          "via": "component"
-        },
-        {
-          "name": "data",
-          "via": "component"
-        },
-        {
-          "name": "decoding",
-          "via": "component"
-        },
-        {
-          "name": "diameter",
-          "via": "component"
-        },
-        {
-          "name": "disp",
-          "via": "component",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
           "name": "dropdown",
           "via": "mapper"
-        },
-        {
-          "name": "els",
-          "via": "mapper"
-        },
-        {
-          "name": "em",
-          "via": "component"
-        },
-        {
-          "name": "exact",
-          "via": "component",
-          "unit": "css-length",
-          "description": "Font size as an exact CSS length, e.g. \"0.875rem\"."
-        },
-        {
-          "name": "fetchPriority",
-          "via": "component"
-        },
-        {
-          "name": "filter",
-          "via": "component"
-        },
-        {
-          "name": "filtera",
-          "via": "component"
-        },
-        {
-          "name": "fitContent",
-          "via": "component"
-        },
-        {
-          "name": "fixMobileTap",
-          "via": "component",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "fixed",
-          "via": "component"
-        },
-        {
-          "name": "flex",
-          "via": "component"
-        },
-        {
-          "name": "flexCenter",
-          "via": "component"
-        },
-        {
-          "name": "flexDir",
-          "via": "component",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
-        },
-        {
-          "name": "fluid",
-          "via": "component"
-        },
-        {
-          "name": "fluidc",
-          "via": "mapper"
-        },
-        {
-          "name": "font",
-          "via": "mapper"
-        },
-        {
-          "name": "ga",
-          "via": "component",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gap",
-          "via": "mapper"
-        },
-        {
-          "name": "gpos",
-          "via": "component",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient",
-          "via": "component"
-        },
-        {
-          "name": "hamColour",
-          "via": "component"
-        },
-        {
-          "name": "height",
-          "via": "mapper",
-          "unit": "css-length",
-          "description": "CSS height — a length with a unit."
-        },
-        {
-          "name": "hideOverflow",
-          "via": "component"
-        },
-        {
-          "name": "hover",
-          "via": "component",
-          "unit": "object",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
-          "name": "icon",
-          "via": "component"
         },
         {
           "name": "id",
@@ -7778,399 +6720,18 @@
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
         },
         {
-          "name": "index",
-          "via": "component"
-        },
-        {
-          "name": "initLetter",
-          "via": "component"
-        },
-        {
-          "name": "inline",
-          "via": "component"
-        },
-        {
-          "name": "inpad",
-          "via": "component"
-        },
-        {
-          "name": "isBackground",
-          "via": "component"
-        },
-        {
-          "name": "isFull",
-          "via": "mapper"
-        },
-        {
-          "name": "isHidden",
-          "via": "component",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink",
-          "via": "component"
-        },
-        {
-          "name": "isNavA",
-          "via": "component"
-        },
-        {
-          "name": "italic",
-          "via": "component"
-        },
-        {
           "name": "items",
           "via": "mapper",
           "description": "The links, each `{ title, link }` -- or a plain string."
-        },
-        {
-          "name": "keySet",
-          "via": "component",
-          "unit": "keyset",
-          "description": "Escape hatch — {key, value} written straight to element.style, or an array of them."
-        },
-        {
-          "name": "kind",
-          "via": "mapper"
-        },
-        {
-          "name": "label",
-          "via": "mapper",
-          "description": "Accessible name for the field."
-        },
-        {
-          "name": "layout",
-          "via": "component"
-        },
-        {
-          "name": "left",
-          "via": "component"
-        },
-        {
-          "name": "link",
-          "via": "mapper"
-        },
-        {
-          "name": "loading",
-          "via": "component"
-        },
-        {
-          "name": "loop",
-          "via": "component",
-          "unit": "object",
-          "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
-        },
-        {
-          "name": "map",
-          "via": "component"
-        },
-        {
-          "name": "mar",
-          "via": "component",
-          "unit": "sides",
-          "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
-        },
-        {
-          "name": "margin",
-          "via": "component"
-        },
-        {
-          "name": "marginOp",
-          "via": "component"
-        },
-        {
-          "name": "maxHeight",
-          "via": "component",
-          "unit": "css-length",
-          "description": "CSS max-height — a length with a unit."
-        },
-        {
-          "name": "maxWidth",
-          "via": "component",
-          "unit": "css-length",
-          "description": "CSS max-width — a length with a unit."
-        },
-        {
-          "name": "mboth",
-          "via": "component",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "method",
-          "via": "mapper"
-        },
-        {
-          "name": "minHeight",
-          "via": "component"
-        },
-        {
-          "name": "name",
-          "via": "component",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "via": "component",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "via": "component",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit",
-          "via": "component"
-        },
-        {
-          "name": "objectPosition",
-          "via": "component"
         },
         {
           "name": "offcanvas",
           "via": "mapper"
         },
         {
-          "name": "onScroll",
-          "via": "component"
-        },
-        {
-          "name": "onTap",
-          "via": "component"
-        },
-        {
-          "name": "opacity",
-          "via": "component",
-          "unit": "ratio",
-          "description": "0 to 1."
-        },
-        {
-          "name": "overflow",
-          "via": "component"
-        },
-        {
-          "name": "pad",
-          "via": "mapper",
-          "unit": "sides",
-          "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "padding",
-          "via": "component"
-        },
-        {
-          "name": "position",
-          "via": "component"
-        },
-        {
-          "name": "positions",
-          "via": "component"
-        },
-        {
-          "name": "preffersId",
-          "via": "component",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "radius",
-          "via": "component",
-          "unit": "px-or-length",
-          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
-        },
-        {
-          "name": "ranges",
-          "via": "component"
-        },
-        {
-          "name": "raster",
-          "via": "component",
-          "unit": "nodes",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react",
-          "via": "mapper"
-        },
-        {
-          "name": "removeDecoration",
-          "via": "component"
-        },
-        {
-          "name": "resmar",
-          "via": "component",
-          "unit": "breakpoints",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "via": "component",
-          "unit": "breakpoints",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive",
-          "via": "component"
-        },
-        {
-          "name": "resprop",
-          "via": "mapper",
-          "unit": "breakpoints",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "reveal",
-          "via": "component"
-        },
-        {
-          "name": "rounded",
-          "via": "component",
-          "description": "Apply the default corner radius (0.5rem). Use `radius` for a specific value."
-        },
-        {
-          "name": "scale",
-          "via": "component"
-        },
-        {
-          "name": "sequence",
-          "via": "component"
-        },
-        {
-          "name": "shadow",
-          "via": "component"
-        },
-        {
-          "name": "sides",
-          "via": "mapper"
-        },
-        {
-          "name": "simpleBorder",
-          "via": "component",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter",
-          "via": "component"
-        },
-        {
-          "name": "size",
-          "via": "mapper",
-          "unit": "scale-step",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes",
-          "via": "component"
-        },
-        {
-          "name": "span",
-          "via": "component"
-        },
-        {
-          "name": "srcset",
-          "via": "component"
-        },
-        {
-          "name": "sticky",
-          "via": "component",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "stretch",
-          "via": "component"
-        },
-        {
-          "name": "stroke",
-          "via": "component"
-        },
-        {
-          "name": "stype",
-          "via": "component"
-        },
-        {
-          "name": "tag",
-          "via": "mapper",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags",
-          "via": "component"
-        },
-        {
-          "name": "templateCols",
-          "via": "component"
-        },
-        {
-          "name": "text",
-          "via": "mapper"
-        },
-        {
-          "name": "title",
-          "via": "mapper",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
-        },
-        {
-          "name": "top",
-          "via": "component"
-        },
-        {
-          "name": "transform",
-          "via": "mapper",
-          "unit": "css-transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "transition",
-          "via": "component"
-        },
-        {
           "name": "type",
           "via": "mapper",
           "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        },
-        {
-          "name": "url",
-          "via": "mapper"
-        },
-        {
-          "name": "useBrightness",
-          "via": "component"
-        },
-        {
-          "name": "value",
-          "via": "mapper"
-        },
-        {
-          "name": "vtn",
-          "via": "component"
-        },
-        {
-          "name": "weight",
-          "via": "component"
-        },
-        {
-          "name": "width",
-          "via": "mapper",
-          "unit": "css-length",
-          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
-        },
-        {
-          "name": "wrap",
-          "via": "component"
-        },
-        {
-          "name": "x",
-          "via": "component"
-        },
-        {
-          "name": "y",
-          "via": "component"
-        },
-        {
-          "name": "zIndex",
-          "via": "component",
-          "unit": "count",
-          "description": "Stacking order, a whole number."
         }
       ]
     },
@@ -12811,300 +11372,13 @@
       "mapper": "mapProduct",
       "forwardsElement": true,
       "components": [
-        "Link",
-        "Dropdown",
-        "Text",
-        "Wrapper",
-        "FlexRow",
-        "MobileBar",
-        "DesktopBar",
-        "Spacer",
-        "Switcher",
-        "UINavBar",
-        "SideNav",
-        "Free",
-        "Image",
-        "Circle",
-        "Polygon",
-        "Card",
-        "ZoomCard",
-        "FlexGrid",
-        "Checkbox",
-        "Stack",
-        "Form",
-        "AreaSwitcher",
-        "UList",
         "Shop"
       ],
       "params": [
         {
-          "name": "WebkitBackdropFilter",
-          "via": "component",
-          "description": "CSS -webkit-backdrop-filter, written verbatim."
-        },
-        {
-          "name": "WebkitOverflowScrolling",
-          "via": "component",
-          "description": "CSS -webkit-overflow-scrolling, written verbatim."
-        },
-        {
-          "name": "WebkitTapHighlightColor",
-          "via": "component",
-          "description": "CSS -webkit-tap-highlight-color, written verbatim."
-        },
-        {
-          "name": "WebkitUserSelect",
-          "via": "component",
-          "description": "CSS -webkit-user-select, written verbatim."
-        },
-        {
-          "name": "absolute",
-          "via": "component"
-        },
-        {
-          "name": "action",
-          "via": "mapper"
-        },
-        {
-          "name": "align",
-          "via": "component"
-        },
-        {
-          "name": "alignContent",
-          "via": "component",
-          "description": "CSS align-content, written verbatim."
-        },
-        {
-          "name": "alignItems",
-          "via": "component"
-        },
-        {
-          "name": "alignIts",
-          "via": "component",
-          "deprecated": "obsolete. Its body sets background:\"gray\" and hardcodes alignItems/justifyItems to flex-start with the argument commented out — debugging left in. Use `customAlign` / `customJustify`."
-        },
-        {
-          "name": "alignSelf",
-          "via": "component",
-          "description": "CSS align-self, written verbatim."
-        },
-        {
-          "name": "alignTo",
-          "via": "component"
-        },
-        {
-          "name": "aligns",
-          "via": "component"
-        },
-        {
-          "name": "alt",
-          "via": "mapper",
-          "description": "Description for an icon that carries meaning; omit for decoration."
-        },
-        {
-          "name": "animate",
-          "via": "component"
-        },
-        {
-          "name": "animation",
-          "via": "mapper"
-        },
-        {
-          "name": "area",
-          "via": "component",
-          "unit": "text",
-          "description": "This element's grid-area — the name of a cell declared in the parent's `areas`."
-        },
-        {
-          "name": "areas",
-          "via": "component",
-          "unit": "css-areas",
-          "description": "grid-template-areas, verbatim — e.g. '\"nav main\" \"nav main\"'."
-        },
-        {
-          "name": "ariaLabel",
-          "via": "component"
-        },
-        {
-          "name": "as",
-          "via": "component"
-        },
-        {
-          "name": "aspectRatio",
-          "via": "component",
-          "description": "CSS aspect-ratio, written verbatim."
-        },
-        {
-          "name": "at",
-          "via": "component"
-        },
-        {
-          "name": "backTo",
-          "via": "component"
-        },
-        {
-          "name": "backdropFilter",
-          "via": "component",
-          "description": "CSS backdrop-filter, written verbatim."
-        },
-        {
-          "name": "background",
-          "via": "mapper",
-          "unit": "color",
-          "description": "Background — any CSS colour or background shorthand."
-        },
-        {
-          "name": "backgroundCard",
-          "via": "mapper"
-        },
-        {
-          "name": "backgroundColor",
-          "via": "component"
-        },
-        {
-          "name": "backgroundOp",
-          "via": "component"
-        },
-        {
-          "name": "barPad",
-          "via": "component"
-        },
-        {
-          "name": "behaviour",
-          "via": "component"
-        },
-        {
-          "name": "blast",
-          "via": "component"
-        },
-        {
-          "name": "blastData",
-          "via": "component"
-        },
-        {
-          "name": "block",
-          "via": "component",
-          "description": "Render as a block-level element rather than inline."
-        },
-        {
-          "name": "bold",
-          "via": "component",
-          "description": "Shorthand for font-weight bold. Overrides `weight` if both are given."
-        },
-        {
-          "name": "border",
-          "via": "component"
-        },
-        {
-          "name": "borderBottom",
-          "via": "component"
-        },
-        {
-          "name": "borderLeft",
-          "via": "component",
-          "description": "CSS border-left, written verbatim."
-        },
-        {
-          "name": "borderObj",
-          "via": "component",
-          "unit": "object",
-          "description": "Border as {width, color, type?, radius?}. Width carries its unit, e.g. \"1px\"."
-        },
-        {
-          "name": "borderObja",
-          "via": "component"
-        },
-        {
-          "name": "borderRight",
-          "via": "component",
-          "description": "CSS border-right, written verbatim."
-        },
-        {
-          "name": "borderTop",
-          "via": "component",
-          "description": "CSS border-top, written verbatim."
-        },
-        {
-          "name": "bottom",
-          "via": "component",
-          "description": "CSS bottom, written verbatim. A bare number is read as px."
-        },
-        {
-          "name": "boxShadow",
-          "via": "component",
-          "description": "CSS box-shadow, written verbatim."
-        },
-        {
-          "name": "boxSizing",
-          "via": "component",
-          "description": "CSS box-sizing, written verbatim."
-        },
-        {
-          "name": "brand",
-          "via": "mapper"
-        },
-        {
-          "name": "brandLink",
-          "via": "mapper"
-        },
-        {
-          "name": "breakWord",
-          "via": "component",
-          "description": "Allow long words to wrap mid-word (word-wrap: break-word)."
-        },
-        {
-          "name": "breakpoint",
-          "via": "mapper"
-        },
-        {
-          "name": "breakpoints",
-          "via": "component"
-        },
-        {
-          "name": "cart",
-          "via": "mapper"
-        },
-        {
-          "name": "center",
-          "via": "component",
-          "description": "Centres this element's CHILDREN. `true` for both axes, `\"x\"` horizontal, `\"y\"` vertical. Axis-aware: in a flex column `\"y\"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: \"center\"`."
-        },
-        {
-          "name": "centerColumn",
-          "via": "component"
-        },
-        {
-          "name": "centerSelf",
-          "via": "component"
-        },
-        {
-          "name": "checkedBackgroundColor",
-          "via": "component"
-        },
-        {
-          "name": "child",
-          "via": "component"
-        },
-        {
           "name": "children",
           "via": "mapper",
           "description": "What to show for the product: price, variantPicker, buy, productData, productMedia, and any other element. Rendered live from the shop, and statically (from each element's `text`/`url`) until the data arrives and in the prerendered HTML."
-        },
-        {
-          "name": "clampc",
-          "via": "component"
-        },
-        {
-          "name": "class",
-          "via": "mapper"
-        },
-        {
-          "name": "clipPath",
-          "via": "component"
-        },
-        {
-          "name": "colat",
-          "via": "component"
         },
         {
           "name": "color",
@@ -13113,206 +11387,8 @@
           "description": "Text colour — any CSS colour."
         },
         {
-          "name": "colorScheme",
-          "via": "component",
-          "description": "CSS color-scheme, e.g. \"light\": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name=\"color-scheme\" content=\"light dark\">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme \"light\" on its sections keeps them light."
-        },
-        {
-          "name": "cols",
-          "via": "component",
-          "unit": "css-track-list",
-          "description": "grid-template-columns, verbatim — e.g. \"240px 1fr\"."
-        },
-        {
-          "name": "column",
-          "via": "component"
-        },
-        {
-          "name": "columnGap",
-          "via": "component",
-          "description": "CSS column-gap, written verbatim."
-        },
-        {
-          "name": "contentWidth",
-          "via": "component"
-        },
-        {
-          "name": "cursor",
-          "via": "component",
-          "unit": "css-cursor",
-          "description": "CSS cursor keyword, e.g. \"pointer\". `true` means \"pointer\"."
-        },
-        {
-          "name": "customAlign",
-          "via": "component",
-          "description": "align-items, verbatim — for values `align` does not cover."
-        },
-        {
-          "name": "customJustify",
-          "via": "component",
-          "description": "justify-items, verbatim."
-        },
-        {
-          "name": "customStyle",
-          "via": "component"
-        },
-        {
-          "name": "data",
-          "via": "component"
-        },
-        {
-          "name": "decoding",
-          "via": "component"
-        },
-        {
-          "name": "desktopSize",
-          "via": "component"
-        },
-        {
-          "name": "diameter",
-          "via": "component"
-        },
-        {
-          "name": "discountCodes",
-          "via": "mapper"
-        },
-        {
-          "name": "disp",
-          "via": "component",
-          "description": "CSS display, verbatim — \"block\", \"grid\", \"inline-flex\"."
-        },
-        {
-          "name": "display",
-          "via": "component",
-          "description": "CSS display, written verbatim."
-        },
-        {
-          "name": "dropdown",
-          "via": "mapper"
-        },
-        {
-          "name": "els",
-          "via": "mapper"
-        },
-        {
-          "name": "em",
-          "via": "component"
-        },
-        {
-          "name": "exact",
-          "via": "component",
-          "unit": "css-length",
-          "description": "Font size as an exact CSS length, e.g. \"0.875rem\"."
-        },
-        {
-          "name": "fetchPriority",
-          "via": "component"
-        },
-        {
-          "name": "filter",
-          "via": "component"
-        },
-        {
-          "name": "filtera",
-          "via": "component"
-        },
-        {
-          "name": "fitContent",
-          "via": "component"
-        },
-        {
-          "name": "fixMobileTap",
-          "via": "component",
-          "description": "Suppress the mobile tap highlight and its 300ms delay."
-        },
-        {
-          "name": "fixed",
-          "via": "component"
-        },
-        {
-          "name": "flex",
-          "via": "component"
-        },
-        {
-          "name": "flexBasis",
-          "via": "component",
-          "description": "CSS flex-basis, written verbatim."
-        },
-        {
-          "name": "flexCenter",
-          "via": "component"
-        },
-        {
-          "name": "flexDir",
-          "via": "component",
-          "description": "Flex direction. Also sets display:flex, so it is enough on its own."
-        },
-        {
-          "name": "flexGrow",
-          "via": "component",
-          "description": "CSS flex-grow, written verbatim."
-        },
-        {
-          "name": "flexShrink",
-          "via": "component",
-          "description": "CSS flex-shrink, written verbatim."
-        },
-        {
-          "name": "flexWrap",
-          "via": "component",
-          "description": "CSS flex-wrap, written verbatim."
-        },
-        {
-          "name": "fluid",
-          "via": "component"
-        },
-        {
-          "name": "fluidc",
-          "via": "mapper"
-        },
-        {
           "name": "font",
           "via": "mapper"
-        },
-        {
-          "name": "ga",
-          "via": "component",
-          "description": "CSS grid-area, verbatim."
-        },
-        {
-          "name": "gap",
-          "via": "mapper"
-        },
-        {
-          "name": "gpos",
-          "via": "component",
-          "description": "Grid placement — {col, row}, written to grid-column and grid-row."
-        },
-        {
-          "name": "gradient",
-          "via": "component"
-        },
-        {
-          "name": "gridTemplateColumns",
-          "via": "component",
-          "description": "CSS grid-template-columns, written verbatim."
-        },
-        {
-          "name": "gridTemplateRows",
-          "via": "component",
-          "description": "CSS grid-template-rows, written verbatim."
-        },
-        {
-          "name": "hamColour",
-          "via": "component"
-        },
-        {
-          "name": "hamburgerColour",
-          "via": "mapper"
-        },
-        {
-          "name": "hamburgerInset",
-          "via": "component"
         },
         {
           "name": "handle",
@@ -13321,106 +11397,9 @@
           "description": "The product's handle in the shop — its URL name, e.g. \"suitcase-n01\"."
         },
         {
-          "name": "height",
-          "via": "mapper",
-          "unit": "css-length",
-          "description": "CSS height — a length with a unit."
-        },
-        {
-          "name": "hideOverflow",
-          "via": "component"
-        },
-        {
-          "name": "hover",
-          "via": "mapper",
-          "unit": "object",
-          "description": "Styles applied on hover, e.g. {color, background, animation: \"0.2s ease\"}."
-        },
-        {
-          "name": "icon",
-          "via": "component"
-        },
-        {
           "name": "id",
           "via": "mapper",
           "description": "This element's DOM id. Also what a design node's `target` names, and what `parse` recovers an element by."
-        },
-        {
-          "name": "index",
-          "via": "component"
-        },
-        {
-          "name": "initLetter",
-          "via": "component"
-        },
-        {
-          "name": "inline",
-          "via": "component"
-        },
-        {
-          "name": "inpad",
-          "via": "component"
-        },
-        {
-          "name": "inset",
-          "via": "component",
-          "description": "CSS inset, written verbatim."
-        },
-        {
-          "name": "isBackground",
-          "via": "component"
-        },
-        {
-          "name": "isFull",
-          "via": "mapper"
-        },
-        {
-          "name": "isHidden",
-          "via": "component",
-          "description": "Hide the element."
-        },
-        {
-          "name": "isLink",
-          "via": "component"
-        },
-        {
-          "name": "isNavA",
-          "via": "component"
-        },
-        {
-          "name": "isSide",
-          "via": "component"
-        },
-        {
-          "name": "italic",
-          "via": "component"
-        },
-        {
-          "name": "items",
-          "via": "mapper"
-        },
-        {
-          "name": "justifo",
-          "via": "component"
-        },
-        {
-          "name": "justify",
-          "via": "component"
-        },
-        {
-          "name": "justifyContent",
-          "via": "component",
-          "description": "CSS justify-content, written verbatim."
-        },
-        {
-          "name": "justifyItems",
-          "via": "component",
-          "description": "CSS justify-items, written verbatim."
-        },
-        {
-          "name": "justifySelf",
-          "via": "component",
-          "description": "CSS justify-self, written verbatim."
         },
         {
           "name": "keySet",
@@ -13430,37 +11409,6 @@
         },
         {
           "name": "kind",
-          "via": "mapper"
-        },
-        {
-          "name": "label",
-          "via": "mapper",
-          "description": "Accessible name for the field."
-        },
-        {
-          "name": "layout",
-          "via": "component"
-        },
-        {
-          "name": "left",
-          "via": "component"
-        },
-        {
-          "name": "letterSpacing",
-          "via": "component",
-          "description": "CSS letter-spacing, written verbatim."
-        },
-        {
-          "name": "lineHeight",
-          "via": "component",
-          "description": "CSS line-height, written verbatim."
-        },
-        {
-          "name": "link",
-          "via": "mapper"
-        },
-        {
-          "name": "loading",
           "via": "component"
         },
         {
@@ -13470,446 +11418,21 @@
           "description": "Animate the element forever, with no stylesheet: {keyframes: [{…css}, {…css}], duration: ms, easing, direction, delay}. Keyframes are CSS properties in camelCase, e.g. [{backgroundPosition: \"0px 0\"}, {backgroundPosition: \"99px 0\"}]. Skipped for prefers-reduced-motion and where the browser has no Web Animations (the prerender)."
         },
         {
-          "name": "map",
-          "via": "component"
-        },
-        {
           "name": "mar",
-          "via": "mapper",
+          "via": "component",
           "unit": "sides",
           "description": "Margin. The same array-of-side-objects form as `pad`: `mar: [{a: 40}]`, keys `a t r b l`, combinable. Additionally `mar: \"center\"` sets left and right to auto, as does `{a: \"auto\"}` or `{center: true}`."
         },
         {
-          "name": "margin",
-          "via": "component"
-        },
-        {
-          "name": "marginOp",
-          "via": "component"
-        },
-        {
-          "name": "maxHeight",
-          "via": "component",
-          "unit": "css-length",
-          "description": "CSS max-height — a length with a unit."
-        },
-        {
-          "name": "maxWidth",
-          "via": "component",
-          "unit": "css-length",
-          "description": "CSS max-width — a length with a unit."
-        },
-        {
-          "name": "mboth",
-          "via": "component",
-          "deprecated": "superseded by `mar: \"center\"`. Still works, but warns."
-        },
-        {
-          "name": "menuId",
-          "via": "component"
-        },
-        {
-          "name": "menuLabel",
-          "via": "mapper"
-        },
-        {
-          "name": "method",
-          "via": "mapper"
-        },
-        {
-          "name": "minHeight",
-          "via": "component"
-        },
-        {
-          "name": "minWidth",
-          "via": "component",
-          "description": "CSS min-width, written verbatim. A bare number is read as px."
-        },
-        {
-          "name": "mobile",
-          "via": "component"
-        },
-        {
-          "name": "mobileSize",
-          "via": "component"
-        },
-        {
-          "name": "mode",
-          "via": "mapper"
-        },
-        {
-          "name": "name",
-          "via": "component",
-          "description": "Form field name. What a submitted form actually SENDS."
-        },
-        {
-          "name": "new",
-          "via": "component",
-          "description": "Open in a new tab — sets target=\"_blank\" and rel=\"noopener noreferrer\"."
-        },
-        {
-          "name": "nowrap",
-          "via": "component",
-          "description": "Keep the label on one line (white-space: nowrap)."
-        },
-        {
-          "name": "objectFit",
-          "via": "component"
-        },
-        {
-          "name": "objectPosition",
-          "via": "component"
-        },
-        {
-          "name": "offcanvas",
-          "via": "mapper"
-        },
-        {
-          "name": "onScroll",
-          "via": "component"
-        },
-        {
-          "name": "onTap",
-          "via": "component"
-        },
-        {
-          "name": "opacity",
-          "via": "component",
-          "unit": "ratio",
-          "description": "0 to 1."
-        },
-        {
-          "name": "openColor",
-          "via": "component"
-        },
-        {
-          "name": "overflow",
-          "via": "component"
-        },
-        {
-          "name": "overflowWrap",
-          "via": "component",
-          "description": "CSS overflow-wrap, written verbatim."
-        },
-        {
-          "name": "overflowX",
-          "via": "component",
-          "description": "CSS overflow-x, written verbatim."
-        },
-        {
-          "name": "overflowY",
-          "via": "component",
-          "description": "CSS overflow-y, written verbatim."
-        },
-        {
-          "name": "owrap",
-          "via": "component"
-        },
-        {
           "name": "pad",
-          "via": "mapper",
+          "via": "component",
           "unit": "sides",
           "description": "Padding. An array of side objects: `pad: [{a: 40}]`. Keys are `a` all, `t` top, `r` right, `b` bottom, `l` left. Keys combine, so `{tb: 12}` sets top and bottom. A bare number is treated as px; any string is passed through, so `{a: \"2rem\"}` works."
-        },
-        {
-          "name": "padding",
-          "via": "component"
-        },
-        {
-          "name": "pointerEvents",
-          "via": "component",
-          "description": "CSS pointer-events, written verbatim."
-        },
-        {
-          "name": "position",
-          "via": "component"
-        },
-        {
-          "name": "positions",
-          "via": "component"
-        },
-        {
-          "name": "preffersId",
-          "via": "component",
-          "description": "Prefer this id when the Designer emits code for the element."
-        },
-        {
-          "name": "query",
-          "via": "mapper"
-        },
-        {
-          "name": "radius",
-          "via": "mapper",
-          "unit": "px-or-length",
-          "description": "Corner radius. A bare number is read as pixels; a string is used verbatim."
-        },
-        {
-          "name": "ranges",
-          "via": "component"
-        },
-        {
-          "name": "raster",
-          "via": "component",
-          "unit": "nodes",
-          "description": "Attach a WebGL raster pipeline. Array of op nodes; see the Raster section."
-        },
-        {
-          "name": "react",
-          "via": "mapper"
-        },
-        {
-          "name": "removeDecoration",
-          "via": "component"
-        },
-        {
-          "name": "resmar",
-          "via": "component",
-          "unit": "breakpoints",
-          "description": "Responsive margin — per-breakpoint overrides of `mar`, in the same form."
-        },
-        {
-          "name": "respad",
-          "via": "component",
-          "unit": "breakpoints",
-          "description": "Responsive padding — per-breakpoint overrides of `pad`, in the same form."
-        },
-        {
-          "name": "responsive",
-          "via": "component"
-        },
-        {
-          "name": "resprop",
-          "via": "mapper",
-          "unit": "breakpoints",
-          "description": "Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size."
-        },
-        {
-          "name": "reveal",
-          "via": "component"
-        },
-        {
-          "name": "right",
-          "via": "component",
-          "description": "CSS right, written verbatim. A bare number is read as px."
-        },
-        {
-          "name": "rounded",
-          "via": "component",
-          "description": "Apply the default corner radius (0.5rem). Use `radius` for a specific value."
-        },
-        {
-          "name": "rowGap",
-          "via": "component",
-          "description": "CSS row-gap, written verbatim."
-        },
-        {
-          "name": "rows",
-          "via": "component",
-          "unit": "css-track-list",
-          "description": "grid-template-rows, verbatim."
-        },
-        {
-          "name": "scale",
-          "via": "component"
-        },
-        {
-          "name": "sequence",
-          "via": "component"
-        },
-        {
-          "name": "shadow",
-          "via": "component"
-        },
-        {
-          "name": "sides",
-          "via": "mapper"
-        },
-        {
-          "name": "simpleBorder",
-          "via": "component",
-          "description": "Border as one CSS shorthand string, e.g. \"1px solid #eee\"."
-        },
-        {
-          "name": "simpleCenter",
-          "via": "component"
-        },
-        {
-          "name": "size",
-          "via": "mapper",
-          "unit": "scale-step",
-          "description": "Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.",
-          "deprecated": "on this component `size()` set width and height, which collided with the `size` option (fluid type scale). Use `dimensions(w, h)`."
-        },
-        {
-          "name": "sizes",
-          "via": "component"
-        },
-        {
-          "name": "spacing",
-          "via": "component"
-        },
-        {
-          "name": "span",
-          "via": "component"
-        },
-        {
-          "name": "srcset",
-          "via": "component"
-        },
-        {
-          "name": "sticky",
-          "via": "component",
-          "description": "Stick to the top of the scroll container (position: sticky; top: 0)."
-        },
-        {
-          "name": "store",
-          "via": "mapper"
-        },
-        {
-          "name": "stretch",
-          "via": "component"
-        },
-        {
-          "name": "stroke",
-          "via": "component"
-        },
-        {
-          "name": "stype",
-          "via": "component"
-        },
-        {
-          "name": "tag",
-          "via": "mapper",
-          "description": "Heading level to render, independent of `size`/`fluid`."
-        },
-        {
-          "name": "tags",
-          "via": "component"
-        },
-        {
-          "name": "target",
-          "via": "mapper"
-        },
-        {
-          "name": "templateCols",
-          "via": "component"
-        },
-        {
-          "name": "text",
-          "via": "mapper"
-        },
-        {
-          "name": "textAlign",
-          "via": "component",
-          "description": "CSS text-align, written verbatim."
-        },
-        {
-          "name": "textDecoration",
-          "via": "component",
-          "description": "CSS text-decoration, written verbatim."
-        },
-        {
-          "name": "textTransform",
-          "via": "component",
-          "description": "CSS text-transform, written verbatim."
-        },
-        {
-          "name": "theme",
-          "via": "mapper",
-          "unit": "object",
-          "description": "Explicit light/dark overrides — {light: {...}, dark: {...}}."
-        },
-        {
-          "name": "title",
-          "via": "mapper",
-          "description": "Accepted as a synonym for `label`, for parity with `labelInput`."
-        },
-        {
-          "name": "toColumn",
-          "via": "component"
-        },
-        {
-          "name": "top",
-          "via": "component"
-        },
-        {
-          "name": "transform",
-          "via": "mapper",
-          "unit": "css-transform",
-          "description": "A CSS transform string applied verbatim, or an object handled by reactOnTransform(). Composed with `scale` when both are given."
-        },
-        {
-          "name": "transition",
-          "via": "component"
         },
         {
           "name": "type",
           "via": "mapper",
           "description": "The element type, which selects the mapper that builds it -- \"h1\", \"cards\", \"form\", and so on."
-        },
-        {
-          "name": "url",
-          "via": "mapper"
-        },
-        {
-          "name": "useBrightness",
-          "via": "component"
-        },
-        {
-          "name": "userSelect",
-          "via": "component",
-          "description": "CSS user-select, written verbatim."
-        },
-        {
-          "name": "value",
-          "via": "mapper"
-        },
-        {
-          "name": "vtn",
-          "via": "component"
-        },
-        {
-          "name": "weight",
-          "via": "component"
-        },
-        {
-          "name": "whiteSpace",
-          "via": "component",
-          "description": "CSS white-space, written verbatim."
-        },
-        {
-          "name": "width",
-          "via": "mapper",
-          "unit": "css-length",
-          "description": "CSS width — a length with a unit, e.g. \"100%\" or \"320px\". A bare number is not a CSS length and is ignored."
-        },
-        {
-          "name": "wordBreak",
-          "via": "component",
-          "description": "CSS word-break, written verbatim."
-        },
-        {
-          "name": "wordWrap",
-          "via": "component",
-          "description": "CSS word-wrap, written verbatim."
-        },
-        {
-          "name": "wrap",
-          "via": "component"
-        },
-        {
-          "name": "x",
-          "via": "component"
-        },
-        {
-          "name": "y",
-          "via": "component"
-        },
-        {
-          "name": "zIndex",
-          "via": "component",
-          "unit": "count",
-          "description": "Stacking order, a whole number."
         }
       ]
     },
