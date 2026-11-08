@@ -54,6 +54,18 @@ class Text extends Animator {
 		return this.elCSS; 
 	}
 
+	// chainReact cleared the text and no span node is active: put the plain
+	// text back. The copy is built only when it is appended, and it is owned
+	// by this component, so destroy() releases it. chainReact's callers pass
+	// no qban today, so this appends nothing; it keeps the path the old
+	// code had, now on the one class it was ever meaningful for.
+	rebuildText(qban) {
+		if (!(qban && this.prevText && this.prevText.length > 0)) return;
+		const copy = new this.constructor(this.prevText);
+		this.res.appendChild(copy.set({}).render());
+		this._track(() => copy.destroy());
+	}
+
 	getType(){ // 114145
 
 

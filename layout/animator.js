@@ -1645,6 +1645,12 @@ setTags(obj){
 
 	queries.sort((a, b) => parseInt(a.range[0]) - parseInt(b.range[0]));
   
+	// Which queries were active on the last run. A resize that leaves the
+	// set unchanged has nothing to apply: nothing below reads the width.
+	// Resize fires continuously while a window is dragged, and almost no
+	// event crosses a range boundary, so this skips nearly every run.
+	let lastActive;
+
 	// Function to check and log queries based on screen size
 	const checkQueries = (qban) => {
 		//alert("/P")
@@ -1707,6 +1713,10 @@ setTags(obj){
 		} 
 
 	  }
+
+	  const active = globalQueries.map((q) => queries.indexOf(q)).join(",");
+	  if (active === lastActive) return;
+	  lastActive = active;
 
 
 	  if (keep && !keep.includes("background")){
@@ -1970,18 +1980,11 @@ Object.assign(overlay.style, {
     }
 
 } else {
-    // fallback to full text
-    // A copy built to rebuild the text. Kept only when appended, and then
-    // owned by this component so destroy() releases it; otherwise released
-    // at once — it subscribed to Theme and attached listeners on the way.
-    const copy = new this.constructor(this.prevText);
-    let t = copy.set({}).render();
-    if (this.prevText && this.prevText.length > 0 && qban) {
-        this.res.appendChild(t);
-        this._track(() => copy.destroy());
-    } else {
-        copy.destroy();
-    }
+    // Rebuilding the text is Text's business (Text.rebuildText). This used
+    // to build `new this.constructor(this.prevText)` here for EVERY
+    // component — an Image got a copy built from its URL slot — and threw
+    // it away unless the condition below held.
+    this.rebuildText(qban);
 }
 
 
@@ -2089,6 +2092,10 @@ this._on(window, this.openTag, () => {
   }
   
   //--------- END OF INDEPENDENT
+
+  // Rebuild the component's text after chainReact cleared it. Only text has
+  // any (see Text.rebuildText); every other component has nothing to do.
+  rebuildText(qban) {}
   
   reactOnTransform = (obj) => {
 //alert("///"); // UL DOES NOT REACH THIS DESPITE SAME SYNTAX

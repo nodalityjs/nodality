@@ -5,11 +5,10 @@
 //   refactor in CHAINREACT-PLAN-08-11-26.md must keep these byte-identical.
 //   Regenerate only on purpose: UPDATE_GOLDEN=1 node --test <this file>.
 //
-//   TARGET (todo until the plan lands). What it should do: a resize at the
-//   same width does no work and leaks nothing; a component that is not text
-//   never builds a copy of itself; crossing a breakpoint rebuilds once and
-//   releases what it replaced. node:test runs `todo` tests and reports them
-//   without failing the suite, so the measured gap stays visible.
+//   TARGET. A resize at the same width does no work and leaks nothing; a
+//   component that is not text never builds a copy of itself; crossing a
+//   breakpoint rebuilds once and releases what it replaced. These started as
+//   `todo` tests and became hard tests when the plan's three steps landed.
 
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
@@ -100,10 +99,10 @@ test("an image never gets src=undefined, at render or on resize", () => {
   assert.equal(undefinedSrc, 0);
 });
 
-// ── target behaviour (todo until the plan lands) ────────────────────────
+// ── target behaviour ────────────────────────
 
 test("a resize at the same width adds no Theme subscriptions",
-  { todo: "CHAINREACT plan step 2: skip a rebuild when the active ranges did not change" }, () => {
+  () => {
     render(1280);
     const before = themeListeners;
     resize(100);
@@ -111,7 +110,7 @@ test("a resize at the same width adds no Theme subscriptions",
   });
 
 test("a component that is not text never builds a copy of itself",
-  { todo: "CHAINREACT plan step 1: build the text copy only on Text, only when it is used" }, () => {
+  () => {
     render(1280);
     // Every copy chainReact builds runs set({}), which for an image means
     // setup(): a fresh <img>. A resize should build none.
@@ -123,7 +122,7 @@ test("a component that is not text never builds a copy of itself",
   });
 
 test("crossing a breakpoint back and forth leaves the subscription count where it started",
-  { todo: "CHAINREACT plan step 3: destroy() what a rebuild replaces" }, () => {
+  () => {
     render(1280);
     const start = themeListeners;
     for (let i = 0; i < 20; i++) { setWidth(i % 2 ? 1280 : 390); resize(1); }
