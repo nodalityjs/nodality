@@ -2,6 +2,16 @@
 
 Generated per release from the source diff.
 
+## 1.5.2 — 2026-11-08
+
+### Breaking
+
+- Removed the `nodality dev` CLI command and its underlying dev server (`bin/dev-server.mjs` deleted). The `--upload`, `--port`, `--watch` and `--no-reload` options, the in-page inspector (select with `S`, comment with `C`), and the `.nodality/current.json` / `.nodality/comments.json` files are no longer produced.
+- Removed the MCP tools `current_selection`, `list_comments`, and `resolve_comment`, along with the internal `devRoot` helper.
+- Removed `lib/dev-inspector.js` and `lib/dev-state.js` entirely, including their exports (`readComments`, `writeCurrent`, `addComment`, `normalizePage`, `readCurrent`, `resolveComment`, `commentFindings`, `pageOfFile`, `codeAt`, `sanitizeCurrent`, `untrusted`, `STATE_DIR`, `MAX_NOTE`, `MAX_TEXT`, `stateDir`).
+- `nodality check` no longer reads or reports on dev-server comments: it drops the `--upload` argument's use for comment lookup, and no longer emits `STALE_COMMENT_TARGET`, `UNRESOLVED_COMMENT`, `COMMENT_SOURCE_MOVED`, or `STALE_COMMENT_SOURCE` findings/warnings. Its output is limited to the validation errors from `checkPage`.
+- `nodality` CLI usage text no longer lists `nodality dev`.
+
 ## 1.4.3 — 2026-11-04
 
 ### Fixed
