@@ -2,6 +2,15 @@
 
 Generated per release from the source diff.
 
+## 1.5.1 — 2026-11-08
+
+### Changed
+- Resize handling now skips reprocessing media-query state when a resize event doesn't cross a query range boundary, reducing redundant work during window dragging.
+- Text rebuilding after `chainReact` clears content is now handled by a dedicated `rebuildText(qban)` method, overridable per component. The base `Animator.rebuildText` is a no-op; `Text.rebuildText` implements the actual rebuild logic that previously ran unconditionally for all components (including non-text ones like `Image`).
+
+### Fixed
+- Non-text components (e.g. `Image`) no longer needlessly construct and immediately discard a throwaway copy of themselves during the text-rebuild step.
+
 ## 1.4.3 — 2026-11-04
 
 ### Fixed
