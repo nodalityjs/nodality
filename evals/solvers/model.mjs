@@ -9,7 +9,7 @@
 //   ANTHROPIC_API_KEY=... node evals/run.mjs --solver=model --quality
 //
 // Fairness matters more than convenience here, so the system prompt is built
-// from the artifacts that actually ship — `skills/nodality/SKILL.md` verbatim,
+// from the artifacts that actually ship — the skills under `skills/` verbatim,
 // the live `ELEMENT_TYPES`, and the content-slot table the validator uses.
 // Inventing a better prompt than the one we publish would measure a library
 // nobody has.
@@ -30,7 +30,11 @@ export const name = `model (${MODEL})`;
 
 const { ELEMENT_TYPES } = await import(path.join(ROOT, "lib", "element-mapper.js"));
 const { CONTENT_SLOT } = await import(path.join(ROOT, "lib", "validate-nodes.js"));
-const SKILL = readFileSync(path.join(ROOT, "skills", "nodality", "SKILL.md"), "utf8");
+// Since 1.5.0 the skill is a router plus references and task skills; the
+// installer's combinedSkill() is the one text an agent without on-demand
+// reading gets, so the solver is given exactly that.
+const { combinedSkill } = await import(path.join(ROOT, "bin", "install-skill.mjs"));
+const SKILL = combinedSkill(path.join(ROOT, "skills"));
 
 const SYSTEM = `You author Nodality pages as data. Below is the skill that ships
 with the library, followed by the live vocabulary.

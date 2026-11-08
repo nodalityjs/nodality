@@ -1,15 +1,26 @@
-// bin/install-skill.mjs — `npx nodality skill`: install the /nodality
-// skill into agent IDEs, the way `npx motion-ai` does for Motion.
+// bin/install-skill.mjs — `npx nodality skill`: install the Nodality
+// skills into agent IDEs, the way `npx motion-ai` does for Motion.
+//
+// The skills live in skills/<name>/SKILL.md (since 1.5.0 more than one):
+//   • nodality             — the router: workflow, house rules, an index,
+//                            and references/*.md read on demand.
+//   • nodality-new-page    — build a page from a brief in validated steps.
+//   • nodality-edit-page   — change one thing on a rendered page.
 //
 // Targets:
-//   • Claude Code — copies skills/nodality/SKILL.md to
-//     <scope>/.claude/skills/nodality/SKILL.md, where scope is the
-//     project (cwd) or the home directory (--global).
-//   • Cursor — writes .cursor/rules/nodality.mdc (project only: Cursor
-//     has no global rules *directory*; global guidance there is a
-//     settings field, not a file this installer may write).
-//   • Anything else — --dir=<path> copies SKILL.md verbatim wherever a
-//     custom agent reads its instructions from.
+//   • Claude Code — copies every skill folder (references included) to
+//     <scope>/.claude/skills/<name>/, where scope is the project (cwd) or
+//     the home directory (--global).
+//   • Cursor — writes ONE rule, .cursor/rules/nodality.mdc, holding the
+//     combined text (project only: Cursor has no global rules
+//     *directory*; global guidance there is a settings field, not a file
+//     this installer may write).
+//   • Anything else — --dir=<path> writes the combined text as SKILL.md
+//     wherever a custom agent reads its instructions from: one file, so
+//     an agent that cannot follow references still gets all of it.
+//
+// combinedSkill() is exported: the eval solver builds its prompt from it,
+// so what the evals measure is what this installer ships.
 //
 // Unless --no-mcp is passed, project installs also register the MCP
 // server (`npx nodality mcp`) in .mcp.json (Claude Code) and
@@ -27,13 +38,57 @@ import path from "node:path";
 import readline from "node:readline";
 import { fileURLToPath } from "node:url";
 
-const SKILL_SRC = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "skills",
-  "nodality",
-  "SKILL.md",
-);
+const SKILLS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "skills");
+const ROUTER = "nodality";
+const SKILL_SRC = path.join(SKILLS_DIR, ROUTER, "SKILL.md");
+
+// Every skill folder, router first, the rest by name, so output order
+// never depends on the file system.
+export function listSkills(skillsDir = SKILLS_DIR) {
+  const names = fs
+    .readdirSync(skillsDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && fs.existsSync(path.join(skillsDir, d.name, "SKILL.md")))
+    .map((d) => d.name)
+    .sort();
+  return [ROUTER, ...names.filter((n) => n !== ROUTER)].filter((n) => names.includes(n));
+}
+
+function stripFrontmatter(text) {
+  const m = text.match(/^---\n[\s\S]*?\n---\n/);
+  return m ? text.slice(m[0].length) : text;
+}
+
+// One self-contained text: the router (frontmatter kept), then its
+// references in the order the router's index names them, then the task
+// skills without frontmatter. Each part is marked with its path, so a
+// reader of the combined file can still tell where a rule came from.
+export function combinedSkill(skillsDir = SKILLS_DIR) {
+  const routerDir = path.join(skillsDir, ROUTER);
+  const router = fs.readFileSync(path.join(routerDir, "SKILL.md"), "utf8");
+  const refsDir = path.join(routerDir, "references");
+  const onDisk = fs.existsSync(refsDir) ? fs.readdirSync(refsDir).filter((f) => f.endsWith(".md")) : [];
+  const named = [...router.matchAll(/references\/([a-z0-9-]+\.md)/g)].map((m) => m[1]);
+  const order = [...new Set([...named.filter((f) => onDisk.includes(f)), ...onDisk.sort()])];
+  const parts = [router.trimEnd()];
+  for (const f of order) {
+    parts.push(`<!-- ${ROUTER}/references/${f} -->\n\n${fs.readFileSync(path.join(refsDir, f), "utf8").trimEnd()}`);
+  }
+  for (const name of listSkills(skillsDir).slice(1)) {
+    const text = fs.readFileSync(path.join(skillsDir, name, "SKILL.md"), "utf8");
+    parts.push(`<!-- ${name}/SKILL.md -->\n\n${stripFrontmatter(text).trimEnd()}`);
+  }
+  return parts.join("\n\n---\n\n") + "\n";
+}
+
+// Copy a skill folder recursively, one installed/updated line per file.
+function placeDir(srcDir, destDir) {
+  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    const s = path.join(srcDir, entry.name);
+    const d = path.join(destDir, entry.name);
+    if (entry.isDirectory()) placeDir(s, d);
+    else if (entry.isFile()) place(s, d);
+  }
+}
 
 const MCP_ENTRY = { command: "npx", args: ["nodality", "mcp"] };
 
@@ -126,11 +181,13 @@ export async function runSkillInstall(args) {
     cursor = true;
   }
 
-  const skillText = fs.readFileSync(SKILL_SRC, "utf8");
+  const skillText = combinedSkill();
 
   if (claude) {
     const root = global ? os.homedir() : process.cwd();
-    place(SKILL_SRC, path.join(root, ".claude", "skills", "nodality", "SKILL.md"));
+    for (const name of listSkills()) {
+      placeDir(path.join(SKILLS_DIR, name), path.join(root, ".claude", "skills", name));
+    }
     if (wireMcp) {
       if (global) {
         // ~/.claude.json holds per-project state beside the MCP
@@ -153,7 +210,7 @@ export async function runSkillInstall(args) {
   }
 
   if (customDir) {
-    place(SKILL_SRC, path.join(path.resolve(customDir), "SKILL.md"));
+    place(SKILL_SRC, path.join(path.resolve(customDir), "SKILL.md"), skillText);
   }
 
   log("done. Re-run this command after upgrading nodality to refresh the skill.");

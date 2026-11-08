@@ -90,122 +90,6 @@ source declares, which is where those checks come from, and a
 what its mapper reads by name, because the mapper builds its own options
 rather than passing yours on.
 
-## HTML's names are accepted
-
-`src` and `href` both mean `url`; `options` means `items`. Write either — the
-canonical names are `url` and `items`, and that is what `get_schema` reports.
-Giving both with **different** values is reported as `CONFLICTING_ALIAS`,
-because one of them would be ignored.
-
-A table's rows may also be written as arrays with the header row first, the way
-a CSV is:
-
-```js
-{ type: "table", items: [["date", "race"], ["29/08", "Krusnoman"]] }
-```
-
-## Composites carry their content in a slot
-
-A composite is not empty scaffolding – you give it content, and **which
-key you use is part of the type**:
-
-| slot | types |
-|---|---|
-| `items` | `cards`, `nav`, `sideNav`, `table`, `ulist`, `dropdown`, `picker`, `radio` |
-| `children` | `row`, `form`, `stack`, `wrap` |
-
-And **what an entry may be depends on the type**, because an element spec is
-not accepted everywhere:
-
-| type | an entry is |
-|---|---|
-| `cards` | `{ title, link, img }`, or an **array** of element specs |
-| `nav`, `sideNav` | `{ title, link }`, or a string |
-| `table` | `{ title, link }` / `{ text, url }`, a `[value, text]` pair, or an element spec |
-| `ulist` | an element spec, or a string |
-| `dropdown`, `picker` | a string, or a `[value, text]` pair |
-| `radio` | a string |
-
-Writing `items: [{ type: "h2", text: "…" }]` on `cards` or `nav` is the one
-mistake worth naming, because it is well-formed and does nothing: `cards`
-renders an empty card and `nav` drops the entry. Wrap it — `items: [[{ type:
-"h2", … }]]` — and `cards` builds a card containing it. `validate_nodes`
-reports this as `WRONG_ITEM_SHAPE` and hands back the corrected entry.
-
-```js
-{ type: "cards", items: [                       // shorthand
-    { img: "a.jpg", title: "Alpha", link: "#a" },
-    [{ type: "h2", text: "Beta" }],             // or nested specs
-]}
-```
-
-`items` takes either shorthand entries or a nested list of element
-specs, and one array may mix both. Use nested specs when the cards
-differ from one another – that is the case where a data format wins by
-the widest margin, and where writing it as code costs *more* than
-hand-written JSX.
-
-**Declaring content in the wrong slot renders the placeholders.** A
-composite given nothing falls back to sample content, so
-`{type:"table", children:[…]}` produces a plausible-looking table of
-someone else's data rather than an error. `validate_nodes` reports this
-as `WRONG_CONTENT_SLOT` and names the slot that carries content – which
-is another reason step 3 is not optional. `get_schema` names it too.
-
-## The four node families
-
-Told apart by the shape of `op`:
-
-| Family | Shape | Example |
-|---|---|---|
-| Design | `op` is an object, or one of seven shorthand strings | `{ op: { name: "shadow" }, target: ["card"] }` |
-| Raster | `op` is any other string | `{ op: "dither", target: ["hero"], levels: 6 }` |
-| Morph | `op: "morph"` | one transition, or a whole graph via `chain` |
-| Agent surface | `op: "agent-surface"` | exposes the page to AI agents as tools |
-
-**The design family has two shapes.** The object form takes its options
-inside `op`. The seven shorthand names – `blast`, `gradient`, `shadow`,
-`filter`, `animation`, `transform`, `span` – expand against a table of
-defaults, so `{ op: "gradient" }` is a whole valid node. Only the
-shorthand accepts `gradient`, `filter`, `color` and `width` as top-level
-keys, because its expansion lifts them into the op it substitutes. Any
-other string is a raster op.
-
-Rules that are not obvious from the schema:
-
-- **Raster ops compose.** Several raster nodes aimed at the same element
-  become ONE shader pass, applied in array order. Order matters; do not
-  "fix" a wrong-looking result by duplicating nodes.
-- **A morph `chain` is a list of EDGES, not keyframes.** Edge two is
-  reachable *from* the state edge one lands on – a landed view becomes a
-  source. Node-level settings (`effect`, `duration`) are defaults each
-  edge may override. `chain` wins outright: node-level `from`/`to` are
-  ignored beside it. `back: true` unwinds the path the user actually
-  took, not a lookup of a reverse edge.
-- **`agent-surface` is opt-in and allow-listed.** No form is exposed
-  unless named in `forms`. Do not add it unless the user asks for an
-  agent-operable page.
-- **`arrange` switches a group's arrangement inside a width range.**
-  `{ op: { name: "arrange", mode: "column" }, target: ["hero"], range: [0, 640] }`
-  stacks a `row` or `cards` grid at 0–640 px, and `mode: "row"` keeps it
-  side by side; on a `nav`, `mode: "collapse"` shows the menu button up to
-  the range's end and `mode: "expand"` the full bar. Ranges are inclusive
-  CSS px. Do not guess them: `nodality/responsive`'s `respond()` measures
-  the page in a browser and emits one node per interval, covering every
-  width, switching exactly where a group stops fitting (experimental). Of
-  two overlapping ranges on one element, the first declared wins.
-
-A complete navigation graph is one node:
-
-```js
-{ op: "morph", effect: "t-vhs", duration: 620, back: true,
-  chain: [
-    { from: "home",   to: { Work: "work", Contact: "contact" } },
-    { from: "work",   to: { Aurora: "aurora" },   effect: "t-split" },
-    { from: "aurora", to: { Contact: "contact" }, effect: "t-bloom" },
-  ] }
-```
-
 ## House rules – violations are bugs even when the page looks right
 
 - **Never touch the DOM to style or fix a Nodality page.** No
@@ -247,130 +131,30 @@ A complete navigation graph is one node:
   `npx nodality compile src/<file>.js` emits the same code as a
   companion file without rendering anything.
 
-## The imperative layer – direct instantiation
+## Where to read more
 
-The component classes behind E are public API, exported from the package
-root. An agent can instantiate them directly instead of writing the
-pair:
+Read only what the task needs. Each file is short and stands alone.
 
-```js
-import { Text, Link, FlexRow } from "nodality";
+| When you are | Read |
+|---|---|
+| filling a composite (`cards`, `nav`, `table`, `row`, …) or using HTML names like `src`, `href`, `options` | `references/content-and-composites.md` |
+| writing nodes: design, raster, morph, agent surface, `arrange` | `references/node-families.md` |
+| adding a few elements to existing code with `new Text()` and `.render()` | `references/imperative.md` |
+| building a site with shared nav and footer (`.defs()`, `$ref`) | `references/multi-page.md` |
+| changing a page that is already rendered | `references/editing.md` |
+| checking a page before you call it done | `references/verifying.md` |
+| prerendering a static site | `references/prerender.md` |
 
-new Text("Hello").set({ fluidc: "S3", color: "#f97316" }).render("#mount");
-```
+Four task skills sit beside this one and carry the step-by-step procedure:
 
-This is exactly the code the codegen panel emits, so the two forms are
-equivalent and interchangeable: `.set()` returns the instance, and
-`.render(selector)` mounts it. Reach for it when adding a few elements
-to an existing page or adapting generated code; prefer the (E, N) pair
-for whole pages, because only the pair gets `validate_nodes`, morphs,
-prerendering, and the agent surface – imperative code is not validated.
-
-One naming caution: `Text` and `Image` collide with DOM constructor
-names. Always use the module import; on a page using the CDN globals,
-never assume `window.Text` / `window.Image` are still the DOM's own.
-
-## Building more than one page
-
-Declare shared chrome once and reference it. **`.defs()` must come before
-`.add()`** — `add` renders as it goes, so definitions arriving later cannot be
-used, and the wrong order is refused with a message saying so.
-
-```js
-const shared = {                      // one file, imported by every page
-  nav:    { type: "nav", items: [{ title: "Home", link: "/" }] },
-  footer: { type: "wrap", children: [{ type: "p", text: "Acme" }] },
-};
-
-new Des().defs(shared).nodes(N)
-  .add([{ $ref: "nav" }, { type: "h1", text: "Pricing" }, { $ref: "footer" }])
-  .set({ mount: "#mount" });
-```
-
-Keys written beside a reference **override** the definition, which is how one
-nav serves every page:
-
-```js
-{ $ref: "nav", id: "topnav" }                       // adds an id
-{ $ref: "nav", items: [{ title: "Docs", link: "/d" }] }   // replaces the list
-```
-
-The merge is shallow: an override replaces a slot, it does not extend it.
-
-Worth it from **two pages up**: on a single page a reference costs more than
-writing the thing, so do not reach for it before then. On a real site's nav and
-footer it is 1.7x at four pages and about 2x at ten — measured, because 61% of
-every token in that site was the same chrome repeated.
-
-A name with no definition is refused at render and reported by
-`validate_nodes` as `DANGLING_REF` with a did-you-mean, so pass `defs` as the
-third argument when you validate a page that uses references.
-
-## Editing a page that already exists
-
-Editing is the common case in production, and it does not mean
-regenerating. Read the page back to data, change the one thing, render
-again:
-
-```js
-import { parseHTML } from "nodality/parse";
-
-const spec = parseHTML(html);      // or the parse_html MCP tool
-spec[0].items[1].title = "Gamma";  // change one card
-new Des().nodes([]).add(spec).set({ mount: "#mount", annotate: true });
-```
-
-**Render with `{annotate: true}` if the page will ever be edited.** It
-writes each descriptor onto the node it produced, and that is what makes
-the read exact – every type, every option, nothing inferred. It is
-opt-in and off by default because it puts attributes in the output.
-
-Without annotation only what the tag settles comes back: headings,
-paragraphs, links, images, lists. Thirteen composite types render as a
-bare `<div>` with nothing to tell them apart, so those are reported
-**unrecovered rather than guessed** – a wrong guess would silently
-become a different page. Use `parseReport` (or the `parse_html` tool)
-rather than `parseHTML` when you need to know which you got:
-
-```js
-const { ok, exact, spec, unrecovered, errors } = parseReport(html);
-```
-
-`ok` is false if anything was unrecovered *or* the recovered spec fails
-validation. Check it before re-rendering: a descriptor read out of a
-document is untrusted input.
-
-## Verifying your work
-
-- **`check_page` works without the MCP too:** `npx nodality check
-  upload/*.html --base=http://localhost:4000/` (or `import { checkPage }
-  from "nodality/check"`). Pass `--base` for a prerendered site, or its fonts
-  and `/assets/` do not load and text is measured in a fallback face. It exits
-  1 on findings, and on a shop page reports `LOADING_LAYOUT_SHIFT` when the
-  product's loading copy sits somewhere other than the loaded element.
-- **Read `FAINT_TEXT` from `check_page`.** It reports small text that passes
-  WCAG and still reads faint (APCA), the usual case on mid-tone backgrounds.
-  Fix with weight, a lighter or darker ground, or size; not by ignoring it.
-- **Verify a morph by progress, not by DOM presence.** The destination
-  view is inserted before capture begins, so "the element exists" passes
-  even when the transition hangs. Assert that the animation *progressed*
-  (or landed state + painted output), and unwind with `back`/`go_back`
-  to check the reverse path.
-- **Add a negative control.** When you write a check, break the thing
-  once and confirm the check fails; a check that cannot fail is not a
-  check.
-- **Prerender caveat:** the jsdom build silently drops CSS `min()` /
-  `clamp()`. If the design depends on them, verify in a real browser,
-  not in the preview file.
-
-## Static site generation
-
-`npx nodality prerender` interprets the same pair at build time: it
-emits crawlable HTML, a sitemap, `hreflang` alternates, and JSON-LD. The
-browser then re-reads the pair and rebuilds on top – the pair is
-*shipped, not consumed*. `jsdom` must be present in the project
-(deliberately not bundled). Builds are deterministic: the same pair
-yields byte-identical output, so diffing two builds is a valid check.
+- **`nodality-new-page`**: building a page from a brief, in small validated
+  steps.
+- **`nodality-edit-page`**: changing one thing on a rendered page without
+  regenerating it.
+- **`nodality-current`**: finding the element the person means by "this":
+  what they picked in `npx nodality dev`, read fresh every turn.
+- **`nodality-apply-comments`**: applying the notes they left on the page
+  in `npx nodality dev`, by element id, then resolving them.
 
 ## When NOT to use Nodality
 
