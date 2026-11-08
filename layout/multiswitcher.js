@@ -83,7 +83,7 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
     
       // Set up the resize listener to update views dynamically
       this.resizeListener = this.applyView.bind(this);
-      window.addEventListener("resize", this.resizeListener);
+      this._on(window, "resize", this.resizeListener);
     
 
       if (val !== undefined){ // 18/01/2025 13:10:11 Yes!!!
@@ -179,10 +179,8 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
   }
 
   destroy() {
-    if (this.resizeListener) {
-      window.removeEventListener("resize", this.resizeListener);
-      this.resizeListener = null;
-    }
+    super.destroy();
+    this.resizeListener = null;
     if (this.internalDiv && this.container) {
       this.container.removeChild(this.internalDiv);
     }

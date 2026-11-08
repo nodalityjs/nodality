@@ -208,6 +208,9 @@ function styleOptionsOf(el) {
 class Animator {
     
     constructor(){
+         // While a Des builds a page it collects every component made on its
+         // behalf, nested ones included, so Des.destroy() can release them.
+         if (Animator._owner) Animator._owner.push(this);
          this.state = {
            isExpanded: false,
              isMovedUp: false,
@@ -779,6 +782,7 @@ _setupResponsiveManager() {
 
     // 2. Define the reactor function
     const react = () => {
+        if (!this._responsiveTasks) return; // destroyed before the deferred run
         this._responsiveTasks.forEach(taskFn => {
             taskFn();
         });
@@ -794,9 +798,10 @@ _setupResponsiveManager() {
     // 4. Trigger Execution (ALWAYS)
     // We run this every time this function is called (by resprop or respad)
     // to ensure the newly added task is executed immediately.
-    setTimeout(() => {
+    const timer = setTimeout(() => {
         react();
     }, 0);
+    this._track(() => clearTimeout(timer));
 }
 
 
@@ -1910,6 +1915,16 @@ Object.assign(overlay.style, {
     this.res = this.resCopy;
     this.res.textContent = ""; // clear current content
 
+    // The parts are components of their own. A rebuild replaces them, so
+    // release the previous set; destroy() releases the last one.
+    if (this._spanParts) this._spanParts.splice(0).forEach((p) => p.destroy());
+    else { this._spanParts = []; this._track(() => this._spanParts.splice(0).forEach((p) => p.destroy())); }
+    const buildPart = (text, setupOpts, opts) => {
+        const c = new this.constructor(text);
+        this._spanParts.push(c);
+        return c.setup(setupOpts).set(opts).render();
+    };
+
     if (this.options.span) {
         let spansArray = Array.isArray(this.options.span)
             ? this.options.span
@@ -1928,21 +1943,21 @@ Object.assign(overlay.style, {
                         const index = fullText.indexOf(partText, cursor);
                         if (index > cursor) {
                             const plainText = fullText.substring(cursor, index);
-                            this.res.appendChild(new this.constructor(plainText).setup({type: "span", id: opts.id, animation: opts.animation}).set({}).render());
+                            this.res.appendChild(buildPart(plainText, {type: "span", id: opts.id, animation: opts.animation}, {}));
                         }
                         cursor = index + partText.length;
                     }
 
                     // 2️⃣ Append the styled span part
                    
-                    let spanEl = new this.constructor(partText).setup({type: "span", id: opts.id, animation: opts.animation}).set(opts).render();
+                    let spanEl = buildPart(partText, {type: "span", id: opts.id, animation: opts.animation}, opts);
                     this.res.appendChild(spanEl);
                 });
 
                 // 3️⃣ Append remaining text after the last span
                 if (cursor < fullText.length) {
                     const remainingText = fullText.substring(cursor);
-                    this.res.appendChild(new this.constructor(remainingText).setup({type: "span"}).set({}).render());
+                    this.res.appendChild(buildPart(remainingText, {type: "span"}, {}));
                 }
             }
         });
@@ -1950,9 +1965,16 @@ Object.assign(overlay.style, {
 
 } else {
     // fallback to full text
-    let t = new this.constructor(this.prevText).set({}).render();
+    // A copy built to rebuild the text. Kept only when appended, and then
+    // owned by this component so destroy() releases it; otherwise released
+    // at once — it subscribed to Theme and attached listeners on the way.
+    const copy = new this.constructor(this.prevText);
+    let t = copy.set({}).render();
     if (this.prevText && this.prevText.length > 0 && qban) {
         this.res.appendChild(t);
+        this._track(() => copy.destroy());
+    } else {
+        copy.destroy();
     }
 }
 

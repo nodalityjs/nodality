@@ -67,7 +67,7 @@ class Progress extends Animator {
 		}
 		
 		
-		window.addEventListener("resize", adjust);
+		this._on(window, "resize", adjust);
 		adjust();
 		return this;
 	}

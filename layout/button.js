@@ -289,7 +289,7 @@ this.options = obj;
 		}
 
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
     
@@ -305,7 +305,7 @@ this.options = obj;
 		}
 
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
     

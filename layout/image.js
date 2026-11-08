@@ -591,7 +591,7 @@ if (mqa.matches){
 
 		check();
 
-		window.addEventListener("resize", check);
+		this._on(window, "resize", check);
 		
 
 		return this;

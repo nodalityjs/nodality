@@ -315,7 +315,7 @@ let stringified = JSON.stringify(options.borderObj);
 		}
 
 		toCol();
-		window.addEventListener("resize", toCol);
+		this._on(window, "resize", toCol);
 	}
 	
 
@@ -594,7 +594,7 @@ let stringified = JSON.stringify(options.borderObj);
 		}
 		
 		
-		window.addEventListener("resize", adjust);
+		this._on(window, "resize", adjust);
 		
 		
 		return this; // :D

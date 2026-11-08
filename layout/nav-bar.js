@@ -302,7 +302,7 @@ adjust(w) {
 	}
 
 
-	window.addEventListener("resize", adjust);
+	this._on(window, "resize", adjust);
 	return this;
 }
 	

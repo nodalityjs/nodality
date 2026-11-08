@@ -173,7 +173,7 @@ class FlexGrid extends Animator {
 		}
 
 		toCol();
-		window.addEventListener("resize", toCol);
+		this._on(window, "resize", toCol);
 	}
 }
 	
@@ -244,7 +244,7 @@ if (el != undefined){
 		}
 	
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
 	

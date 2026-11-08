@@ -659,7 +659,7 @@ if (ft.length > 0){
 		}
 
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
 	
@@ -699,7 +699,7 @@ if (ft.length > 0){
 		
 	
 		
-		window.addEventListener("resize", res);
+		this._on(window, "resize", res);
 		
 		
 		
