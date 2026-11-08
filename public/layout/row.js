@@ -35,7 +35,7 @@ class Row extends Animator {
 		}
 
 		toCol();
-		window.addEventListener("resize", toCol);
+		this._on(window, "resize", toCol);
 	
 
 		
@@ -169,7 +169,7 @@ class Row extends Animator {
 		}
 		
 		
-		window.addEventListener("resize", adjust);
+		this._on(window, "resize", adjust);
 		
 		
 		

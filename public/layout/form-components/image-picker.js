@@ -176,7 +176,7 @@ class FilePickera extends Animator {
 		}
 
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
     

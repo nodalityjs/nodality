@@ -25,9 +25,10 @@ class Dropdown extends Animator {
         this.contentWrap.style.width = "250px";
         this.contentWrap.style.display = "none";
         this.contentWrap.style.zIndex = 99999;
-        document.addEventListener("DOMContentLoaded", () => {
+        this._on(document, "DOMContentLoaded", () => {
             document.body.appendChild(this.contentWrap);
         });
+        this._track(() => this.contentWrap.remove());
         // Fallback if DOM is already loaded
         if (document.body) {
             document.body.appendChild(this.contentWrap);
@@ -94,8 +95,8 @@ class Dropdown extends Animator {
         const maybeReposition = () => {
           if (this.contentWrap.style.display !== "none") positionContent();
         };
-        window.addEventListener("resize", maybeReposition);
-        window.addEventListener("scroll", maybeReposition, true);
+        this._on(window, "resize", maybeReposition);
+        this._on(window, "scroll", maybeReposition, true);
 
         if (obj.behaviour) {
   const ev = obj.behaviour;
@@ -131,7 +132,7 @@ class Dropdown extends Animator {
         positionContent();
       }
     });
-    document.addEventListener("click", (e) => {
+    this._on(document, "click", (e) => {
       if (this.contentWrap.style.display === "block"
           && !this.contentWrap.contains(e.target)
           && !this.toggleWrap.contains(e.target)) {

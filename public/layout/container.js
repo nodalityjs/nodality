@@ -406,7 +406,7 @@ code = `${pad}new Wrapper()`;
 		return this;
 	}
 
-	window.addEventListener("resize", react);
+	this._on(window, "resize", react);
 	react();
 }
 
@@ -446,7 +446,7 @@ code = `${pad}new Wrapper()`;
 		}
 
 		match();
-		window.addEventListener("resize", match);
+		this._on(window, "resize", match);
 		// last 	
 	}
 
@@ -729,7 +729,7 @@ apply(arr) {
 		}
 	
 	goThroughStyles();
-	window.addEventListener("resize", goThroughStyles); 
+	this._on(window, "resize", goThroughStyles); 
 	return this;
 }
     

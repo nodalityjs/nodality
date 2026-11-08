@@ -88,6 +88,13 @@ class Des {
         this.options = [];
         this.code = [];
         this.ready2Render = [];
+        // Per element, in order: the instance the mapper built (when it
+        // returned one) and the code string(s) it emitted. The render core
+        // mounts the instance; code is run only where there is none.
+        this._built = [];
+        // Every component built for this page (see Animator._owner), so
+        // destroy() can release them all, nested ones included.
+        this._owned = [];
         this.stor = {
             text:
             {
@@ -436,6 +443,47 @@ new Text("row.").set({
     }
 
     add(arr) {
+        // Under `nodality dev`, components the mapper builds here are
+        // addressed by id, not by the source line of this call.
+        const devFlag = typeof globalThis !== "undefined" && globalThis.__NODALITY_DEV__ && typeof globalThis.__NODALITY_DEV__ === "object"
+            ? globalThis.__NODALITY_DEV__ : null;
+        if (devFlag) devFlag.inDes = true;
+        const prevOwner = Animator._owner;
+        Animator._owner = this._owned;
+        try {
+            return this._add(arr);
+        } finally {
+            Animator._owner = prevOwner;
+            if (devFlag) devFlag.inDes = false;
+        }
+    }
+
+    /**
+     * Release everything this page attached: every component built for it
+     * (Theme subscriptions, tracked listeners, raster pipelines and their
+     * WebGL contexts, its node), the morph controllers, the agent surface,
+     * the code panel and the dev registration. Call it before rendering the
+     * same mount again. Safe to call twice.
+     */
+    destroy() {
+        for (const c of this._owned.splice(0).reverse()) {
+            try { if (c && typeof c.destroy === "function") c.destroy(); } catch (e) { /* keep releasing the rest */ }
+        }
+        for (const m of [].concat(this._morphs || [])) {
+            try { if (m && typeof m.destroy === "function") m.destroy(); } catch (e) { /* already gone */ }
+        }
+        this._morphs = null;
+        try { if (this._agentSurface && typeof this._agentSurface.destroy === "function") this._agentSurface.destroy(); } catch (e) { /* already gone */ }
+        this._agentSurface = null;
+        for (const n of [this._codeEl, this._preEl]) if (n && n.parentNode) n.parentNode.removeChild(n);
+        const dev = typeof globalThis !== "undefined" && globalThis.__NODALITY_DEV__;
+        if (dev && Array.isArray(dev.pages)) dev.pages = dev.pages.filter((p) => !this._devEntry || p !== this._devEntry);
+        this._built = [];
+        this.ready2Render = [];
+        return this;
+    }
+
+    _add(arr) {
 
         // Kept for phase T: a morph node resolves `from`/`to` ids against
         // the rendered children BY POSITION, so it needs the descriptor
@@ -521,6 +569,8 @@ customOptions.forEach(item => {
         for (var i = 0; i < arr.length; i++) {
             let el = arr[i];
             let ela = null;
+            const built0 = this.ready2Render.length;
+            const code0 = this.code.length;
 
             let ops = ["blast", "gradient", "shadow", "filter", "animation", "transform", "span"];
             let replacementObjects = [
@@ -1242,7 +1292,14 @@ new Slider(texts, null, { tintColor: "#e74c3c", inactiveColor: "#ccc" })
                     storage: this.stor
                 });
 
-                this.code.push(ela);
+                // An instance carrying its source since the render core: the
+                // source goes to the code panel, the instance is mounted.
+                if (ela && typeof ela === "object" && typeof ela.toCode === "function") {
+                    this.code.push([].concat(ela.toCode()).join(""));
+                    this.ready2Render.push(ela);
+                } else {
+                    this.code.push(ela);
+                }
             } else if (el.type === "wrap") { // add blast and background here
                 /*
   const ft = customOptions.filter(l => l.op === "gradient")[0];
@@ -1345,8 +1402,18 @@ new Slider(texts, null, { tintColor: "#e74c3c", inactiveColor: "#ccc" })
                 }
                //.join("") is important :)
                 this.ready2Render.push(ela);
-                ela = eval(ela).render();
+                // Every mapper returns an instance; nothing here is evaluated.
+                ela = ela.render();
             } // 20:20:26
+            {
+                const last = this.ready2Render.length > built0 ? this.ready2Render[this.ready2Render.length - 1] : null;
+                // table and row: the mapper returns an instance, but these
+                // branches never listed it in ready2Render.
+                const unlisted = !last && ela && typeof ela === "object" && typeof ela.render === "function"
+                    && typeof ela.toCode === "function" && ["table", "row"].includes(el.type) ? ela : null;
+                const instance = last && typeof last === "object" && typeof last.render === "function" ? last : unlisted;
+                this._built.push({ instance, codeCount: this.code.length - code0 });
+            }
         } // LARGE FOR I = 0 CYCLE END
 
         return this;
@@ -1473,10 +1540,29 @@ const components = {
   ...libs,
 };
 
-        for (var i = 0; i < this.code.length; i++) {
-            let sub = this.code[i];
-            new Function(...Object.keys(components), sub)(...Object.values(components));
-         //   eval(`${sub}`);
+        // Under `nodality dev`, components built from the pair are addressed
+        // by id; the flag stops them recording this line as their source.
+        const devFlag = typeof globalThis !== "undefined" && globalThis.__NODALITY_DEV__ && typeof globalThis.__NODALITY_DEV__ === "object"
+            ? globalThis.__NODALITY_DEV__ : null;
+        if (devFlag) devFlag.inDes = true;
+        // Only the legacy demo types (slider, hslider, grid, modal,
+        // responsive — not in the vocabulary, rejected by the validator) still
+        // emit source with no instance. Their source is fixed text with no
+        // page data in it; nothing from E or N is ever executed.
+        const runCode = (sub) => new Function(...Object.keys(components), sub)(...Object.values(components));
+        const prevOwner = Animator._owner;
+        Animator._owner = this._owned;
+        try {
+            // Render core: mount the component the mapper built in add().
+            const target = (obj && obj.mount) || "#mount";
+            let c = 0;
+            for (const b of this._built) {
+                if (b.instance) { b.instance.render(target); c += b.codeCount; }
+                else for (let k = 0; k < b.codeCount; k++, c++) runCode(this.code[c]);
+            }
+        } finally {
+            Animator._owner = prevOwner;
+            if (devFlag) devFlag.inDes = false;
         }
 
         // Morph nodes run LAST, and they run here rather than in the
@@ -1519,14 +1605,34 @@ const components = {
         // Opt-in, and it must stay that way. This writes attributes into the
         // output, and every page that exists renders byte for byte as it
         // always did precisely because nobody asked for them.
+        // `nodality dev` defines __NODALITY_DEV__ before any page script runs;
+        // nothing else does, so a built or deployed page never enters here.
+        const dev = typeof globalThis !== "undefined" && globalThis.__NODALITY_DEV__
+            && Array.isArray(globalThis.__NODALITY_DEV__.pages) ? globalThis.__NODALITY_DEV__ : null;
         try {
-            if (obj && obj.annotate) {
+            if ((obj && obj.annotate) || (dev && dev.annotate)) {
                 annotateRoundTrip(
                     document.querySelector((obj && obj.mount) || "#mount"),
                     this._elements);
             }
         } catch (e) {
             console.warn("[nodality] round-trip annotation skipped:", e);
+        }
+
+        // The dev inspector needs the pair itself, not just the DOM: which
+        // nodes target the picked element, and which width ranges are in
+        // force for it, are facts of N that the rendered page does not show.
+        if (dev) {
+            try {
+                const entry = { mount: (obj && obj.mount) || "#mount", elements: this._elements, nodes: this.protoOptions };
+                this._devEntry = entry;
+                dev.pages.push(entry);
+                if (typeof window !== "undefined" && typeof window.dispatchEvent === "function" && typeof CustomEvent === "function") {
+                    window.dispatchEvent(new CustomEvent("nodality:rendered", { detail: entry }));
+                }
+            } catch (e) {
+                console.warn("[nodality] dev registration skipped:", e);
+            }
         }
     }
 }

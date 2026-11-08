@@ -63,7 +63,7 @@ class Switcher extends Animator {
 
   innerSwitch();
 
-  window.addEventListener("resize", innerSwitch);
+  this._on(window, "resize", innerSwitch);
   // 17:30:22 Nice
 
 

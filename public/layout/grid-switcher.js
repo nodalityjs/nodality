@@ -70,7 +70,7 @@ for (var i = 0; i < arr.length - 1; i++){
 }
       }
       reacta();
-     window.addEventListener("resize", reacta);
+     this._on(window, "resize", reacta);
      return this;
     }
   
@@ -153,7 +153,7 @@ for (var i = 0; i < arr.length - 1; i++){
           }
       }
       innerSwitch();
-      window.addEventListener("resize", innerSwitch);
+      this._on(window, "resize", innerSwitch);
       return this;
   }
   

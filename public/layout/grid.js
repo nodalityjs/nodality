@@ -123,7 +123,7 @@ class Grid extends Animator {
 
 		
 		
-		window.addEventListener("resize", adjust);
+		this._on(window, "resize", adjust);
 		
 		
 		return this;

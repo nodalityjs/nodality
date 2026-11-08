@@ -915,7 +915,7 @@ class UINavBar extends Animator {
               }
         }
 
-        window.addEventListener("resize", () => method());
+        this._on(window, "resize", () => method());
         method();
 
         if (div) {

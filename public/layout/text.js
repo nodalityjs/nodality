@@ -562,7 +562,7 @@ addIcon(obj){
 		}
 
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
 	
@@ -628,7 +628,7 @@ addIcon(obj){
 	
 		
 		
-		window.addEventListener("resize", adapt);
+		this._on(window, "resize", adapt);
 		
 		
 		
@@ -650,7 +650,7 @@ addIcon(obj){
 		}
 
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
     
@@ -665,7 +665,7 @@ addIcon(obj){
 		}
 
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
 	
@@ -681,7 +681,7 @@ addIcon(obj){
 		}
 
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
 	
@@ -710,7 +710,7 @@ addIcon(obj){
 
 		}
 		adj();
-		window.addEventListener("resize", adj);
+		this._on(window, "resize", adj);
 		return this;
 	}
 	
@@ -881,7 +881,7 @@ addIcon(obj){
 	// setFirst
 	
 	goThroughStyles();
-	window.addEventListener("resize", goThroughStyles);  // never use "on" here. Will get overrwritten !
+	this._on(window, "resize", goThroughStyles);  // a listener, never window.onresize: that slot gets overwritten
 	return this;
 }
 	

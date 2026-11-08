@@ -5208,6 +5208,14 @@ function applyRasterPipeline(el, rasterNodes, opts) {
             while (sourceEl !== el && sourceEl.firstChild) el.appendChild(sourceEl.firstChild);
             showHostInk();
             el.style.visibility = "";
+            // Release the context itself, not only what it holds. Browsers
+            // keep about 16 live per page and kill the oldest past that, which
+            // blanked effects on pages that re-render (27 created, 11 killed
+            // over 9 renders of 3 elements, measured 8 Nov 2026).
+            try {
+                const lose = gl.getExtension("WEBGL_lose_context");
+                if (lose) lose.loseContext();
+            } catch (e) { /* context already lost */ }
             canvas.remove();
         },
     });

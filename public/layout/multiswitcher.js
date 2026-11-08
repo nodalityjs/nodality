@@ -64,7 +64,14 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
 
 
     render(val) {
-      //alert(val)
+      // A second render mounts the box the first one built. Building a new
+      // box each call left it empty: applyView() saw its view as already
+      // current and appended nothing, and every call added another resize
+      // listener. Des renders a component once and mounts it later.
+      if (this.internalDiv) {
+        if (val !== undefined) document.querySelector(val).appendChild(this.internalDiv);
+        return this.internalDiv;
+      }
       // Create an internal div for switching content
       this.internalDiv = document.createElement("div");
       this.res = this.internalDiv;
@@ -76,7 +83,7 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
     
       // Set up the resize listener to update views dynamically
       this.resizeListener = this.applyView.bind(this);
-      window.addEventListener("resize", this.resizeListener);
+      this._on(window, "resize", this.resizeListener);
     
 
       if (val !== undefined){ // 18/01/2025 13:10:11 Yes!!!
@@ -172,10 +179,8 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
   }
 
   destroy() {
-    if (this.resizeListener) {
-      window.removeEventListener("resize", this.resizeListener);
-      this.resizeListener = null;
-    }
+    super.destroy();
+    this.resizeListener = null;
     if (this.internalDiv && this.container) {
       this.container.removeChild(this.internalDiv);
     }

@@ -497,7 +497,10 @@ let obj = options;
 	setup() {
 		let img = document.createElement("img");
 	    img.style.width = "100%";
-		img.src = this.url;
+		// `new Image().set({ url })` reaches here with no constructor URL, and
+		// `img.src = undefined` made the browser fetch "/undefined" (a 404 on
+		// every such page) before set() applied the real `url` a line later.
+		if (this.url != null && this.url !== "") img.src = this.url;
 		this.res = img;
 
 		
@@ -588,7 +591,7 @@ if (mqa.matches){
 
 		check();
 
-		window.addEventListener("resize", check);
+		this._on(window, "resize", check);
 		
 
 		return this;
