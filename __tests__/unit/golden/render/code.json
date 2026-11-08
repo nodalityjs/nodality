@@ -1,0 +1,28 @@
+{
+ "none@390": "<pre><code style=\"background: rgb(24, 35, 46); display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "none@1280": "<pre><code style=\"background: rgb(24, 35, 46); display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "gradient@390": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; position: relative; background: linear-gradient(90deg, rgb(0, 0, 0), rgb(255, 255, 255));\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "gradient@1280": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; position: relative; background: linear-gradient(90deg, rgb(0, 0, 0), rgb(255, 255, 255));\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "shadow@390": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; position: relative; box-shadow: 3px 3px 3px gray;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "shadow@1280": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; position: relative; box-shadow: 3px 3px 3px gray;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "filter@390": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; filter: grayscale(0.7);\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "filter@1280": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; filter: grayscale(0.7);\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "animation@390": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "animation@1280": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "transform@390": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "transform@1280": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "blast@390": "<pre><code style=\"display: inline-block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; border: 1px solid orange; box-sizing: border-box; transform-origin: center;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "blast@1280": "<pre><code style=\"display: inline-block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; border: 1px solid orange; box-sizing: border-box; transform-origin: center;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "span@390": {
+  "error": "(intermediate value).setup is not a function"
+ },
+ "span@1280": {
+  "error": "(intermediate value).setup is not a function"
+ },
+ "rangedGradient@390": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "rangedGradient@1280": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; position: relative; background: linear-gradient(90deg, rgb(255, 0, 0), rgb(0, 0, 255));\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "raster@390": "<pre><code style=\"background: rgb(24, 35, 46); display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "raster@1280": "<pre><code style=\"background: rgb(24, 35, 46); display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "arrange@390": "<pre><code style=\"background: rgb(24, 35, 46); display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
+ "arrange@1280": "<pre><code style=\"background: rgb(24, 35, 46); display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>"
+}

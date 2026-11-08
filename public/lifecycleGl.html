@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nodality — WebGL context lifecycle</title>
+<script>
+  // Count every WebGL context the page creates, every one released on purpose
+  // (WEBGL_lose_context.loseContext) and every one the browser takes back
+  // (webglcontextlost after the per-page limit). Installed before the library.
+  window.__gl = { created: 0, released: 0, forciblyLost: 0 };
+  const getContext = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+    const ctx = getContext.call(this, type, ...rest);
+    if (ctx && /^(webgl|webgl2|experimental-webgl)$/.test(type) && !this.__counted) {
+      this.__counted = true;
+      window.__gl.created++;
+      this.addEventListener("webglcontextlost", () => { if (!this.__released) window.__gl.forciblyLost++; });
+      const ext = ctx.getExtension && ctx.getExtension("WEBGL_lose_context");
+      if (ext) {
+        const lose = ext.loseContext.bind(ext);
+        ext.loseContext = () => { this.__released = true; window.__gl.released++; return lose(); };
+      }
+    }
+    return ctx;
+  };
+</script>
+</head>
+<body>
+<div id="mount"></div>
+<script type="module">
+  import { Des } from '../lib/designer.js';
+  const E = [1, 2, 3].map((i) => ({ id: `h${i}`, type: "h2", text: `Heading ${i}` }));
+  const N = E.map((e) => ({ op: "dither", target: [e.id], levels: 4 }));
+  let des = null;
+  // One render, or a re-render: what a page that rebuilds its view does.
+  window.__render = () => {
+    if (des && typeof des.destroy === "function") des.destroy();
+    document.getElementById("mount").innerHTML = "";
+    des = new Des().nodes(N).add(E);
+    des.set({ mount: "#mount", code: false, elements: false });
+  };
+  window.__render();
+  window.__ready = true;
+</script>
+</body>
+</html>

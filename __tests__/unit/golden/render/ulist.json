@@ -1,0 +1,38 @@
+{
+ "none@390": "<ul style=\"padding: 0px; margin: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "none@1280": "<ul style=\"padding: 0px; margin: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "gradient@390": {
+  "error": "this.getType is not a function"
+ },
+ "gradient@1280": {
+  "error": "this.getType is not a function"
+ },
+ "shadow@390": {
+  "error": "this.getType is not a function"
+ },
+ "shadow@1280": {
+  "error": "this.getType is not a function"
+ },
+ "filter@390": "<ul style=\"padding: 0px; font-family: Arial; filter: grayscale(0.7);\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "filter@1280": "<ul style=\"padding: 0px; font-family: Arial; filter: grayscale(0.7);\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "animation@390": "<ul style=\"padding: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "animation@1280": "<ul style=\"padding: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "transform@390": "<ul style=\"padding: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "transform@1280": "<ul style=\"padding: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "blast@390": {
+  "error": "this.getType is not a function"
+ },
+ "blast@1280": {
+  "error": "this.getType is not a function"
+ },
+ "span@390": "<ul style=\"padding: 0px; margin: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "span@1280": "<ul style=\"padding: 0px; margin: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "rangedGradient@390": "<ul style=\"padding: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "rangedGradient@1280": {
+  "error": "this.getType is not a function"
+ },
+ "raster@390": "<ul style=\"padding: 0px; margin: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "raster@1280": "<ul style=\"padding: 0px; margin: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "arrange@390": "<ul style=\"padding: 0px; margin: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>",
+ "arrange@1280": "<ul style=\"padding: 0px; margin: 0px; font-family: Arial;\" id=\"probe\"><p style=\"padding: 0px; margin: 0px;\">One</p><p style=\"padding: 0px; margin: 0px;\">Two</p></ul>"
+}
