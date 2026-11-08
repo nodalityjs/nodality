@@ -1,9 +1,3 @@
-/*!
- * nodality v1.4.2
- * (c) 2026 Filip Vabrousek
- * License: MIT
- */
-
 import {Animator} from "./animator.js";
 
 class /*Multi*/Switcher extends Animator {
@@ -70,7 +64,14 @@ str += `{ at: "${this.options.breakpoints[i].at}", view: ${this.options.breakpoi
 
 
     render(val) {
-      //alert(val)
+      // A second render mounts the box the first one built. Building a new
+      // box each call left it empty: applyView() saw its view as already
+      // current and appended nothing, and every call added another resize
+      // listener. Des renders a component once and mounts it later.
+      if (this.internalDiv) {
+        if (val !== undefined) document.querySelector(val).appendChild(this.internalDiv);
+        return this.internalDiv;
+      }
       // Create an internal div for switching content
       this.internalDiv = document.createElement("div");
       this.res = this.internalDiv;
