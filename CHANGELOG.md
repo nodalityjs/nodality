@@ -2,6 +2,25 @@
 
 Generated per release from the source diff.
 
+## 1.5.3 — 2026-11-08
+
+### Added
+- New `jsString(value)` export from `lib/codegen.js`: returns a value as a quoted, escaped JS string, used throughout `toCode()` generators to prevent unescaped text from breaking generated source.
+- New module `lib/op-semantics.js`, exporting `OP_SEMANTICS` and `shadowedNodes(nodes)`, describing how nodes of each op combine (`first`, `sequence`, `inert`) and detecting nodes that can never apply.
+- `validateNodes` now reports two new warning codes: `SHADOWED_NODE` (a node an earlier node makes redundant) and `INERT_OP` (an op no renderer code reads).
+- `describeOps()` now includes a `semantics` field exposing `OP_SEMANTICS`.
+- `validate-nodes.js` now exports `DESIGN_OP_NAMES`.
+- `respond()` in `lib/responsive.js` now certifies grid cells for affine fit before bracketing (controlled by new `opts.certify`, `opts.tolerance`, `opts.minCell`, `opts.maxCertify`), and its result object includes a new `certification: { renders, nonAffine }` field (`null` when `certify` is `false`).
+
+### Changed
+- `Code.toCode()` and `FlexRow.toCode()` now build their object source via `toObjectSource` instead of ad-hoc regex replacement that re-wrapped arbitrary strings in backticks; string values are now kept as JSON literals so embedded `${...}` or backticks in text can no longer execute when the generated code is run.
+- `Button.toCode()` no longer unescapes all quotes/newlines in the generated object literal; only a serialized arrow function body is unwrapped (via `JSON.parse`), closing a path where option text could break out of its quotes in emitted code.
+- `Text.parseMarkdown()`: input is now HTML-escaped before markdown tags are added back; bold/italic matching is stricter (requires non-space-adjacent asterisks, so `2 * 3 * 4` is no longer mangled); links now only keep their `href` for `http(s)`, `mailto`, `tel`, or relative URLs — other schemes (e.g. `javascript:`) render as plain label text.
+- Numerous `toCode()` methods across `layout/audionew.js`, `layout/button.js`, `layout/checkbox.js`, `layout/container.js`, `layout/dropdown-2025.js`, `layout/flex-grid.js`, `layout/image.js`, `layout/link.js`, `layout/multiswitcher.js`, `layout/switcher.js`, `layout/text.js`, `layout/ulist.js`, `layout/video.js`, `lib/designer.js`, and `lib/element-mapper.js` now use `jsString(...)` instead of manual `"${value}"` interpolation when emitting string literals in generated code, hardening these against values containing quotes or other characters that could break the generated source.
+
+### Fixed
+- Generated code from the above `toCode()`/codegen paths can no longer be broken out of by option/text values containing quotes, backticks, or `${...}` sequences.
+
 ## 1.4.3 — 2026-11-04
 
 ### Fixed
