@@ -104,13 +104,6 @@ function showUsage() {
                                               # the bundle (--no-cache-bust to skip).
                                               # Run from consumer upgrade.sh after
                                               # \`npm install nodality@latest\`.
-  nodality dev [--upload=DIR] [--port=4000]   # Serve the site with the inspector: S select,
-                                              # C comment (click, or drag across several),
-                                              # Esc off. Writes .nodality/current.json and
-                                              # .nodality/comments.json in this folder for
-                                              # the agent; reloads pages when upload/ changes.
-                                              # --watch=src,pages  more folders to watch
-                                              # --no-reload        no live reload
   nodality mcp                                # Model Context Protocol server over stdio,
                                               # exposing the morph core to agent IDEs:
                                               # validate_spec, expand_spec, preview.
@@ -943,14 +936,6 @@ async function runCheck(rest) {
     process.exit(1);
   }
   const { checkPage } = await import("../lib/check-page.js");
-  // Notes left in `nodality dev` are part of whether a page is done: a stale
-  // one (its target id is gone) is a finding, an open one a warning.
-  const { readComments, commentFindings, pageOfFile } = await import("../lib/dev-state.js");
-  const comments = readComments(process.cwd());
-  const uploadArg = rest.find((a) => a.startsWith("--upload="));
-  let uploadDir = uploadArg ? uploadArg.slice("--upload=".length) : null;
-  if (!uploadDir) { try { uploadDir = JSON.parse(fs.readFileSync("nodality.config.json", "utf8")).uploadDir; } catch {} }
-  uploadDir = uploadDir || "upload";
   let findings = 0;
   for (const file of files) {
     const html = fs.readFileSync(file, "utf8");
@@ -960,15 +945,10 @@ async function runCheck(rest) {
       console.error(`[nodality] check: ${r.errors[0].detail}\n  ${r.errors[0].suggestions.join("\n  ")}`);
       process.exit(1);
     }
-    const notes = commentFindings(comments, { page: pageOfFile(file, uploadDir), ids: r.ids || [], uploadDir });
-    const errs = [...r.errors, ...notes.errors.map((e) => ({ ...e, viewport: "comments" }))];
-    findings += errs.length;
-    console.log(errs.length ? `✗ ${file} — ${errs.length} finding(s)` : `✓ ${file}`);
-    for (const e of errs) {
+    findings += r.errors.length;
+    console.log(r.errors.length ? `✗ ${file} — ${r.errors.length} finding(s)` : `✓ ${file}`);
+    for (const e of r.errors) {
       console.log(`  ${e.code}  ${e.path}  ${e.got ?? ""}  [${e.viewport}]${e.detail ? `\n    ${e.detail}` : ""}${e.suggestions.length ? `\n    → ${e.suggestions[0]}` : ""}`);
-    }
-    for (const w of notes.warnings) {
-      console.log(`  ⚠ ${w.code}  ${w.path}  ${w.got}\n    ${w.detail}${w.suggestions.length ? `\n    → ${w.suggestions[0]}` : ""}`);
     }
   }
   if (findings) process.exit(1);
@@ -1018,11 +998,6 @@ async function main() {
     // should cost nothing, and a broken generator must not take the CLI down.
     const { runSchema } = await import("./schema-cli.mjs");
     await runSchema(rest);
-  } else if (command === "dev") {
-    // The inspector server: lazily imported like mcp, so nothing else pays
-    // for an http server it never starts.
-    const { runDev } = await import("./dev-server.mjs");
-    await runDev(rest);
   } else if (command === "check") {
     // check_page without the MCP. A session where the server is not loaded
     // (it needs approving per project) had no way to run it: the module was
