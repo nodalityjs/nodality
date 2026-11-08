@@ -266,9 +266,13 @@ test("instance mappers attach the chain through the inherited rasterize()", asyn
 	}
 });
 
+// The source a mapper emits: a string, or the instance's own toCode() (cards
+// and copy return the built component, carrying the source it came from).
+const sourceOf = (r) => (typeof r === "string" ? r : [].concat(r.toCode()).join(""));
+
 test("source-emitting mappers serialise the chain into the generated code", () => {
-	// `cards` returns a template string, so the proof is in the source.
-	const grid = String(ElementMapper.mapType({
+	// The proof is in the source the code panel and `nodality compile` print.
+	const grid = sourceOf(ElementMapper.mapType({
 		el: { type: "cards", id: "#g" }, customOptions: rasterChain("#g"), i: 0,
 	}));
 	assert.match(grid, /raster:\s*\[/, "cards emitted no raster option");
@@ -281,7 +285,7 @@ test("source-emitting mappers serialise the chain into the generated code", () =
 	// `copy` consumes its own `copy` node to build the wheel, so that node
 	// must NOT also be handed to the GPU — that would duplicate the
 	// element twice, once in DOM and once in the shader.
-	const cp = String(ElementMapper.mapType({
+	const cp = sourceOf(ElementMapper.mapType({
 		el: { type: "copy", id: "#c" },
 		customOptions: [{ op: "copy", count: 3, target: ["#c"] },
 			{ op: "hexalize", size: 12, target: ["#c"] }],

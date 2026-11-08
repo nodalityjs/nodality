@@ -87,6 +87,9 @@ function fresh(width) {
     requestAnimationFrame: () => 0, cancelAnimationFrame: () => {}, IntersectionObserver: Obs, ResizeObserver: Obs,
   });
   Object.defineProperty(globalThis, "navigator", { value: w.navigator, configurable: true });
+  // jsdom's selector engine registers its own window listeners on the first
+  // querySelector. Run one before counting so they are not charged to the page.
+  w.document.querySelector("#mount");
   const live = { window: 0, document: 0, theme: 0 };
   for (const [name, target] of [["window", w], ["document", w.document]]) {
     const add = target.addEventListener.bind(target);
@@ -138,11 +141,17 @@ export async function renderCase(type, family, width, { resizes = 3 } = {}) {
     const resizeErrors = resizes ? resize(resizes) : [];
     const resized = counters();
     const delta = (a, b) => ({ window: a.window - b.window, document: a.document - b.document, theme: a.theme - b.theme });
-    // A page that can be torn down: today Des has no destroy(); the target is
-    // that calling it returns every counter to where the render started.
+    // A page that can be torn down: destroy() returns every counter to where
+    // the render started, and nothing it left behind fires afterwards (a
+    // resize, or a deferred task, reaching a destroyed component).
     let afterDestroy = null;
     if (des && typeof des.destroy === "function") {
-      try { des.destroy(); afterDestroy = delta(counters(), base); } catch (e) { afterDestroy = { error: String(e.message) }; }
+      try {
+        des.destroy();
+        afterDestroy = delta(counters(), base);
+        const late = resize(1);
+        if (late.length) afterDestroy = { error: `after destroy: ${late[0]}` };
+      } catch (e) { afterDestroy = { error: String(e.message) }; }
     }
     return {
       valid: true,

@@ -5,10 +5,8 @@ const { test, expect } = require('@playwright/test');
  * it the browser kills the oldest, and that element's effect goes blank with
  * no error. A page that re-renders must release the contexts it replaces.
  *
- * Marked test.fail(): the render core does not release them yet
- * (ARCHITECTURE-SCAN-08-11-26.md §5). The suite stays green while it fails,
- * and Playwright reports it the moment it starts passing, so the mark is
- * removed together with the fix.
+ * Des.destroy() destroys every component it owns; a raster element's pipeline
+ * calls WEBGL_lose_context on the way out (ARCHITECTURE-SCAN-08-11-26.md §5).
  */
 
 const PAGE = '/public/lifecycleGl.html';
@@ -29,7 +27,6 @@ test('the fixture attaches one WebGL context per raster element', async ({ page,
 });
 
 test('re-rendering releases the contexts it replaces', async ({ page, baseURL }) => {
-  test.fail(true, 'render core: Des.destroy() must release raster pipelines (loseContext)');
   await ready(page, baseURL);
   const first = await page.evaluate(() => window.__gl.created);
   test.skip(first === 0, 'no WebGL in this browser');

@@ -10,10 +10,10 @@
 //   2. GOLDEN HTML. What each case renders, one file per type in golden/render/.
 //      The core swap must keep it byte-identical; any intended difference is a
 //      bug fix and gets its own commit regenerating that type's file.
-//   3. LIFECYCLE TARGETS (todo). What the new core must achieve: resizes add
-//      nothing, set() builds no second copy of anything, and a Des can be
-//      destroyed back to zero. They run and print today's numbers without
-//      failing the suite; each loses its `todo` when the core makes it pass.
+//   3. LIFECYCLE. Resizes attach nothing, set() builds no second copy of
+//      anything, and a Des can be destroyed back to zero (every window and
+//      document listener and Theme subscription it added is released). These
+//      started as `todo` targets and became hard tests with the new core.
 //
 // Regenerate goldens only on purpose: UPDATE_GOLDEN=1 node --test <this file>
 
@@ -72,13 +72,12 @@ test("golden: each type renders exactly the HTML it rendered before", async (t) 
   }
 });
 
-// ── lifecycle targets ───────────────────────────────────────────────────
+// ── lifecycle ───────────────────────────────────────────────────
 
 const offenders = (pick) => approved().filter((r) => !r.error).map((r) => [caseKey(r), pick(r)]).filter(([, v]) => v);
 const summary = (list) => `${list.length} cases, e.g. ${list.slice(0, 4).map(([k, v]) => `${k} (${v})`).join(", ")}`;
 
-test("lifecycle: a resize at the same width attaches nothing",
-  { todo: "render core: rebuild only when the active ranges change; release what a rebuild replaces" }, () => {
+test("lifecycle: a resize at the same width attaches nothing", () => {
     const list = offenders((r) => {
       const d = r.afterResize;
       return d.window || d.document || d.theme ? `+${d.window} win, +${d.document} doc, +${d.theme} theme on 3 resizes` : null;
@@ -86,14 +85,12 @@ test("lifecycle: a resize at the same width attaches nothing",
     assert.equal(list.length, 0, summary(list));
   });
 
-test("lifecycle: set() builds no second copy of any component",
-  { todo: "render core: mount the components the mapper built instead of re-running their code" }, () => {
+test("lifecycle: set() builds no second copy of any component", () => {
     const list = offenders((r) => (r.duringSet.theme > 0 ? `${r.duringSet.theme} components built again in set()` : null));
     assert.equal(list.length, 0, summary(list));
   });
 
-test("lifecycle: a Des can be destroyed back to zero",
-  { todo: "render core: Des owns its components and destroy() releases them" }, () => {
+test("lifecycle: a Des can be destroyed back to zero", () => {
     const any = approved().find((r) => !r.error);
     assert.ok(any.hasDestroy, "Des has no destroy()");
     const list = offenders((r) => {

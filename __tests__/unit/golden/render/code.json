@@ -14,10 +14,10 @@
  "blast@390": "<pre><code style=\"display: inline-block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; border: 1px solid orange; box-sizing: border-box; transform-origin: center;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
  "blast@1280": "<pre><code style=\"display: inline-block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; border: 1px solid orange; box-sizing: border-box; transform-origin: center;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
  "span@390": {
-  "error": "(intermediate value).setup is not a function"
+  "error": "c.setup is not a function"
  },
  "span@1280": {
-  "error": "(intermediate value).setup is not a function"
+  "error": "c.setup is not a function"
  },
  "rangedGradient@390": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px;\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
  "rangedGradient@1280": "<pre><code style=\"display: block; width: auto; height: auto; border-radius: 1rem; padding-left: 30px; margin: 30px; position: relative; background: linear-gradient(90deg, rgb(255, 0, 0), rgb(0, 0, 255));\" class=\"language-js\" id=\"probe\">new Text(\"Modality\").set({ font: \"Arial\" })</code></pre>",
