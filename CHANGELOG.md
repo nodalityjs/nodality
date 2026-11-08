@@ -2,6 +2,37 @@
 
 Generated per release from the source diff.
 
+## 1.5.0 — 2026-11-08
+
+### Added
+- New `nodality dev` CLI command: serves the upload folder with a live in-page inspector (`S` select, `C` comment, `Esc` off), reloading pages on file changes. Supports `--upload=DIR`, `--port=4000`, `--watch=src,pages`, `--no-reload`.
+- Picks and notes made in the inspector are written to `.nodality/current.json` and `.nodality/comments.json` in the project root.
+- New MCP tools: `current_selection`, `list_comments`, `resolve_comment`, for agents to read/act on what a person selected or commented on in `nodality dev`.
+- `nodality check` now also reports comment-related findings: `STALE_COMMENT_TARGET` / `STALE_COMMENT_SOURCE` (errors) and `UNRESOLVED_COMMENT` / `COMMENT_SOURCE_MOVED` (warnings). Supports `--upload=DIR`.
+- `nodality skill` now installs multiple skills (`nodality`, `nodality-new-page`, `nodality-edit-page`) instead of one. New export `combinedSkill()` and `listSkills()` from `bin/install-skill.mjs`; Cursor/custom-dir installs now receive the combined, self-contained text of all skills.
+- `nodality link-local` now also links the `skills` folder.
+- `checkPage()` result now includes `ids`, the list of element ids found on the page.
+
+### Fixed
+- `Image` component no longer sets `img.src` to `undefined` (causing a spurious request for `/undefined`) when constructed without a URL and the URL is set later via `.set({ url })`.
+- Fixed a bug in the cards-grid/nav/area-switcher mapping where nested element specs were built twice; they are now mapped once and the resulting instance reused for both the mounted component and its generated source.
+- Fixed duplicate `id` attributes being written onto a component's wrapper node when the inner component already carried the declared id (e.g. `FilePickera`'s `<input>`).
+- Fixed gradient/shadow/animation node targeting on `Circle`, `Polygon`, `Code`, `Table`, `Free` elements that declared an `id`: the id is now set at `.set()` time so `chainReact` can match against it.
+- Fixed `Multiswitcher.render()` being called a second time: it now reuses the already-built box instead of creating an empty one and re-registering a resize listener each call.
+- Fixed a stray empty `<p>` being rendered in the nav/dropdown mapping when there was no dropdown slot.
+- Components created under `Des` (and their nested components) are now tracked and released on `Des.destroy()`, including event listeners, timers, Theme subscriptions, morph controllers, the agent surface, and the code panel — fixing leaks on re-render of the same mount.
+- Numerous components now use an internal `_on`/`_track` helper instead of raw `window.addEventListener("resize", …)`, fixing listener leaks across `Animator`-based components (buttons, containers, dropdowns, grids, nav bars, text, images, links, etc.).
+- `Animator`'s deferred responsive-task runner no longer throws if the component is destroyed before the queued timeout fires.
+- Text component (`span`/full-text rebuild path) now destroys previously-built sub-components on rebuild instead of leaking them.
+
+### Changed
+- `Des.add()` now builds component instances directly instead of generating and `eval`-ing code strings for most element types; generated code is retained for the code panel and legacy demo types only.
+- Internal: `lib/check-page.js`, `lib/designer.js`, `lib/element-mapper.js` reworked to support instance-based rendering and dev-mode registration; no externally visible API change beyond the `ids` field noted above.
+- `lib/element-params.generated.js` vocabulary list regenerated (dropped some names, e.g. `animate`, `barPad`, `desktopSize`, `fixed`, `hamColour`, that no longer appear in source).
+
+### Breaking
+- None noted; comment-related `check` failures are new findings that can turn a previously passing `nodality check` into a failing one if open/stale comments exist for a page.
+
 ## 1.4.3 — 2026-11-04
 
 ### Fixed
