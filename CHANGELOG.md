@@ -2,7 +2,7 @@
 
 Generated per release from the source diff.
 
-## Unreleased
+## 1.5.5 — 2026-11-09
 
 ### Added
 - `nodality/lines` (experimental): `printLines(pair)` and `parseLines(text)`, a one-statement-per-line syntax for the pair (elements with `#id` and indented children, nodes after `+`). Parsed, never evaluated; round-trips any pair, including every cached agent generation in `evals/`. On those 44 specs it takes about 1.5× fewer tokens than compact JSON and 2.4× fewer than a JS object literal (median, o200k_base as a proxy tokenizer).
