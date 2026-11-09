@@ -2,6 +2,23 @@
 
 Generated per release from the source diff.
 
+## 1.5.4 — 2026-11-09
+
+### Added
+- `parse-html.js` now exports `NODES_ATTR`, the attribute marking the JSON script that carries a page's nodes.
+- New `parseSpec(html, doc)` export, returning `{ elements, nodes, nodesExact }`; `nodes` are only populated for pages rendered with `annotate: true`.
+- `parseReport` result now includes `nodes` and `nodesExact` fields alongside the existing `spec`/`unrecovered`/`errors`.
+- Round-trip annotation (`annotateRoundTrip`) can now embed a page's nodes as a `<script type="application/json" data-nod-nodes>` element, placed after the annotated children so the children-to-elements mapping stays 1:1.
+- `parseReport`'s validation now checks carried nodes against recovered elements, instead of always validating against an empty node list.
+
+### Changed
+- `annotateRoundTrip(host, elements, nodes)` takes a new third `nodes` argument; `designer.js` now passes `this.protoOptions` when invoking it.
+- `parseHTML` and `parseSpec` now skip the nodes-carrying `<script>` element when reading a page's children.
+- Updated `parse_html` tool description in `bin/mcp-server.mjs` to mention that parsing recovers both elements and nodes (when present), rather than only elements.
+
+### Breaking
+- `annotateRoundTrip` signature changed from `(host, elements)` to `(host, elements, nodes)`; callers relying on positional arguments after `elements` should check usage.
+
 ## 1.4.3 — 2026-11-04
 
 ### Fixed
