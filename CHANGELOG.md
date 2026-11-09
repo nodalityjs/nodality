@@ -2,6 +2,62 @@
 
 Generated per release from the source diff.
 
+## Unreleased
+
+### Added
+- `nodality/lines` (experimental): `printLines(pair)` and `parseLines(text)`, a one-statement-per-line syntax for the pair (elements with `#id` and indented children, nodes after `+`). Parsed, never evaluated; round-trips any pair, including every cached agent generation in `evals/`. On those 44 specs it takes about 1.5× fewer tokens than compact JSON and 2.4× fewer than a JS object literal (median, o200k_base as a proxy tokenizer).
+- `explainElement(nodes, id)` and the `explain_element` MCP tool: for one element, the node that decides each op and the nodes that lose, at every viewport width (arrange per width interval, raster ops per stage in apply order), computed without rendering.
+
+### Fixed
+- The agent surface refuses an excluded view at runtime (`EXCLUDED_VIEW`), even when a navigation edge leads there. Refusals no longer list excluded views, and `read_view` / `go_back` never return their content. `exclude` was enforced only in the schema.
+- Pages the validator accepted no longer throw when rendered: `free`, `circle` and `polygon` without a layout or gradient node, `link-style` without `ops`, an empty `stack`, `ulist` with an op, and `span` on `code` or `table` (now skipped with a warning; span applies to text). The render contract's known-crash list is empty. `video`/`audio` without `url`, `multiswitcher` without `breakpoints` and `simple` without `react` are now `MISSING_FIELD` errors instead of render-time throws. A conformance test renders every element type with every op and fails on any accepted page that throws.
+
+### Docs
+- README: HTML-in-Canvas is stable in Chrome 157; the later 1.3.26 re-run of the agent evaluation is reported next to the FLLM figures.
+
+## 1.5.4 — 2026-11-09
+
+### Added
+- Pages rendered with `annotate: true` also carry their nodes (one `<script type="application/json" data-nod-nodes>` after the elements), so the round trip restores the whole pair. `parseSpec(html)` returns `{ elements, nodes }`; `parseReport` and the `parse_html` MCP tool add `nodes` and `nodesExact`, and carried nodes are validated like carried elements.
+
+## 1.5.3 — 2026-11-09
+
+### Added
+- Every op declares how its nodes combine (`lib/op-semantics.js`): `first` (later nodes ignored), `sequence` (all apply in order; raster ops within their stage) or `inert`. `describeOps()` / `list_ops` return it as `semantics`.
+- `validateNodes` warns with `SHADOWED_NODE` when an earlier node already decides an element, and with `INERT_OP` for ops nothing renders (`navStyle`).
+- `respond()` certifies every sample cell: each is measured at its midpoint and split while the fit is more than 1 px off a straight line, so a switch that happens and reverts between two samples is found. Reported as `certification`; `certify: false` restores the old behaviour.
+
+### Fixed
+- Generated code (`toCode()`, the code panel, `nodality compile`) escapes every value, so page text can no longer close a string and run as code. `Code` no longer wraps strings in backticks that evaluated `${…}`.
+- Markdown in `Text` is escaped before tags are added; links keep an href only for http(s), mailto, tel or relative URLs; lone asterisks are not emphasis.
+
+### Docs
+- README and the `/nodality` skill no longer describe the removed inspector.
+
+## 1.5.2 — 2026-11-08
+
+### Removed
+- The `nodality dev` inspector, the `current_selection`, `list_comments` and `resolve_comment` MCP tools, and the `nodality-current` and `nodality-apply-comments` skills.
+
+## 1.5.1 — 2026-11-08
+
+### Fixed
+- chainReact makes its text copy only for `Text`, and skips runs whose active ranges did not change.
+
+## 1.5.0 — 2026-11-08
+
+### Changed
+- Render core: `Des` mounts the instances the mapper builds instead of running generated source with `new Function`, so page data is never executed (five legacy demo types still run fixed source text). The code panel and `nodality compile` print the same source as before.
+- `Des` owns every component it builds; `destroy()` releases them, their listeners, morphs, the agent surface and WebGL contexts.
+
+### Added
+- The `/nodality` skill is split into a router, references and task skills.
+- The `nodality dev` inspector (removed again in 1.5.2).
+
+### Fixed
+- `Image` never assigns a missing URL.
+- The schema generator's template-literal brace matcher; `nav`, `sideNav`, `product` and `cards` schemas list only what they accept.
+
 ## 1.4.3 — 2026-11-04
 
 ### Fixed

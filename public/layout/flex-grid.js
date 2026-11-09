@@ -85,7 +85,7 @@ class FlexGrid extends Animator {
 			if (obj.gradient){
 				this.globalGradient = obj.gradient.op.gradient;
 			
-				if (obj.gradient.op.direction === "radial") {
+				if (obj.gradient?.op?.direction === "radial") {
 					this.globalGradient = "radial-gradient(orange, green)";
 				}
 			}

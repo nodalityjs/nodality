@@ -1904,7 +1904,11 @@ if (this.getType() === "FlexRowLayoutElement" || this.getType() === "LayoutWrapp
   }
 
 
-	if (operations.includes("spana") || operations.includes("span")) {
+	if ((operations.includes("spana") || operations.includes("span")) && typeof this.setup !== "function") {
+		// Span parts are built with this.constructor(...).setup(), which only
+		// Text has; on other types the op cannot apply, so it is skipped.
+		console.warn(`[nodality] span applies to text elements only; ignored on ${this.constructor.name}.`);
+	} else if (operations.includes("spana") || operations.includes("span")) {
 
 	const overlay = document.createElement("div");
 	overlay.setAttribute("id", "oroa");

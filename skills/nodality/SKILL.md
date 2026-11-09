@@ -62,6 +62,10 @@ appear in sessions started where `.mcp.json` lives.
    against real ids and E itself is validated. The report never throws;
    repair from its `did-you-mean` suggestions and re-validate until
    clean.
+3b. **`explain_element` before changing how something looks.** It names
+   the node that decides each property of an element, at every width,
+   and the nodes that lose. Edit the deciding node; a node appended
+   after it does nothing (`SHADOWED_NODE`).
 4. **`preview` to render.** Pass `viewport: "desktop"` to see the wide side of anything chosen by width (the default is a phone); the report lists ids that rendered `empty` instead of leaving a blank page to look finished.
     It writes a self-contained HTML file through
    the jsdom prerenderer. Know the boundary: the file is prerendered DOM

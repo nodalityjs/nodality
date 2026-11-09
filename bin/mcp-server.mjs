@@ -40,6 +40,7 @@
 // large enough that guessing at it fails.
 import { inspect } from "node:util";
 import { validateNodes, describeOps } from "../lib/validate-nodes.js";
+import { explainElement } from "../lib/op-semantics.js";
 
 const PROTOCOL = "2025-06-18";
 // Versions whose envelope this server is known to speak. A client asking
@@ -112,6 +113,24 @@ const TOOLS = [
       "morph may name) and `elementTypes` (the vocabulary of E), so both halves " +
       "of the pair are discoverable from one call.",
     inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "explain_element",
+    description:
+      "Why an element looks the way it does, at every viewport width, " +
+      "without rendering: for each op that reaches the element, the node " +
+      "(by index in `nodes`) that decides it and the nodes that lose. " +
+      "`arrange` is answered per width interval; raster ops are listed per " +
+      "stage in the order they apply. Call this before appending a fix: if " +
+      "an earlier node decides the property, edit that node instead.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        nodes: { type: "array", description: "The page's N." },
+        id: { type: "string", description: "The element id to explain." },
+      },
+      required: ["nodes", "id"],
+    },
   },
   {
     name: "validate_nodes",
@@ -256,6 +275,7 @@ const ok = (value) => ({
 
 const IMPL = {
   list_ops: async () => ok(describeOps()),
+  explain_element: async ({ nodes, id }) => ok(explainElement(nodes || [], id)),
 
   // Verbatim: the report is the product, and reshaping it here would put
   // this server's opinion between the core and the agent.

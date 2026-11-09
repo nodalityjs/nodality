@@ -1864,18 +1864,20 @@ if (obj.el.dropdown){
 
                 // get slayout now
                 let ft = customOptions.filter(l => (l.op.name === "slayout" || l.op.name === "layout"))[0];
+                // No layout node: the free layout's defaults, not a crash.
+                const layoutValue = ft && ft.op ? ft.op.value : undefined;
                 let spanObjects = null;
                 let templateCols = {cols: 6, rows: 6};
 
               //  console.log("FT----");
-              //  console.log(ft.op.value)
+              //  console.log(layoutValue)
 
-                if (ft.op.value === "text-above-image" || ft.op.value === "image-above-text"){
+                if (layoutValue === "text-above-image" || layoutValue === "image-above-text"){
                     spanObjects = null;
                     templateCols = null;
                 }
 5
-                if (ft.op.value === "img-overlay-text"){ // 17:43:03
+                if (layoutValue === "img-overlay-text"){ // 17:43:03
                     spanObjects = {
                         text: {row: "1 / span 2", col: "3 / span 2"},
                         image: {row: "2 / span 3", col: "3 / 3"}
@@ -1883,14 +1885,14 @@ if (obj.el.dropdown){
                 }
 
                 // react on by value to control amount
-                if (ft.op.value === "img-leftof-text") { // no 3-6
+                if (layoutValue === "img-leftof-text") { // no 3-6
                     spanObjects = {
                         text: {row: "1", col: "1 / 3"},
                         image: {row: "1", col: "3 / 4"}
                     }
                 }
 
-               /* if (ft.op.value === "text-center-img" || ft.op.value === "img-center-text")  { // no 3-6
+               /* if (layoutValue === "text-center-img" || layoutValue === "img-center-text")  { // no 3-6
                        spanObjects = {
                            text: {row: "1", col: "1"},
                            image: {row: "1", col: "1"}

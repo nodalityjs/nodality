@@ -29,7 +29,7 @@ class UList extends Animator {
 		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || _hasAnimTransform){
 			if (obj.gradient){
 				this.globalGradient = obj.gradient.op.gradient;
-				if (obj.gradient.op.direction === "radial") {
+				if (obj.gradient?.op?.direction === "radial") {
 					this.globalGradient = "radial-gradient(circle at center, orange, green)";
 				}
 			}
@@ -158,6 +158,23 @@ class UList extends Animator {
         this.res.style.border = `${w}px solid ${color}`;
         return this;
     }
+
+
+	
+// Animator's shared chainReact asks every component its type.
+
+
+	
+getType() {
+
+
+	
+    return "HTMLUListElement";
+
+
+	
+}
+
 
 
 	

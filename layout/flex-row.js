@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.3
+ * nodality v1.5.4
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -234,7 +234,7 @@ let stringified = JSON.stringify(options.borderObj);
 			if (obj.gradient){
 				this.globalGradient = obj.gradient.op.gradient;
 		
-				if (obj.gradient.op.direction === "radial") {
+				if (obj.gradient?.op?.direction === "radial") {
 					this.globalGradient = "radial-gradient(circle at center, orange, green)";
 				}
 			}

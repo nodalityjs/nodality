@@ -66,7 +66,7 @@ this.options = obj;
     ) {
       if (obj.gradient) {
         this.globalGradient = obj.gradient.op.gradient;
-		if (obj.gradient.op.direction === "radial") {
+		if (obj.gradient?.op?.direction === "radial") {
 					this.globalGradient = "radial-gradient(circle at center, orange, green)";
 				}
       }

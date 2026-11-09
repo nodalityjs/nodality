@@ -189,6 +189,8 @@ median of 2.1–4.2× as many output tokens, depending on how the
 specification is serialised. With one repair turn using only the
 library's own reports, two models reached 24 of 24 defect-free pages.
 Method and limits are in the FLLM 2026 paper (see [Citing](#citing)).
+A later re-run on release 1.3.26 with fresh generations was closer: task
+success tied at 22 of 24, and 18 against 15 pages free of rendered defects.
 
 ### Agents that use pages
 
@@ -212,10 +214,11 @@ storefronts, documentation, brochure sites. It is not a replacement for a
 component framework with client-side state management, and it does not
 try to be one.
 
-Two honest caveats. The HTML-in-Canvas capture backend is **experimental
-and flag-gated**: where it is unavailable the pipeline falls back to
-snapshot capture on its own, so a page authored against it degrades to
-stills rather than breaking. And determinism is a property of the
+Two honest caveats. The live capture backend uses HTML-in-Canvas, which
+Chrome ships on by default since version 157 (October 2026); other
+browsers do not implement it yet. Where it is unavailable the pipeline
+falls back to snapshot capture on its own, so a page authored against it
+degrades to stills rather than breaking. And determinism is a property of the
 compiled artefact – the same pair always produces the same output – not
 of the pixels a particular GPU eventually paints.
 

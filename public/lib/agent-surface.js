@@ -359,5 +359,5 @@ export function deriveSurface(elements, nodes, { specDraft = null } = {}) {
             : {}),
     };
 
-    return { tools, manifest };
+    return { tools, manifest, exclude: [...exclude] };
 }

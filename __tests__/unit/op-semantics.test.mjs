@@ -105,3 +105,43 @@ test("an op no renderer reads is reported as inert", () => {
 	assert.equal(f.length, 1);
 	assert.equal(f[0].code, "INERT_OP");
 });
+
+// ── explainElement: what applies to one element, at every width ──
+
+import { explainElement } from "../../lib/op-semantics.js";
+
+test("explain names the deciding node and the losers for each op", () => {
+	const N = [
+		{ op: { name: "shadow" }, target: ["hero"] },          // 0
+		{ op: "dither", target: ["hero"] },                    // 1 color
+		{ op: { name: "gradient" }, target: ["sub"] },         // 2 other element
+		{ op: { name: "shadow" } },                            // 3 untargeted, loses on hero
+		{ op: "offset", target: ["hero"] },                    // 4 warp
+		{ op: "duotone", target: ["hero"] },                   // 5 color, after dither
+		{ op: { name: "layout", value: "x" } },                // 6 page-wide
+		{ op: { name: "navStyle" }, target: ["hero"] },        // 7 inert
+	];
+	const x = explainElement(N, "#hero");
+	assert.equal(x.element, "hero");
+	const shadow = x.ops.find((o) => o.op === "shadow");
+	assert.deepEqual(shadow, { op: "shadow", combine: "first", node: 0, shadowed: [3] });
+	assert.ok(!x.ops.some((o) => o.op === "gradient"), "a node for another element is not listed");
+	const raster = x.ops.filter((o) => o.op === "raster");
+	assert.deepEqual(raster.map((r) => r.stage), ["warp", "color"], "stages in the order they run");
+	assert.deepEqual(raster.find((r) => r.stage === "color").nodes, [1, 5], "array order within the stage");
+	assert.deepEqual(x.page, [{ op: "layout", combine: "first", node: 6, shadowed: [] }]);
+	assert.deepEqual(x.inert, [7]);
+});
+
+test("explain splits arrange into width intervals with the first declared node winning", () => {
+	const N = [
+		{ op: { name: "arrange", mode: "column" }, target: ["f"], range: [0, 600] },     // 0
+		{ op: { name: "arrange", mode: "row" }, target: ["f"], range: [500, 99999] },    // 1
+	];
+	const a = explainElement(N, "f").ops.find((o) => o.op === "arrange");
+	assert.deepEqual(a.intervals, [
+		{ range: [0, 499], node: 0, shadowed: [] },
+		{ range: [500, 600], node: 0, shadowed: [1] },
+		{ range: [601, 99999], node: 1, shadowed: [] },
+	]);
+});

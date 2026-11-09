@@ -189,6 +189,14 @@ const BARE_DESIGN_OPS = [
  * node that works, and `preview` refuses to render an invalid pair, so
  * over-reporting costs more than under-reporting.
  */
+/** Element fields the renderer cannot do without, per type. */
+const REQUIRED_FIELDS = {
+    video: [["url", "the video's URL"]],
+    audio: [["url", "the audio file's URL"]],
+    multiswitcher: [["breakpoints", "a non-empty array of { at, view }"]],
+    simple: [["react", "a non-empty array of { at, template }"]],
+};
+
 export const DESIGN_OP_NAMES = [
     "animation", "arrange", "background", "blast", "card-style", "filter", "gradient",
     "layout", "link-style", "margin", "navStyle", "shadow", "slayout",
@@ -491,6 +499,18 @@ export function validateNodes(nodes, elements, defs) {
                 } else if (!ELEMENT_TYPES.includes(el.type)) {
                     push("UNKNOWN_ELEMENT_TYPE", `${p}.type`, el.type,
                         suggest(el.type, ELEMENT_TYPES), ELEMENT_TYPES);
+                }
+                // Fields without which the renderer refuses the element.
+                // Validating clean and then throwing at render time is the
+                // failure the conformance test exists to rule out.
+                const need = REQUIRED_FIELDS[el.type];
+                if (need) {
+                    for (const [field, what] of need) {
+                        const v = el[field];
+                        if (v == null || v === "" || (Array.isArray(v) && !v.length)) {
+                            push("MISSING_FIELD", `${p}.${field}`, v, [], [what]);
+                        }
+                    }
                 }
                 // Content declared in the slot this type does not read.
                 // `{type:"table", children:[...]}` validated clean and then

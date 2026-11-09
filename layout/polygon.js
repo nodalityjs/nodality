@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.3
+ * nodality v1.5.4
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -73,7 +73,7 @@ class Polygon extends Animator {
       obj.filtera ||
       obj.transform
     ) {
-      if (obj.gradient) this.globalGradient = obj.gradient.op.gradient;
+      if (obj.gradient && obj.gradient.op) this.globalGradient = obj.gradient.op.gradient;
       if (obj.stroke) super.setAny?.({ globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}` });
 
       let ft = [
@@ -99,7 +99,7 @@ class Polygon extends Animator {
       if (obj.mar || obj.margin) keep.push("margin");
       if (obj.animation) keep.push("animation");
 
-      if (obj.gradient.op.direction === "radial") {
+      if (obj.gradient?.op?.direction === "radial") {
 					this.globalGradient = "radial-gradient(circle at center, orange, green)";
 				}
 

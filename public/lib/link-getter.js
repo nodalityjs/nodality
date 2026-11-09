@@ -58,13 +58,13 @@ class LinkStyler {
                     }
                 }
 
-                let split = bst[j].op.ops.split("-");
+                let split = String(bst[j].op.ops || "").split("-");
 
               //   re["color"] = //bst.op.style.color;
 
                // alert(allow);
     
-               /* let split = bst[j].op.ops.split("-");
+               /* let split = String(bst[j].op.ops || "").split("-");
     
                 if(allow && split.includes("round")){
                     re["borderObj"] = {width: 3, radius: "0.7rem", color: bst[j].op.style.color};

@@ -117,7 +117,7 @@ test("tools/list advertises every tool, each with a schema", async () => {
   try {
     const { result } = await c.send("tools/list", {});
     assert.deepEqual(result.tools.map((t) => t.name).sort(),
-      ["check_page", "get_schema", "list_ops", "parse_html", "preview", "validate_nodes"]);
+      ["check_page", "explain_element", "get_schema", "list_ops", "parse_html", "preview", "validate_nodes"]);
     for (const t of result.tools) {
       assert.ok(t.description && t.description.length > 40,
         `${t.name} needs a description an agent can act on`);
@@ -463,7 +463,7 @@ test("an unknown tool is a protocol error, and the server keeps serving", async 
     const res = await c.send("tools/call", { name: "nope", arguments: {} });
     assert.equal(res.error.code, -32602);
     const after = await c.send("tools/list", {});
-    assert.equal(after.result.tools.length, 6, "server stopped serving after a bad call");
+    assert.equal(after.result.tools.length, 7, "server stopped serving after a bad call");
   } finally { c.kill(); }
 });
 

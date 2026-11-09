@@ -57,7 +57,7 @@ class Stack extends Animator {
         let code = `new Stack().set(${id ? `{ id: ${JSON.stringify(String(id))} }` : "{}"})`;
         
         // Add child elements
-        if (this.children.length > 0) {
+        if (Array.isArray(this.children) && this.children.length > 0) {
             const childrenCode = this.children.map(child => child.toCode()).join(",\n");
             code += `.add([\n \n ${childrenCode} \n \n])`;
         }
