@@ -1614,7 +1614,7 @@ const components = {
             if ((obj && obj.annotate) || (dev && dev.annotate)) {
                 annotateRoundTrip(
                     document.querySelector((obj && obj.mount) || "#mount"),
-                    this._elements);
+                    this._elements, this.protoOptions);
             }
         } catch (e) {
             console.warn("[nodality] round-trip annotation skipped:", e);

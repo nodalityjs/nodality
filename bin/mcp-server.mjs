@@ -194,7 +194,9 @@ const TOOLS = [
   {
     name: "parse_html",
     description:
-      "Read a rendered page back into an E array, so a page can be EDITED " +
+      "Read a rendered page back into its elements (and its nodes, when the " +
+      "page was rendered with `{annotate: true}` and has any: `nodes`, " +
+      "`nodesExact`), so a page can be EDITED " +
       "rather than only generated: parse it, change the one thing, render " +
       "again. Two tiers, and the report says which one you got. A page " +
       "rendered with `{annotate: true}` carries its own descriptors and " +

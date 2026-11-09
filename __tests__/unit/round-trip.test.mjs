@@ -240,3 +240,61 @@ test("content in the wrong slot survives the round-trip as a report", () => {
   assert.equal(r.ok, false);
   assert.equal(r.errors[0].code, "WRONG_CONTENT_SLOT");
 });
+
+// ── nodes (1.5.4): an annotated page also carries its N ──
+
+const { parseSpec, NODES_ATTR } = await import(path.join(ROOT, "lib", "parse-html.js"));
+
+const renderWith = (elements, nodes, annotate = true) => {
+  const m = dom.window.document.querySelector("#mount");
+  m.innerHTML = "";
+  new Des().nodes(nodes).add(elements)
+    .set({ mount: "#mount", code: false, elements: false, annotate });
+  return m.innerHTML;
+};
+
+const PAGE_E = [{ id: "hero", type: "h1", text: "Ship it" }, { id: "sub", type: "p", text: "Plain data" }];
+const PAGE_N = [
+  { op: { name: "shadow" }, target: ["hero"] },
+  { op: { name: "gradient", gradient: "linear-gradient(90deg, #1d6fe0, #7fd1ff)" }, target: ["sub"] },
+];
+
+test("an annotated page gives back its nodes exactly", () => {
+  const html = renderWith(PAGE_E, PAGE_N);
+  const back = parseSpec(html, dom.window.document);
+  assert.equal(back.nodesExact, true);
+  assert.deepEqual(back.nodes, PAGE_N);
+  assert.equal(back.elements.length, PAGE_E.length, "the script is not read as an element");
+  const r = parseReport(html, dom.window.document);
+  assert.deepEqual(r.nodes, PAGE_N);
+  assert.equal(r.nodesExact, true);
+  assert.equal(r.ok, true, JSON.stringify(r.errors));
+  assert.deepEqual(r.unrecovered, [], "the script is not reported as unrecovered");
+});
+
+test("re-rendering the parsed pair reproduces the page", () => {
+  const html = renderWith(PAGE_E, PAGE_N);
+  const back = parseSpec(html, dom.window.document);
+  assert.equal(renderWith(back.elements, back.nodes), html);
+});
+
+test("no nodes, or no annotation: no script, and nodesExact is false", () => {
+  assert.ok(!renderWith(PAGE_E, []).includes(NODES_ATTR));
+  const plain = renderWith(PAGE_E, PAGE_N, false);
+  assert.ok(!plain.includes(NODES_ATTR));
+  assert.equal(parseSpec(plain, dom.window.document).nodesExact, false);
+});
+
+test("a value cannot end the nodes script early", () => {
+  const N = [{ op: { name: "shadow" }, target: ["hero"], note: "</script><img src=x onerror=alert(1)>" }];
+  const html = renderWith(PAGE_E, N);
+  assert.ok(!/<\/script><img/i.test(html));
+  assert.deepEqual(parseSpec(html, dom.window.document).nodes, N);
+});
+
+test("tampered nodes are reported, not handed back to be rendered", () => {
+  const html = renderWith(PAGE_E, PAGE_N).replace('"shadow"', '"shadoww"');
+  const r = parseReport(html, dom.window.document);
+  assert.equal(r.ok, false);
+  assert.ok(r.errors.some((e) => e.code === "UNKNOWN_DESIGN_OP"), JSON.stringify(r.errors));
+});

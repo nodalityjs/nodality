@@ -18,7 +18,9 @@ Editing does not mean regenerating. The full background is in the
    not empty, the page was not rendered with `{annotate: true}` and some
    composites came back as bare `<div>`s. Say so and ask for the source
    rather than guessing those parts: a wrong guess silently becomes a
-   different page.
+   different page. If `nodesExact` is false the page carried no nodes:
+   you can change elements, but ask for the source before changing or
+   relying on any node.
 3. **Find the target by `id`.** The id is the address. Change that element
    or the nodes whose `target` names it, and nothing else. Keep ids as they
    are: other nodes, generated code and the agent surface point at them.
