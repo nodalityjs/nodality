@@ -388,6 +388,34 @@ done
 echo "✅ nodality $VERSION is live on npm — consumers can upgrade."
 
 # ----------------------------
+# GitHub release
+# ----------------------------
+# A pushed tag does not appear on the repo's Releases page, which kept
+# showing "Latest: 1.3.3" from August to November 2026 while npm moved on
+# to 1.5.x. The notes are this version's CHANGELOG.md section, else the
+# "Unreleased" section, else GitHub's generated notes. A failure here does
+# not fail the release: npm already serves the version.
+changelog_section() {
+  awk -v h="$1" '
+    index($0, "## " h) == 1 && (length($0) == length("## " h) || substr($0, length("## " h) + 1, 1) == " ") {on=1; next}
+    on && /^## / {exit}
+    on {print}
+  ' CHANGELOG.md
+}
+RELEASE_NOTES="$(changelog_section "$VERSION")"
+[ -n "$RELEASE_NOTES" ] || RELEASE_NOTES="$(changelog_section "Unreleased")"
+if [ -n "$RELEASE_NOTES" ]; then
+  gh release create "v$VERSION" --title "Nodality $VERSION" --notes "$RELEASE_NOTES" --latest >/dev/null 2>&1
+else
+  gh release create "v$VERSION" --title "Nodality $VERSION" --generate-notes --latest >/dev/null 2>&1
+fi
+if [ $? -eq 0 ]; then
+  echo "🏷  GitHub release v$VERSION created: https://github.com/nodalityjs/nodality/releases/tag/v$VERSION"
+else
+  echo "⚠️  GitHub release v$VERSION was not created. By hand: gh release create v$VERSION --generate-notes --latest"
+fi
+
+# ----------------------------
 # Refresh the generated docs tables
 # ----------------------------
 # Only reached when the ENTIRE release succeeded: tests, packaged smoke
