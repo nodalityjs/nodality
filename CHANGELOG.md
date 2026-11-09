@@ -2,6 +2,25 @@
 
 Generated per release from the source diff.
 
+## 1.5.5 — 2026-11-09
+
+### Added
+- New MCP tool `explain_element`, backed by `explainElement` in `lib/op-semantics.js`: for a given element id it reports, per op, which node decides the property and which nodes are shadowed, with `arrange` broken out per width interval and raster ops listed per stage in application order.
+- New module `lib/lines.js` exporting `printLines` and `parseLines`, a compact line-based text syntax for round-tripping an `{ elements, nodes }` pair (one element/node per line, `+` prefix for nodes, two-space indentation for children, bare or JSON values). Parse errors are collected per line rather than aborting the whole parse.
+- `validate-nodes.js` now checks type-specific required fields (`REQUIRED_FIELDS`): `video`/`audio` need `url`, `multiswitcher` needs non-empty `breakpoints`, `simple` needs non-empty `react`; missing fields are reported as `MISSING_FIELD`.
+- `installAgentSurface` now enforces page-author-excluded views at runtime: `navigate`, `back`, and `read` refuse excluded views (`EXCLUDED_VIEW`) and strip excluded ids from suggestion lists, instead of relying solely on schema omission.
+
+### Fixed
+- Guarded several layout modules (`circle.js`, `code.js`, `container.js`, `flex-card.js`, `flex-grid.js`, `flex-row.js`, `link.js`, `polygon.js`, `table.js`, `text.js`, `ulist.js`) against reading `.op.direction`/`.op.gradient` when `obj.gradient.op` is absent, preventing a crash on malformed/partial gradient nodes.
+- `animator.js`: applying `spana`/`span` to a non-text element no longer throws; it is now skipped with a console warning (`[nodality] span applies to text elements only; ignored on <Type>.`).
+- `stack.js`: `toCode()` no longer assumes `this.children` is an array before checking `.length`.
+- `element-mapper.js`: layout-value lookup (`text-above-image`, `img-overlay-text`, `img-leftof-text`, etc.) no longer assumes a matching `slayout`/`layout` node exists; falls back to `undefined` instead of throwing when absent.
+- `link-getter.js`: `bst[j].op.ops` is now coerced with `String(... || "")` before `.split("-")`, avoiding a crash when `ops` is missing.
+- `ulist.js`: added `getType()` returning `"HTMLUListElement"`, fixing type identification used by Animator's shared `chainReact` logic.
+
+### Changed
+- `agent-surface.js`'s `deriveSurface` now also returns `exclude` (array of excluded view ids) alongside `tools` and `manifest`.
+
 ## Unreleased
 
 ### Added
