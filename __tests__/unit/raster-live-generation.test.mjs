@@ -171,3 +171,45 @@ test("a failing new upload falls back to the snapshot and clears both opt-ins", 
 	assert.ok(document.getElementById("host").textContent.includes("Pressed into"),
 		"the content is handed back to the host");
 });
+
+// Where the storage size comes from. Chrome 157 shipped an ElementImage
+// without width and height; sizing from it gave NaN, a failed allocation and
+// an opaque black texture on every live canvas.
+const sizedBy = (methods) => {
+	const proto = dom.window.HTMLCanvasElement.prototype;
+	Object.assign(proto, methods);
+	try {
+		speak("texElementSubImage2D");
+		const canvas = attach();
+		calls.length = 0;
+		canvas.dispatchEvent(new dom.window.Event("paint"));
+		const alloc = calls.find((c) => c.k === "texImage2D");
+		assert.ok(alloc, "storage was allocated");
+		return { canvas, width: alloc.a[3], height: alloc.a[4] };
+	} finally {
+		for (const k of Object.keys(methods)) delete proto[k];
+	}
+};
+
+test("storage is sized by getElementImageDefaultSize when the captured image has no size, as in Chrome 157", () => {
+	const { width, height } = sizedBy({
+		getElementImageDefaultSize: () => ({ width: 1550.390625, height: 440.625 }),
+		captureElementImage: () => ({ close() {} }),
+	});
+	assert.deepEqual([width, height], [1551, 441]);
+});
+
+test("storage falls back to the captured image's size where only that exists, as in Chrome 155", () => {
+	const { width, height } = sizedBy({
+		captureElementImage: () => ({ width: 799.5, height: 240, close() {} }),
+	});
+	assert.deepEqual([width, height], [800, 240]);
+});
+
+test("storage is the canvas size, never NaN, when the browser reports no usable size", () => {
+	const { canvas, width, height } = sizedBy({
+		getElementImageDefaultSize: () => ({ width: 0, height: 0 }),
+		captureElementImage: () => ({ close() {} }),
+	});
+	assert.deepEqual([width, height], [Math.max(1, canvas.width), Math.max(1, canvas.height)]);
+});

@@ -388,8 +388,10 @@ test.describe('HTML-in-Canvas API', () => {
         test.skip(true, 'needs Chrome 155+ with the flag on');
         return;
       }
-      // Chrome 155's form, from inside the paint event like the pipeline:
-      // allocate from captureElementImage, then write at offset 0,0.
+      // From inside the paint event like the pipeline: allocate storage of
+      // the element image's size, then write at offset 0,0. The size comes
+      // from getElementImageDefaultSize; Chrome 155 and 156 could also read
+      // it off the captured image, which has no size in Chrome 157.
       const result = await page.evaluate(() => new Promise((resolve) => {
         const c = document.createElement('canvas');
         c.setAttribute('content', 'drawable');
@@ -407,9 +409,13 @@ test.describe('HTML-in-Canvas API', () => {
         c.addEventListener('paint', () => {
           paints++;
           try {
-            const im = c.captureElementImage(inner);
-            const w = Math.ceil(im.width), h = Math.ceil(im.height);
-            if (im.close) im.close();
+            let size = c.getElementImageDefaultSize ? c.getElementImageDefaultSize(inner) : null;
+            if (!size) {
+              const im = c.captureElementImage(inner);
+              size = { width: im.width, height: im.height };
+              if (im.close) im.close();
+            }
+            const w = Math.ceil(size.width), h = Math.ceil(size.height);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
             gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, inner);
             finish({ ok: true, glError: gl.getError(), size: [w, h] });
