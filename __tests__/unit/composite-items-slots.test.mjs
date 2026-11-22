@@ -87,7 +87,12 @@ test("each composite with no content renders exactly what it did before S4", () 
     // "hand", which jsdom (like every browser but IE) rejects, so nothing was
     // written. It is now `cursor: pointer;`, and that is the whole difference.
     ["nav", 1458, "9eb18279b87a0264"],
-    ["sideNav", 1964, "83db854bfe92d163"],
+    // sideNav re-pinned in round 2, +54 characters: its three links carry
+    // `hover: {animation: 0.3}`, which Animator.hover() wrote verbatim as
+    // the invalid transition "0.3", so nothing was set. A bare number is now
+    // seconds — `transition: 0.3s;` on each link, and nothing else (the old
+    // pin is what the new output gives with those three declarations removed).
+    ["sideNav", 2018, "b05cbd67c1737963"],
   ]) {
     const html = render({ type });
     assert.equal(html.length, length, `${type}: rendered length moved`);

@@ -37,7 +37,13 @@ let repl = this.removeQuotesFromFirstWord(JSON.stringify(this.obj));
 // reaches the page — hamburgerColour was read by set() and dropped here.
 // Every option set() reads is emitted; brand only when there is one (it
 // threw on a bar without a brand).
-const SERIALISED = ["background", "color", "mar", "pad", "resmar", "respad", "radius", "maxHeight", "hamburgerColour", "keySet", "menuLabel", "menuId", "brandLink"];
+// The universal options (spy, hideOnScroll, aria, role, lang, hover, reveal,
+// … — the nav mapper's NAV_BAR_UNIVERSAL plus the bar's own hover) are
+// applied by the behaviours after set() (layout/behaviours/*.js), so the code
+// must carry them too.
+const SERIALISED = ["background", "color", "mar", "pad", "resmar", "respad", "radius", "maxHeight", "hamburgerColour", "keySet", "menuLabel", "menuId", "brandLink",
+    "spy", "hideOnScroll", "aria", "hover", "focus", "transition", "group", "groupHover", "role", "tabIndex", "lang", "title", "copy", "copied",
+    "reveal", "scrub", "pin", "count", "fit", "loop"];
 // Plus every CSS-named option (STYLE_OPTIONS) the bar was given: set()
 // applies them, so the code Des runs has to carry them too.
 const keys = [...SERIALISED, ...Object.keys(this.obj).filter((k) => k in STYLE_OPTIONS && !SERIALISED.includes(k))];

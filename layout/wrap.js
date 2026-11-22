@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -14,6 +14,7 @@ class Wrap extends Animator {
 		this.code = [];
 
 		this.setup();
+		this._adopt(els); // destroy() releases the children too
 		
 		
 		

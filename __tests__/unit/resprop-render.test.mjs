@@ -41,7 +41,7 @@ before(async () => {
 const fixture = (type) => {
 	const el = { type, id: "probe" };
 	if (["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "button", "code", "copy", "simple"].includes(type)) el.text = "Probe";
-	if (["img", "video", "audio", "a"].includes(type)) el.url = "/probe.png";
+	if (["img", "video", "audio", "a", "model"].includes(type)) el.url = type === "model" ? "/probe.glb" : "/probe.png";
 	if (["cards", "nav", "sideNav", "table", "ulist", "dropdown", "picker", "radio"].includes(type)) el.items = ["One", "Two"];
 	if (["row", "form", "stack", "wrap", "free"].includes(type)) el.children = [{ type: "p", id: "kid", text: "Kid" }];
 	return el;

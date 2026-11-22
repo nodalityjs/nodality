@@ -68,6 +68,17 @@ const ELEMENTS_SCHEMA = {
   items: { type: "object" },
 };
 
+// Page defaults, as `new Des().defaults({...})` takes them. Accepted by
+// validate_nodes and preview so the page checked and previewed is the page
+// that renders with them.
+const DEFAULTS_SCHEMA = {
+  type: "object",
+  description:
+    "Optional page-wide element options, e.g. { font: \"Inter\", color: \"#111\" } — " +
+    "filled into every element (children and spec-shaped items too) that does not set the " +
+    "key itself, on the types that read it. Explicit values always win.",
+};
+
 const NODES_SCHEMA = {
   type: "array",
   description:
@@ -150,7 +161,7 @@ const TOOLS = [
       "round-trip at a time.",
     inputSchema: {
       type: "object",
-      properties: { nodes: NODES_SCHEMA, elements: ELEMENTS_SCHEMA },
+      properties: { nodes: NODES_SCHEMA, elements: ELEMENTS_SCHEMA, defaults: DEFAULTS_SCHEMA },
       required: ["nodes"],
     },
   },
@@ -250,6 +261,7 @@ const TOOLS = [
           viewport: { description: "\"phone\" (default, 390×844) or \"desktop\" (1440×900), or {width, height}. Width-dependent elements render their view for it." },
         elements: ELEMENTS_SCHEMA,
         nodes: NODES_SCHEMA,
+        defaults: DEFAULTS_SCHEMA,
         output: {
           type: "string",
           description:
@@ -279,8 +291,8 @@ const IMPL = {
 
   // Verbatim: the report is the product, and reshaping it here would put
   // this server's opinion between the core and the agent.
-  validate_nodes: async ({ nodes, elements }) =>
-    ok(validateNodes(nodes, elements)),
+  validate_nodes: async ({ nodes, elements, defaults }) =>
+    ok(validateNodes(nodes, elements, undefined, defaults ? { defaults } : undefined)),
 
   // Served from the shipped schema.json rather than regenerated: the
   // generator is a build-time script and this server answers in-process. The
@@ -359,9 +371,9 @@ const IMPL = {
     return ok(parseReport(String(html ?? ""), dom.window.document));
   },
 
-  preview: async ({ elements, nodes, output, viewport }) => {
+  preview: async ({ elements, nodes, output, viewport, defaults }) => {
     const N = nodes || [];
-    const report = validateNodes(N, elements);
+    const report = validateNodes(N, elements, undefined, defaults ? { defaults } : undefined);
     if (!report.ok) return reportAsError(report);
 
     const [{ prerender }, { writeFile, mkdtemp, readFile }, { tmpdir }, { join }] =
@@ -410,7 +422,9 @@ const IMPL = {
       // not exist yet.
       build: async () => {
         const { Des } = await import("../lib/designer.js");
-        new Des().nodes(N).add(elements).set({ mount: "#mount", code: false });
+        const des = new Des();
+        if (defaults) des.defaults(defaults);
+        des.nodes(N).add(elements).set({ mount: "#mount", code: false });
         for (const id of ids) {
           const node = document.querySelector(`[id="${id}"]`);
           if (!node) { empty.push({ id, why: "not in the output" }); continue; }

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -509,6 +509,7 @@ let stringified = JSON.stringify(options.borderObj);
 
 		this.els = arr;
 		this.items = arr;
+		this._adopt(arr); // destroy() releases the children too
 
 /*
 		// console.log("FL ITEM---");

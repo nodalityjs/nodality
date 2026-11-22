@@ -1,4 +1,4 @@
-import {Animator} from "./animator.js";
+import { Animator, motionAnimate } from "./animator.js";
 import { toObjectSource } from "../lib/codegen.js";
 // import {CustomDivRenderer} from "./navFactor/customDiv.js";
 // CORRECT
@@ -292,13 +292,13 @@ class UINavBar extends Animator {
                     delay: 1 
                 }
 
-                child.children[i].animate(animation.keyframesClose, immediateAll);
+                motionAnimate(child.children[i], animation.keyframesClose, immediateAll);
 
                 // 2 - ANIMATE INTO THE VIEW
                 // animate using opening keyframes on the mobile when user click the button
                 // when mobile nav is in opended state an I click button to set it to closing state
                 // animate "#innerItemsWrapper" children using closing options
-                child.children[i].animate(animation.keyframesOpen, animation.openOptions);
+                motionAnimate(child.children[i], animation.keyframesOpen, animation.openOptions);
 
 
                 
@@ -316,7 +316,7 @@ class UINavBar extends Animator {
             //console.log(child.children);
 
             for (var i = 0; i < child.children.length; i++){
-            child.children[i].animate(animation.keyframesClose, immediateAll);
+            motionAnimate(child.children[i], animation.keyframesClose, immediateAll);
             }
 
         }
@@ -551,7 +551,7 @@ class UINavBar extends Animator {
 
                 for (var i = 0; i < innerItemsWrapper.children.length; i++){
                     let inner = innerItemsWrapper.children[i];
-                    let anima = inner.animate(animation.keyframesClose,  {
+                    let anima = motionAnimate(inner, animation.keyframesClose,  {
                         duration: 1, // 1 should be acceptable here when I close
                         fill: 'forwards',
                         delay: 0
@@ -575,7 +575,7 @@ class UINavBar extends Animator {
 
 
                     
-                    inner.animate(animation.keyframesClose,  {
+                    motionAnimate(inner, animation.keyframesClose,  {
                         duration: 1, // 1 should be acceptable here when I close
                         fill: 'forwards',
                         delay: 0
@@ -585,9 +585,9 @@ class UINavBar extends Animator {
                     if (this.isShown){
                        
                        // if (inner.style.translateX != 0)
-                        inner.animate(animation.keyframesOpen, animation.openOptions);
+                        motionAnimate(inner, animation.keyframesOpen, animation.openOptions);
                     } else {
-                        inner.animate(animation.keyframesClose, animation.closeOptions);
+                        motionAnimate(inner, animation.keyframesClose, animation.closeOptions);
                     }
                 }
 
@@ -726,7 +726,7 @@ class UINavBar extends Animator {
       
 
                    
-                   link.animate(animation.keyframesOpen, animation.openOptions);
+                   motionAnimate(link, animation.keyframesOpen, animation.openOptions);
                    
                 }
             }

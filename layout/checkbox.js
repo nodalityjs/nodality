@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -51,7 +51,8 @@ class Checkbox extends Animator {
     input.style.display = "inline-block";
     input.style.setProperty("--checked-bg-color", obj.checkedBackgroundColor || "#4CAF50");
     input.style.setProperty("--checkmark-color", "white");
-	input.style.setProperty("--checkmark-clip-path", this.options.clipPath ?? "polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%)");
+	//@ checkbox.clipPath: The checkmark's shape, a CSS clip-path such as "polygon(…)" — not a clip on the checkbox itself.
+	input.style.setProperty("--checkmark-clip-path", this.options.clipPath ??"polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%)");
 
    const style = document.createElement("style");
 style.textContent = `

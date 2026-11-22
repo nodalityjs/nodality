@@ -85,7 +85,8 @@ does not do what you wrote:
 |---|---|
 | `BAD_PARAM_VALUE` | the value is not the shape the parameter takes — `width: 7` is not a CSS length, `mar: 7` is not `[{a: 7}]`. As an *error* where the value is provably inert; as a warning otherwise. |
 | `PARAM_NOT_ON_TYPE` | a real parameter name that THIS type does not read, so it is accepted and dropped — `keySet` on a `table`. |
-| `PARAM_INERT` | a parameter the type DOES list, and is known to ignore (the library's conformance baseline) — `size` on a `p`, `color` on a `checkbox`. The hint says what to use instead. |
+| `PARAM_INERT` | a parameter the type DOES list, and is known to ignore (the library's conformance baseline) — `size` on a `p`, `color` on a `checkbox`. The hint says what to use instead. Also a design-op key that is read and changes nothing (`card-style`'s options, or a top-level `style`/`duration` on a node that is not a transform). |
+| `UNKNOWN_OP_PARAM` | a key inside a design node's `op` that the op does not read — `colours` on a shadow. `list_ops` → `designOps` lists what each design op takes. |
 | `SHADOWED_NODE` | an earlier node with the same op already decides this element (or the page), so this one does nothing there; `got` lists where it loses. Edit the earlier node instead of appending a new one. `list_ops` → `semantics` says which ops keep the first node (`first`) and which apply all in order (`sequence`). |
 | `INERT_OP` | an op the validator accepts but nothing renders (`navStyle`). |
 | `STORE_AFTER_PRODUCT` / `NO_STORE` | a commerce `product` placed before the page's `store`, or with none: it renders empty. |
@@ -104,7 +105,7 @@ rather than passing yours on.
   element/op (extend the library).
 - **Style with options, not keySet.** Elements take styling as options:
   the library's own names (`exact` for font size, `weight`, `pad`, `mar`,
-  `radius`, `gpos`, `borderObj`) and the CSS-named options every element
+  `radius`, `gpos`, `borderObj`, a CSS-string `border`) and the CSS-named options every element
   accepts (`lineHeight`, `letterSpacing`, `textTransform`, `gap`,
   `alignContent`, `justifyContent`, `boxShadow`, `backdropFilter`,
   `borderTop`, …). `get_schema <type>` lists them. Responsive values go in
@@ -116,6 +117,15 @@ rather than passing yours on.
   `loop: { keyframes: [{…}, {…}], duration }` runs forever through the Web
   Animations API and holds still for reduced motion. If something cannot be
   expressed, extend the library.
+- **Motion and interaction are options too, not scripts.** Scroll-in
+  entrances are `reveal`, scroll-linked motion is `scrub` (with `pin` for a
+  sticky stage), counters are `count`, hover and keyboard states are
+  `hover` / `focus` / `groupHover`, accessible names are `aria`, active
+  section links are `spy`. Do not write an IntersectionObserver, a scroll
+  listener, `:hover` CSS or `keySet: [{ key: "transition" }]` for any of
+  these. Tabs, accordions, carousels and logo rows are element types
+  (`tabs`, `disclosure`, `scroller`, `marquee`), not `wrap` + script.
+  `references/motion-and-interaction.md`.
 - **Elements take `text`, never `value`.**
 - **Every element that a node targets needs an `id`.** Short and stable
   (`"hero"`, `"topnav"`); ids are the joint between the two arrays and
@@ -128,9 +138,12 @@ rather than passing yours on.
   `colors: [...]` there and rendered its headline invisible. Since 1.2.7
   `validate_nodes` reports it and tells you where it belongs, so run the
   validator rather than trusting the shape by eye.
-- **Do not invent options.** An option that no op declares is ignored in
-  silence rather than reported. If `list_ops` does not name it, it does
-  not exist.
+- **Do not invent options.** An option that no op declares does nothing.
+  If `list_ops` does not name it (`ops` for raster ops, `designOps` for
+  design ops), it does not exist.
+- **Page-wide font and colour go in `.defaults()`**, before `.add()`:
+  `new Des().defaults({ font: "Inter", color: "#111" }).nodes(N).add(E)`.
+  An element without `font` otherwise renders in Arial.
 - **Codegen:** the on-page panel showing the imperative equivalent of
   the pair is on by default; pass `code: false` (and `elements: false`)
   to `.set()` to hide it on a production page. From the CLI,
@@ -143,8 +156,9 @@ Read only what the task needs. Each file is short and stands alone.
 
 | When you are | Read |
 |---|---|
-| filling a composite (`cards`, `nav`, `table`, `row`, …) or using HTML names like `src`, `href`, `options` | `references/content-and-composites.md` |
+| filling a composite (`cards`, `nav`, `table`, `row`, `tabs`, `scroller`, `marquee`, …) or using HTML names like `src`, `href`, `options` | `references/content-and-composites.md` |
 | writing nodes: design, raster, morph, agent surface, `arrange` | `references/node-families.md` |
+| making things move on scroll, react to hover or focus, or adding ARIA | `references/motion-and-interaction.md` |
 | adding a few elements to existing code with `new Text()` and `.render()` | `references/imperative.md` |
 | building a site with shared nav and footer (`.defs()`, `$ref`) | `references/multi-page.md` |
 | changing a page that is already rendered | `references/editing.md` |
@@ -157,6 +171,25 @@ Two task skills sit beside this one and carry the step-by-step procedure:
   steps.
 - **`nodality-edit-page`**: changing one thing on a rendered page without
   regenerating it.
+
+## Known limits
+
+Say so when a request runs into one; do not patch around it with DOM code.
+
+- `scrub` follows the window's scroll only; inside an `overflow: auto`
+  box it does not move.
+- `pin` sticks within its parent (`position: sticky`): pin the last child
+  of a wrap.
+- `spy` may never light a short last section (its band is the upper half
+  of the viewport).
+- `resprop` by container width can oscillate if it changes the parent's
+  own width.
+- `marquee` copies are inert: only the originals are clickable.
+- `scroller` is left-to-right only.
+- Raster effects: one WebGL context each, none under reduced motion, an
+  `<img>`'s size is read once at attach. `references/node-families.md`.
+- `preview` output is prerendered DOM: no raster effects, transitions or
+  motion options run in it.
 
 ## When NOT to use Nodality
 

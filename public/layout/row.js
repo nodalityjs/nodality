@@ -129,6 +129,7 @@ class Row extends Animator {
     
     
 	  items(arr) {
+        this._adopt(arr); // destroy() releases the children too
         
         var frString = "";
         

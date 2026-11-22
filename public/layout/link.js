@@ -90,7 +90,8 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 		el.style.color = "black";
 		el.style.fontFamily = "Arial";
 		
-		var text = document.createTextNode(this.text);
+		// An icon-only link has no text: not the word "undefined".
+		var text = document.createTextNode(this.text == null ? "" : String(this.text));
 		el.appendChild(text);
 		
 		this.res = el;
@@ -140,14 +141,26 @@ if (isExternal || isAnchor || url.endsWith(".html") || isScheme) {
 		return this;
 	} // jquery wrap 9:41:49 18/04/23
 	
+	//@ icon {object}: An image beside the link text: {url, size: "20px", padding: "10px" (the gap between them), side: "end" (after the text) or "start" (before it, as a flag before a language name), alt: ""}. Decorative by default (empty alt, hidden from screen readers) because the link already has a name — its text, or `aria: {label}` for an icon-only link. Give `alt` only when the icon says something the name does not.
 	addIcon(obj){
-		//alert("PPP")
 		let img = document.createElement("img");
-		img.style.width = "20px";
+		img.style.width = obj.size || "20px";
 		img.style.height = "auto";
-		img.style.marginLeft = obj.padding ? obj.padding : "10px";
+		img.style.display = "block";
+		img.style.flexShrink = "0";
+		const start = obj.side === "start";
+		// No text beside it: no gap either.
+		const gap = obj.padding != null ? obj.padding : ((this.res.textContent || "").trim() ? "10px" : "0");
+		if (start) img.style.marginRight = gap; else img.style.marginLeft = gap;
 		img.setAttribute("src", obj.url);
-		this.res.appendChild(img);
+		const alt = typeof obj.alt === "string" ? obj.alt : "";
+		img.setAttribute("alt", alt);
+		if (!alt) img.setAttribute("aria-hidden", "true");
+		// The link lays its text and icon out on one line.
+		const d = this.res.style.display;
+		this.res.style.display = d === "block" || d === "flex" ? "flex" : "inline-flex";
+		this.res.style.alignItems = "center";
+		if (start) this.res.insertBefore(img, this.res.firstChild); else this.res.appendChild(img);
 		return this;
 	}
 	
@@ -377,7 +390,8 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 	
 // 504-711 REACT ON TRANSFORM
 
-obj.transform && this.reactOnTransform(obj.transform);
+// A string transform is plain CSS (commonMethods applied it); only a node animates.
+(obj.transform && typeof obj.transform === "object") && this.reactOnTransform(obj.transform);
 
 
 	
@@ -388,13 +402,18 @@ obj.transform && this.reactOnTransform(obj.transform);
 
 	// alert("O")
 
-	let ft = [obj.border, obj.blast, obj.gradient, obj.animation, obj.span, obj.shadow, obj.backgroundOp, obj.animation, obj.transform]//obj.gradient.filter(el => el.op.name !== "layout");
+	// `border` is a design node here only when it IS one ({op: {name}}). A
+	// CSS string ("1px solid #0B0B0C", applied by commonMethods) or a
+	// {width, color} object used to land in this list and crash the whole
+	// page on `.op.name`.
+	const borderNode = obj.border && typeof obj.border === "object" && obj.border.op && typeof obj.border.op === "object" ? obj.border : undefined;
+	let ft = [borderNode, obj.blast, obj.gradient, obj.animation, obj.span, obj.shadow, obj.backgroundOp, obj.animation, obj.transform]//obj.gradient.filter(el => el.op.name !== "layout");
 		// // // console.log(ft);
 
 		// // console.log("hawai");
 		// // console.warn(ft);
 
-		ft = ft.filter(el => el != undefined);
+		ft = ft.filter(el => el != undefined && typeof el === "object" && el.op && typeof el.op === "object");
 
 	
 if (ft.length > 0){

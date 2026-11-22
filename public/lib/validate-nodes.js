@@ -21,13 +21,18 @@
 
 import {
     REGISTRY, RASTER_OP_NAMES, DRIVER_NAMES, DRIVER_DOCS, RASTER_UNITS,
-    FRAMEWORK_DOC, EASING_NAMES,
+    FRAMEWORK_DOC, EASING_NAMES, POINTER_GATE_NAMES,
 } from "./raster-ops.js";
 import { OP_SEMANTICS, shadowedNodes } from "./op-semantics.js";
 import { presetNames, presetInfo } from "./raster-presets.js";
 import { collectRefs, isRef, resolveRefs } from "./resolve-refs.js";
 import { normalizeSpec, aliasConflicts, ALIASES } from "./normalize-spec.js";
 import { ELEMENT_TYPES } from "./element-mapper.js";
+import {
+    DESIGN_OP_PARAMS, DESIGN_NODE_FIELDS, TRANSFORM_STYLES, LINK_STYLE_TOKENS,
+} from "./design-ops.js";
+import { applyPageDefaults, checkPageDefaults } from "./page-defaults.js";
+import { nestedSpecs } from "./spec-walk.js";
 import {
     ELEMENT_PARAM_NAMES, ELEMENT_PARAMS_BY_TYPE, ELEMENT_PARAM_UNITS,
 } from "./element-params.generated.js";
@@ -53,6 +58,12 @@ const SHAPES = {
         bad: (v) => typeof v === "number" && v !== 0,
         level: "error",
         fix: (v) => [`"${v}px"`],
+    },
+    "css-length-or-array": {
+        want: 'a CSS length with a unit ("80vh"), {length, media}, or an array of {length, media} variants',
+        bad: (v) => (typeof v === "number" && v !== 0) || (typeof v !== "string" && typeof v !== "number" && !isPlainObject(v) && !Array.isArray(v)),
+        level: "error",
+        fix: () => ['"80vh"', '{ length: "200vh", media: "(min-width: 900px)" }'],
     },
     "px-or-length": {
         want: "a number of pixels, or a CSS length string",
@@ -94,13 +105,22 @@ const SHAPES = {
     "css-areas": { want: 'CSS grid-template-areas, e.g. \'"nav main"\'', bad: (v) => typeof v !== "string", level: "warning", fix: () => ['\'"nav main"\''] },
     array: { want: "an array", bad: (v) => !Array.isArray(v), level: "warning", fix: () => ["[…]"] },
     nodes: { want: "an array of op nodes", bad: (v) => !Array.isArray(v), level: "warning", fix: () => ['[{ op: "dither" }]'] },
+    // resprop / respad / resmar. Each entry needs SOMETHING that says where
+    // it applies — a named or numeric `breakpoint`, a `min`/`max` viewport
+    // range, or a `container: {min, max}` range — and the bounds must be
+    // numbers: an entry with none, or with `min: "900px"`, matches no width
+    // at all and was accepted in silence.
     breakpoints: {
-        want: "an array of per-breakpoint overrides, [{breakpoint, ...css}]",
-        bad: (v) => !Array.isArray(v),
+        want: "an array of overrides, each placed by `breakpoint`, `min`/`max` (px, inclusive), `container: {min, max}` or `media: \"(prefers-reduced-motion: reduce)\"`",
+        bad: (v) => !Array.isArray(v) || v.some((e) => !respropEntryOk(e)),
         level: "warning",
-        fix: () => ['[{ breakpoint: 768, gridTemplateColumns: "1fr" }]'],
+        fix: () => ['[{ breakpoint: 768, gridTemplateColumns: "1fr" }]', '[{ min: 900, position: "sticky" }]'],
     },
     object: { want: "an object", bad: (v) => !isPlainObject(v), level: "warning", fix: () => ["{ … }"] },
+    // `reveal: true` / `count: true` take every default; a scrub may be one
+    // object or an array of per-media variants.
+    "object-or-bool": { want: "true or an object", bad: (v) => !isPlainObject(v) && typeof v !== "boolean", level: "warning", fix: () => ["true", "{ … }"] },
+    "object-or-array": { want: "an object, or an array of {media, …} variants", bad: (v) => !isPlainObject(v) && !Array.isArray(v), level: "warning", fix: () => ["{ keyframes: […] }"] },
     keyset: {
         want: "{key, value}, or an array of them",
         bad: (v) => !isPlainObject(v) && !Array.isArray(v),
@@ -119,7 +139,186 @@ const SHAPES = {
         level: "error",
         fix: () => ['"S3"'],
     },
+
+    // ── Shapes of DESIGN-op parameters (lib/design-ops.js) ──────────
+    // Each `bad` is what the reading code cannot use, not a style
+    // preference: chainReact plays nothing for a `fireAt` that is neither
+    // "inview" nor "<n>px"; `${x} ${y}` builds an invalid shadow from bare
+    // numbers; Element.animate() throws on keyframes that are a string.
+    "fire-at": {
+        want: '"inview", or a scroll offset like "400px"',
+        bad: (v) => v !== "inview" && !(typeof v === "string" && /^\d+(\.\d+)?px$/.test(v)),
+        level: "warning",
+        fix: () => ['"inview"', '"400px"'],
+    },
+    keyframes: {
+        want: "Web Animations keyframes: an array of {css} frames, or {property: [values]}",
+        bad: (v) => !Array.isArray(v) && !isPlainObject(v),
+        level: "warning",
+        fix: () => ['[{ opacity: 0 }, { opacity: 1 }]'],
+    },
+    "anim-options": {
+        want: "Web Animations options {duration, delay, easing, fill}, or a duration in ms",
+        bad: (v) => !isPlainObject(v) && !(typeof v === "number" && v >= 0),
+        level: "warning",
+        fix: () => ['{ duration: 600, fill: "forwards" }'],
+    },
+    "css-lengths": {
+        want: 'an array of one or two CSS lengths, e.g. ["4px", "6px"]',
+        bad: (v) => !Array.isArray(v) || v.length < 1 || v.length > 2
+            || v.some((x) => typeof x !== "string" && x !== 0),
+        level: "warning",
+        fix: (v) => (Array.isArray(v) ? [JSON.stringify(v.map((x) => (typeof x === "number" ? `${x}px` : String(x))))] : ['["3px", "3px"]']),
+    },
+    colors: {
+        want: 'an array of CSS colours, e.g. ["#000", "#333"]',
+        bad: (v) => !Array.isArray(v) || !v.length || v.some((x) => typeof x !== "string"),
+        level: "warning",
+        fix: (v) => (typeof v === "string" ? [JSON.stringify([v])] : ['["#000"]']),
+    },
+    numbers: {
+        want: "an array of numbers (px)",
+        bad: (v) => !Array.isArray(v) || v.some((x) => typeof x !== "number"),
+        level: "warning",
+        fix: () => ["[0, 24, 48]"],
+    },
+    "span-parts": {
+        want: "an array of { text, style } — text a string found in the element's text",
+        bad: (v) => !Array.isArray(v) || v.some((p) => !isPlainObject(p) || typeof p.text !== "string"
+            || (p.style !== undefined && !isPlainObject(p.style))),
+        level: "warning",
+        fix: () => ['[{ text: "Moon", style: { color: "#f90" } }]'],
+    },
+    "link-style-ops": {
+        want: `dash-joined tokens from ${LINK_STYLE_TOKENS.join(", ")}, e.g. "air-round-hover"`,
+        bad: (v) => typeof v !== "string" || !v.split("-").every((t) => LINK_STYLE_TOKENS.includes(t)),
+        level: "warning",
+        fix: () => ['"round-full-hover"'],
+    },
+    "css-gradient": {
+        want: 'a CSS gradient, e.g. "linear-gradient(90deg, #1d6fe0, #7fd1ff)"',
+        bad: (v) => typeof v !== "string" || !/gradient\s*\(/.test(v),
+        level: "warning",
+        fix: () => ['"linear-gradient(90deg, #1d6fe0, #7fd1ff)"'],
+    },
+    // A transform's duration, top-level or inside `op`. designer.js expands
+    // the three words; reactOnTransform halves "<n>s-<easing>" into the
+    // transition (an integer n only: "1.5s-ease" is written verbatim and is
+    // not a CSS transition) and reads the total with parseFloat.
+    "transform-duration": {
+        want: '"fast" | "medium" | "slow", or "<n>s-<easing>" with a whole n, e.g. "4s-ease-in-out", or "<n>s"',
+        bad: (v) => typeof v !== "string"
+            || !/^(fast|medium|slow|default|\d+s-[a-z][a-z-]*|\d+(\.\d+)?s)$/i.test(v.trim()),
+        level: "warning",
+        fix: (v) => (typeof v === "number" && v > 0
+            ? [`"${Math.max(1, Math.round(v > 50 ? v / 1000 : v))}s-ease-in-out"`]
+            : ['"medium"', '"4s-ease-in-out"']),
+    },
+    // `border`: a CSS shorthand string on every element (commonMethods); the
+    // object and array forms some components read ({width, color} on a
+    // circle, ["top", "2px"] on a row, a hover's border) are theirs to judge
+    // and pass here. A number is no border at all (0 aside).
+    "css-border": {
+        want: 'a CSS border shorthand — width, style and colour in any order, e.g. "1px solid #0B0B0C"',
+        bad: (v) => (typeof v === "string" ? !cssBorderOk(v)
+            : typeof v === "number" ? v !== 0
+            : !(Array.isArray(v) || isPlainObject(v))),
+        level: "warning",
+        fix: (v) => (typeof v === "number" ? [`"${v}px solid currentColor"`] : ['"1px solid #0B0B0C"']),
+    },
+    // A CSS box-shadow string (circle's own `shadow`; the design node comes
+    // in as shadowOp).
+    "css-shadow": {
+        want: 'a CSS box-shadow string, e.g. "0 4px 12px rgba(0,0,0,.2)"',
+        bad: (v) => typeof v !== "string" && !isPlainObject(v),
+        level: "warning",
+        fix: () => ['"0 4px 12px rgba(0,0,0,.2)"'],
+    },
+    "css-filter": {
+        want: 'a CSS filter, e.g. "grayscale(0.7)"',
+        bad: (v) => typeof v !== "string" || !(/\w\s*\(/.test(v) || v === "none"),
+        level: "warning",
+        fix: () => ['"grayscale(0.7)"'],
+    },
 };
+
+// ── CSS border shorthand ────────────────────────────────────────────────
+// What `border: "<string>"` must be for element.style.border to take it: at
+// most one width, one style and one colour, in any order, or a global
+// keyword. The CSSOM drops anything else without a word, so a typo
+// ("2px solidd red", "2 solid red") rendered no border and validated clean.
+const CSS_NAMED_COLORS = new Set(("aliceblue antiquewhite aqua aquamarine azure beige bisque black " +
+    "blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue " +
+    "cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki " +
+    "darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue " +
+    "darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue " +
+    "firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow " +
+    "grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon " +
+    "lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink " +
+    "lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime " +
+    "limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen " +
+    "mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose " +
+    "moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen " +
+    "paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red " +
+    "rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue " +
+    "slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white " +
+    "whitesmoke yellow yellowgreen transparent currentcolor canvas canvastext linktext graytext " +
+    "buttonface buttontext buttonborder field fieldtext highlight highlighttext accentcolor accentcolortext " +
+    "mark marktext visitedtext activetext").split(" "));
+const BORDER_STYLES = new Set(["none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"]);
+const CSS_GLOBALS = new Set(["inherit", "initial", "unset", "revert", "revert-layer"]);
+const CSS_LENGTH_UNIT = "px|em|rem|vw|vh|vi|vb|vmin|vmax|svw|svh|lvw|lvh|dvw|dvh|cqw|cqh|cqi|cqb|cqmin|cqmax|pt|pc|cm|mm|q|in|ch|ex|ic|cap|lh|rlh";
+const BORDER_WIDTH = new RegExp(`^(thin|medium|thick|[+-]?0*\\.?0+|[+-]?(\\d+\\.?\\d*|\\.\\d+)(${CSS_LENGTH_UNIT}))$`, "i");
+const COLOR_FN = /^(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark)\(/i;
+const LENGTH_FN = /^(calc|min|max|clamp)\(/i;
+
+/** Split on whitespace outside parentheses; null when they do not balance. */
+function cssTokens(v) {
+    const out = [];
+    let depth = 0, cur = "";
+    for (const c of v) {
+        if (c === "(") depth++;
+        if (c === ")") { depth--; if (depth < 0) return null; }
+        if (/\s/.test(c) && depth === 0) { if (cur) out.push(cur); cur = ""; continue; }
+        cur += c;
+    }
+    if (depth !== 0) return null;
+    if (cur) out.push(cur);
+    return out;
+}
+
+/** Is `v` a border shorthand element.style.border accepts? */
+function cssBorderOk(v) {
+    const t = cssTokens(String(v).trim());
+    if (!t || !t.length || t.length > 3) return false;
+    if (t.length === 1 && CSS_GLOBALS.has(t[0].toLowerCase())) return true;
+    // A custom property can stand for any part; it cannot be checked here.
+    if (t.some((x) => /var\(/i.test(x))) return true;
+    const seen = { width: 0, style: 0, color: 0 };
+    for (const x of t) {
+        const lx = x.toLowerCase();
+        if (BORDER_STYLES.has(lx)) seen.style++;
+        else if (BORDER_WIDTH.test(x) || LENGTH_FN.test(x)) seen.width++;
+        else if (/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(x) || COLOR_FN.test(x) || CSS_NAMED_COLORS.has(lx)) seen.color++;
+        else return false;
+    }
+    return seen.width <= 1 && seen.style <= 1 && seen.color <= 1;
+}
+
+/** One resprop/respad/resmar entry: placed somewhere, with numeric bounds. */
+function respropEntryOk(e) {
+    if (!isPlainObject(e)) return false;
+    const num = (x) => x === undefined || (typeof x === "number" && Number.isFinite(x) && x >= 0);
+    if (!num(e.min) || !num(e.max)) return false;
+    if (e.min !== undefined && e.max !== undefined && e.min > e.max) return false;
+    if (e.container !== undefined) {
+        if (!isPlainObject(e.container) || !num(e.container.min) || !num(e.container.max)) return false;
+        if (e.container.min !== undefined && e.container.max !== undefined && e.container.min > e.container.max) return false;
+        return true;
+    }
+    if (e.media !== undefined) return typeof e.media === "string" && e.media.trim() !== "";
+    return e.breakpoint !== undefined || e.min !== undefined || e.max !== undefined;
+}
 
 /** `enum(a|b|c)` is declared inline rather than listed here. */
 function shapeFor(unit) {
@@ -195,6 +394,18 @@ const REQUIRED_FIELDS = {
     audio: [["url", "the audio file's URL"]],
     multiswitcher: [["breakpoints", "a non-empty array of { at, view }"]],
     simple: [["react", "a non-empty array of { at, template }"]],
+    model: [["url", "the .glb / .gltf file's URL (`src` is accepted too)"]],
+    // An empty tablist is a broken widget, not an empty one: a screen reader
+    // announces a tab list with no tabs in it.
+    tabs: [["items", "a non-empty array of { label, children }"]],
+};
+
+/**
+ * Fields the element renders without, but should not: reported as WARNINGS
+ * (the page renders), with the same code, so one repair loop handles both.
+ */
+const RECOMMENDED_FIELDS = {
+    model: [["alt", "a text description of what the model shows — its accessible name"]],
 };
 
 export const DESIGN_OP_NAMES = [
@@ -225,9 +436,23 @@ const ARRANGE_MODES = ["row", "column", "expand", "collapse"];
  * positives on working pages, and `preview` refuses an invalid pair.
  */
 const DESIGN_FIELDS = ["op", "target", "range", "style", "duration"];
+// `direction` too: designer.js reads `node.direction === "radial"` off every
+// node and substitutes a radial gradient, which the shorthand then lifts into
+// its op — so `{ op: "gradient", direction: "radial" }` works, and was being
+// reported as an unknown parameter.
 const BARE_DESIGN_FIELDS = [
-    ...DESIGN_FIELDS, "filter", "gradient", "color", "width",
+    ...DESIGN_FIELDS, "filter", "gradient", "color", "width", "direction",
 ];
+
+// Which op parameter a shorthand's top-level key is lifted into, per op —
+// read off the expansion in designer.js. `filter` and `gradient` are lifted
+// into whatever op the shorthand names (only the op that reads them uses
+// them); `color` and `width` into `blast` alone. A lifted key the op does not
+// read is dropped, which is reported rather than accepted in silence.
+const BARE_LIFTS = { filter: "filter", gradient: "gradient", color: "color", width: "width", direction: "gradient" };
+const bareLiftReaches = (op, key) =>
+    (key === "color" || key === "width") ? op === "blast"
+        : !!(DESIGN_OP_PARAMS[op] && DESIGN_OP_PARAMS[op].params[BARE_LIFTS[key]]);
 
 /** Node families, told apart exactly the way the runtime tells them apart. */
 const familyOf = (node) => {
@@ -247,6 +472,95 @@ const familyOf = (node) => {
     if (op && typeof op === "object" && typeof op.name === "string") return "design";
     return "invalid";
 };
+
+/**
+ * The keys INSIDE a design node's `op` (and the shorthand's lifted top-level
+ * keys), against lib/design-ops.js. Everything here is a WARNING: the page
+ * renders either way, and 1.2.7 established that refusing a page that
+ * renders is the costlier mistake. But it no longer renders "as written" in
+ * silence — `{ name: "shadow", colours: [...] }` used to validate clean and
+ * paint a grey shadow.
+ *
+ *   UNKNOWN_OP_PARAM  a key no code reads for this op; did-you-mean from the
+ *                     op's own parameters first, then any design op's (a key
+ *                     that belongs to a DIFFERENT op is the likelier mistake).
+ *   PARAM_INERT       a key that is read and provably changes nothing.
+ *   BAD_PARAM_VALUE   a value the reading code cannot use.
+ */
+function checkDesignParams(node, name, bare, path, warn) {
+    const spec = DESIGN_OP_PARAMS[name];
+    if (!spec) return;                       // unknown op: reported already
+    const known = Object.keys(spec.params);
+    const everyParam = [...new Set(Object.values(DESIGN_OP_PARAMS).flatMap((s) => Object.keys(s.params)))];
+
+    const checkValue = (key, value, at) => {
+        const p = spec.params[key];
+        if (!p) return;
+        if (p.inert) {
+            warn("PARAM_INERT", at, key, [], [p.summary], `"${name}" reads "${key}" but it has no effect: ${p.inert}.`);
+            return;
+        }
+        // arrange's mode is an ERROR (BAD_FIELD) already; one report is enough.
+        if (name === "arrange" && key === "mode") return;
+        const shape = shapeFor(p.unit);
+        if (shape && value !== undefined && shape.bad(value)) {
+            warn("BAD_PARAM_VALUE", at, value, shape.fix(value), [shape.want]);
+        }
+    };
+
+    if (!bare) {
+        for (const key in node.op) {
+            if (key === "name") continue;
+            const at = `${path}.op.${key}`;
+            if (!known.includes(key)) {
+                const own = suggest(key, known);
+                const other = suggest(key, everyParam).filter((k) => !own.includes(k));
+                warn("UNKNOWN_OP_PARAM", at, key, [...own, ...other].slice(0, 3),
+                    known.length ? known : ["(this op reads no options)"],
+                    `${didYouMean(key, known, `"${name}" option`)}${spec.readIn.length ? ` Read in ${spec.readIn.join("; ")}.` : ""}`);
+                continue;
+            }
+            checkValue(key, node.op[key], at);
+        }
+    } else {
+        // The shorthand: its documented top-level keys are lifted into the op.
+        for (const key of Object.keys(BARE_LIFTS)) {
+            if (node[key] === undefined) continue;
+            const at = `${path}.${key}`;
+            if (!bareLiftReaches(name, key)) {
+                warn("PARAM_INERT", at, key, [], [`"${key}" is lifted into ${key === "color" || key === "width" ? "blast" : BARE_LIFTS[key]} only`],
+                    `"${key}" on a "${name}" shorthand is dropped: "${name}" does not read it.`);
+                continue;
+            }
+            if (key === "direction") {
+                if (node.direction !== "radial") {
+                    warn("BAD_PARAM_VALUE", at, node.direction, ['"radial"'], ['"radial" — any other value is ignored']);
+                }
+                continue;
+            }
+            checkValue(BARE_LIFTS[key], node[key], at);
+        }
+    }
+
+    // Top-level `style`/`duration` are read off every design node and USED by
+    // transform alone (designer.js picks the preset with `style`).
+    if (name === "transform") {
+        if (node.style !== undefined && !TRANSFORM_STYLES.includes(node.style)) {
+            warn("BAD_PARAM_VALUE", `${path}.style`, node.style,
+                suggest(String(node.style), TRANSFORM_STYLES), TRANSFORM_STYLES,
+                "an unknown preset falls through to the default motion");
+        }
+        // Top-level `duration` sets the op's duration (unless `op.duration`
+        // is given), so its value is checked like the op's own.
+        if (node.duration !== undefined) checkValue("duration", node.duration, `${path}.duration`);
+    } else {
+        for (const key of ["style", "duration"]) {
+            if (node[key] === undefined) continue;
+            warn("PARAM_INERT", `${path}.${key}`, key, [], ["used by transform nodes only"],
+                `"${key}" is read off every design node but only a transform uses it; on "${name}" it does nothing.`);
+        }
+    }
+}
 
 /**
  * Check an array of nodes against the registry.
@@ -285,6 +599,7 @@ export const CONTENT_SLOT = {
     dropdown: "items", picker: "items", radio: "items",
     row: "children", form: "children", stack: "children", wrap: "children",
     product: "children",
+    disclosure: "children", tabs: "items", scroller: "children", marquee: "children",
 };
 
 // Of the types that read `items`, which read the entries as ELEMENT SPECS
@@ -295,6 +610,17 @@ export const CONTENT_SLOT = {
 // than trusted, because a hand-kept table beside a mapper is exactly what
 // drifted before 1.2.8.
 export const SPEC_ITEMS = new Set(["ulist"]);
+
+// Types whose mapper maps `children` entry by entry through
+// ElementMapper.mapType, where a plain string (or number) renders as a `p` of
+// that text. Everywhere else a string child is ignored (or the slot is data),
+// and LEGACY_CHILD_STRING still reports it. Pinned by rendering a string child
+// on every element type (round2-mapper.test.mjs). A tab's children and the
+// page's own top-level list take strings too.
+export const STRING_CHILD_TYPES = new Set([
+    ...Object.keys(CONTENT_SLOT).filter((t) => CONTENT_SLOT[t] === "children"),
+    "simple",
+]);
 
 // Of the types that read `items` but NOT as flat element specs, what an entry
 // may be. Measured by rendering every shape against every type rather than read
@@ -329,9 +655,20 @@ export const ITEM_SHAPE = {
     dropdown: { nest: false, keys: [], valid: 'a plain string, or a [value, text] pair' },
     picker:   { nest: false, keys: [], valid: 'a plain string, or a [value, text] pair' },
     radio:    { nest: false, keys: [], valid: 'a plain string' },
+    // A tab is { label, children }. An element spec written straight into
+    // `items` renders as an empty "Tab n" — so the repair hands back the spec
+    // wrapped as that tab's content, labelled with its own text when it has
+    // some. `fix` is used instead of the {title, link} suggestion below.
+    tabs: {
+        nest: false, keys: ["label", "title", "children"],
+        valid: '{ label, children: [element specs] }, or a plain string (a tab with no content yet)',
+        fix: (entry, text) => ({ label: text === undefined ? "…" : text, children: [entry] }),
+    },
 };
 
-export function validateNodes(nodes, elements, defs) {
+// `options.defaults`: the page defaults the pair will be rendered with
+// (`new Des().defaults(...)`). Optional; see lib/page-defaults.js.
+export function validateNodes(nodes, elements, defs, options) {
     const errors = [];
     // Findings that describe a page which will render, but not as written.
     // They are kept apart from `errors` so `ok` keeps meaning "this will
@@ -360,13 +697,18 @@ export function validateNodes(nodes, elements, defs) {
 
     // Ids declared by E, including children, since `target` may name any
     // of them. Absent E, id checking is skipped rather than guessed at.
+    // Every spec-shaped slot counts (lib/spec-walk.js): children, a card's
+    // nested specs, a list's spec items, a tab's content, a disclosure's
+    // summary, a nav's actions and brand. Walking `children` alone reported
+    // a node aimed at an element inside a card or a list UNKNOWN_TARGET,
+    // though the element rendered with its id and the node applied.
     const ids = [];
     const walk = (list) => {
         if (!Array.isArray(list)) return;
         for (const el of list) {
-            if (!el || typeof el !== "object") continue;
+            if (!el || typeof el !== "object" || Array.isArray(el)) continue;
             if (typeof el.id === "string") ids.push(el.id);
-            walk(el.children);
+            walk(nestedSpecs(el).map((n) => n.spec));
         }
     };
     if (elements !== undefined) walk(elements);
@@ -467,16 +809,28 @@ export function validateNodes(nodes, elements, defs) {
     // element it actually becomes rather than reported as an unknown parameter.
     if (Array.isArray(toWalk)) toWalk = normalizeSpec(toWalk);
 
+    // Page defaults (`new Des().defaults({...})`), filled in exactly as Des
+    // fills them, so the elements checked are the elements that render: a
+    // default only lands where the type takes it, which is why it can never
+    // be the cause of a PARAM_NOT_ON_TYPE here.
+    const pageDefaults = options && typeof options === "object" ? options.defaults : undefined;
+    for (const f of checkPageDefaults(pageDefaults)) warnings.push(f);
+    if (Array.isArray(toWalk)) toWalk = applyPageDefaults(toWalk, pageDefaults);
+
     if (idsKnown) {
-        const walkEls = (list, at) => {
+        // `textOk`: the list is one the mapper maps entry by entry, where a
+        // plain string renders as a paragraph of that text (the page's own
+        // list, the children of STRING_CHILD_TYPES, a tab's children).
+        const walkEls = (list, at, textOk = false) => {
             if (!Array.isArray(list)) return;
             list.forEach((el, i) => {
                 const p = `${at}[${i}]`;
+                if (textOk && (typeof el === "string" || (typeof el === "number" && Number.isFinite(el)))) return;
                 if (!el || typeof el !== "object" || Array.isArray(el)) {
-                    // A bare string here is almost always the pre-S1 way of
-                    // gesturing at a composite's shape —
-                    // `children: ["image","text","link"]`. The mapper accepts
-                    // it and ignores it, which is the silent no-op this
+                    // A bare string where it cannot render is almost always
+                    // the pre-S1 way of gesturing at a composite's shape —
+                    // `children: ["image","text","link"]` on a cards grid.
+                    // The mapper ignores it, which is the silent no-op this
                     // validator exists to remove, so name the working form
                     // rather than emitting a generic shape error.
                     if (typeof el === "string") {
@@ -512,6 +866,13 @@ export function validateNodes(nodes, elements, defs) {
                         }
                     }
                 }
+                const advised = RECOMMENDED_FIELDS[el.type];
+                if (advised) {
+                    for (const [field, what] of advised) {
+                        const v = el[field];
+                        if (v == null || v === "") warn("MISSING_FIELD", `${p}.${field}`, v, [], [what]);
+                    }
+                }
                 // Content declared in the slot this type does not read.
                 // `{type:"table", children:[...]}` validated clean and then
                 // rendered its placeholders — the exact silent no-op Stage 1
@@ -544,7 +905,19 @@ export function validateNodes(nodes, elements, defs) {
                     }
                 }
 
-                walkEls(el.children, `${p}.children`);
+                walkEls(el.children, `${p}.children`, STRING_CHILD_TYPES.has(el.type));
+                // Element specs held in a tab's `children` and in a
+                // disclosure's `summary`: checked like any others.
+                if (el.type === "tabs" && Array.isArray(el.items)) {
+                    el.items.forEach((tab, k) => {
+                        if (isPlainObject(tab)) walkEls(tab.children, `${p}.items[${k}].children`, true);
+                        // An array entry is the tab's content itself.
+                        else if (Array.isArray(tab)) walkEls(tab, `${p}.items[${k}]`, true);
+                    });
+                }
+                if (el.type === "disclosure" && isPlainObject(el.summary)) {
+                    walkEls([el.summary], `${p}.summary`);
+                }
 
                 // Phase S3: a misspelled element parameter. `{type:"cards",
                 // itms:[…]}` used to validate clean and then render a grid
@@ -641,7 +1014,7 @@ export function validateNodes(nodes, elements, defs) {
                 // `items` means the same thing wherever a composite accepts
                 // it, and a table would drift from the mapper the way the
                 // op registry did before 1.2.8.
-                if (Array.isArray(el.items)) {
+                if (Array.isArray(el.items) && el.type !== "tabs") {
                     el.items.forEach((entry, k) => {
                         if (Array.isArray(entry)) walkEls(entry, `${p}.items[${k}]`);
                     });
@@ -712,7 +1085,9 @@ export function validateNodes(nodes, elements, defs) {
                         const text = ["text", "title", "label"]
                             .map((key) => entry[key]).find((v) => typeof v === "string");
                         const suggestions = [];
-                        if (shape.nest && typeof entry.type === "string") {
+                        if (typeof shape.fix === "function") {
+                            suggestions.push(JSON.stringify(shape.fix(entry, text)));
+                        } else if (shape.nest && typeof entry.type === "string") {
                             suggestions.push(JSON.stringify([entry]));
                         } else if (shape.keys.length) {
                             suggestions.push(JSON.stringify({
@@ -727,7 +1102,7 @@ export function validateNodes(nodes, elements, defs) {
                 }
             });
         };
-        walkEls(toWalk, "elements");
+        walkEls(toWalk, "elements", true);
     }
 
     nodes.forEach((node, i) => {
@@ -810,6 +1185,8 @@ export function validateNodes(nodes, elements, defs) {
                         ["the id of the row, cards or nav it switches"]);
                 }
             }
+
+            checkDesignParams(node, name, bare, path, warn);
             return;
         }
 
@@ -1067,6 +1444,18 @@ export function validateNodes(nodes, elements, defs) {
             push("UNKNOWN_EASING", `${path}.ease`, node.ease,
                 suggest(node.ease, EASING_NAMES), EASING_NAMES);
         }
+        // The `pointer:` device gate. The runtime fails closed on a name it
+        // does not know — the node is dropped on every device — so a typo is
+        // provably inert: an error. Read from the gate table itself
+        // (raster-ops.js POINTER_GATE_NAMES) plus "any", which the gate
+        // treats as "no gate".
+        if (node.pointer !== undefined && node.pointer !== null) {
+            const gates = [...POINTER_GATE_NAMES, "any"];
+            if (!gates.includes(node.pointer)) {
+                push("BAD_PARAM_VALUE", `${path}.pointer`, node.pointer,
+                    suggest(String(node.pointer), gates), gates);
+            }
+        }
         if (node.side !== undefined && !["old", "new"].includes(node.side)) {
             push("BAD_VALUE", `${path}.side`, node.side,
                 suggest(String(node.side), ["old", "new"]), ["old", "new"]);
@@ -1157,6 +1546,28 @@ export function describeOps() {
         // How the nodes of each op combine: first (later ones ignored),
         // sequence (all apply in order) or inert. See lib/op-semantics.js.
         semantics: OP_SEMANTICS,
+        // The design family, which this reply did not describe at all until
+        // now: an agent could learn that `shadow` exists and not one option
+        // it takes. Same per-param shape as `ops`, from lib/design-ops.js.
+        // `inert` params are listed WITH the reason, because they are read
+        // and an author will meet them in old pages.
+        designOps: DESIGN_OP_NAMES.map((name) => {
+            const spec = DESIGN_OP_PARAMS[name] || { summary: "", params: {} };
+            return {
+                op: name,
+                summary: spec.summary,
+                shorthand: BARE_DESIGN_OPS.includes(name),
+                params: Object.keys(spec.params).map((p) => ({
+                    name: p,
+                    unit: spec.params[p].unit,
+                    summary: spec.params[p].summary,
+                    ...(spec.params[p].inert ? { inert: spec.params[p].inert } : {}),
+                })),
+            };
+        }),
+        // The top-level keys of a design node, and what the shorthand lifts.
+        designFields: Object.keys(DESIGN_NODE_FIELDS).map((k) => ({ name: k, summary: DESIGN_NODE_FIELDS[k] })),
+        transformStyles: TRANSFORM_STYLES,
     };
 }
 

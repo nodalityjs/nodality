@@ -1,4 +1,6 @@
 import {Animator} from "./animator.js";
+import { afterLoader } from "../lib/loader.js";
+import { seenAtHandover } from "../lib/handover.js";
 
 
 import { jsString } from "../lib/codegen.js";
@@ -269,6 +271,21 @@ let obj = options;
 
 	options.clipPath && this.clipPath(options.clipPath);
 	options.clipPath && (stra += `clipPath: ${jsString(options.clipPath)}, \n`);
+
+	//@ img.intrinsic {array}: The image file's own size in pixels, [width, height], written as the HTML width and height attributes. The browser then knows the image's shape before the file arrives, so nothing on the page moves when it loads (no layout shift). Your CSS width/height/aspect-ratio still decide the displayed size.
+	if (Array.isArray(options.intrinsic) && options.intrinsic.length === 2) {
+		const [iw, ih] = options.intrinsic.map((n) => Math.round(Number(n)));
+		if (iw > 0 && ih > 0) {
+			this.res.setAttribute("width", String(iw));
+			this.res.setAttribute("height", String(ih));
+			// The attributes are for the SHAPE only. Left alone, the browser
+			// also takes them as the displayed size (a 2000 px tall photo);
+			// a dimension the page did not set stays automatic.
+			if (!this.res.style.height && !this.declaresDimension("height")) this.res.style.height = "auto";
+			if (!this.res.style.width && !this.declaresDimension("width")) this.res.style.width = "auto";
+			stra += `intrinsic: [${iw}, ${ih}], \n`;
+		}
+	}
 
 	//@ img.reveal {object}: Reveal the image through a mask as it scrolls into view: {mask: "square", size: 0.3, duration: "1.2s", easing, zoom: 1.12, offset: 0.2, delay: "0s", once: true}. It starts as a centred square `size` × its shorter side and opens to the full frame once the square rises `offset` of the viewport height above the bottom edge. Owns clip-path and scale while it runs; reduced-motion visitors, and pages with no IntersectionObserver (the prerender), get the image unmasked.
 	options.reveal && this.reveal(options.reveal);
@@ -720,6 +737,9 @@ if (mqa.matches){
 			return this;
 		}
 		if (typeof window === "undefined" || typeof window.IntersectionObserver !== "function") return this;
+		// Prerender (layout/prerender.js): its observer shim never fires, so a
+		// mask written now would stay closed in the saved HTML.
+		if (window.__NODALITY_PRERENDER__) return this;
 		const reduced = typeof window.matchMedia === "function" &&
 			window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 		if (reduced) return this;
@@ -753,8 +773,44 @@ if (mqa.matches){
 		el.style.willChange = "clip-path, scale";
 		el.style.transition = transition;
 
+		// The zoom must not widen the page. clip-path only clips what is
+		// PAINTED: the scaled box still counts as scrollable overflow, so an
+		// image at the screen edge made the whole page scroll sideways until
+		// it was revealed. The overflow is clipped on the image's parent, on
+		// the x axis only (overflow-x: clip — no scroll container, so sticky
+		// children and vertical overflow are unaffected), for as long as the
+		// image is zoomed: the parent's own value comes back once the reveal
+		// has settled at scale 1. Nothing to do when there is no zoom.
+		let clipped = null; // { node, prev } while the parent is clipped
+		const clipParent = () => {
+			if (clipped || !(zoom > 1)) return;
+			const p = el.parentElement;
+			if (!p || p === document.body || p === document.documentElement || !p.style) return;
+			clipped = { node: p, prev: p.style.overflowX };
+			if (!p.style.overflowX || p.style.overflowX === "visible") p.style.overflowX = "clip";
+			else clipped.prev = null; // the parent already clips/scrolls: leave it as it is
+		};
+		const unclipParent = () => {
+			if (!clipped) return;
+			if (clipped.prev !== null && clipped.node.style.overflowX === "clip") clipped.node.style.overflowX = clipped.prev;
+			clipped = null;
+		};
+		this._track(unclipParent);
+		clipParent();
+		if (!clipped && typeof setTimeout === "function") {
+			// Not in the page yet (Des mounts after set()): clip as soon as it is.
+			let tries = 0;
+			const wait = () => {
+				if (clipped || open || this._destroyed) return;
+				if (el.parentElement) { clipParent(); return; }
+				if (++tries < 80) timer = setTimeout(wait, tries === 1 ? 0 : 50);
+			};
+			let timer = setTimeout(wait, 0);
+			this._track(() => clearTimeout(timer));
+		}
+
 		const ro = typeof window.ResizeObserver === "function"
-			? new window.ResizeObserver(() => { if (!open) settle(); })
+			? new window.ResizeObserver(() => { clipParent(); if (!open) settle(); })
 			: null;
 		ro && ro.observe(el);
 
@@ -768,11 +824,13 @@ if (mqa.matches){
 		const io = new window.IntersectionObserver((entries) => {
 			for (const entry of entries) {
 				if (entry.isIntersecting && !open) {
+					clipParent();
 					open = true;
-					el.style.clipPath = "inset(0px 0px)";
-					el.style.scale = "1";
+					// Under a loading curtain the mask opens once it lifts.
+					afterLoader(() => { el.style.clipPath = "inset(0px 0px)"; el.style.scale = "1"; });
 					if (once) { io.disconnect(); ro && ro.disconnect(); }
 				} else if (!entry.isIntersecting && open && !once) {
+					clipParent();
 					open = false;
 					el.style.clipPath = closed();
 					el.style.scale = String(zoom);
@@ -781,13 +839,42 @@ if (mqa.matches){
 		}, { threshold: 0, rootMargin: `0px 0px ${-offset * 100}% 0px` });
 		io.observe(el);
 
-		el.addEventListener("transitionend", () => { if (open && once) el.style.willChange = "auto"; });
+		// The live page taking over from the prerendered copy, which showed
+		// this image open: if it is on screen (or above) it stays open,
+		// without the mask playing again (lib/handover.js).
+		Promise.resolve().then(() => {
+			if (open || !seenAtHandover(el)) return;
+			open = true;
+			el.style.transition = "none";
+			el.style.clipPath = "inset(0px 0px)";
+			el.style.scale = "1";
+			void el.offsetWidth;
+			el.style.transition = transition;
+			el.style.willChange = "auto";
+			unclipParent();
+			if (once) { io.disconnect(); ro && ro.disconnect(); }
+		});
+
+		el.addEventListener("transitionend", (e) => {
+			if (!open) return;
+			if (once) el.style.willChange = "auto";
+			// Settled at scale 1: nothing overflows any more.
+			if (!e || !e.propertyName || e.propertyName === "scale") unclipParent();
+		});
 		return this;
 	}
 
 	clipPath(pathData) {
+        // `clipPath` is also the CSS-named option every element takes
+        // (STYLE_OPTIONS), which commonMethods has already applied when the
+        // value IS a CSS clip-path ("circle(50%)", "inset(…)"). Wrapping that
+        // in path("…") would build an invalid value; leave it as applied.
+        // Only SVG path data — what img has always read here — is wrapped.
+        if (typeof pathData === "string" && /^\s*(none|inherit|initial|unset|revert|(inset|circle|ellipse|polygon|path|rect|xywh|shape|url)\s*\(|(margin|border|padding|content|fill|stroke|view)-box)/.test(pathData)) {
+            return this;
+        }
         // Create a unique ID for the clip path
-       
+
         // Apply the clip-path to the element
         this.res.style.clipPath = `path("${pathData}")`; //`path("M 20 240 \
  //C 20 0 300 0 300 240 Z")`;

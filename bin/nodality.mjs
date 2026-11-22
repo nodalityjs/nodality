@@ -865,11 +865,18 @@ async function runCompile(rawArgs) {
     "Button", "Des", "LinkStyler", "CardGen", "KeyframeAnim",
     "TransformAnim", "Stacker", "ScrollVideo", "Theme",
     "AreaSwitcher", "Video", "UList", "Slider",
+    "Model", "Disclosure", "Tabs", "Scroller", "Marquee",
     "Polygon", "Circle", "GridOverlay", "Shop", "FloatingInput", "Form",
   ]);
   const used = new Set();
   for (const line of emitted) {
     for (const m of line.matchAll(/\bnew\s+([A-Z]\w*)/g)) {
+      if (NODALITY_EXPORTS.has(m[1])) used.add(m[1]);
+    }
+    // Static helpers the emitted code calls: ElementMapper.lowered(…) carries
+    // a background/margin node's values, ElementMapper.responsive(…) the
+    // resprop of a component whose set() does not apply it.
+    for (const m of line.matchAll(/\b([A-Z]\w*)\.[a-z]\w*\(/g)) {
       if (NODALITY_EXPORTS.has(m[1])) used.add(m[1]);
     }
   }

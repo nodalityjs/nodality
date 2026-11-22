@@ -29,7 +29,7 @@
  *     node scripts/generate-schema.mjs --check      # exit 1 if it would change
  *     node scripts/generate-schema.mjs --type cards # print one type
  */
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -232,10 +232,28 @@ const SCOPED = new Set();
 // shared helper -- `mar`, `pad`, `transform` in animator.js -- keeps its
 // description on every type that accepts it.
 const DESC_GLOBAL = {}, DEPR_GLOBAL = {};
+// layout/behaviours/*.js: options Animator applies to EVERY component after
+// its own set() (hover, aria, copy, spy, …; see the wrapped set in
+// animator.js). Like `loop`, no component file reads them, so they are
+// credited below to every Animator type whose element options reach it.
+const BEHAVIOURS_DIR = join(ROOT, "layout", "behaviours");
+const BEHAVIOUR_FILES = existsSync(BEHAVIOURS_DIR)
+  ? readdirSync(BEHAVIOURS_DIR).filter((f) => f.endsWith(".js") && f !== "index.js").sort().map((f) => join(BEHAVIOURS_DIR, f))
+  : [];
+// Whether a component file declares a class that extends Animator. Block
+// comments are stripped first: RadioGroup is `class RadioGroup /*extends
+// Animator*/ {`, which a plain search read as an Animator.
+const extendsAnimator = (f) => {
+  try { return /extends\s+Animator\b/.test(readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "")); }
+  catch { return false; }
+};
 {
   const files = new Set(Object.values(IMPORTS)
     .map((rel) => join(ROOT, "lib", rel)).filter(existsSync));
   files.add(MAPPER);
+  // The behaviour modules are imported by animator.js, not by the mapper, so
+  // the import scan above never reaches their annotations.
+  for (const f of BEHAVIOUR_FILES) files.add(f);
   for (const f of files) {
     const desc = {}, depr = {}, units = {};
     for (const line of readFileSync(f, "utf8").split("\n")) {
@@ -297,7 +315,10 @@ const PIXELS_WHEN_BARE = new Set((ANIMATOR_SRC.match(/const PIXELS_WHEN_BARE = n
 // element itself on every component. The rest (theme, noTheme, hide, size,
 // center, raster, …) depend on the component or on a theme being set, and are
 // credited where a component reads them, if at all.
-const COMMON_CREDITED = ["pad", "mar", "weight", "bold", "borderObj", "respad", "resmar"];
+// `resprop`, `vars`, `keySet` and a string `border` are applied by commonMethods unconditionally
+// as well; left out, a type whose only reader is commonMethods (model,
+// disclosure, tabs, scroller, marquee) was told it ignores its own resprop.
+const COMMON_CREDITED = ["pad", "mar", "weight", "bold", "borderObj", "respad", "resmar", "resprop", "vars", "keySet", "border"];
 const COMMON_READS = (() => {
   const start = ANIMATOR_SRC.search(/\bcommonMethods\s*\(\s*obj\s*\)\s*\{/);
   if (start < 0) return [];
@@ -400,7 +421,10 @@ for (const type of TYPES) {
   // component's own set() — currently `loop`. Component scans never see them,
   // because they are read in animator.js. Credited only where the type has no
   // parameter of that name already: `video` has its own boolean `loop`.
-  const onAnimator = files.some((f) => { try { return /extends\s+Animator\b/.test(readFileSync(f, "utf8")); } catch { return false; } });
+  // Comments stripped first: radio.js declares `class RadioGroup /*extends
+  // Animator*/`, which matched and credited Animator's options to a class
+  // that never runs them.
+  const onAnimator = files.some((f) => { try { return /extends\s+Animator\b/.test(readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "")); } catch { return false; } });
   // And only where the element's options reach the component at all.
   if (onAnimator && forwardsElement) for (const p of ["loop"]) if (!params.has(p)) contributed(p, ANIMATOR);
 
@@ -446,6 +470,18 @@ for (const type of TYPES) {
   });
   if (runsCommon && forwardsElement) {
     for (const p of [...STYLE_OPTIONS, ...COMMON_CREDITED]) if (!params.has(p)) contributed(p, ANIMATOR);
+  }
+  // The behaviour modules' options (layout/behaviours/*.js), credited to the
+  // module that reads them so its annotation is the description. Through the
+  // RECEIVING class, as above, not "some component is an Animator": radio
+  // renders with Text (an Animator) but hands the element to RadioGroup,
+  // which is not one, so the behaviours never see its options.
+  const receivesOnAnimator = receivers.some((c) => {
+    const f = fileFor(c);
+    return !!f && extendsAnimator(f);
+  });
+  if (receivesOnAnimator && forwardsElement) {
+    for (const f of BEHAVIOUR_FILES) for (const p of paramsOf(f)) if (!params.has(p)) contributed(p, f);
   }
   // A mapper that builds its own options but forwards the element's style
   // options with styleOptionsOf(el) (nav, the commerce types) is credited

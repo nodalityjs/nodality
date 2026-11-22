@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -173,6 +173,10 @@ export async function prerender({
   });
 
   const { window } = dom;
+  // jsdom's style engine rejects modern values — clamp(), min(), max() on
+  // font-size, padding, margin, width… — and silently keeps an older one.
+  // Record what the page wrote so the saved HTML carries the real values.
+  const styleLog = installStyleRecorder(window);
 
   // Optional locale seed — written before any global proxying so the
   // builder sees it as soon as the proxy is in place.
@@ -375,6 +379,11 @@ export async function prerender({
 
     // Run the builder. Errors propagate so the caller knows the
     // page didn't render — better than writing a half-built file.
+    // Tell the library it is being prerendered: entrances (reveal, count,
+    // img.reveal) must leave content in its FINAL, visible state, because the
+    // shims above make IntersectionObserver and Element.animate look present
+    // and nothing would ever play them in the saved HTML.
+    window.__NODALITY_PRERENDER__ = true;
     await build(window);
 
     // Drain the microtask queue so any queued promise.then handlers
@@ -384,6 +393,10 @@ export async function prerender({
     // those won't have their output captured. Keep builders sync or
     // promise-based for full coverage.
     await new Promise((resolve) => setImmediate(resolve));
+    // And the short timers: resprop applies its breakpoints in a
+    // setTimeout(0) (after set() has finished), so without this wait the
+    // saved HTML carried no responsive values at all.
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     // ─── Cleanup pass: dedupe styles + strip body noise ─────────────
     //
@@ -442,6 +455,9 @@ export async function prerender({
       for (const s of body.querySelectorAll(":scope > script")) keepers.add(s);
       // Keep GTM noscript iframe + any other <noscript> fallbacks.
       for (const n of body.querySelectorAll(":scope > noscript")) keepers.add(n);
+      // Keep the loading curtain (lib/loader.js): it has to be in the saved
+      // HTML to cover the static copy from the first paint.
+      for (const n of body.querySelectorAll(":scope > [data-nod-loader]")) keepers.add(n);
       // Remove every direct child that wasn't whitelisted.
       for (const child of Array.from(body.children)) {
         if (!keepers.has(child)) child.remove();
@@ -527,10 +543,24 @@ export async function prerender({
         if (s.textContent === expectedClearBody) s.remove();
       }
 
+      // A mount that `Des` rendered into hands over in place: Des
+      // removes the prerendered children itself, in the same task that
+      // appends the live ones (lib/designer.js), so the page never shows
+      // an empty frame. The old inline clear ran at PARSE time, which
+      // emptied the page for as long as the module bundle took to
+      // download: on a slow connection, a blank screen in place of the
+      // content prerendering exists to show. Pages that render without
+      // Des (imperative .render() calls) keep the inline clear: their
+      // components append, and nothing else would remove the copy.
+      const mountEl = window.document.querySelector(mount);
+      const desRendered = Array.isArray(window.__NODALITY_DES_MOUNTS__)
+        && window.__NODALITY_DES_MOUNTS__.includes(mount);
+      if (mountEl && desRendered) mountEl.setAttribute("data-nod-ssr", "");
+
       const firstRuntimeScript = window.document.querySelector(
         'body script[type="module"][src], body script[src][type="module"]'
       );
-      if (firstRuntimeScript) {
+      if (firstRuntimeScript && !desRendered) {
         const clearScript = window.document.createElement("script");
         // Inline (not type="module") so it executes synchronously,
         // before any module scripts begin loading. Module scripts
@@ -545,6 +575,20 @@ export async function prerender({
     // `<!DOCTYPE html><html>...</html>` including the template's
     // head + the now-populated body PLUS the hydration-clear script
     // we injected above.
+    // Put back the style values jsdom rejected (installStyleRecorder), and
+    // the values resprop and the switcher left for the widths this render
+    // did not see.
+    writeBackStyles(window, styleLog);
+    const rules = window.__NODALITY_PRERENDER_RULES__;
+    // A re-render (a language built from an already prerendered page) must
+    // not stack a second copy; older builds wrote a stylesheet instead.
+    for (const old of window.document.querySelectorAll("style[data-nod-prerender-media], script[data-nod-prerender-widths]")) old.remove();
+    if (Array.isArray(rules) && rules.length && window.document.head) {
+      const sc = window.document.createElement("script");
+      sc.setAttribute("data-nod-prerender-widths", "");
+      sc.textContent = widthScript(rules);
+      window.document.head.appendChild(sc);
+    }
     const rendered = dom.serialize();
 
     // Ensure the output directory exists. Writing to a path like
@@ -631,4 +675,147 @@ export async function prerenderEachLocale({
     results.push({ locale, ...result });
   }
   return results;
+}
+
+
+// ── Style values jsdom cannot hold ─────────────────────────────────────
+//
+// jsdom (cssstyle) validates each property and drops what it does not
+// understand: `el.style.fontSize = "clamp(40px, 6.2vw, 96px)"` leaves
+// font-size as it was. A prerendered page then ships the wrong sizes and
+// spacing, and the live page corrects them on hydration — a visible layout
+// shift. Every write is logged per declaration (accepted or not); for an
+// element with any rejected value, the writes are appended to its style
+// attribute in the order they happened (later ones win, as in the browser).
+// The attribute keeps its raw text even where jsdom's parser would not.
+function kebabProp(name) {
+  if (name.includes("-")) return name;
+  if (name === "cssFloat") return "float";
+  const k = name.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+  return /^(webkit|moz|ms)-/.test(k) ? "-" + k : k;
+}
+
+function installStyleRecorder(window) {
+  const log = new WeakMap(); // declaration → [{ prop, value, ok }]
+  const proto = Object.getPrototypeOf(window.document.createElement("p").style);
+  const entries = (decl) => { let a = log.get(decl); if (!a) { a = []; log.set(decl, a); } return a; };
+  // Rejected = the declaration did not change although a different value
+  // was written. (Not "is empty afterwards": jsdom keeps the OLD value, so a
+  // title with a fluid size already set keeps that one.) A value jsdom
+  // merely normalises (#fff → rgb()) may be flagged too; writing it back is
+  // harmless — it is the same value.
+  const squash = (x) => String(x).replace(/\s+/g, "").toLowerCase();
+  const record = (decl, name, value, before) => {
+    const prop = kebabProp(String(name));
+    const v = value == null ? "" : String(value).trim();
+    if (!v) { entries(decl).push({ prop, remove: true }); return; }
+    const after = decl.getPropertyValue(prop);
+    const ok = after !== "" && (after !== before || squash(after) === squash(v));
+    entries(decl).push({ prop, value: v, ok });
+  };
+  const valueOf = (decl, name) => { try { return decl.getPropertyValue(kebabProp(String(name))); } catch (e) { return ""; } };
+  for (const name of Object.getOwnPropertyNames(proto)) {
+    const d = Object.getOwnPropertyDescriptor(proto, name);
+    if (!d || typeof d.set !== "function" || name === "cssText") continue;
+    const set = d.set;
+    Object.defineProperty(proto, name, { ...d, set(v) {
+      const before = valueOf(this, name);
+      set.call(this, v);
+      try { record(this, name, v, before); } catch (e) { /* never break the page */ }
+    } });
+  }
+  const setProperty = proto.setProperty;
+  proto.setProperty = function (name, value, priority) {
+    const before = valueOf(this, name);
+    const r = setProperty.call(this, name, value, priority);
+    if (!String(name).startsWith("--")) { try { record(this, name, value, before); } catch (e) { /* ignore */ } }
+    return r;
+  };
+  const removeProperty = proto.removeProperty;
+  proto.removeProperty = function (name) {
+    try { entries(this).push({ prop: kebabProp(String(name)), remove: true }); } catch (e) { /* ignore */ }
+    return removeProperty.call(this, name);
+  };
+  // For code that needs the value as written (resprop reading an element's
+  // own value at prerender): the last write of `prop`, accepted or not.
+  // A side read out of a shorthand ("padding: 0 0 clamp(…)") counts too:
+  // `pad` writes the shorthand, resprop asks for padding-bottom.
+  const SIDES = ["top", "right", "bottom", "left"];
+  const tokens = (v) => {
+    const out = []; let depth = 0, cur = "";
+    for (const ch of v) {
+      if (ch === "(") depth++;
+      if (ch === ")") depth--;
+      if (/\s/.test(ch) && depth === 0) { if (cur) out.push(cur); cur = ""; } else cur += ch;
+    }
+    if (cur) out.push(cur);
+    return out;
+  };
+  const sideOf = (shorthandValue, side) => {
+    const t = tokens(shorthandValue);
+    if (!t.length || t.length > 4) return "";
+    const [top, right = top, bottom = top, left = right] = t;
+    return { top, right, bottom, left }[side] || "";
+  };
+  window.__NODALITY_RAW_STYLE__ = (decl, prop) => {
+    const a = log.get(decl);
+    if (!a) return "";
+    const k = kebabProp(prop);
+    const m = k.match(/^(padding|margin)-(top|right|bottom|left)$/);
+    for (let i = a.length - 1; i >= 0; i--) {
+      const e = a[i];
+      if (e.prop === k) return e.remove ? "" : e.value;
+      if (m && e.prop === m[1]) return e.remove ? "" : sideOf(e.value, m[2]);
+    }
+    return "";
+  };
+  return log;
+}
+
+function writeBackStyles(window, log) {
+  for (const el of window.document.querySelectorAll("[style]")) {
+    const a = log.get(el.style);
+    if (!a || !a.some((e) => e.ok === false)) continue;
+    const last = new Map(); // prop → { value, i }
+    a.forEach((e, i) => {
+      if (e.remove) {
+        for (const k of [...last.keys()]) if (k === e.prop || k.startsWith(e.prop + "-")) last.delete(k);
+        return;
+      }
+      last.delete(e.prop);
+      last.set(e.prop, { value: e.value, i });
+    });
+    // Only what is still in force: a property removed since is not revived.
+    const extra = [...last.entries()].sort((x, y) => x[1].i - y[1].i)
+      .filter(([prop, { value }]) => !/[;{}]/.test(value))
+      .map(([prop, { value }]) => `${prop}: ${value}`).join("; ");
+    if (!extra) continue;
+    const base = (el.getAttribute("style") || "").trim().replace(/;?\s*$/, "");
+    el.setAttribute("style", base ? `${base}; ${extra}` : extra);
+  }
+}
+
+
+/**
+ * The saved HTML is one width's render. This inline script (in <head>, so
+ * after the viewport meta) gives every other width its values: as the parser
+ * adds each marked element, a MutationObserver — whose callbacks run before
+ * the browser paints — sets that width's styles inline (resprop, data-nod-rp)
+ * and shows the switcher view whose range holds the width (data-nod-sw). No
+ * stylesheet, no media queries. It stops when the document is parsed; from
+ * there the live page, which builds unmarked elements, is in charge.
+ */
+export function widthScript(rules) {
+	const data = JSON.stringify(rules).replace(/</g, "\\u003c");
+	return `(function(){var R=${data},w=window.innerWidth||document.documentElement.clientWidth,`
+		+ `rp={},sw={};R.forEach(function(r){if(w<r.lo||(r.hi!==null&&w>r.hi))return;if(r.rp)rp[r.rp]=r.style;});`
+		+ `R.forEach(function(r){if(r.sw)sw[r.sw]=(w>=r.lo&&(r.hi===null||w<=r.hi))?r.display:"none";});`
+		+ `function f(e){var a=e.getAttribute("data-nod-rp"),b=e.getAttribute("data-nod-sw");`
+		+ `if(a&&rp[a])for(var k in rp[a])e.style.setProperty(k,rp[a][k]==="unset"?"":rp[a][k]);`
+		+ `if(b&&b in sw)e.style.display=sw[b];}`
+		+ `function g(n){if(n.nodeType!==1)return;if(n.hasAttribute("data-nod-rp")||n.hasAttribute("data-nod-sw"))f(n);`
+		+ `var l=n.querySelectorAll("[data-nod-rp],[data-nod-sw]");for(var i=0;i<l.length;i++)f(l[i]);}`
+		+ `var o=new MutationObserver(function(m){for(var i=0;i<m.length;i++)for(var j=0;j<m[i].addedNodes.length;j++)g(m[i].addedNodes[j]);});`
+		+ `o.observe(document.documentElement,{childList:true,subtree:true});`
+		+ `document.addEventListener("DOMContentLoaded",function(){g(document.documentElement);o.disconnect();});})();`;
 }

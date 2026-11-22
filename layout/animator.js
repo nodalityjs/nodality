@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -10,6 +10,8 @@ import { Theme } from "../lib/theme.js";
 import { applyRasterPipeline } from "../lib/raster-ops.js";
 
 import { keyPattern } from "../lib/codegen.js";
+import { applyBehaviours } from "./behaviours/index.js";
+import { settleAnimationOp, prefersReducedMotion, writeFrame } from "./behaviours/motion.js";
 // 22/08/2020 - 16:30
 /**
  * Deprecation notices already emitted for the build in progress.
@@ -161,7 +163,80 @@ const STYLE_OPTIONS = {
     weight: "fontWeight",
     //@ colorScheme: CSS color-scheme, e.g. "light": the scheme the browser draws this element's native parts in (form controls, the option list of a select) and its descendants'. A page that declares `<meta name="color-scheme" content="light dark">` to keep Chrome's auto dark mode off still gets dark controls for visitors in dark mode; colorScheme "light" on its sections keeps them light.
     colorScheme: "colorScheme",
+
+    // ── Added with page defaults and resprop ranges: scroll snapping, multi-column, and the typography and
+    // compositing properties pages still reached keySet for. Each name was
+    // checked against every type's vocabulary (schema.json) before it was
+    // added here, because a STYLE_OPTIONS key is applied to EVERY component
+    // that runs commonMethods, on top of whatever the component already does
+    // with the same name:
+    //   - `filter` is NOT here: wrap reads a truthy `filter` as "frosted glass"
+    //     (backdrop-filter: blur(3px)), and `filter`/`filtera` are also the
+    //     design op's names. The CSS property is `cssFilter`.
+    //   - `columns` is free on every type that runs commonMethods; gridOverlay
+    //     reads its own `columns` (a cell count) and does not run it.
+    //   - `clipPath`: img reads SVG path data under that name and checkbox the
+    //     checkmark's shape (checkbox does not run commonMethods). applyStyleOptions
+    //     writes only a value that IS CSS (see CSS_CLIP_PATH), so img's path
+    //     data still goes to its own handler.
+    //   - `flexDirection` is the CSS name of wrap's `flexDir`; on a wrap it
+    //     behaves exactly like flexDir (also sets display:flex).
+    //@ flexDirection: CSS flex-direction ("row", "column", …). On a wrap it is `flexDir` by its CSS name and also sets display:flex.
+    flexDirection: "flexDirection",
+    //@ scrollSnapType: CSS scroll-snap-type on the scroll container, e.g. "x mandatory".
+    scrollSnapType: "scrollSnapType",
+    //@ scrollSnapAlign: CSS scroll-snap-align on a child, e.g. "start" or "center".
+    scrollSnapAlign: "scrollSnapAlign",
+    //@ scrollSnapStop: CSS scroll-snap-stop, "normal" or "always".
+    scrollSnapStop: "scrollSnapStop",
+    scrollMargin: "scrollMargin",
+    scrollMarginTop: "scrollMarginTop",
+    scrollMarginRight: "scrollMarginRight",
+    scrollMarginBottom: "scrollMarginBottom",
+    scrollMarginLeft: "scrollMarginLeft",
+    scrollPadding: "scrollPadding",
+    scrollPaddingTop: "scrollPaddingTop",
+    scrollPaddingRight: "scrollPaddingRight",
+    scrollPaddingBottom: "scrollPaddingBottom",
+    scrollPaddingLeft: "scrollPaddingLeft",
+    overscrollBehavior: "overscrollBehavior",
+    overscrollBehaviorX: "overscrollBehaviorX",
+    overscrollBehaviorY: "overscrollBehaviorY",
+    scrollBehavior: "scrollBehavior",
+    //@ columns: CSS columns (multi-column text), e.g. "2" or "18em 3". On gridOverlay `columns` is its own cell count.
+    columns: "columns",
+    columnWidth: "columnWidth",
+    columnCount: "columnCount",
+    columnFill: "columnFill",
+    columnRule: "columnRule",
+    breakInside: "breakInside",
+    breakBefore: "breakBefore",
+    breakAfter: "breakAfter",
+    //@ textWrap: CSS text-wrap, e.g. "balance" for headings or "pretty" for paragraphs.
+    textWrap: "textWrap",
+    //@ fontStretch: CSS font-stretch — a variable font's width, e.g. "125%" for wide letters (the font must load that width range).
+    fontStretch: "fontStretch",
+    //@ fontVariationSettings: CSS font-variation-settings — set a variable font's axes directly, e.g. "'wdth' 151, 'GRAD' 50".
+    fontVariationSettings: "fontVariationSettings",
+    //@ fontVariantNumeric: CSS font-variant-numeric, e.g. "tabular-nums" for aligned figures.
+    fontVariantNumeric: "fontVariantNumeric",
+    mixBlendMode: "mixBlendMode",
+    isolation: "isolation",
+    //@ clipPath: CSS clip-path, e.g. "inset(0 round 12px)" or "circle(50%)". On img a value that is not CSS is read as SVG path data, as before.
+    clipPath: "clipPath",
+    textUnderlineOffset: "textUnderlineOffset",
+    textDecorationThickness: "textDecorationThickness",
+    outline: "outline",
+    outlineOffset: "outlineOffset",
+    //@ cssFilter: CSS filter, verbatim — e.g. "blur(4px) saturate(1.2)". Named cssFilter because `filter` on a wrap means frosted glass, and the `filter` design op is a node.
+    cssFilter: "filter",
 };
+
+// A clip-path value CSS can parse starts with one of these. Anything else —
+// img's historical SVG path data, "M 20 240 C …" — is left to the
+// component's own handler instead of being written verbatim, which a browser
+// drops but jsdom (the prerenderer) would keep.
+const CSS_CLIP_PATH = /^\s*(none|inherit|initial|unset|revert|(inset|circle|ellipse|polygon|path|rect|xywh|shape|url)\s*\(|(margin|border|padding|content|fill|stroke|view)-box)/;
 
 // Apply styles safely
 // A bare number where CSS wants a length is dropped by the CSSOM without
@@ -211,6 +286,44 @@ function styleOptionsOf(el) {
     return out;
 }
 
+/** The last frame of a keyframe list (array or property-indexed form). */
+function lastFrameOf(kf) {
+    if (Array.isArray(kf)) {
+        const frames = kf.filter((k) => k && typeof k === "object");
+        return frames.length ? frames[frames.length - 1] : null;
+    }
+    if (kf && typeof kf === "object") {
+        const f = {};
+        for (const k in kf) f[k] = Array.isArray(kf[k]) ? kf[k][kf[k].length - 1] : kf[k];
+        return f;
+    }
+    return null;
+}
+
+/**
+ * `el.animate(keyframes, options)` that honours prefers-reduced-motion: for a
+ * visitor who asked for less motion the same keyframes run with no duration,
+ * delay or repeat, so the element lands on its end state at once (and the
+ * returned Animation still finishes, so `.finished`/`onfinish` code runs).
+ * Without reduced motion it is exactly `el.animate(keyframes, options)`.
+ * The nav bars open and close through this.
+ */
+function motionAnimate(el, keyframes, options) {
+    if (!prefersReducedMotion()) return el.animate(keyframes, options);
+    const o = options && typeof options === "object" ? { ...options } : {};
+    o.duration = 0; o.delay = 0; o.endDelay = 0; o.iterations = 1;
+    return el.animate(keyframes, o);
+}
+
+// Tags whose default display is inline (the ones a wrap or text can become).
+const INLINE_TAGS = new Set(["a", "abbr", "b", "bdi", "bdo", "cite", "code", "data", "dfn", "em", "i",
+    "kbd", "label", "mark", "q", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var"]);
+
+/** A design node: `{op: {name, …}, target?, range?}`. Anything else is an option value. */
+function isDesignNode(v) {
+    return !!(v && typeof v === "object" && !Array.isArray(v) && v.op && typeof v.op === "object");
+}
+
 class Animator {
     
     constructor(){
@@ -246,6 +359,7 @@ class Animator {
 				// clip), and treating `loop: true` as an animation warned on every
 				// looping video.
 				if (obj && obj.loop && typeof obj.loop === "object") this.loop(obj.loop);
+				if (obj && typeof obj === "object") applyBehaviours(this, obj);
 				return out;
 			};
 			wrapped.__appliesId = true;
@@ -280,9 +394,25 @@ class Animator {
 		// in a microtask, by which time the synchronous chain has finished.
 		if (typeof document !== "undefined") {
 			this._themeUnsub = Theme.subscribe((mode) => this._applyTheme(mode));
-			Promise.resolve().then(() => this._applyTheme(Theme.mode));
+			// Two steps. The first marks this component's node as a Nodality
+			// node; the second, queued behind every first step of the same
+			// synchronous build, applies the theme. By then every ancestor is
+			// marked, so a child can tell that a component above it will carry
+			// the colour and inherit it instead of getting the default inline.
+			Promise.resolve().then(() => {
+				this._markThemeNode();
+				return Promise.resolve().then(() => this._applyTheme(Theme.mode));
+			});
 		}
     }
+
+	// The theme reads this marker off ancestors (see _themeCoveredAbove).
+	_markThemeNode(){
+		const node = this.res;
+		if (node && typeof node === "object") {
+			try { node.__nodTheme = this; } catch (e) { /* frozen host object */ }
+		}
+	}
 
 	// Raster ops (lib/raster-ops.js) are a display-time effect: the
 	// element carries `raster: [{op, ...}, ...]` in its set() options
@@ -357,6 +487,37 @@ class Animator {
 		return handler;
 	}
 
+	// A composite (wrap, row, stack, grid, card…) records the child components
+	// it renders, so its destroy() releases them too — before this only
+	// Des.destroy() could, and a composite built by hand leaked every child.
+	_adopt(list){
+		const kids = this._childComponents || (this._childComponents = []);
+		for (const c of [].concat(list || [])) {
+			if (c && c !== this && typeof c.destroy === "function" && !kids.includes(c)) kids.push(c);
+		}
+		return list;
+	}
+
+	// The design node of op `name` that the mapper handed this component. It
+	// arrives under the internal key `<name>Op` (shadowOp); the bare key is
+	// still read for pages built before that, but only when it holds a design
+	// node — so an element's OWN `shadow` option is never mistaken for one.
+	_designNode(name){
+		const o = this.options || {};
+		if (isDesignNode(o[name + "Op"])) return o[name + "Op"];
+		return isDesignNode(o[name]) ? o[name] : undefined;
+	}
+
+	// Run keyframes on res; where there is no Web Animations (jsdom, the
+	// prerender, old WebViews) write the last frame as inline style instead.
+	_playFrames(keyframes, options){
+		const el = this.res;
+		if (!el) return null;
+		if (typeof el.animate === "function") return el.animate(keyframes, options);
+		writeFrame(el, lastFrameOf(keyframes));
+		return null;
+	}
+
 	// Tear down everything this component attached: theme subscription, the
 	// raster GPU pipeline, window/document listeners and observers. Call it
 	// when removing a component from the DOM in a long-lived app.
@@ -377,6 +538,13 @@ class Animator {
 		this._rasterHandle = null;
 		this._rasterCancelled = true;
 
+		// A running `loop` is a Web Animation with infinite iterations: left
+		// alone it keeps the node (and this component) alive and ticking.
+		if (this._loop && typeof this._loop.cancel === "function") {
+			try { this._loop.cancel(); } catch (e) { /* already gone */ }
+		}
+		this._loop = null;
+
 		if (this._disposables) {
 			for (const off of this._disposables) {
 				try { off(); } catch (e) { /* keep draining */ }
@@ -385,6 +553,15 @@ class Animator {
 		}
 		this._responsiveTasks = null;
 		this._responsiveHandler = null;
+
+		// Child components a composite built (see _adopt). Spliced out first,
+		// so a second destroy() — Des.destroy() reaches the children itself
+		// too — finds nothing left to release.
+		if (this._childComponents) {
+			for (const c of this._childComponents.splice(0)) {
+				try { if (c && c !== this && typeof c.destroy === "function") c.destroy(); } catch (e) { /* keep releasing the rest */ }
+			}
+		}
 
 		if (this.res && this.res.parentNode) {
 			this.res.parentNode.removeChild(this.res);
@@ -413,16 +590,49 @@ class Animator {
 		// called AFTER components are constructed; when a new key appears we
 		// capture the current inline style (which still reflects what the
 		// user set in .set({...})) before applying any default.
+		//
+		// Only where nothing above sets the property. The default used to be
+		// written inline onto EVERY component, so a section's own `color`
+		// never reached its children: each child carried `color: #111` of its
+		// own. Now a component under a themed Nodality ancestor, or under any
+		// element with that property inline, inherits it; the default lands on
+		// the outermost components only — the roots of the tree.
 		const defaults = Theme.defaults && Theme.defaults[mode];
 		if (!defaults) return;
+		this._markThemeNode();
 		if (!this._themeOriginal) this._themeOriginal = {};
+		if (!this._themeApplied) this._themeApplied = {};
 		for (const k in defaults) {
 			if (!(k in this._themeOriginal)) {
 				this._themeOriginal[k] = this.res.style[k] || "";
 			}
 			if (this._themeOriginal[k]) continue; // user set this — never touch
+			if (this._themeCoveredAbove(k)) {
+				// Put back a default written while this node had no parent
+				// (built first, inserted later), so it inherits from now on.
+				if (this._themeApplied[k] && this.res.style[k] === this._themeApplied[k]) this.res.style[k] = "";
+				delete this._themeApplied[k];
+				continue;
+			}
 			this.res.style[k] = defaults[k];
+			this._themeApplied[k] = this.res.style[k];
 		}
+	}
+
+	/**
+	 * Does something above this component decide `key` already? True for an
+	 * ancestor with the property inline, and for an ancestor that is itself a
+	 * themed Nodality component (it gets the user's value or the default).
+	 */
+	_themeCoveredAbove(key){
+		let p = this.res && this.res.parentNode;
+		while (p && p.nodeType === 1) {
+			const comp = p.__nodTheme;
+			if (comp && comp !== this && !comp._noTheme) return true;
+			if (p.style && p.style[key]) return true;
+			p = p.parentNode;
+		}
+		return false;
 	}
 
 	// Custom properties. `style[name]` does not work for them — the CSSOM
@@ -473,6 +683,7 @@ class Animator {
 	    if (!obj || !this.res) return this;
 	    for (const key in STYLE_OPTIONS) {
 	        if (obj[key] != null) {
+	            if (key === "clipPath" && !(typeof obj[key] === "string" && CSS_CLIP_PATH.test(obj[key]))) continue;
 	            const value = (typeof obj[key] === "number" && obj[key] !== 0 && PIXELS_WHEN_BARE.has(key))
 	                ? `${obj[key]}px`
 	                : key === "cursor" ? cursorValue(obj[key]) : obj[key];
@@ -536,13 +747,17 @@ class Animator {
     // idempotent for them.
     //@ borderObj {object}: Border as {width, color, type?, radius?}. Width carries its unit, e.g. "1px".
     obj.borderObj && obj.borderObj.width && this.borderObj(obj.borderObj);
+    //@ border {css-border}: A plain CSS border shorthand, e.g. "1px solid #0B0B0C", on every element. Object forms a component knows ({width, color}, a design node) keep working where they did.
+    // A string is applied here, once, for every component; the components
+    // with an object form of their own leave strings alone (see Animator.cssBorder).
+    if (typeof obj.border === "string" && obj.border.trim()) this.res.style.border = obj.border;
     //@ resmar {breakpoints}: Responsive margin — per-breakpoint overrides of `mar`, in the same form.
     obj.resmar && this.resmar(obj.resmar);
-    //@ hover {object}: Styles applied on hover, e.g. {color, background, animation: "0.2s ease"}.
+    //@ hover {object}: Styles applied on pointer hover and on keyboard focus, e.g. {color, background, animation: "0.2s ease"}. Any CSS property; see behaviours/interaction.js.
     obj.hover && this.hover(obj.hover);
     //@ size {scale-step}: Fluid type scale step (S1…S6) — font size that scales with the viewport. On a text element (h1…h6, p) the element TYPE picks the step and this is ignored; use `tag` to change the heading level without changing the size.
     obj.size && this.fluidCopy(obj.size);
-    //@ resprop {breakpoints}: Per-breakpoint style overrides — [{breakpoint, ...css}]. `exact` is font size.
+    //@ resprop {breakpoints}: Per-breakpoint style overrides — [{breakpoint, ...css}], {min, max, ...css}, {container: {min, max}, ...css}, or {media: "(prefers-reduced-motion: reduce)", ...css} for any media query (reduced motion, hover, orientation). Precedence: container, then media, then width. `exact` is font size.
     obj.resprop && this.resprop(obj.resprop, obj);
     //@ vars {object}: Custom CSS properties on this element — {"--nod-split": 0.2}. Custom properties inherit, so writing them on a root drives its whole subtree with one declaration; that is how the morph axes reach every generated element without a stylesheet.
     obj.vars && this.vars(obj.vars);
@@ -615,7 +830,10 @@ class Animator {
 	
 		if (obj.animation) {
 
-			this.res.style.transition = `${obj.animation}`; //`${obj.animation}s ease-in-out`; // stop resize ???
+			// A bare number is seconds (`animation: 0.3` → "0.3s"); a string
+			// is CSS already ("0.3s ease") and is used as written. The number
+			// used to be written verbatim, and "0.3" is not a valid transition.
+			this.res.style.transition = typeof obj.animation === "number" ? `${obj.animation}s` : `${obj.animation}`;
 			// This used to be misspelled `transionProperty`, which CSSOM
 			// silently discards — so the shipped behaviour was the shorthand's
 			// default, `all`. Fixing the spelling narrows what animates, so the
@@ -647,6 +865,11 @@ class Animator {
 			
 		}
         
+        // Which node these handlers live on. The interaction behaviour
+        // (behaviours/interaction.js) reads it to tell that hover() already
+        // handles the mouse here — and not on a node a later tag swap made.
+        this._legacyHover = this.res;
+
         this.res.onmouseover = () => {
 			//alert("OJHOIH")
 		//	alert(obj.background);
@@ -685,7 +908,21 @@ class Animator {
     } // hover from Link central
     
 	
+	//@ onScroll {object}: Tie a style to the scroll position: {value: "opacity" | "scale" | "trn", from, to (scrollY px), valMin, valMax} — for "trn", valMin/valMax are {tx, ty}. Under prefers-reduced-motion it does nothing: no scroll listener, and the element keeps its own style.
 	onScroll(data){
+		// Reduced motion: no effect at all, rather than the end state. Either
+		// end can be a state that hides or displaces content — a fade-out
+		// ends at opacity 0, a fade-in starts there, a parallax ends off its
+		// place — and a visitor who asked for less motion must still be able
+		// to read the page. The element's own style is the one state that is
+		// always readable, so nothing is written and nothing listens. The
+		// query is read once, as `loop` reads it: a scroll effect cannot be
+		// half-applied mid-page when the preference changes.
+		if (!data || typeof data !== "object") return this;
+		if (typeof window !== "undefined" && typeof window.matchMedia === "function"
+			&& window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			return this;
+		}
 		const parseUnit = (val) => {
 			if (val == null) return { num: 0, unit: "px" };
 			const m = String(val).match(/^(-?[\d.]+)(.*)$/);
@@ -779,6 +1016,113 @@ class Animator {
 
 /**
  * @private
+ * The viewport range of one resprop/respad/resmar entry, as [lo, hi]
+ * inclusive px. Named and numeric `breakpoint`s keep exactly the meaning
+ * they always had — including the historical asymmetry that a bare "800px"
+ * is a MAX width in resprop and a MIN width in respad/resmar (`bare`).
+ *
+ * New: an entry with no `breakpoint` may say `min` and/or `max` (either
+ * bound optional), which is the only form that reads the same in all three.
+ * A container-only entry (`{ container: {…} }`) is unconstrained by the
+ * viewport. An entry with none of these still gets the [0, NaN] / [NaN, …]
+ * range it always got, which matches nothing.
+ */
+static _entryRange(item, breakpoints, bare) {
+    if (breakpoints[item.breakpoint] !== undefined) return breakpoints[item.breakpoint];
+    if (Array.isArray(item.breakpoint) && item.breakpoint.length === 2) {
+        return [parseInt(item.breakpoint[0], 10), parseInt(item.breakpoint[1], 10)];
+    }
+    if (item.breakpoint === undefined && (item.min !== undefined || item.max !== undefined || item.container || item.media)) {
+        const lo = item.min === undefined ? 0 : Number(item.min);
+        const hi = item.max === undefined ? 100000 : Number(item.max);
+        return [lo, hi];
+    }
+    const n = parseInt(item.breakpoint, 10);
+    return bare === "min" ? [n, 100000] : [0, n];
+}
+
+/**
+ * @private
+ * Does `bp` apply at this viewport width and container width? A container
+ * entry needs a measured container: where there is none to measure (no
+ * ResizeObserver — jsdom and the prerenderer — or no parent yet) it does not
+ * apply, so a prerendered page shows the base values rather than a guess.
+ */
+static _entryMatches(bp, width, containerWidth) {
+    const [min, max] = bp.range;
+    // Ranges are integers; a zoomed visual viewport can be fractional.
+    // Matching its integer part makes [lo, hi] cover [lo, hi + 1), so
+    // adjacent ranges such as [0, 640] and [641, 900] leave no gap.
+    if (!(Math.floor(width) >= min && Math.floor(width) <= max)) return false;
+    if (!bp.container) return true;
+    if (containerWidth == null) return false;
+    const c = bp.container;
+    const lo = c.min === undefined ? 0 : Number(c.min);
+    const hi = c.max === undefined ? 100000 : Number(c.max);
+    return Math.floor(containerWidth) >= lo && Math.floor(containerWidth) <= hi;
+}
+
+/**
+ * @private
+ * The content-box width of this element's parent — what a `container`
+ * entry is measured against — or null when it cannot be measured.
+ */
+_containerWidth() {
+    const p = this.res && this.res.parentElement;
+    if (!p || typeof window === "undefined" || typeof window.ResizeObserver !== "function") return null;
+    const cs = typeof window.getComputedStyle === "function" ? window.getComputedStyle(p) : null;
+    const pad = cs ? (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0) : 0;
+    return Math.max(0, p.clientWidth - pad);
+}
+
+/**
+ * @private
+ * Watch the parent's size for `container` entries: one ResizeObserver per
+ * component, re-running every responsive task when the parent's width
+ * changes. The parent usually does not exist yet when set() runs — the
+ * component is mounted afterwards — so attaching retries briefly, the way
+ * rasterize() waits for a connected node. Without ResizeObserver nothing is
+ * attached and container entries simply never apply.
+ *
+ * Limit, documented: a container entry that changes the PARENT's width can
+ * oscillate; the observer re-runs only when the width actually changed and
+ * tasks write only values that differ, which settles every case where the
+ * entry styles the element itself.
+ */
+_watchContainer() {
+    if (this._containerWatch || typeof window === "undefined" || typeof window.ResizeObserver !== "function") return;
+    // Prerender: container entries are not applied (no layout), so nothing to watch.
+    if (window.__NODALITY_PRERENDER__) return;
+    let attempts = 0, last = null, attached = false, pending = false;
+    // Also called by each task run (the first one is usually the moment the
+    // parent exists), so it is idempotent and keeps one retry in flight.
+    const attach = () => {
+        if (attached || !this._responsiveTasks) return;  // done, or destroyed
+        const p = this.res && this.res.parentElement;
+        if (!p) {
+            if (!pending && ++attempts < 40) {
+                pending = true;
+                const t = setTimeout(() => { pending = false; attach(); }, 50);
+                this._track(() => clearTimeout(t));
+            }
+            return;
+        }
+        attached = true;
+        const ro = new window.ResizeObserver(() => {
+            const w = this._containerWidth();
+            if (w === last) return;
+            last = w;
+            if (this._responsiveHandler) this._responsiveHandler();
+        });
+        ro.observe(p);
+        this._track(() => ro.disconnect());
+    };
+    this._containerWatch = attach;
+    attach();
+}
+
+/**
+ * @private
  * Sets up the single resize listener and runs all registered tasks.
  * Ensures setup logic runs only ONCE.
  */
@@ -802,12 +1146,16 @@ _setupResponsiveManager() {
     }
 
     // 4. Trigger Execution (ALWAYS)
-    // We run this every time this function is called (by resprop or respad)
-    // to ensure the newly added task is executed immediately.
-    const timer = setTimeout(() => {
-        react();
-    }, 0);
-    this._track(() => clearTimeout(timer));
+    // Every registration runs the tasks once, after the component's set()
+    // has finished (a task reads the element's own values, which set() is
+    // still writing when it calls resprop). A MICROtask, not setTimeout(0):
+    // a timer lets the browser paint the element first without its
+    // breakpoint values, and the next frame corrects them — on a
+    // prerendered page that is a visible layout shift at hydration (a hero
+    // photo painted at its phone shape on a desktop for one frame).
+    let cancelled = false;
+    Promise.resolve().then(() => { if (!cancelled) react(); });
+    this._track(() => { cancelled = true; });
 }
 
 
@@ -822,12 +1170,30 @@ resprop(arr, op) {
 	if (op && typeof op === "object") this.options = op;
 	else if (!this.options || typeof this.options !== "object") this.options = {};
 
+	// The same array registered twice is one registration. Wrapper, Image and
+	// Code call resprop from their own set() AND through commonMethods, with
+	// the same `obj.resprop`; the second task then read its "own value" AFTER
+	// the first had written the matching entry, so leaving the range restored
+	// the entry's value instead of the element's — `{min: 900, position:
+	// "sticky"}` on a wrap stayed sticky at every width once rendered wide.
+	if (Array.isArray(arr)) {
+		if (!this._respropSeen) this._respropSeen = new WeakSet();
+		if (this._respropSeen.has(arr)) return;
+		this._respropSeen.add(arr);
+		// Work on a copy: the normalisation below adds a default entry, writes
+		// `range` into each entry and sorts — and the array is the AUTHOR'S
+		// (it is also serialised into the code Des runs).
+		arr = arr.map((e) => (e && typeof e === "object" ? { ...e } : e));
+	}
+
     // --- 1. CONFIGURATION & NORMALIZATION ---
     const breakpoints = {
         default: [0, 100000], xs: [0, 575], sm: [576, 767], md: [768, 991],
         lg: [992, 1199], xl: [1200, 1399], xxl: [1400, 100000]
     };
-    const excludedKeys = ['resprop', 'breakpoint', 'value', 'values', 'range'];
+    // `min`, `max` and `container` place an entry (see _entryRange); they are
+    // not properties to write.
+    const excludedKeys = ['resprop', 'breakpoint', 'value', 'values', 'range', 'min', 'max', 'container', 'media'];
 
     // Shorthand → CSSOM property names. Values are written with
     // `element.style[prop] = …`, which silently discards any key that is not a
@@ -866,24 +1232,28 @@ resprop(arr, op) {
         return mapped;
     };
 
-    // A. Normalize ranges: Treat "800px" as [0, 800] (Max-Width logic)
+    // A. Normalize ranges: Treat "800px" as [0, 800] (Max-Width logic);
+    // `{min, max}` as the inclusive px range it says.
     arr.forEach(item => {
-        if (breakpoints[item.breakpoint] !== undefined) {
-            item.range = breakpoints[item.breakpoint];
-        } else if (Array.isArray(item.breakpoint) && item.breakpoint.length === 2) {
-            item.range = [
-                parseInt(item.breakpoint[0], 10), 
-                parseInt(item.breakpoint[1], 10)
-            ];
-        } else {
-            // "800px" now becomes [0, 800]
-            item.range = [0, parseInt(item.breakpoint, 10)];
-        }
+        item.range = Animator._entryRange(item, breakpoints, "max");
     });
 
-    // B. SORTING: Sort by MAX value ascending. 
+    // B. SORTING: Sort by MAX value ascending.
     // This ensures that if width is 500px, "800px" is checked before "1060px".
     arr.sort((a, b) => a.range[1] - b.range[1]);
+
+    // Container entries are matched in their own pass, narrowest container
+    // range first, and win over viewport entries key by key: a container
+    // query is the more specific statement about where the element sits.
+    const containerEntries = arr.filter((e) => e && e.container)
+        .sort((a, b) => (a.container.max ?? 100000) - (b.container.max ?? 100000));
+
+    // Media entries ({media: "(prefers-reduced-motion: reduce)", …}) answer
+    // what a width cannot — reduced motion, hover, orientation — and are
+    // matched in their own pass, first match in the order written. They win
+    // over width entries and lose to container entries. No matchMedia (the
+    // prerender) → none applies, so the HTML holds the plain values.
+    const mediaEntries = arr.filter((e) => e && e.media && !e.container);
 
     // C. Ensure the default/fallback is present
     let defaultItem = arr.find(item => item.breakpoint === "default");
@@ -945,7 +1315,14 @@ resprop(arr, op) {
     const respropTask = () => {
         for (const [key, value] of own) {
             if (value !== undefined) continue;
-            const v = this.res.style[ownProp(key)];
+            let v = this.res.style[ownProp(key)];
+            // Prerender: jsdom drops values it cannot parse (clamp(), min()…)
+            // and keeps an older one; the prerenderer's style log has what
+            // was actually written last.
+            if (typeof window !== "undefined" && typeof window.__NODALITY_RAW_STYLE__ === "function") {
+                const raw = window.__NODALITY_RAW_STYLE__(this.res.style, ownProp(key));
+                if (raw) v = raw;
+            }
             own.set(key, typeof v === "string" ? v : "");
         }
         const width = Animator.viewportWidth();
@@ -955,21 +1332,39 @@ resprop(arr, op) {
         // Because we sorted ascending, the smallest matching "max-width" wins.
         for (let i = 0; i < arr.length; i++) {
             const bp = arr[i];
-            const [min, max] = bp.range;
-            if (bp.breakpoint === "default") continue;
-
-            // Ranges are integers; a zoomed visual viewport can be fractional.
-            // Matching its integer part makes [lo, hi] cover [lo, hi + 1), so
-            // adjacent ranges such as [0, 640] and [641, 900] leave no gap.
-            if (Math.floor(width) >= min && Math.floor(width) <= max) {
+            if (bp.breakpoint === "default" || bp.container || bp.media) continue;
+            if (Animator._entryMatches(bp, width, null)) {
                 applied = bp;
                 break;
             }
         }
 
+        // 1b. The matching container entry, if any (measured only when there
+        // is one to match, so a page without container entries reads nothing).
+        let appliedC = null;
+        // Not at prerender: jsdom has no layout, every container measures 0px,
+        // and baking the narrowest container's values into the HTML would be
+        // wrong for every real width. The browser applies them on hydration.
+        const prerendering = typeof window !== "undefined" && window.__NODALITY_PRERENDER__;
+        if (containerEntries.length && !prerendering) {
+            if (typeof this._containerWatch === "function") this._containerWatch();
+            const cw = this._containerWidth();
+            appliedC = containerEntries.find((bp) => Animator._entryMatches(bp, width, cw)) || null;
+        }
+
+        let appliedM = null;
+        if (mediaEntries.length && typeof window !== "undefined" && typeof window.matchMedia === "function") {
+            appliedM = mediaEntries.find((bp) => {
+                try { return window.matchMedia(bp.media).matches; } catch (e) { return false; }
+            }) || null;
+        }
+
         responsiveProps.forEach(key => {
-            const fromBreakpoint = applied !== defaultItem && key in applied;
-            const value = fromBreakpoint ? applied[key] : (own.has(key) ? own.get(key) : defaultItem[key]);
+            const src = appliedC && key in appliedC ? appliedC
+                : appliedM && key in appliedM ? appliedM
+                : (applied !== defaultItem && key in applied ? applied : null);
+            const fromBreakpoint = src !== null;
+            const value = fromBreakpoint ? src[key] : (own.has(key) ? own.get(key) : defaultItem[key]);
             // keySet: {key: "...", value: "..."} — one property it names.
             if (key === "keySet") {
                 if (value && value.key) write(value.key, value.value);
@@ -983,182 +1378,166 @@ resprop(arr, op) {
             if (fromBreakpoint && typeof this[key] === "function") { this[key](value); return; }
             write(resolveProp(key), value);
         });
+        if (prerendering && !mediaEmitted) { mediaEmitted = true; emitPrerenderMedia(); }
+    };
+
+    // Prerender: the saved HTML is rendered at ONE width, so the inline
+    // values above are that width's. For every other width the page would
+    // show them until hydration corrected them — a layout shift. So each
+    // width range's values are recorded against this element's data-nod-rp
+    // marker, and layout/prerender.js writes them into the page with a small
+    // inline script that sets them as inline styles while the page parses,
+    // before the first paint — no stylesheet. The live page builds new
+    // elements without the marker. Viewport entries only: media and
+    // container entries need the live page.
+    let mediaEmitted = false;
+    const kebab = (n) => n.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+    const emitPrerenderMedia = () => {
+        const vp = arr.filter((bp) => bp && bp.breakpoint !== "default" && !bp.container && !bp.media);
+        if (!vp.length || !this.res || typeof this.res.setAttribute !== "function") return;
+        const cuts = new Set([0]);
+        for (const bp of vp) { cuts.add(Math.max(0, bp.range[0])); if (bp.range[1] < 100000) cuts.add(bp.range[1] + 1); }
+        const points = [...cuts].sort((a, b) => a - b);
+        const store = window.__NODALITY_PRERENDER_RULES__ || (window.__NODALITY_PRERENDER_RULES__ = []);
+        const id = (window.__NODALITY_RP_N__ = (window.__NODALITY_RP_N__ || 0) + 1);
+        this.res.setAttribute("data-nod-rp", String(id));
+        points.forEach((lo, i) => {
+            const hi = i + 1 < points.length ? points[i + 1] - 1 : null;
+            const applied = vp.find((bp) => Animator._entryMatches(bp, lo, null)) || defaultItem;
+            const decls = {};
+            responsiveProps.forEach((key) => {
+                if (key === "keySet" || (key !== "exact" && typeof this[key] === "function")) return;
+                const value = applied !== defaultItem && key in applied ? applied[key]
+                    : (own.has(key) ? own.get(key) : defaultItem[key]);
+                const css = key === "exact" ? "font-size" : kebab(PROP_ALIASES[key] || key);
+                const v = value == null || value === "" ? "unset" : String(value);
+                decls[css] = v;
+            });
+            if (!Object.keys(decls).length) return;
+            store.push({ rp: String(id), lo, hi, style: decls });
+        });
     };
 
     // --- 4. REGISTRATION ---
     this._responsiveTasks = this._responsiveTasks || [];
     this._responsiveTasks.push(respropTask);
-    this._setupResponsiveManager(); 
+    this._setupResponsiveManager();
+    // A media query can change without a resize (reduced motion switched in
+    // the system settings, a mouse plugged in): re-run when one does.
+    if (mediaEntries.length && typeof window !== "undefined" && typeof window.matchMedia === "function") {
+        for (const bp of mediaEntries) {
+            let mql;
+            try { mql = window.matchMedia(bp.media); } catch (e) { continue; }
+            if (!mql) continue;
+            const on = () => respropTask();
+            if (typeof mql.addEventListener === "function") {
+                mql.addEventListener("change", on);
+                typeof this._track === "function" && this._track(() => mql.removeEventListener("change", on));
+            } else if (typeof mql.addListener === "function") {
+                mql.addListener(on);
+                typeof this._track === "function" && this._track(() => mql.removeListener(on));
+            }
+        }
+    }
+    if (containerEntries.length) this._watchContainer();
 }
 
 
 respad(arr) {
-
-    // --- 1. CONFIGURATION & NORMALIZATION ---
-    const breakpoints = {
-        default: [0, 100000], xs: [0, 575], sm: [576, 767], md: [768, 991],
-        lg: [992, 1199], xl: [1200, 1399], xxl: [1400, 100000]
-    };
-    // Note: 'values' is handled specifically here, so it is not excluded globally.
-    
-    // A. Normalize breakpoints and assign range (handles named, [min, max], and "px" inputs)
-    arr.forEach(item => {
-        if (breakpoints[item.breakpoint] !== undefined) {
-            item.range = breakpoints[item.breakpoint];
-        } else if (Array.isArray(item.breakpoint) && item.breakpoint.length === 2) {
-            item.range = [parseInt(item.breakpoint[0], 10), parseInt(item.breakpoint[1], 10)];
-        } else {
-            item.range = [parseInt(item.breakpoint, 10), 100000]; 
-        }
-    });
-
-    // B. Sort by the minimum value of the range
-    arr.sort((a, b) => a.range[0] - b.range[0]);
-
-    // C. Find/Ensure the base style object
-    let defaultItem = arr.find(item => item.breakpoint === "default");
-    if (!defaultItem) {
-        defaultItem = { breakpoint: "default", range: breakpoints.default };
-        arr.unshift(defaultItem);
-    }
-    
-    // --- 2. STATE CAPTURE & RESET PREPARATION ---
-
-    // D. Ensure 'defaultItem' has a 'values' property, falling back to the base 'pad' option.
-    // `this.options` is only populated by callReact()/resprop(), both of which
-    // run AFTER commonMethods() dispatches here — so on components like Wrapper
-    // it is still undefined at this point. Guard rather than throw: a missing
-    // base `pad` simply means there is nothing to reset to.
-    if (defaultItem.values === undefined) {
-         defaultItem.values = (this.options && this.options.pad) || null;
-    }
-
-
-    // --- 3. CORE LOGIC: The Responsive Task Function ---
-    const respadTask = () => {
-        const width = Animator.viewportWidth();
-        let applied = defaultItem; 
-
-        // 1. RANGE LOGIC: Find the exact breakpoint whose range matches the current width.
-        for (let i = 0; i < arr.length; i++) {
-            const bp = arr[i];
-            const [min, max] = bp.range;
-
-            if (bp.breakpoint === "default") continue;
-
-            // Ranges are integers; a zoomed visual viewport can be fractional.
-            // Matching its integer part makes [lo, hi] cover [lo, hi + 1), so
-            // adjacent ranges such as [0, 640] and [641, 900] leave no gap.
-            if (Math.floor(width) >= min && Math.floor(width) <= max) {
-                applied = bp;
-                break;
-            }
-        }
-        
-        // --- Apply Pad Style ---
-        
-        // Determine the final padding value: use applied.values if it exists, otherwise defaultItem.values
-        const finalPadValue = applied.values !== undefined ? applied.values : defaultItem.values;
-
-
-        
-        if (finalPadValue !== undefined && finalPadValue !== null) {
-            // Note: We trust this.pad handles the style application and clearing
-            this.pad(finalPadValue);
-        }
-    };
-
-
-    // --- 4. REGISTRATION ---
-    this._responsiveTasks = this._responsiveTasks || [];
-    this._responsiveTasks.push(respadTask);
-    
-    // Ensure the unified handler is set up and starts listening
-    this._setupResponsiveManager(); 
+    // Padding per breakpoint. Base value: the element's `pad` option.
+    return this._responsiveBox(arr, "pad", (this.options && this.options.pad) || null);
 }
 
 
 resmar(arr) {
+    // Margin per breakpoint. Base value: the element's `mar` option (falling
+    // back to `pad`, as it always has).
+    return this._responsiveBox(arr, "mar", (this.options && (this.options.mar || this.options.pad)) || null);
+}
 
-    // --- 1. CONFIGURATION & NORMALIZATION ---
+/**
+ * @private
+ * respad and resmar, which were two copies of one function differing in the
+ * method they called. Entries: `{breakpoint, values}` exactly as before (a
+ * bare "800px" is a MIN width here, unlike resprop), plus `{min, max, values}`
+ * and `{container: {min, max}, values}` — the forms resprop takes.
+ *
+ * One entry applies at a time: the first viewport match in ascending-min
+ * order, overridden by a matching container entry. With no entry applying,
+ * the base option is applied; with no base option either, the sides an entry
+ * wrote are handed back to their own value (what was inline before the first
+ * run) — previously they kept the last breakpoint's value forever once the
+ * window left it, which is the same stuck-value bug resprop's "own value"
+ * semantics fixed.
+ *
+ * `this.options` is only populated by callReact()/resprop(), both of which
+ * run AFTER commonMethods() dispatches here — so on components like Wrapper
+ * it is still undefined at this point; a missing base simply means there is
+ * nothing to apply.
+ */
+_responsiveBox(arr, method, base) {
+    if (!Array.isArray(arr)) return;
+    // One registration per array, for the reason resprop keeps one.
+    if (!this._boxSeen) this._boxSeen = { pad: new WeakSet(), mar: new WeakSet() };
+    if (this._boxSeen[method].has(arr)) return;
+    this._boxSeen[method].add(arr);
     const breakpoints = {
         default: [0, 100000], xs: [0, 575], sm: [576, 767], md: [768, 991],
         lg: [992, 1199], xl: [1200, 1399], xxl: [1400, 100000]
     };
-    // Note: 'values' is handled specifically here, so it is not excluded globally.
-    
-    // A. Normalize breakpoints and assign range (handles named, [min, max], and "px" inputs)
     arr.forEach(item => {
-        if (breakpoints[item.breakpoint] !== undefined) {
-            item.range = breakpoints[item.breakpoint];
-        } else if (Array.isArray(item.breakpoint) && item.breakpoint.length === 2) {
-            item.range = [parseInt(item.breakpoint[0], 10), parseInt(item.breakpoint[1], 10)];
-        } else {
-            item.range = [parseInt(item.breakpoint, 10), 100000]; 
-        }
+        item.range = Animator._entryRange(item, breakpoints, "min");
     });
-
-    // B. Sort by the minimum value of the range
+    // Sort by the minimum value of the range.
     arr.sort((a, b) => a.range[0] - b.range[0]);
 
-    // C. Find/Ensure the base style object
     let defaultItem = arr.find(item => item.breakpoint === "default");
     if (!defaultItem) {
         defaultItem = { breakpoint: "default", range: breakpoints.default };
         arr.unshift(defaultItem);
     }
-    
-    // --- 2. STATE CAPTURE & RESET PREPARATION ---
+    if (defaultItem.values === undefined) defaultItem.values = base;
 
-    // D. Ensure 'defaultItem' has a 'values' property, falling back to the base
-    // `mar` option. Same ordering caveat as respad() — see the note there.
-    if (defaultItem.values === undefined) {
-         defaultItem.values = (this.options && (this.options.mar || this.options.pad)) || null;
-    }
+    const containerEntries = arr.filter((e) => e && e.container)
+        .sort((a, b) => (a.container.max ?? 100000) - (b.container.max ?? 100000));
+    const prefix = method === "pad" ? "padding" : "margin";
+    const sides = ["Top", "Right", "Bottom", "Left"].map((s) => prefix + s);
+    let own = null;          // the four sides as they were before any entry
+    let wroteEntry = false;  // an entry's values are on the element now
 
-
-    // --- 3. CORE LOGIC: The Responsive Task Function ---
-    const resmarTask = () => {
+    const task = () => {
+        if (own === null) own = sides.map((p) => this.res.style[p] || "");
         const width = Animator.viewportWidth();
-        let applied = defaultItem; 
-
-        // 1. RANGE LOGIC: Find the exact breakpoint whose range matches the current width.
+        let applied = defaultItem;
         for (let i = 0; i < arr.length; i++) {
             const bp = arr[i];
-            const [min, max] = bp.range;
-
-            if (bp.breakpoint === "default") continue;
-
-            // Ranges are integers; a zoomed visual viewport can be fractional.
-            // Matching its integer part makes [lo, hi] cover [lo, hi + 1), so
-            // adjacent ranges such as [0, 640] and [641, 900] leave no gap.
-            if (Math.floor(width) >= min && Math.floor(width) <= max) {
-                applied = bp;
-                break;
-            }
+            if (bp.breakpoint === "default" || bp.container) continue;
+            if (Animator._entryMatches(bp, width, null)) { applied = bp; break; }
         }
-        
-        // --- Apply Pad Style ---
-        
-        // Determine the final padding value: use applied.values if it exists, otherwise defaultItem.values
-        const finalPadValue = applied.values !== undefined ? applied.values : defaultItem.values;
-
-
-        
-        if (finalPadValue !== undefined && finalPadValue !== null) {
-            // Note: We trust this.pad handles the style application and clearing
-            this.mar(finalPadValue);
+        if (containerEntries.length) {
+            if (typeof this._containerWatch === "function") this._containerWatch();
+            const cw = this._containerWidth();
+            const c = containerEntries.find((bp) => Animator._entryMatches(bp, width, cw));
+            if (c && c.values !== undefined) applied = c;
+        }
+        const value = applied.values !== undefined ? applied.values : defaultItem.values;
+        if (value !== undefined && value !== null) {
+            this[method](value);
+            wroteEntry = applied !== defaultItem;
+        } else if (wroteEntry) {
+            sides.forEach((p, i) => { this.res.style[p] = own[i]; });
+            wroteEntry = false;
         }
     };
 
-
-    // --- 4. REGISTRATION ---
     this._responsiveTasks = this._responsiveTasks || [];
-    this._responsiveTasks.push(resmarTask);
-    
-    // Ensure the unified handler is set up and starts listening
-    this._setupResponsiveManager(); 
+    this._responsiveTasks.push(task);
+    // Ensure the unified handler is set up and starts listening.
+    this._setupResponsiveManager();
+    if (containerEntries.length) this._watchContainer();
 }
+
+
 
 
 	/**
@@ -1200,7 +1579,8 @@ resmar(arr) {
 	 * held still.
 	 */
 	loop(spec) {
-		const el = this.res;
+		// `el` for the form groups (RadioGroup) that keep their node there.
+		const el = this.res || (this.el && this.el.nodeType === 1 ? this.el : null);
 		const o = spec && typeof spec === "object" ? spec : {};
 		const frames = Array.isArray(o.keyframes) ? o.keyframes.filter((k) => k && typeof k === "object") : [];
 		if (!el || frames.length < 2) {
@@ -1356,6 +1736,27 @@ resmar(arr) {
 	// Single source of truth for "how wide is the viewport". See the note in
 	// chainReact — visualViewport is preferred (it tracks pinch-zoom) but is
 	// not universally present.
+	/**
+	 * Whether an element lays out as an inline box: its own inline display
+	 * says "inline", or it has none and its tag is inline by default (span,
+	 * time, a, …, and custom elements, which are inline until styled).
+	 */
+	static applyDatetime(el, value) {
+		// Only <time> has a datetime attribute; elsewhere it is meaningless,
+		// and is dropped quietly (no warning per element per render).
+		if (value == null || value === "" || !el || typeof el.setAttribute !== "function") return;
+		if (String(el.tagName || "").toLowerCase() !== "time") return;
+		el.setAttribute("datetime", String(value));
+	}
+
+	static isInlineBox(el) {
+		if (!el || !el.style) return false;
+		const d = el.style.display;
+		if (d) return d === "inline";
+		const tag = String(el.tagName || "").toLowerCase();
+		return INLINE_TAGS.has(tag) || tag.includes("-");
+	}
+
 	static viewportWidth() {
 		if (typeof window === "undefined") return 0;
 		const vv = window.visualViewport;
@@ -1783,9 +2184,15 @@ if (operations.includes("gradient")){
 			// alert("///")
 			//alert(`${w}px solid orange`);
 			this.res.style.border = `${typeof w === 'number' ? w + 'px' : w} solid orange`;
- this.res.style.display = "inline-block"; // or block
+ // inline-block only where the element is inline: a transform does
+ // nothing on an inline box. It used to be forced on EVERY wrapper,
+ // which shrank block wrappers to their content and broke the flex/grid
+ // layout of scrollers, tabs and marquees. A display the element
+ // already has (block, flex, grid…) is kept.
 		if (this.getType() === "FlexRowLayoutElement"){
 			this.res.style.display = "flex";
+		} else if (Animator.isInlineBox(this.res)) {
+			this.res.style.display = "inline-block";
 		}
 
     this.res.style.boxSizing = "border-box";
@@ -1853,8 +2260,14 @@ if (operations.includes("gradient")){
 	}
 
 	
-	  if (operations.includes("shadow")){
-const { op } = this.options.shadow;
+	  // The shadow op comes from the active query itself (built from the
+	  // design node); this.options.shadow is no longer read, so an element
+	  // may have a `shadow` option of its own. _designNode is the fallback.
+	  const shadowQuery = operations.includes("shadow") ? globalQueries.find((x) => x.log === "shadow") : null;
+	  const shadowNode = shadowQuery ? null : this._designNode("shadow");
+	  const shadowOpObj = (shadowQuery && shadowQuery.op) || (shadowNode && shadowNode.op);
+	  if (operations.includes("shadow") && shadowOpObj){
+const op = shadowOpObj;
 
 const steps = op.steps ?? 1;
 const colors = op.colors ?? ["gray"];
@@ -1996,7 +2409,8 @@ Object.assign(overlay.style, {
 
   
 	
-  if (operations.includes("animation")) {	
+  // Reduced motion: settleAnimationOp shows the end state instead (layout/behaviours/motion.js).
+  if (operations.includes("animation") && !settleAnimationOp(this, this.options.animation)) {	
 //	alert(this.openTag)
 	
 
@@ -2007,16 +2421,16 @@ let ass = this.options.animation.op;
 
  this._on(window, /*this.openTag*/"sidebar:open", () => {
 		
-    this.res.animate(ass.keyframesOpen, ass.openOptions);
+    this._playFrames(ass.keyframesOpen, ass.openOptions);
   });
 
    this._on(window, /*this.closeTag*/ "sidebar:closed", () => {
 	
-    this.res.animate(ass.keyframesClose, ass.closeOptions);
+    this._playFrames(ass.keyframesClose, ass.closeOptions);
   });
 
 
-	this.res.animate(ass.keyframesClose, {
+	this._playFrames(ass.keyframesClose, {
 		duration: 0,
 		fill: "forwards"
 	   });
@@ -2025,11 +2439,11 @@ let ass = this.options.animation.op;
 	   if (this.openTag && this.closeTag){
 		
 this._on(window, this.openTag, () => {
-		this.res.animate(ass.keyframesOpen, ass.openOptions);
+		this._playFrames(ass.keyframesOpen, ass.openOptions);
 	});
 // "sidebar:opened" "sidebar:closed"
 	this._on(window, this.closeTag, () => {
-		this.res.animate(ass.keyframesClose, ass.closeOptions);
+		this._playFrames(ass.keyframesClose, ass.closeOptions);
 	});
 	   }
 	
@@ -2042,14 +2456,14 @@ this._on(window, this.openTag, () => {
 
 		  let ass = this.options.animation.op;
 
-		  this.res.animate(ass.keyframesClose, {
+		  this._playFrames(ass.keyframesClose, {
 			  duration: 0,
 			  fill: "forwards"
 		  });
 
 		  const scrollHandler = () => {
 			  if (window.scrollY > parseFloat(ass.fireAt)) {
-				  this.res.animate(ass.keyframesOpen, ass.openOptions);
+				  this._playFrames(ass.keyframesOpen, ass.openOptions);
 				  window.removeEventListener("scroll", scrollHandler);
 			  }
 		  };
@@ -2060,15 +2474,22 @@ this._on(window, this.openTag, () => {
 
 	  if (this.options.animation && this.options.animation.op.fireAt === "inview") {
   let ass = this.options.animation.op;
-  this.res.animate(ass.keyframesClose, { duration: 0, fill: "forwards" });
+  // No IntersectionObserver (jsdom, the prerender, old WebViews): nothing
+  // would ever report the element in view, and `new IntersectionObserver`
+  // threw. Show the end state instead — content must not stay hidden.
+  const IO = (typeof window !== "undefined" && window.IntersectionObserver) || globalThis.IntersectionObserver;
+  if (typeof IO !== "function") {
+    this._playFrames(ass.keyframesOpen, { duration: 0, fill: "forwards" });
+  } else {
+  this._playFrames(ass.keyframesClose, { duration: 0, fill: "forwards" });
 
   let hasOpened = false;
 
-  const observer = new IntersectionObserver((entries, observer) => {
+  const observer = new IO((entries, observer) => {
     entries.forEach(entry => {
       if (entry.isIntersecting && !hasOpened) {
         hasOpened = true;
-        this.res.animate(ass.keyframesOpen, ass.openOptions);
+        this._playFrames(ass.keyframesOpen, ass.openOptions);
         observer.disconnect();
       }
     });
@@ -2076,6 +2497,7 @@ this._on(window, this.openTag, () => {
 
   observer.observe(this.res);
   this._track(() => observer.disconnect());
+  }
 }
 
 
@@ -2127,8 +2549,10 @@ this._on(window, this.openTag, () => {
 			return;
 		}
 
+		// A copy: the default used to be written back into the node the
+		// caller passed, so the page's own data changed under it.
 		if (!transform.duration){
-			transform.duration = "3s-ease-in-out";
+			transform = { ...transform, duration: "3s-ease-in-out" };
 		}
 
 
@@ -2234,8 +2658,8 @@ this._on(window, this.openTag, () => {
 	if (transformValue) {
 		// alert("/") 
 
-		if (obj.op.duration){ // transform 3s in and out takes 8 secs instead of 6....
-			let newStr = obj.op.duration.replace(/^(\d+)(s)-/, (_, n, s) => n / 2 + s + " "); 
+		if (transform.duration){ // transform 3s in and out takes 8 secs instead of 6....
+			let newStr = String(transform.duration).replace(/^(\d+)(s)-/, (_, n, s) => n / 2 + s + " "); 
 //alert(newStr);
 
 			//newStr = "6s";
@@ -2369,4 +2793,4 @@ removeQuotesFromFirstWord(jsonString) {
     
 } // 2600-1870
 
-export { Animator, STYLE_OPTIONS, styleOptionsOf, linkWrap };
+export { Animator, STYLE_OPTIONS, styleOptionsOf, linkWrap, motionAnimate, isDesignNode };

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -135,6 +135,7 @@ class Row extends Animator {
     
     
 	  items(arr) {
+        this._adopt(arr); // destroy() releases the children too
         
         var frString = "";
         

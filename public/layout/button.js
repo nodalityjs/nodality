@@ -307,6 +307,13 @@ this.options = obj;
     
     
 	border(color, w){        
+        // One argument with spaces is a CSS shorthand ("1px solid #000"),
+        // which commonMethods has already applied; building
+        // "<shorthand> solid undefinedpx" from it would be invalid.
+        if (typeof color === "string" && w === undefined && /\s/.test(color.trim())) {
+            this.res.style.border = color;
+            return this;
+        }
 
         if (color === "none"){
             this.res.style.border = "none";

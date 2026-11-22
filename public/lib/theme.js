@@ -19,8 +19,11 @@ const Theme = {
     mode: detectInitialMode(),
     tokens: { light: {}, dark: {} },
 
-    // Built-in defaults applied to every component that did NOT declare its own
-    // .theme({...}) map or an inline color. The LIGHT default is black (#111)
+    // Built-in defaults applied to the ROOT components of a page — those with
+    // no themed Nodality ancestor and no ancestor that sets the property
+    // inline — that did NOT declare their own .theme({...}) map or an inline
+    // color. Everything below a root inherits (see Animator._applyTheme), so a
+    // section's own `color` reaches its children. The LIGHT default is black (#111)
     // so text renders black out of the box without each project calling
     // setDefaults() — components that set their own color inline always win
     // (see _applyTheme: it never overwrites a user-set key).

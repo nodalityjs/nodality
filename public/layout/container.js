@@ -1,6 +1,7 @@
-import {Animator} from "./animator.js";
+import { Animator, isDesignNode } from "./animator.js";
 
 import { toObjectSource, jsString } from "../lib/codegen.js";
+import { swapTag, WRAP_TAGS } from "./behaviours/interaction.js";
 class Wrapper extends Animator { // 12:10:02 found grep 06/03
 	constructor(obj) {
         super();
@@ -63,6 +64,14 @@ code = `${pad}new Wrapper()`;
 	set(obj){
 		this.obj = obj;
 
+		//@ wrap.as {enum(section|article|aside|header|footer|main|nav|figure|figcaption|blockquote|ul|ol|li|dl|dt|dd|address|time|details|summary)}: Render the wrap as a semantic tag instead of a div: section, article, aside, header, footer, main, nav, figure, figcaption, blockquote, ul, ol, li, dl, dt, dd, address, time, details or summary. Anything else is ignored with a warning.
+		// First, before anything attaches to the node: a swap rebuilds it, and
+		// handlers set as properties (hover's onmouseover) would not survive.
+		obj.as && swapTag(this, obj.as, WRAP_TAGS, "wrap.as");
+
+		//@ datetime {string}: Machine-readable date/time for a `time` element (wrap `as: "time"`, text `tag: "time"`), written to its datetime attribute, e.g. "2026-06-14" or "2026-06-14T09:00". Ignored on any other tag.
+		Animator.applyDatetime(this.res, obj.datetime);
+
 				this.commonMethods(obj);
 
 		obj.onTap && this.onTap(obj.onTap);
@@ -89,8 +98,9 @@ code = `${pad}new Wrapper()`;
 
 		// Plain CSS string transforms are handled by commonMethods. Only
 		// object-shaped transform descriptors enter the animation pipeline.
+		const shadowNode = isDesignNode(obj.shadowOp) ? obj.shadowOp : (isDesignNode(obj.shadow) ? obj.shadow : undefined); // shadow DESIGN node: shadowOp (internal key), or a node-shaped legacy `shadow`
 		const _hasAnimTransform = obj.transform && typeof obj.transform === "object";
-		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || _hasAnimTransform){
+		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || shadowNode || obj.animation || obj.filtera || _hasAnimTransform){
 			if (obj.gradient){
 				this.globalGradient = obj.gradient.op.gradient;
 			if (obj.gradient?.op?.direction === "radial") {
@@ -108,7 +118,7 @@ code = `${pad}new Wrapper()`;
 			}
 
 
-			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, _hasAnimTransform ? obj.transform : undefined];
+			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, shadowNode, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, _hasAnimTransform ? obj.transform : undefined];
 			ft = ft.filter(el => el != undefined);
 
 		
@@ -204,6 +214,7 @@ code = `${pad}new Wrapper()`;
 
 		obj.simpleCenter && this.deprecatedOption("simpleCenter", 'center: true');
 		
+  //@ wrap.filter: Truthy = frosted glass (backdrop-filter: blur(3px)). Not CSS `filter` — that option is `cssFilter`.
 		obj.filter && (this.res.style.backdropFilter = "blur(3px)"); // 002506 21/05 002945
 		obj.radius && this.corner(obj.radius);
 
@@ -232,7 +243,7 @@ code = `${pad}new Wrapper()`;
 	
 
 		if (obj.borderObj){
-			this.res.style.border = `${obj.borderObj.width} solid ${obj.borderObj.color}`
+			this.res.style.border = `${obj.borderObj.width} solid ${obj.borderObj.color}`;
 			// Only touch borderRadius when caller provided one — otherwise we'd
 			// clobber the radius set via styleMap (e.g. `radius: "50%"`).
 			if (obj.borderObj.radius !== undefined) {
@@ -248,7 +259,7 @@ code = `${pad}new Wrapper()`;
 
 		// borderObja kept as alias for backwards compatibility
 		if (obj.borderObja){
-			this.res.style.border = `${obj.borderObja.width} solid ${obj.borderObja.color}`
+			this.res.style.border = `${obj.borderObja.width} solid ${obj.borderObja.color}`;
 			if (obj.borderObja.radius !== undefined) {
 				this.res.style.borderRadius = obj.borderObja.radius;
 			}
@@ -285,7 +296,15 @@ code = `${pad}new Wrapper()`;
   //@ flexDir: Flex direction. Also sets display:flex, so it is enough on its own.
 		obj.flexDir && (this.res.style.flexDirection = obj.flexDir);
 		obj.flexDir && (this.res.style.display = "flex");
-		obj.flexDir && (stra += `\n flexDir: ${jsString(obj.flexDir)},`)
+		obj.flexDir && (stra += `\n flexDir: ${jsString(obj.flexDir)},`);
+		// `flexDirection` is flexDir by its CSS name (STYLE_OPTIONS has
+		// already written the property). Like flexDir it makes the wrap a flex
+		// box — a direction on a block does nothing — unless the page chose a
+		// display itself, which a CSS-named option must not overrule.
+		// (An `if`, not `a && (b)`: written when the line above had no
+		// semicolon and a statement opening with `(` parsed as a call on it.
+		// Every `a && (b)` statement here now ends in one.)
+		if (!obj.flexDir && obj.flexDirection && obj.display == null && obj.disp == null) this.res.style.display = "flex";
 
   //@ center: Centres this element's CHILDREN. `true` for both axes, `"x"` horizontal, `"y"` vertical. Axis-aware: in a flex column `"y"` is justify-content, in a row it is align-items. To centre the element itself inside its parent, use `mar: "center"`.
 		// After disp and flexDir on purpose: center() reads the layout mode
@@ -299,7 +318,7 @@ code = `${pad}new Wrapper()`;
 		// String transforms are handled by commonMethods. Only object-shaped
 		// transform descriptors (with .op / .transform) go to the animation system.
 		(obj.transform && typeof obj.transform === "object") && this.reactOnTransform(obj.transform);
-		obj.name && (this.name = obj.name)
+		obj.name && (this.name = obj.name);
 		obj.responsive && this.rsp(obj.responsive);
 
 		/*if (obj.makeResponsiveBehaviour){
@@ -498,6 +517,11 @@ code = `${pad}new Wrapper()`;
 	}
 
 	border(obj){ 
+         // A CSS shorthand string ("1px solid #0B0B0C") is a plain border;
+         // it used to build "undefinedpx solid undefined" here, which the
+         // browser drops, so `border` on a wrap was silently ignored.
+         if (typeof obj === "string") { this.res.style.border = obj; return this; }
+         if (!obj || typeof obj !== "object") return this;
          this.res.style.borderRadius = `${obj.radius}px`;
          // No padding here. It used to set 0.25em, which runs after pad()
          // in set() and silently overwrote it: {pad: [{a: 40}], border: {…}}
@@ -510,6 +534,7 @@ code = `${pad}new Wrapper()`;
     
 	add(els){
 		this.items = els;
+		this._adopt(els);
 		this.code.push(".add([ \n");
 
 		let finalCode = els//finalCodea
@@ -555,7 +580,7 @@ code = `${pad}new Wrapper()`;
 		if (options){
 
 			if (options.isLink){
-				container = document.createElement("a") 
+				container = document.createElement("a");
 			}
 
 			if (options === "aside"){
@@ -585,6 +610,17 @@ code = `${pad}new Wrapper()`;
 
 		} else {
 				container = document.createElement("div");
+		}
+
+		// Anything else left no box at all, and the next line threw. A kind
+		// this constructor does not know (`new Wrapper("nav")`) falls back to
+		// a div, with a warning naming the option that does render it; an
+		// options object without `isLink` is a plain div, as it always meant.
+		if (!container) {
+			if (typeof options === "string") {
+				console.warn(`[nodality] new Wrapper("${options}"): unknown kind; rendering a div. Use aside, article, main, section, header or footer here, or set({as: "${options}"}) for other semantic tags.`);
+			}
+			container = document.createElement("div");
 		}
 
 		

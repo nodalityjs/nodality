@@ -56,6 +56,7 @@ class Grid extends Animator {
 	}
 
 	items(arr) {
+		this._adopt(arr); // destroy() releases the children too
 		for (var i = 0; i < arr.length; i++) {
 			this.res.appendChild(arr[i].render());
 		}

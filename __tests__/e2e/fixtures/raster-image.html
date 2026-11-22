@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raster on an image</title>
+  <style>
+    body { margin: 0; background: #fff; }
+    .spacer { height: 900px; }
+    .tail { height: 2000px; }
+  </style>
+</head>
+<body>
+  <div class="spacer" id="above"></div>
+  <img id="photo" alt="A hue sweep test photo" style="display:block;width:600px;height:400px;margin-left:50px">
+  <div class="tail"></div>
+
+  <script type="module">
+    // Fixture for raster-image.spec.js: one <img> the spec aims chains at.
+    // The photo is generated here as a same-origin blob, so the test needs
+    // no binary asset and the pipeline takes its direct-image upload path.
+    import { applyRasterPipeline, REGISTRY, FRAMEWORK_DOC, DRIVER_DOCS }
+      from '../../../lib/raster-ops.js';
+
+    window.__logs = [];
+    for (const level of ['info', 'warn']) {
+      const orig = console[level].bind(console);
+      console[level] = (...a) => { window.__logs.push(a.join(' ')); orig(...a); };
+    }
+
+    // A saturated hue sweep, so any screened (ink-on-paper, near grey)
+    // pixel is told apart from an untouched one by chroma alone.
+    const c = document.createElement('canvas');
+    c.width = 600; c.height = 400;
+    const x = c.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 600, 0);
+    g.addColorStop(0, '#ff0000'); g.addColorStop(0.5, '#00ff00'); g.addColorStop(1, '#0000ff');
+    x.fillStyle = g; x.fillRect(0, 0, 600, 400);
+
+    const img = document.getElementById('photo');
+    // #nosrc leaves the src unset so a spec can choose it (cross-origin).
+    // A hash, not a query: `serve`'s clean-URL redirect drops queries.
+    window.__raster = { applyRasterPipeline, REGISTRY, FRAMEWORK_DOC, DRIVER_DOCS };
+    c.toBlob((blob) => {
+      window.__photoUrl = URL.createObjectURL(blob);
+      if (location.hash === '#nosrc') { window.__ready = true; return; }
+      img.addEventListener('load', () => { window.__ready = true; }, { once: true });
+      img.src = window.__photoUrl;
+    });
+  </script>
+</body>
+</html>

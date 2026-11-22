@@ -63,11 +63,11 @@ before(async () => {
 const fixture = (type) => {
 	const el = { type, id: "probe" };
 	if (["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "button", "code", "copy", "simple"].includes(type)) el.text = "Probe";
-	if (["img", "video", "audio", "a"].includes(type)) el.url = "/probe.mp4";
+	if (["img", "video", "audio", "a", "model"].includes(type)) el.url = "/probe.mp4";
 	// A video's posterBehind paints its poster, so it needs one to show.
 	if (type === "video") el.poster = "/probe.jpg";
 	if (["cards", "nav", "sideNav", "table", "ulist", "dropdown", "picker", "radio"].includes(type)) el.items = ["One", "Two"];
-	if (["row", "form", "stack", "wrap", "free"].includes(type)) el.children = [{ type: "p", id: "kid", text: "Kid" }];
+	if (["row", "form", "stack", "wrap", "free", "disclosure", "scroller", "marquee"].includes(type)) el.children = [{ type: "p", id: "kid", text: "Kid" }];
 	if (type === "multiswitcher") el.breakpoints = [{ at: "600px", view: { type: "p", id: "v", text: "View" } }];
 	if (type === "simple") el.react = [{ at: 600, template: "text-above-image" }];
 	// Companions: a parameter that styles content needs content to style.
@@ -78,6 +78,10 @@ const fixture = (type) => {
 		el.readouts = [{ id: "r", col: 1, row: 1, text: "readout" }];
 		el.mobile = { columns: 1 };
 	}
+	if (type === "tabs") el.items = [{ label: "One", children: [{ type: "p", id: "kid", text: "Kid" }] }, "Two"];
+	// The scroller's prev/next labels name its buttons, which exist only with
+	// `controls`.
+	if (type === "scroller") el.controls = true;
 	return el;
 };
 const nodesFor = (type) => type === "free" ? [{ op: { name: "layout", value: "text-above-image" } }] : [];
@@ -132,6 +136,10 @@ const NOT_OBSERVABLE = new Set([
 	"buy.url",                // the link of the static form (no JS); the probe renders the live form
 	"buy.store",              // only read with mode: "buyNow"
 	"productMedia.alt",       // describes the static image, so only with `url`
+	"model.loader",           // adds a <script> to <head>, outside the element
+	"model.decoderLocation",  // sets a global model-viewer reads when it loads
+	"model.src",              // alias of `url`, which the fixture already sets and which wins
+	"disclosure.dismiss",     // listeners for outside clicks, Escape and links: behaviour, not markup
 ]);
 
 // The baseline lives in the library, so validate_nodes can warn with it.

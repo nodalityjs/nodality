@@ -1,6 +1,7 @@
 import {Animator} from "./animator.js";
 
 import { jsString } from "../lib/codegen.js";
+import { swapTag } from "./behaviours/interaction.js";
 class UList extends Animator {
     constructor() {
         super();
@@ -11,6 +12,9 @@ class UList extends Animator {
 
     set(obj) {
         this.options = obj;
+        //@ ulist.ordered {bool}: Render an ordered list (<ol>) instead of <ul> — for steps, rankings, anything whose order is part of its meaning. Looks the same.
+        // First, before styles and handlers attach to the node it replaces.
+        swapTag(this, obj.ordered ? "ol" : "ul", ["ul", "ol"], "ulist.ordered");
         obj.pad && this.pad(obj.pad);
         obj.mar && this.mar(obj.mar);
        
@@ -107,6 +111,20 @@ class UList extends Animator {
                 this.res.appendChild(li);
             } else {
                 let rendered = item.render();
+                // A <ul> may contain only <li>. Items used to go straight in,
+                // which is invalid HTML and made a screen reader announce
+                // "list, 0 items". Each is now wrapped in an <li> with
+                // `display: contents`, so the box tree — and therefore the
+                // rendering, flex and grid lists included — is exactly what
+                // it was, and no marker appears where none did before.
+                // An item that already is an <li> (a Text with tag "li") is
+                // not wrapped twice.
+                if (rendered && rendered.tagName !== "LI") {
+                    const li = document.createElement("li");
+                    li.style.display = "contents";
+                    li.appendChild(rendered);
+                    rendered = li;
+                }
                 this.res.appendChild(rendered);
             }
         }

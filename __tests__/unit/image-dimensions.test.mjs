@@ -61,3 +61,15 @@ test("imperative: .width() then .height() keeps both; .width() alone frees the h
 	const b = new Image("b.jpg").set({ url: "b.jpg" }).width("200px");
 	assert.equal(b.res.style.height, "auto");
 });
+
+test("intrinsic: the file's size becomes the width/height attributes; the CSS size is untouched", async () => {
+	document.getElementById("mount").innerHTML = "";
+	new Des().nodes([]).add([{ type: "img", id: "p", url: "x.jpg", alt: "x", width: "100%", intrinsic: [1600, 2000] },
+		{ type: "img", id: "q", url: "y.jpg", alt: "y", intrinsic: [0, "x"] }]).set({ mount: "#mount", code: false, elements: false });
+	const p = document.querySelector("#mount #p"), q = document.querySelector("#mount #q");
+	assert.equal(p.getAttribute("width"), "1600");
+	assert.equal(p.getAttribute("height"), "2000");
+	assert.equal(p.style.width, "100%");
+	assert.equal(p.style.height, "auto", "the attributes give the shape, not a 2000 px displayed height");
+	assert.equal(q.hasAttribute("width"), false, "nonsense is ignored");
+});

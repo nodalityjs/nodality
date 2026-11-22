@@ -33,7 +33,9 @@ const DESIGN_SEMANTICS = {
     arrange: { combine: "first", scope: "range" },
     background: { combine: "first", scope: "element" },
     blast: { combine: "first", scope: "element" },
-    "card-style": { combine: "first", scope: "page" },
+    // Read only by CardGen, which nothing calls (lib/design-ops.js says why
+    // it is not wired): accepted, renders nothing.
+    "card-style": { combine: "inert", scope: "page" },
     filter: { combine: "first", scope: "element" },
     gradient: { combine: "first", scope: "element" },
     layout: { combine: "first", scope: "page", slot: "layout" },
@@ -184,7 +186,7 @@ export function shadowedNodes(nodes) {
  *       { op: "arrange", combine: "first", intervals: [{ range, node, shadowed }] },
  *       { op, combine: "sequence", stage, nodes: [i...] },   // in apply order
  *     ],
- *     page: [{ op, node, shadowed }],   // page-wide ops (layout, card-style...)
+ *     page: [{ op, node, shadowed }],   // page-wide ops (layout, slayout)
  *     inert: [i...] }
  */
 export function explainElement(nodes, elementId) {

@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -190,7 +190,10 @@ class FlexGrid extends Animator {
 	
 	
 	items(elements){
-		this.items = elements;
+		// Not `this.items`: that is this method, and overwriting it made a
+		// second .items() call throw "this.items is not a function".
+		this.itemList = elements;
+		this._adopt(elements); // destroy() releases the children too
 		this.code.push("\n .items([");
 
 		var count = -1;

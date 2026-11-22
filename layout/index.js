@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -44,6 +44,11 @@ import { Checkbox } from "../layout/checkbox.js";
 import { Video } from "../layout/video.js";
 import { UList } from "../layout/ulist.js";
 import { Slider } from "../layout/slider-2025.js";
+import { Model } from "../layout/model.js";
+import { Disclosure } from "../layout/disclosure.js";
+import { Tabs } from "../layout/tabs.js";
+import { Scroller } from "../layout/scroller.js";
+import { Marquee } from "../layout/marquee.js";
 
 // FORM COMPONENTS
 import { FloatingInput } from "../layout/form-components/floating-input.js";
@@ -140,6 +145,11 @@ if (typeof window !== 'undefined') {
   window.Video = Video;
   window.UList = UList;
   window.Slider = Slider;
+  window.Model = Model;
+  window.Disclosure = Disclosure;
+  window.Tabs = Tabs;
+  window.Scroller = Scroller;
+  window.Marquee = Marquee;
   window.Polygon = Polygon;
   window.Circle = Circle;
   window.GridOverlay = GridOverlay;
@@ -202,6 +212,11 @@ if (typeof global !== 'undefined') {
   global.Video = Video;
   global.UList = UList;
   global.Slider = Slider;
+  global.Model = Model;
+  global.Disclosure = Disclosure;
+  global.Tabs = Tabs;
+  global.Scroller = Scroller;
+  global.Marquee = Marquee;
   global.Polygon = Polygon;
   global.Circle = Circle;
   global.GridOverlay = GridOverlay;
@@ -264,6 +279,11 @@ export {
   Video,
   UList,
   Slider,
+  Model,
+  Disclosure,
+  Tabs,
+  Scroller,
+  Marquee,
   Polygon,
   Circle,
   GridOverlay,

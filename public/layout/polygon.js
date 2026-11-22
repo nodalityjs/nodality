@@ -51,6 +51,14 @@ class Polygon extends Animator {
     if (opts.center) this.center();
 
     let obj = opts;
+    // The shadow design node comes in as `shadowOp` (see Circle); one still
+    // passed as `shadow` is recognised by its shape. A plain string `shadow`
+    // is not a node and must not reach chainReact (it crashed on `.op.name`).
+    //@ polygon.shadowOp: A shadow design node targeting the polygon (set by the mapper).
+    const shadowNode = obj.shadowOp && typeof obj.shadowOp === "object" && obj.shadowOp.op ? obj.shadowOp
+      : (obj.shadow && typeof obj.shadow === "object" && obj.shadow.op ? obj.shadow : undefined);
+    // A CSS transform STRING is a plain transform (see Circle).
+    if (typeof obj.transform === "string") this.res.style.transform = obj.transform;
 
     this.obj = opts;
 
@@ -62,10 +70,10 @@ class Polygon extends Animator {
       obj.backgroundOp ||
       obj.layout ||
       obj.marginOp ||
-      obj.shadow ||
+      shadowNode ||
       obj.animation ||
       obj.filtera ||
-      obj.transform
+      (obj.transform && typeof obj.transform === "object")
     ) {
       if (obj.gradient && obj.gradient.op) this.globalGradient = obj.gradient.op.gradient;
       if (obj.stroke) super.setAny?.({ globalBlast: `${obj.stroke.op.width} ${obj.stroke.op.color}` });
@@ -77,11 +85,11 @@ class Polygon extends Animator {
         obj.backgroundOp,
         obj.layout,
         obj.marginOp,
-        obj.shadow,
+        shadowNode,
         obj.animation,
         obj.filtera,
         obj.transform,
-      ].filter((el) => el != undefined);
+      ].filter((el) => el != undefined && typeof el === "object" && el.op);
 
       for (let i = 0; i < ft.length; i++) {
         arr.push({ range: ft[i].range, log: ft[i].op.name, target: ft[i].target, op: ft[i].op });

@@ -131,6 +131,7 @@ this.options = obj;
 	
 	
 	items(els){
+		this._adopt(els); // destroy() releases the children too
 		for (var i = 0; i < els.length; i++){
 			this.res.appendChild(els[i].render());
 		}

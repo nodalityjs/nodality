@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -123,7 +123,54 @@ str += `{ at: ${jsString(this.options.breakpoints[i].at)}, view: ${this.options.
     });
 }
 
+  /**
+   * Prerender: the saved HTML is rendered at ONE width, so with one view in
+   * it a desktop visitor saw the phone view (a nav's hamburger) until the
+   * page hydrated and swapped it — a flash. Every view goes into the saved
+   * HTML instead, each hidden outside its own width range by an @media rule
+   * outside its own width range by a data-nod-sw marker and its range
+   * (collected with resprop's values; layout/prerender.js writes them into
+   * the page as a small inline script that shows the right view while the
+   * page parses — no stylesheet). Without JavaScript the view this render
+   * matched shows: the others are saved with display:none. The live page
+   * renders one view as always; its elements carry no marker.
+   * An id repeated across views is kept on the view this render matched
+   * and dropped from the others, so the saved HTML has no duplicate ids.
+   */
+  _prerenderAllViews() {
+    const store = window.__NODALITY_PRERENDER_RULES__ || (window.__NODALITY_PRERENDER_RULES__ = []);
+    const n = (window.__NODALITY_SW_N__ = (window.__NODALITY_SW_N__ || 0) + 1);
+    const added = this.addRanges(this.breakpoints, this.breakpoints.map((b) => b.at));
+    const width = window.innerWidth || 0;
+    this.internalDiv.innerHTML = "";
+    const roots = added.map((r, i) => {
+      const el = r.view.render();
+      el.setAttribute("data-nod-sw", `${n}-${i}`);
+      store.push({ sw: `${n}-${i}`, lo: r.range.from > 0 ? r.range.from : 0,
+        hi: r.range.to < 99999 ? r.range.to : null, display: el.style.display || "" });
+      this.internalDiv.appendChild(el);
+      return { el, current: width >= r.range.from && width <= r.range.to };
+    });
+    const primary = roots.find((r) => r.current) || roots[roots.length - 1];
+    if (!primary) return;
+    for (const r of roots) if (r !== primary) r.el.style.display = "none";
+    this.currentView = primary.el;
+    const keep = new Set([...primary.el.querySelectorAll("[id]")].map((e) => e.id));
+    if (primary.el.id) keep.add(primary.el.id);
+    for (const r of roots) {
+      if (r === primary) continue;
+      for (const e of [r.el, ...r.el.querySelectorAll("[id]")]) if (e.id && keep.has(e.id)) e.removeAttribute("id");
+    }
+  }
+
   applyView() {
+    if (typeof window !== "undefined" && window.__NODALITY_PRERENDER__ && this.internalDiv) {
+      if (!this.internalDiv.hasAttribute("data-nod-sw-all")) {
+        this.internalDiv.setAttribute("data-nod-sw-all", "");
+        this._prerenderAllViews();
+      }
+      return;
+    }
 
     // No matchMedia at all (a bare jsdom — the prerenderer installs its own,
     // other hosts may not): show the widest view rather than an empty box.

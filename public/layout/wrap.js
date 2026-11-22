@@ -8,6 +8,7 @@ class Wrap extends Animator {
 		this.code = [];
 
 		this.setup();
+		this._adopt(els); // destroy() releases the children too
 		
 		
 		

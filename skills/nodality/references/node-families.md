@@ -33,6 +33,21 @@ Rules that are not obvious from the schema:
   edge may override. `chain` wins outright: node-level `from`/`to` are
   ignored beside it. `back: true` unwinds the path the user actually
   took, not a lookup of a reverse edge.
+- **`background` and `margin` take values.** `{ op: { name: "background",
+  color, gradient } }` and `{ op: { name: "margin", margin } }` (or
+  `offsets`, indexed by each target's own `index` option) apply to every
+  element type, a `nav`'s bars included, inside `range`; the code panel and
+  `nodality compile` show them as `ElementMapper.lowered(…)`.
+- **A transform's top-level `duration`** (`"fast"`, `"medium"`, `"slow"`,
+  `"<n>s-ease-in-out"`) sets the motion's length unless `op.duration` says
+  otherwise.
+- **`animation` can fire on scroll-in.** `fireAt: "inview"` puts the
+  target in the last frame of `keyframesClose` at once and plays
+  `keyframesOpen` with `openOptions` the first time it is visible (once);
+  `fireAt: "400px"` does the same once `scrollY` passes 400. Give
+  `openOptions` `fill: "forwards"`. Every key is registered, so a typo
+  inside `op` is `UNKNOWN_OP_PARAM`. For one element, the `reveal` option
+  is shorter (`motion-and-interaction.md`).
 - **`agent-surface` is opt-in and allow-listed.** No form is exposed
   unless named in `forms`. Do not add it unless the user asks for an
   agent-operable page.
@@ -56,3 +71,35 @@ A complete navigation graph is one node:
     { from: "aurora", to: { Contact: "contact" }, effect: "t-bloom" },
   ] }
 ```
+
+## Raster: what `by` does, devices, images
+
+- **A driver is a point, not a shape.** `by: "scroll"` moves a focus point
+  down the element's centre line as it crosses the viewport. What appears
+  around it is the op's business: `halftone` screens the **whole** image
+  and only magnifies its dots, loupe-like, near the point. A stripe that
+  travels with the scroll is a field, masked:
+
+  ```js
+  { op: "mask", from: "band", as: "band", target: ["photo"], by: "scroll", radius: 90 },
+  { op: "halftone", target: ["photo"], masked: "band" },
+  ```
+
+  `radius` is the stripe's half-height in px; `from: "radial"` (default)
+  is a moving spot.
+- **`pointer` gates a node by device**, on any raster op:
+  `"fine"` (mouse/trackpad), `"coarse"` (touch), `"none"`; absent or
+  `"any"` is no gate. A failing node is dropped and the rest of the chain
+  runs; an empty chain never attaches and the element is left as written.
+  Checked once, at load. Use it to keep heavy chains off phones.
+- **Nothing attaches under `prefers-reduced-motion`**, static chains
+  included.
+- **An `<img>` keeps its size, `alt` and LCP.** It is wrapped, kept in the
+  page at opacity 0, and shown for two frames before the effect takes
+  over. Its size is read once, at attach — inline, stylesheet or
+  attributes — so a media query that later resizes it in a stylesheet no
+  longer reaches it: size responsive rastered images with percentages.
+- **Cross-origin images** need `crossorigin="anonymous"` and CORS headers,
+  or the effect is skipped with a warning.
+- **Budget.** One WebGL context per rastered element, redrawn every frame
+  on screen; browsers cap contexts (often 16). Keep it to a few heroes.

@@ -1,8 +1,17 @@
 import {Animator} from "../animator.js";
 
-class RadioGroup /*extends Animator*/ {
+// An Animator now, so the universal behaviour options (aria, hover, reveal,
+// tooltip, …) reach the group like every other element: the base class wraps
+// set() and applies them afterwards to the root, which for this component is
+// `el` (the behaviour modules fall back to it when `res` is empty). `res` stays
+// unset, so nothing res-based (theme, id, loop) changes how a radio renders;
+// and the group now has destroy(), which Des.destroy() calls.
+// Groups without an id or name are told apart by a page-wide count.
+let radioGroupSeq = 0;
+
+class RadioGroup extends Animator {
      constructor(){
-       // super();
+        super();
         this.el = null;
         this.radioCount = 0;
        // this.setup();
@@ -19,6 +28,15 @@ class RadioGroup /*extends Animator*/ {
 	
         
         let obj = objects.items;
+
+        // Ids and the shared name are per GROUP. They used to be `S0`, `S1`…
+        // and name "undefined" in every group, so a second group on the page
+        // clashed with the first: its labels, getCheckedValues() and the
+        // browser's one-checked-per-name rule all reached the wrong inputs.
+        const gid = objects.id != null && objects.id !== "" ? String(objects.id)
+            : (objects.name != null && objects.name !== "" ? String(objects.name) : `nod-radio-${++radioGroupSeq}`);
+        this.groupId = gid;
+        const groupName = objects.name != null && objects.name !== "" ? String(objects.name) : gid;
         
         for (var i = 0; i < obj.length; i++){
         
@@ -42,11 +60,12 @@ class RadioGroup /*extends Animator*/ {
 
         let node = document.createTextNode(obj[i]);
         label.appendChild(node);
-        label.setAttribute("for", obj[i]); 
+        const inputId = `${gid}-${i}`;
+        label.setAttribute("for", inputId); // the input's id, so a click on the label picks it
         
 		let card = document.createElement("input");      
         card.setAttribute("type", "radio");
-        card.setAttribute("id", `S${i}`);
+        card.setAttribute("id", inputId);
         card.setAttribute("value", obj[i].split(" ").join(""));   
 
         card.style.appearance = 'none';
@@ -74,7 +93,7 @@ class RadioGroup /*extends Animator*/ {
            if (objects.multiple){
                 card.setAttribute("name", obj[i].split(" ").join(""));   
             } else {
-                card.setAttribute("name", objects.name);
+                card.setAttribute("name", groupName);
               //  card.setAttribute("name", "same");
             } 
             
@@ -91,6 +110,10 @@ class RadioGroup /*extends Animator*/ {
         }
         
         this.el = wrap;
+        // Read from the group itself, not by id from the document: works
+        // before the group is mounted and never reaches another group.
+        // (`innerHTML +=` above re-creates the nodes, so they are looked up now.)
+        this.inputs = [...wrap.querySelectorAll('input[type="radio"]')];
         // RadioGroup is not an Animator, so the base class that applies an
         // element's id after set() never sees it. It applies its own.
         if (objects && objects.id != null && objects.id !== "") {
@@ -112,13 +135,8 @@ class RadioGroup /*extends Animator*/ {
         
         var values = [];
         
-        for (var i = 0; i < this.radioCount; i++){
-            
-           
-            if (document.querySelector(`#S${i}`).checked) {
-            let value = document.querySelector(`#S${i}`);
-            values.push(value.value);
-                }
+        for (const input of this.inputs || []) {
+            if (input.checked) values.push(input.value);
         }
         
         

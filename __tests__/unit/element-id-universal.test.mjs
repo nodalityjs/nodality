@@ -47,9 +47,10 @@ beforeEach(() => { document.getElementById("mount").innerHTML = ""; });
 const fixture = (type, id) => {
 	const el = { type, id };
 	if (["h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "button", "code", "copy", "simple"].includes(type)) el.text = "Probe";
-	if (["img", "video", "audio", "a"].includes(type)) el.url = "/probe.mp4";
+	if (["img", "video", "audio", "a", "model"].includes(type)) el.url = "/probe.mp4";
 	if (["cards", "nav", "sideNav", "table", "ulist", "dropdown", "picker", "radio"].includes(type)) el.items = ["One", "Two"];
-	if (["row", "form", "stack", "wrap", "free"].includes(type)) el.children = [{ type: "p", id: `${id}-kid`, text: "Kid" }];
+	if (["row", "form", "stack", "wrap", "free", "disclosure", "scroller", "marquee"].includes(type)) el.children = [{ type: "p", id: `${id}-kid`, text: "Kid" }];
+	if (type === "tabs") el.items = [{ label: "One", children: [{ type: "p", id: `${id}-kid`, text: "Kid" }] }, "Two"];
 	if (type === "multiswitcher") el.breakpoints = [{ at: "600px", view: { type: "p", id: `${id}-view`, text: "View" } }];
 	if (type === "simple") el.react = [{ at: 600, template: "text-above-image" }];
 	return el;

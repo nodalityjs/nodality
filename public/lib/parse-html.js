@@ -58,13 +58,17 @@ export const NODES_ATTR = "data-nod-nodes";
 const isNodesScript = (n) => n && n.tagName && n.tagName.toLowerCase() === "script"
     && n.hasAttribute && n.hasAttribute(NODES_ATTR);
 
+// Not an element of the page: the carried nodes, and the empty spacer a
+// `pin` puts after its element (layout/behaviours/motion.js) to stick within.
+const notContent = (n) => isNodesScript(n) || !!(n && n.hasAttribute && n.hasAttribute("data-nod-pin-spacer"));
+
 /**
  * Write each descriptor onto the child it produced. Returns how many were
  * written, which is what the caller needs to know if the two ever diverge.
  */
 export function annotateRoundTrip(host, elements, nodes) {
     if (!host || !Array.isArray(elements)) return 0;
-    const kids = Array.from(host.children || []).filter((k) => !isNodesScript(k));
+    const kids = Array.from(host.children || []).filter((k) => !notContent(k));
     let written = 0;
     for (let i = 0; i < kids.length && i < elements.length; i++) {
         try {
@@ -138,7 +142,7 @@ export function parseHTML(html, doc) {
     if (!d) throw new Error("[nodality] parseHTML needs a document");
     const box = d.createElement("div");
     box.innerHTML = String(html == null ? "" : html);
-    return Array.from(box.children).filter((k) => !isNodesScript(k)).map(parseNode).filter(Boolean);
+    return Array.from(box.children).filter((k) => !notContent(k)).map(parseNode).filter(Boolean);
 }
 
 /**
@@ -152,7 +156,7 @@ export function parseSpec(html, doc) {
     box.innerHTML = String(html == null ? "" : html);
     const nodes = readNodes(box);
     return {
-        elements: Array.from(box.children).filter((k) => !isNodesScript(k)).map(parseNode).filter(Boolean),
+        elements: Array.from(box.children).filter((k) => !notContent(k)).map(parseNode).filter(Boolean),
         nodes: nodes || [],
         nodesExact: nodes !== null,
     };
@@ -168,7 +172,7 @@ export function parseReport(html, doc) {
     const box = d.createElement("div");
     box.innerHTML = String(html == null ? "" : html);
     const nodes = readNodes(box);
-    const kids = Array.from(box.children).filter((k) => !isNodesScript(k));
+    const kids = Array.from(box.children).filter((k) => !notContent(k));
     const spec = [], unrecovered = [];
     kids.forEach((node, i) => {
         const one = parseNode(node);

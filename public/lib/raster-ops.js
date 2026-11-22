@@ -99,7 +99,18 @@ const DRIVERS = {
     // Same focus as mouse, but faded in and out with the hover state, so
     // the effect resolves away when the pointer leaves.
     hover: (c) => ({ x: c.mouseX, y: c.mouseY, amt: c.hover }),
-    // A band that travels up the element as it crosses the viewport.
+    // A focus POINT on the element's vertical centre line, carried from
+    // the element's top edge (progress 0: its top has just entered at the
+    // bottom of the viewport) to its bottom edge (progress 1: its bottom is
+    // leaving at the top). In viewport terms it rises from the viewport's
+    // bottom edge to its top edge, slower than the content scrolls past.
+    //
+    // It is a point, not a band, and it never fades: what it LOOKS like is
+    // decided by the op reading it. `mask` with `from: "band"` turns it into
+    // a horizontal stripe; `halftone` only coarsens its dots around it and
+    // screens the rest of the element regardless. Documented as "a band
+    // that travels up the element" before, which was wrong on both
+    // counts — see the scroll regression test in raster-ops.spec.js.
     scroll: (c) => ({ x: c.w * 0.5, y: c.h * c.scroll, amt: 1 }),
     // Hands-free: the focus drifts on a Lissajous path.
     time: (c) => ({
@@ -117,7 +128,12 @@ const DRIVER_DOCS = {
     static: "The element's centre at full strength, always on. The default for ops that need a focus.",
     mouse: "Follows the pointer at full strength, and stays on where the pointer last was — visible at rest.",
     hover: "Follows the pointer, faded in and out with hover — nothing shows at rest or without a pointer (a phone).",
-    scroll: "A band that travels up the element as it crosses the viewport, at full strength.",
+    scroll: "A focus point on the element's vertical centre line that moves from its top edge "
+        + "to its bottom edge as the element crosses the viewport (entering at the bottom -> "
+        + "leaving at the top), at full strength, always on. A point, not a band: the op decides "
+        + "the shape. For a travelling stripe use `{ op: \"mask\", from: \"band\", by: \"scroll\" }` "
+        + "and give the effect `masked:`. While a short element sits fully in view, progress "
+        + "only spans the middle of 0..1, so the focus stays near the centre.",
     time: "Hands-free: the focus drifts on a Lissajous path, always on.",
 };
 
@@ -505,11 +521,20 @@ ${NB.map(([x, y]) => probe(x, y)).join("")}
     //   { op: "halftone", size: 6, angle: 15, ink: "#0B1B2B" }
     //
     // With a driver the screen coarsens toward the focus, like holding a
-    // loupe over the sheet.
+    // loupe over the sheet. The driver does NOT confine the screen: the
+    // whole element is halftoned whatever `by` says. To halftone only a
+    // spot or a travelling stripe, write a field and mask the op:
+    //
+    //   { op: "mask", from: "band", as: "band", by: "scroll", radius: 90 },
+    //   { op: "halftone", masked: "band" }
     halftone: {
         doc: {
             summary: "Print halftone: the image is redrawn as a grid of ink dots on "
-                + "paper, dot size following local luminance.",
+                + "paper, dot size following local luminance. The WHOLE element is "
+                + "screened; `by` only coarsens the dots within `radius` of the driver "
+                + "focus. To screen only part of it, put a `mask` before it and give "
+                + "it `masked:` (e.g. `mask from: \"band\" by: \"scroll\"` for a "
+                + "travelling stripe).",
             params: {
                 size: { default: 6, unit: "px", summary: "dot pitch" },
                 angle: { default: 15, unit: "deg", summary: "screen angle of the dot grid" },
@@ -517,7 +542,7 @@ ${NB.map(([x, y]) => probe(x, y)).join("")}
                 paper: { default: "#FFFFFF", unit: "color", summary: "background colour" },
                 softness: { default: 0.08, unit: "ratio", summary: "dot edge softness — 0 is a hard stencil" },
                 amount: { default: 1, unit: "ratio", summary: "blend back toward the un-screened image; 0 is identity. Keyframe it to 0 at both ends of a transition so the shader hands over to the real element without a pop." },
-                radius: { default: 220, unit: "px", summary: "spot size when `by` names a driver" },
+                radius: { default: 220, unit: "px", summary: "radius of the coarsened-dot spot around the driver focus when `by` names a driver; outside it the screen is still applied at `size`" },
             },
         },
         structural: ["by"],
@@ -535,14 +560,25 @@ ${NB.map(([x, y]) => probe(x, y)).join("")}
         code: (p, node) => `
         {
             float lum = dot(col, vec3(0.299, 0.587, 0.114));
-            float sz = ${p}size;${node.by ? `
+            float sz = max(${p}size, 1.0);
+            vec2 sp = frag;${node.by ? `
+            // The loupe. The grid is MAGNIFIED about the focus rather than
+            // re-pitched in place: dividing the absolute position by a pitch
+            // that varies across the element shears the grid by an amount
+            // that grows with the distance from the origin, which drew the
+            // spot as a moire swirl. Scaling about the focus is a radial
+            // map r -> r * size / pitch(r), monotonic for any pitch that
+            // falls off with r, so cells grow toward the centre without
+            // folding — and outside the spot it is the identity, so the
+            // rest of the screen stays put while the focus moves.
             float fd = 1.0 - smoothstep(0.0, ${p}radius, length(frag - ${p}dpos));
-            sz *= 1.0 + fd * ${p}damt * 1.8;` : ``}
+            float mag = 1.0 + fd * ${p}damt * 1.8;
+            sp = ${p}dpos + (frag - ${p}dpos) / mag;` : ``}
             // Screen angle: rotating the grid is what stops the dots
             // reading as a horizontal/vertical texture.
             float ca = cos(${p}angle), sa = sin(${p}angle);
-            vec2 rp = vec2(ca * frag.x - sa * frag.y,
-                           sa * frag.x + ca * frag.y) / max(sz, 1.0);
+            vec2 rp = vec2(ca * sp.x - sa * sp.y,
+                           sa * sp.x + ca * sp.y) / sz;
             vec2 cell = fract(rp) - 0.5;
             // Dot radius from tone: darker tone prints a bigger dot.
             // sqrt because ink coverage goes as area, not radius.
@@ -620,12 +656,16 @@ ${NB.map(([x, y]) => probe(x, y)).join("")}
             float ${p}b8(vec2 a) { return ${p}b4(0.5 * a) * 0.25 + ${p}b2(a); }`,
         code: (p, node) => `
         {
-            float sz = max(${p}size, 1e-3);${node.by ? `
+            float sz = max(${p}size, 1e-3);
+            vec2 sp = frag;${node.by ? `
+            // Coarser toward the focus by MAGNIFYING the matrix about it
+            // (see halftone): re-pitching in place, frag / sz(frag), shears
+            // the pattern into a swirl.
             float fd = 1.0 - smoothstep(0.0, ${p}radius, length(frag - ${p}dpos));
-            sz *= 1.0 + fd * ${p}damt * 1.8;` : ``}
+            sp = ${p}dpos + (frag - ${p}dpos) / (1.0 + fd * ${p}damt * 1.8);` : ``}
             // Centre the threshold on zero so dithering does not lift or
             // crush the overall exposure, only redistributes it.
-            float t = ${p}b8(frag / sz) - 0.5;
+            float t = ${p}b8(sp / sz) - 0.5;
             float lv = max(${p}levels, 1.0);
             ${node.mono ? `
             float lum = dot(col, vec3(0.299, 0.587, 0.114));
@@ -817,7 +857,12 @@ ${NB.map(([x, y]) => probe(x, y)).join("")}
                 },
                 from: {
                     default: "radial", unit: "name", structural: true,
-                    summary: "field shape — compiled in, so changing it rebuilds",
+                    summary: "field shape: \"radial\" (a disc of `radius` around the "
+                        + "focus), \"band\" (a horizontal stripe through the focus, "
+                        + "`radius` tall on each side — with `by: \"scroll\"` it travels "
+                        + "down the element as the page scrolls), \"vertical\" or "
+                        + "\"horizontal\" (a 0..1 ramp across the box). Compiled in, so "
+                        + "changing it rebuilds",
                 },
                 at: {
                     default: [0.5, 0.5], unit: "point", structural: true,
@@ -847,6 +892,12 @@ ${NB.map(([x, y]) => probe(x, y)).join("")}
             const ctr = node.at ? `(${p}at * u_res)` : `${p}dpos`;
             const raw = src === "vertical"
                 ? `frag.y / max(u_res.y, 1.0)`
+                : src === "band"
+                    // A stripe across the full width through the focus's
+                    // y — the shape people mean by "a band that travels
+                    // with the scroll". Only y is read, so it spans the
+                    // element whatever x the driver reports.
+                    ? `1.0 - smoothstep(0.0, ${p}radius, abs(frag.y - (${ctr}).y))`
                 : src === "horizontal"
                     ? `frag.x / max(u_res.x, 1.0)`
                     : /* radial, and the default */
@@ -2240,6 +2291,15 @@ const FRAMEWORK_DOC = {
         summary: "mirror hover onto [data-nodality-hover] at the DRAWN " +
             "position; costs the zero-DOM-mutation property, so opt-in",
     },
+    pointer: {
+        default: null, unit: "name",
+        summary: "device gate: \"fine\" keeps this node only where " +
+            "matchMedia(\"(pointer: fine)\") matches (mouse/trackpad), " +
+            "\"coarse\" only on touch-first devices, \"none\" only without " +
+            "a pointer. Evaluated once at attach. A node whose gate fails is " +
+            "dropped; if every node is dropped the pipeline never attaches " +
+            "and the original element (an <img> included) is left untouched.",
+    },
 };
 
 // A node opts into a field with `masked: true` (the default field) or
@@ -2856,16 +2916,30 @@ function soleImageOf(el) {
         if (content.length === 1 && content[0].tagName === "IMG") img = content[0];
     }
     if (!img || !img.complete || !img.naturalWidth) return null;
-    try {
-        // Relative and same-origin absolute srcs both resolve clean here.
-        if (new URL(img.currentSrc || img.src, location.href).origin !== location.origin) {
-            return null;
-        }
-    } catch (e) {
-        return null;
-    }
+    if (isOpaqueCrossOriginImg(img)) return null;
     return img;
 }
+
+/**
+ * True for an image that would taint a canvas: a different origin, loaded
+ * without CORS. An image with a `crossorigin` attribute only loads at all
+ * if the server granted access, so once loaded it is clean. data: and
+ * blob: URLs never taint. Unresolvable or empty srcs count as opaque —
+ * the caller cannot prove they are safe.
+ */
+function isOpaqueCrossOriginImg(img) {
+    const src = img.currentSrc || img.src || "";
+    if (!src) return false;
+    if (/^(data|blob):/i.test(src)) return false;
+    if (img.crossOrigin) return false;
+    try {
+        // Relative and same-origin absolute srcs both resolve clean here.
+        return new URL(src, location.href).origin !== location.origin;
+    } catch (e) {
+        return true;
+    }
+}
+const warnedOpaqueImg = new WeakSet();
 
 /**
  * Draw `img` into an offscreen canvas at the host's box, honouring the
@@ -3226,6 +3300,62 @@ function resolveSwitches(nodes, depth) {
     return out;
 }
 
+// ── Device gates (`pointer:`) ────────────────────────────────────────
+//
+// A per-node "only on this kind of device", for the common case a full
+// `switch` is too heavy for: a hover-driven chain that means nothing on a
+// phone. Same evaluation rule as `switch` — once, at attach — and the
+// same outcome when nothing survives: no pipeline, the element untouched.
+const POINTER_GATES = {
+    fine: "(pointer: fine)",
+    coarse: "(pointer: coarse)",
+    none: "(pointer: none)",
+};
+const POINTER_GATE_NAMES = Object.keys(POINTER_GATES);
+const warnedPointer = new Set();
+
+function pointerGateOpen(node) {
+    if (!node || node.pointer == null || node.pointer === "any") return true;
+    const q = POINTER_GATES[node.pointer];
+    if (!q) {
+        // Fail closed: a misspelt gate must not attach a pipeline to the
+        // very devices it was written to exclude.
+        if (!warnedPointer.has(node.pointer)) {
+            warnedPointer.add(node.pointer);
+            console.warn("[nodality] unknown pointer gate '" + node.pointer + "' on op '" +
+                node.op + "' - node skipped. Known: " + POINTER_GATE_NAMES.join(", ") + ", any");
+        }
+        return false;
+    }
+    return switchTest(q);
+}
+
+/**
+ * Drop nodes whose `pointer:` gate fails on this device, recursing into
+ * `merge` branches and `switch` arms. Returns the input array itself when
+ * nothing is dropped, so node identity (setParam, the inspector) holds.
+ */
+function resolvePointerGates(nodes, depth) {
+    if (!Array.isArray(nodes)) return nodes;
+    if ((depth || 0) > 8) return [];
+    let changed = false;
+    const out = [];
+    for (const node of nodes) {
+        if (!pointerGateOpen(node)) { changed = true; continue; }
+        if (node && (node.op === "merge" || node.op === "switch")) {
+            const keys = node.op === "merge" ? ["a", "b"] : ["use", "else"];
+            let copy = null;
+            for (const k of keys) {
+                const sub = resolvePointerGates(node[k], (depth || 0) + 1);
+                if (sub !== node[k]) { copy = copy || Object.assign({}, node); copy[k] = sub; }
+            }
+            if (copy) { changed = true; out.push(copy); continue; }
+        }
+        out.push(node);
+    }
+    return changed ? out : nodes;
+}
+
 // ── Replaced / void hosts ────────────────────────────────────────────
 //
 // Elements that cannot contain rendered children. Appending the pipeline
@@ -3261,9 +3391,19 @@ function wrapReplacedHost(el) {
         if (el.style[k]) keep[k] = el.style[k];
     }
 
+    // Sizing that came from a stylesheet (or width/height attributes), read
+    // BEFORE the element moves: once wrapped, a rule like `.hero > img`
+    // may no longer match, and the element is reset to fill the wrapper.
+    const sheet = authoredSizing(el);
+
     const wrap = document.createElement("div");
     wrap.setAttribute("data-nodality-raster-host", el.tagName.toLowerCase());
     wrap.style.cssText = el.style.cssText;
+    // Inline sizing wins (it is already in cssText); stylesheet sizing
+    // fills only the properties the inline style leaves unset.
+    for (const k of Object.keys(sheet)) {
+        if (!wrap.style[k]) wrap.style[k] = sheet[k];
+    }
 
     el.parentNode.insertBefore(wrap, el);
     wrap.appendChild(el);
@@ -3281,10 +3421,80 @@ function wrapReplacedHost(el) {
         ? getComputedStyle(wrap).position
         : "static";
     if (pos === "static") wrap.style.position = "relative";
-    if (!wrap.style.width) wrap.style.width = "100%";
-    if (!wrap.style.height) wrap.style.height = "100%";
+    // Only min/max limits authored (the `max-width: 100%` of every CSS
+    // reset): the image itself would sit at its natural width, capped by
+    // them. Say so, or the wrapper — a block — stretches to the container.
+    if (!wrap.style.width && !wrap.style.height && Object.keys(sheet).length) {
+        const nw = el.naturalWidth || el.videoWidth || 0;
+        if (nw > 0) wrap.style.width = nw + "px";
+    }
+    const sized = !!(wrap.style.width || wrap.style.height);
+    if (wrap.style.height && !wrap.style.width && !wrap.style.aspectRatio) {
+        // Height given, width left to the image: an <img> takes its width
+        // from its aspect ratio, a <div> would stretch to the container.
+        // The ratio keeps the wrapper the image's shape (and fluid, if the
+        // height is).
+        const ratio = intrinsicRatio(el);
+        if (ratio) wrap.style.aspectRatio = String(ratio);
+    }
+    if (!wrap.style.width) wrap.style.width = sized ? "auto" : "100%";
+    // Width given, height left to the image: auto, so the image keeps its
+    // aspect ratio. 100% would stretch it to a parent of definite height.
+    if (!wrap.style.height) wrap.style.height = sized ? "auto" : "100%";
 
     return wrap;
+}
+
+// Box-size properties that can come from a stylesheet and decide the size
+// of a replaced element, in the names `style` uses.
+const SIZING_STYLES = [
+    ["width", "auto"], ["height", "auto"],
+    ["minWidth", "auto"], ["minHeight", "auto"],
+    ["maxWidth", "none"], ["maxHeight", "none"],
+    ["aspectRatio", "auto"],
+];
+
+/**
+ * The element's sizing as AUTHORED by stylesheets and presentational
+ * attributes, not as laid out: `"50%"` stays `"50%"`, `"20rem"` comes back
+ * in px, and an unset width is left out rather than frozen at the pixel
+ * width it happens to have now. Only properties that are not at their
+ * initial value are returned.
+ *
+ * How: getComputedStyle reports the USED value (always px) for a rendered
+ * box, but the COMPUTED value for an element that is `display: none`. So
+ * the element is hidden for the length of one style read and restored at
+ * once — no layout, no paint in between.
+ */
+function authoredSizing(el) {
+    const out = {};
+    if (typeof getComputedStyle !== "function" || !el.style) return out;
+    const prev = el.style.getPropertyValue("display");
+    const prio = el.style.getPropertyPriority("display");
+    try {
+        el.style.setProperty("display", "none", "important");
+        const cs = getComputedStyle(el);
+        for (const [k, initial] of SIZING_STYLES) {
+            const v = cs[k];
+            if (!v || v === initial || v === "0px" && k.startsWith("min")) continue;
+            // `auto 600 / 400` is the image's own ratio, which it keeps anyway.
+            if (k === "aspectRatio" && /^auto\b/.test(v)) continue;
+            out[k] = v;
+        }
+    } catch (e) {
+        // A style engine that cannot answer: fall back to inline sizing only.
+    } finally {
+        if (prev) el.style.setProperty("display", prev, prio);
+        else el.style.removeProperty("display");
+    }
+    return out;
+}
+
+/** width / height of a replaced element's content, or 0 when unknown. */
+function intrinsicRatio(el) {
+    const w = el.naturalWidth || el.videoWidth || el.width || 0;
+    const h = el.naturalHeight || el.videoHeight || el.height || 0;
+    return w > 0 && h > 0 ? +(w / h).toFixed(6) : 0;
 }
 
 // ── Pipeline runner ──────────────────────────────────────────────────
@@ -3379,6 +3589,12 @@ function applyRasterPipeline(el, rasterNodes, opts) {
     // only decoration on top of it.
     if ((!rasterNodes || rasterNodes.length === 0) && !transition) return null;
     if (!rasterNodes) rasterNodes = [];
+    // Device gates first: a node marked `pointer: "fine"` does not exist
+    // on a phone, and a chain left empty attaches nothing at all.
+    if (rasterNodes.some((n) => n && (n.pointer != null || n.op === "merge" || n.op === "switch"))) {
+        rasterNodes = resolvePointerGates(rasterNodes, 0);
+        if (rasterNodes.length === 0 && !transition) return null;
+    }
     // Flatten any switch nodes down to the chain this device actually
     // gets, before anything reads the list.
     if (rasterNodes.some((n) => n && n.op === "switch")) {
@@ -3400,6 +3616,26 @@ function applyRasterPipeline(el, rasterNodes, opts) {
     // void elements cannot take children — appending to an <img> puts the
     // canvas in the tree but never renders it, so the effect silently does
     // nothing. Wrap such a target in a container and host there instead.
+    // A cross-origin <img> without CORS cannot be uploaded (it taints the
+    // canvas), and the foreignObject fallback cannot fetch it either: the
+    // pipeline used to hide the real photo and halftone a broken-image
+    // icon and the alt text in its place. Leave the image alone instead.
+    // Checked on every attempt (rasterize() retries a null), warned once.
+    const hostedImg = el.tagName === "IMG" ? el
+        : (el.hasAttribute && el.getAttribute("data-nodality-raster-host") === "img" &&
+            el.querySelector ? el.querySelector(":scope > img") : null);
+    if (hostedImg && isOpaqueCrossOriginImg(hostedImg)) {
+        if (!warnedOpaqueImg.has(hostedImg)) {
+            warnedOpaqueImg.add(hostedImg);
+            console.warn("[nodality] raster skipped: <img src=\"" +
+                String(hostedImg.currentSrc || hostedImg.src).slice(0, 120) +
+                "\"> is cross-origin without CORS, so the GPU cannot read it. " +
+                "Serve it same-origin, or add crossorigin=\"anonymous\" with an " +
+                "Access-Control-Allow-Origin header.");
+        }
+        return null;
+    }
+
     if (VOID_RASTER_HOSTS.has(el.tagName)) {
         const existing =
             el.parentElement &&
@@ -3626,19 +3862,19 @@ function applyRasterPipeline(el, rasterNodes, opts) {
             "position:absolute;top:0;left:0;" +
             `width:${rect.width}px;height:${rect.height}px;` +
             "pointer-events:none;z-index:2147483000;";
-        if (pureOverlay) {
-            // The real content is still visible underneath and keeps its
-            // own semantics, so the canvas is pure decoration.
-            canvas.setAttribute("aria-hidden", "true");
-        } else {
-            // In-place: the host gets hidden below, which would take its
-            // text out of the accessibility tree, out of find-in-page and
-            // out of innerText. Carry the label onto the canvas so the
-            // element is still announced rather than silently vanishing.
-            canvas.setAttribute("role", "img");
-            const label = (el.textContent || "").replace(/\s+/g, " ").trim();
-            if (label) canvas.setAttribute("aria-label", label.slice(0, 300));
-        }
+        // Decoration in BOTH snapshot cases. The host's content never
+        // leaves the DOM here: a pure overlay leaves it visible, and an
+        // in-place chain only makes its ink transparent (hideHostInk —
+        // deliberately not visibility:hidden, so it stays selectable). Text
+        // and an <img>'s alt therefore stay in the accessibility tree on
+        // their own.
+        //
+        // The in-place branch used to put role="img" + aria-label (the
+        // host's textContent) on the canvas, on the belief that the host
+        // was hidden. It is not, so a headline was announced twice
+        // ("Title Title"), and an <img> host — whose textContent is empty
+        // — gained a second, unnamed image next to its real alt text.
+        canvas.setAttribute("aria-hidden", "true");
     }
     el.appendChild(canvas);
 
@@ -4155,6 +4391,37 @@ function applyRasterPipeline(el, rasterNodes, opts) {
         return true;
     };
 
+    // An <img> host must PAINT before the canvas takes over.
+    //
+    // Largest Contentful Paint only counts an element at a paint where it
+    // is visible, and ignores canvases entirely. When the capture finished
+    // inside the same frame the image decoded in — a cached hero, a fast
+    // network — hideHostInk() set the image to opacity:0 before it ever
+    // presented, the page reported NO LCP entry for it, and LCP fell
+    // through to whatever smaller element painted next (measured: none at
+    // all on a single-image page). Waiting for load plus two frames means
+    // the image is presented at least once, so it stays the LCP element
+    // and its paint time is the real one. Costs ~2 frames before the
+    // effect appears, once per pipeline; recaptures do not wait again.
+    const hostImg = (!transition && el.getAttribute &&
+        el.getAttribute("data-nodality-raster-host") === "img" && el.querySelector)
+        ? el.querySelector("img") : null;
+    let hostImgPainted = !hostImg;
+    const waitForHostImgPaint = () => {
+        if (hostImgPainted || typeof requestAnimationFrame !== "function") return Promise.resolve();
+        return new Promise((resolve) => {
+            const frames = () => requestAnimationFrame(() => requestAnimationFrame(() => {
+                hostImgPainted = true;
+                resolve();
+            }));
+            // `complete` is also true for an <img> with no src yet, which
+            // has nothing to paint — wait for a real load in that case.
+            if (hostImg.complete && hostImg.naturalWidth > 0) { frames(); return; }
+            hostImg.addEventListener("load", frames, { once: true });
+            hostImg.addEventListener("error", frames, { once: true });
+        });
+    };
+
     const snapshotCapture = () => {
         // Overlay + image content: use the image directly as the texture.
         if (isOverlay) {
@@ -4180,9 +4447,10 @@ function applyRasterPipeline(el, rasterNodes, opts) {
         }
         canvas.style.display = "none";
         showHostInk();
-        const p = snapshotToImage(el, rect.width, rect.height, dpr)
+        const p = waitForHostImgPaint()
+            .then(() => (destroyed ? null : snapshotToImage(el, rect.width, rect.height, dpr)))
             .then((img) => {
-                if (destroyed) return;
+                if (destroyed || !img) return;
                 gl.bindTexture(gl.TEXTURE_2D, tex);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
                 finishUpload();
@@ -5256,4 +5524,9 @@ export {
     // Exported so which branch a `switch` takes can be asserted directly
     // rather than inferred from pixels.
     resolveSwitches,
+    // The `pointer:` device gate, for the same reason.
+    resolvePointerGates, POINTER_GATE_NAMES,
+    // How an <img> target is wrapped, so the wrapper's size (inline vs
+    // stylesheet sizing) can be asserted without a GPU.
+    wrapReplacedHost,
 };

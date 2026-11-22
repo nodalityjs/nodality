@@ -239,6 +239,20 @@ Guide: https://nodalityjs.github.io/docs/agents/start
 - **TransformAnimation** — Transform element as you scroll down.
   https://nodalityjs.github.io/docs/scrollanimation/transformanimation
 
+### shipped references
+
+Not on the site yet; these ship in the package, under
+`node_modules/nodality/skills/nodality/references/`.
+
+- **Motion and interaction** — `reveal`, `scrub`, `pin`, `count`, `fit`, `hover`/`focus`, `group`, `aria`, `copy`, `spy`, `hideOnScroll`: options on any element, and their known limits.
+  `skills/nodality/references/motion-and-interaction.md`
+- **Tabs, disclosure, scroller, marquee, model** — five element types for common page parts, their content slots and limits.
+  `skills/nodality/references/content-and-composites.md`
+- **Raster drivers, devices and images** — `by: "scroll"` as a point, `mask from: "band"`, `pointer` gating, what happens to an `<img>`.
+  `skills/nodality/references/node-families.md`
+- **Writing a raster op** — the op contract, drivers, and what the pipeline does to its target.
+  `RASTER-OPS-AUTHORING.md` (repository only)
+
 ### ssg
 
 - **Prerender API** — The CLI covers the common case.

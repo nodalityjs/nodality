@@ -82,7 +82,16 @@ class Circle extends Animator {
     obj.background && (this.res.style.background = obj.background);
     obj.color && this.color(obj.color);
     obj.border && this.border(obj.border);
-    obj.shadow && (this.res.style.boxShadow = obj.shadow);
+    // `shadow` is the plain option: a box-shadow string. The shadow DESIGN
+    // node arrives as `shadowOp` (as it does for text and wrap); a node still
+    // passed as `shadow` is recognised by its shape, for older mappers.
+    //@ circle.shadow {css-shadow}: A box-shadow string, e.g. "0 4px 12px rgba(0,0,0,.2)". A shadow design node targeting the circle comes in as `shadowOp`.
+    const shadowNode = obj.shadowOp && typeof obj.shadowOp === "object" && obj.shadowOp.op ? obj.shadowOp
+      : (obj.shadow && typeof obj.shadow === "object" && obj.shadow.op ? obj.shadow : undefined);
+    typeof obj.shadow === "string" && (this.res.style.boxShadow = obj.shadow);
+    // A CSS transform STRING is a plain transform; only an object is a
+    // transform design node for chainReact (a string there crashed on .op).
+    typeof obj.transform === "string" && (this.res.style.transform = obj.transform);
     obj.cursor && (this.res.style.cursor = obj.cursor === true ? "pointer" : obj.cursor);
 
 
@@ -97,10 +106,10 @@ if (
     obj.backgroundOp ||
     obj.layout ||
     obj.marginOp ||
-    obj.shadow ||
+    shadowNode ||
     obj.animation ||
     obj.filtera ||
-    obj.transform
+    (obj.transform && typeof obj.transform === "object")
 ) {
     if (obj.gradient && obj.gradient.op) this.globalGradient = obj.gradient.op.gradient;
 
@@ -120,11 +129,11 @@ if (
         obj.backgroundOp,
         obj.layout,
         obj.marginOp,
-        obj.shadow,
+        shadowNode,
         obj.animation,
         obj.filtera,
         obj.transform,
-    ].filter((el) => el != undefined);
+    ].filter((el) => el != undefined && typeof el === "object" && el.op);
 
     for (let i = 0; i < ft.length; i++) {
         arr.push({

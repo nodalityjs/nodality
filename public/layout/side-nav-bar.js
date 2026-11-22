@@ -1,4 +1,4 @@
-import {Animator} from "./animator.js";
+import { Animator, motionAnimate } from "./animator.js";
 
 class SideNav extends Animator {
     constructor() {
@@ -32,7 +32,7 @@ class SideNav extends Animator {
 
             if (this.animate) {
                 // Animate hiding with translateX
-              this.ope =  sideNavWrapper.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(100%)' }], {
+              this.ope =  motionAnimate(sideNavWrapper, [{ transform: 'translateX(0)' }, { transform: 'translateX(100%)' }], {
                     duration: duration,
                     fill: 'forwards'
                 });
@@ -55,7 +55,7 @@ class SideNav extends Animator {
                     for (let child of childa.children) {
                         let anna = this.masterEL[idx].options.animation;
                         if (anna && this.mappedIDS.includes(child.id)) {
-                            child.animate(anna.op.keyframesClose, anna.op.closeOptions);
+                            motionAnimate(child, anna.op.keyframesClose, anna.op.closeOptions);
                         }
                     }
                 }
@@ -105,7 +105,7 @@ class SideNav extends Animator {
                             // Why does duration affect navigation appearing????
                            //THIS BLOCK CONTROLS APPEARING !!!!
                            
-                            child.animate(anna.op.keyframesOpen, opts);
+                            motionAnimate(child, anna.op.keyframesOpen, opts);
                             }
 
                         }
@@ -118,7 +118,7 @@ class SideNav extends Animator {
             button.style.opacity = 0;
             if (this.animate) {
                 sideNavWrapper.style.display = "flex"; // Ensure it's visible
-              this.opeClose =    sideNavWrapper.animate([{ transform: 'translateX(100%)' }, { transform: 'translateX(0)' }], {
+              this.opeClose =    motionAnimate(sideNavWrapper, [{ transform: 'translateX(100%)' }, { transform: 'translateX(0)' }], {
                     duration: duration,
                     fill: 'forwards'
                 });
@@ -268,7 +268,7 @@ class SideNav extends Animator {
                     */
 
 
-                        child.animate(anna.op.keyframesClose, anna.op.closeOptions);
+                        motionAnimate(child, anna.op.keyframesClose, anna.op.closeOptions);
 
 
                     // child.animate(anna.op.keyframesOpen, resetDelay);

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raster on a stylesheet-sized image</title>
+  <style>
+    body { margin: 0; background: #fff; }
+    .col { width: 700px; }
+    /* Sized ONLY by stylesheet rules — nothing inline. The child combinator
+       matters: once wrapped, `.col > img` no longer matches the <img>. */
+    .col > img.fixed { display: block; width: 600px; }
+    .col > img.both { display: block; width: 600px; height: 400px; }
+    .col > img.fluid { display: block; width: 50%; }
+    .col > img.tall { display: block; height: 200px; }
+    .col > img.capped { display: block; max-width: 100%; }
+    .tall-parent { height: 900px; }
+  </style>
+</head>
+<body>
+  <div class="col" id="host"></div>
+  <script type="module">
+    // Fixture for raster-image-size.spec.js. The spec drops one <img> with a
+    // class into #host (or into a .tall-parent inside it), loads a 600x400
+    // same-origin blob into it, and wraps it the way the pipeline does.
+    import { applyRasterPipeline, wrapReplacedHost } from '../../../lib/raster-ops.js';
+    window.__raster = { applyRasterPipeline, wrapReplacedHost };
+    const c = document.createElement('canvas');
+    c.width = 600; c.height = 400;
+    const x = c.getContext('2d');
+    x.fillStyle = '#e33'; x.fillRect(0, 0, 600, 400);
+    c.toBlob((blob) => { window.__photoUrl = URL.createObjectURL(blob); window.__ready = true; });
+  </script>
+</body>
+</html>

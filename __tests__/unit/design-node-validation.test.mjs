@@ -125,3 +125,16 @@ test("raster ops are still raster ops", () => {
   assert.equal(typo.ok, false);
   assert.deepEqual(at(typo, "UNKNOWN_OP").suggestions, ["dither"]);
 });
+
+// ── one level down: the keys INSIDE op (lib/design-ops.js) ───────────
+
+test("the README's colours moved inside op are still reported, as UNKNOWN_OP_PARAM", () => {
+  // Following the top-level hint (`op.colors`) used to validate clean and
+  // still paint nothing: a gradient reads `gradient`, never `colors`.
+  const r = validateNodes(
+    [{ op: { name: "gradient", gradient: "linear-gradient(#1d6fe0, #7fd1ff)", colors: ["#1d6fe0"] }, target: ["hero"] }], E);
+  assert.equal(r.ok, true, "a warning: the gradient itself still renders");
+  const w = r.warnings.find((x) => x.code === "UNKNOWN_OP_PARAM");
+  assert.equal(w.path, "nodes[0].op.colors");
+  assert.ok(w.valid.includes("gradient") && w.valid.includes("direction"));
+});

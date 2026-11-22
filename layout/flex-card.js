@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -137,6 +137,7 @@ this.options = obj;
 	
 	
 	items(els){
+		this._adopt(els); // destroy() releases the children too
 		for (var i = 0; i < els.length; i++){
 			this.res.appendChild(els[i].render());
 		}

@@ -1,13 +1,14 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
-import {Animator} from "./animator.js";
+import { Animator, isDesignNode } from "./animator.js";
 
 import { toObjectSource, jsString } from "../lib/codegen.js";
 import { keyPattern } from "../lib/codegen.js";
+import { swapTag, TEXT_TAGS } from "./behaviours/interaction.js";
 // 13:28 07/04/2020 - BEGIN NOTHING GONNA STOP US NOW  Lets go!
 
 // 22:29:11
@@ -254,7 +255,7 @@ this.res.style.position = "absolute";
 			this.fluid(obj.fluid);
 		}
 
-		//@ tag: Heading level to render, independent of `size`/`fluid`.
+		//@ tag: Tag to render, independent of `size`/`fluid`: a heading level (h1–h6, p) or a text-level tag — blockquote, figcaption, li, dt, dd, cite, time, small, strong, em, span, q, address, label.
 		// Size and semantics used to be the same decision: `size: "S5"`
 		// produced an <h5> and there was no way to have one without the
 		// other. That is fine for a person choosing both at once and wrong
@@ -263,17 +264,15 @@ this.res.style.position = "absolute";
 		// title and SIT at h3, and before this it could not.
 		//
 		// Additive: absent `tag`, the element is exactly what size chose.
-		if (obj.tag && /^(h[1-6]|p)$/.test(String(obj.tag))) {
-			const want = String(obj.tag).toLowerCase();
-			if (this.res && this.res.tagName.toLowerCase() !== want) {
-				const swapped = document.createElement(want);
-				for (const a of Array.from(this.res.attributes)) {
-					swapped.setAttribute(a.name, a.value);
-				}
-				while (this.res.firstChild) swapped.appendChild(this.res.firstChild);
-				this.res = swapped;
-			}
-		}
+		//
+		// Extended beyond h1–h6/p to the text-level tags a page needs for
+		// meaning rather than looks (blockquote, cite, time, strong, li, …);
+		// the list lives in behaviours/interaction.js. An unknown tag is
+		// ignored with a warning — it used to be ignored in silence.
+		if (obj.tag) swapTag(this, obj.tag, TEXT_TAGS, "tag");
+
+		//@ datetime {string}: Machine-readable date/time for a `time` element (text `tag: "time"`, wrap `as: "time"`), written to its datetime attribute, e.g. "2026-06-14" or "2026-06-14T09:00". Ignored on any other tag.
+		Animator.applyDatetime(this.res, obj.datetime);
 
 		obj.fluidc && (this.elCSS.push(`font-family: ${obj.font}; \n`));
 		obj.align && (this.res.style.textAlign = obj.align);
@@ -315,8 +314,9 @@ this.res.style.position = "absolute";
 
 		let arr = [];
 
+		const shadowNode = isDesignNode(obj.shadowOp) ? obj.shadowOp : (isDesignNode(obj.shadow) ? obj.shadow : undefined); // shadow DESIGN node: shadowOp (internal key), or a node-shaped legacy `shadow`
 		const _hasAnimTransform = obj.transform && typeof obj.transform === "object";
-		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || obj.shadow || obj.animation || obj.filtera || _hasAnimTransform){
+		if (obj.stroke || obj.gradient || obj.span || obj.backgroundOp || obj.layout || shadowNode || obj.animation || obj.filtera || _hasAnimTransform){
 			if (obj.gradient){
 				this.globalGradient = obj.gradient.op.gradient;
 				if (obj.gradient?.op?.direction === "radial") {
@@ -334,7 +334,7 @@ this.res.style.position = "absolute";
 			}
 
 
-			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, obj.shadow, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, _hasAnimTransform ? obj.transform : undefined];
+			let ft = [obj.stroke, obj.gradient, obj.animation, obj.span, obj.backgroundOp, obj.layout, obj.marginOp, shadowNode, /*obj.animation || obj.filtera*/obj.animation, obj.filtera, _hasAnimTransform ? obj.transform : undefined];
 			ft = ft.filter(el => el != undefined);
 
 		

@@ -122,6 +122,12 @@ fitting – emitted as ordinary `arrange` nodes you can read and edit.
 pointer, scroll or time, composed into one pass.
 [Docs →](https://nodalityjs.github.io/docs/raster/ops/)
 
+**Motion and interaction as options.** `reveal`, `scrub`, `pin`, `count`,
+`fit`, `hover`/`focus`, `aria` and scroll `spy` on any element, safe under
+reduced motion and in prerendered HTML; and `tabs`, `disclosure`,
+`scroller`, `marquee` and `model` as element types.
+[Reference →](skills/nodality/references/motion-and-interaction.md)
+
 ## Built for agents
 
 Nodality is written by people and by coding agents, and a page can be

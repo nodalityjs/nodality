@@ -1,6 +1,32 @@
 
+// Map val from one range onto another, clamped (Animator.smartRange). This
+// file called `smartRange` without defining or importing it, so mask,
+// setLazyText and setOpacityRange threw a ReferenceError on every scroll.
+function smartRange(val, from, to) {
+    if (val < from.min) val = from.min;
+    if (val > from.max) val = from.max;
+    let percent = (val - from.min) / (from.max - from.min);
+    if (from.min > from.max) percent = (val - from.max) / (from.min - from.max);
+    return to.min + (to.max - to.min) * percent;
+}
+
+function prefersReducedMotion() {
+    try {
+        return typeof window !== "undefined" && typeof window.matchMedia === "function"
+            && !!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch (e) { return false; }
+}
+
 class KeyframeAnim {
     constructor(data) {
+        // Every window listener goes through _on() so destroy() removes it.
+        // They used to be anonymous arrow functions on window, never removed:
+        // each instance (and its canvas, image and DOM) lived forever.
+        this._disposers = [];
+        //@ reducedFrame {count}: Frame shown, still, to a visitor who prefers reduced motion (default 1, the opening frame). The sequence then does not follow the scroll and attaches no listeners.
+        // Reduced motion: no scroll-driven frames, no listeners. One still
+        // frame (data.reducedFrame, default the first) and the text shown.
+        this.reduced = prefersReducedMotion();
         this.fromFirstImageFlag = false;
         this.flag = 0;
         this.flagValue = data.flagValue;
@@ -51,15 +77,40 @@ class KeyframeAnim {
         this.lastScrollTop = window.scrollY;
         // modrý a bez kroužku
         this.setupTopElement();
+
+        if (this.reduced) {
+            const f = Math.round(Number(this.data.reducedFrame));
+            this.updateImage(f >= 1 && f <= this.frameCount ? f : 1);
+            return this;
+        }
+
         this.scrollFunction();
 
-        
-
-        window.addEventListener('scroll', () => {
+        this._on(window, 'scroll', () => {
             this.scrollFunction();
         });
 
         this.preloadImages();
+        return this;
+    }
+
+    // addEventListener, remembered so destroy() can remove it.
+    _on(target, type, handler, opts) {
+        if (!target || typeof target.addEventListener !== "function") return handler;
+        target.addEventListener(type, handler, opts);
+        this._disposers.push(() => target.removeEventListener(type, handler, opts));
+        return handler;
+    }
+
+    // Remove every window listener this sequence added and take its node out
+    // of the page. Safe to call twice. Des.destroy() does not own this class
+    // (it is not an Animator), so a page that removes the sequence calls it.
+    destroy() {
+        for (const off of this._disposers.splice(0)) {
+            try { off(); } catch (e) { /* keep draining */ }
+        }
+        this._destroyed = true;
+        if (this.res && this.res.parentNode) this.res.parentNode.removeChild(this.res);
         return this;
     }
 
@@ -151,10 +202,18 @@ class KeyframeAnim {
         return res;
     }
 
+    // Each frame into its own detached image, kept so the browser does not
+    // drop the request. This used to set `this.img.src` — the visible
+    // frame — a hundred times in a row, which preloaded nothing and left the
+    // canvas showing frame 99 until the first scroll.
+    // (createElement, not `new Image()`: see setupTopElement.)
     preloadImages = () => {
-        for (let i = 1; i < this.frameCount; i++) {
+        this._preloaded = [];
+        for (let i = 1; i <= this.frameCount; i++) {
             const img = document.createElement("img");
-            this.img.src = this.currentFrame(i);
+            img.decoding = "async";
+            img.src = this.currentFrame(i);
+            this._preloaded.push(img);
         }
     };
 
@@ -244,7 +303,8 @@ ctx.drawImage(img, cx, cy, cw, ch,  x, y, w, h);
 
 
 maska(data){
-    window.addEventListener("scroll", () => {
+    if (this.reduced) return this; // no scroll-driven clip; the frame stays unmasked
+    this._on(window, "scroll", () => {
         this.innerMask(data);
     });
 
@@ -305,7 +365,7 @@ maska(data){
              // 11:41:33 Nice!
              // 17/10/2023
              // M2 iPad Air and iPad (11th gen) are coming today!
-             window.addEventListener("resize", () => {
+             if (!this.reduced) this._on(window, "resize", () => {
                 this.context.canvas.width = window.innerWidth; //document.body.clientWidth; // Make this responsive
                 this.context.canvas.height = window.innerHeight * 1.2; //window.innerWidth / 1.77778;
                 this.drawImageProp(this.context, this.img, 0, 0, window.innerWidth, window.innerHeight * 1.2);
@@ -355,17 +415,26 @@ maska(data){
         this.atdec = 0.0;
         this.textOpacity = 1.0;
 
-        let hTwo = this.res.children[this.res.children.length - 1].children[0];
+        // The text layer, when there is one. Without `data.text` the last
+        // child is the canvas, which has no children: this crashed.
+        let hTwo = this.data.text ? this.res.children[this.res.children.length - 1].children[0] : null;
      //   hTwo.opacity = 0;
-        hTwo.style.opacity = 0;
+        if (hTwo) hTwo.style.opacity = 0;
 
 
 
 
-        if (this.data.text){
+        if (this.data.text && this.reduced){
+            // What the first scroll would have done: show the text.
+            this.h2a.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+            this.h2a.style.opacity = 1;
+            hTwo.style.opacity = 1;
+        }
+
+        if (this.data.text && !this.reduced){
 
         
-        window.addEventListener("scroll", () => {
+        this._on(window, "scroll", () => {
             this.h2a.style.backgroundColor = "rgba(0, 0, 0, 0.8)"; //"black";
            this.h2a.style.opacity = 1;
 
@@ -463,7 +532,7 @@ maska(data){
 
 
 
-        window.addEventListener("scroll", (e) => {
+        const onScroll = (e) => {
         
           
 // newly added
@@ -475,15 +544,18 @@ maska(data){
             // UNCOMMENT HERE
 
            // alert(wrapDiv);
+            // The sequence's own box. This referred to a `wrapDiv` that was
+            // never defined (a ReferenceError on every scroll), and painted
+            // it pink/orange — debugging colours.
             if (this.data.uncomment) {
-                if (window.scrollY > top) { // MAKE THIS ADJUSTABLE
-                    wrapDiv.style.background = "pink";
-                    wrapDiv.style.position = "relative";
-                    wrapDiv.style.top = top; // FIX HERE
+                const box = this.res;
+                const topCss = typeof top === "number" ? `${top}px` : String(top);
+                if (window.scrollY > parseFloat(top)) { // MAKE THIS ADJUSTABLE
+                    box.style.position = "relative";
+                    box.style.top = topCss;
                 } else {
-                    wrapDiv.style.background = "orange";
-                    wrapDiv.style.top = 0;
-                    wrapDiv.style.position = "fixed";
+                    box.style.top = "0px";
+                    box.style.position = "fixed";
                 }
             }
         }
@@ -559,7 +631,11 @@ maska(data){
             }*/
 
 
-        });
+        };
+        // Reduced motion: run it once, still, so a mask's newSection is added;
+        // no listener follows the scroll.
+        if (this.reduced) onScroll();
+        else this._on(window, "scroll", onScroll);
     }
 
 
@@ -568,8 +644,11 @@ maska(data){
     setLazyText(obj){
         this.lazyText= obj;
 
+        if (this.reduced) return this; // text stays where it is, fully shown
+        if (!this.h2a || !this.h2a.children[0]) return this; // no `data.text`: nothing to move
+
      
-        window.addEventListener("scroll", () => {
+        this._on(window, "scroll", () => {
             let offset = smartRange(window.scrollY, {
                 min: this.lazyText.start,
                 max: this.lazyText.end
@@ -638,8 +717,14 @@ maska(data){
         this.data.scaleRange = range.scaleRange;
         // 1800 and 2200 scale
 
+        if (this.reduced) {
+            // The end state of the range: opaque, at its natural size.
+            if (this.h2a) this.h2a.style.opacity = 1;
+            return this;
+        }
 
-        window.addEventListener("scroll", () => {
+
+        this._on(window, "scroll", () => {
             let res = smartRange(window.scrollY, {
                 // min: 1800,
                //  max: 2200

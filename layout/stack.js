@@ -1,10 +1,11 @@
 /*!
- * nodality v1.5.6
+ * nodality v1.5.7
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
 
 import {Animator} from "./animator.js";
+import { optionsSource } from "./element-kit.js";
 class Stack extends Animator {
     constructor(st){
 		super();
@@ -45,6 +46,7 @@ class Stack extends Animator {
 
     add(els){
         this.children = els;
+        this._adopt(els); // destroy() releases the children too
         for (var i = 0; i < els.length; i++){
             let el = els[i].render();
             el.style.gridColumn = 1;
@@ -57,10 +59,11 @@ class Stack extends Animator {
     }   
 
     toCode() {
-        // Initialize the code string with the Stack setup
-        // Was a hardcoded `set({})`, which dropped the element's id.
-        const id = this.options && this.options.id;
-        let code = `new Stack().set(${id ? `{ id: ${JSON.stringify(String(id))} }` : "{}"})`;
+        // Every option the stack was given — height, sticky, resprop and the
+        // behaviour options (reveal, pin, …) the base class applies. It used
+        // to write `set({id})` only, so the code panel and the code Des runs
+        // lost all of them.
+        let code = `new Stack(${this.st ? "true" : ""}).set(${optionsSource(this.options || {})})`;
         
         // Add child elements
         if (Array.isArray(this.children) && this.children.length > 0) {

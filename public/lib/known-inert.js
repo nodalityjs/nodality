@@ -18,8 +18,6 @@ export const KNOWN_INERT = new Set([
 	// the step also picks the tag — honouring `size` here turned an h2 into an
 	// h3 and changed the document outline. `tag` is the settable option.
 	"h1.size", "h2.size", "h3.size", "h4.size", "h5.size", "h6.size", "p.size",
-	// a
-	"a.transform",
 	// checkbox
 	// `exact` (1.3.21): Text now reads it, so the scan credits it to every type
 	// built with a Text; checkbox uses Text only for its label and sends the
@@ -36,8 +34,6 @@ export const KNOWN_INERT = new Set([
 	"checkbox.pad",
 	"checkbox.transform",
 	"checkbox.width",
-	// circle
-	"circle.transform",
 	// code
 	"code.transform",
 	// filePicker
@@ -48,11 +44,14 @@ export const KNOWN_INERT = new Set([
 	// nav
 	"nav.size",
 	"nav.transform",
-	// polygon
-	"polygon.transform",
 	// radio
 	"radio.color",
 	"radio.exact",
+	// `title` (round 2): advertised through the behaviours, and skipped by
+	// interaction.js on an element that contains labels (a tooltip over a
+	// labelled group would repeat its own text), so a radio never takes it.
+	// Name the group with `aria: { label }` instead.
+	"radio.title",
 	// sideNav
 	// `exact` (1.3.21): as on checkbox — sideNav renders Text for its labels
 	// and builds its root, SideNav, without the element's options.
