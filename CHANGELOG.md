@@ -2,6 +2,39 @@
 
 Generated per release from the source diff.
 
+## 1.5.8 — 2026-11-22
+
+### Added
+- `defaults` MCP tool parameter for `validate_nodes` and `preview`, matching `new Des().defaults({...})`: page-wide element options applied to every element that doesn't set the key itself.
+- `Model`, `Disclosure`, `Tabs`, `Scroller`, `Marquee` are now recognized exports by the CLI compiler's import detection, and it now also detects usage via static method calls (e.g. `ElementMapper.lowered(...)`).
+- Many new universal style options applied to every element via `commonMethods` (`STYLE_OPTIONS`): `flexDirection`, scroll-snap (`scrollSnapType`, `scrollSnapAlign`, `scrollSnapStop`), scroll margin/padding, `overscrollBehavior*`, `scrollBehavior`, multi-column (`columns`, `columnWidth`, `columnCount`, `columnFill`, `columnRule`, `breakInside`, `breakBefore`, `breakAfter`), `textWrap`, `fontStretch`, `fontVariationSettings`, `fontVariantNumeric`, `mixBlendMode`, `isolation`, `clipPath` (CSS values only), `textUnderlineOffset`, `textDecorationThickness`, `outline`, `outlineOffset`, and `cssFilter` (maps to CSS `filter`).
+- `border` option now also accepts a plain CSS border shorthand string (e.g. `"1px solid #0B0B0C"`) applied to every element; existing object forms a component recognizes still work.
+- `resprop` entries can now use `{min, max, ...css}`, `{container: {min, max}, ...css}` (container queries), or `{media: "...", ...css}` (any media query, e.g. reduced motion, hover, orientation), in addition to named/numeric breakpoints. Precedence: container, then media, then viewport width.
+- `respad`/`resmar` now also accept `{min, max, values}` and `{container: {min, max}, values}` entry forms, matching `resprop`.
+- `hover` now also responds to keyboard focus (focus-visible), not just pointer hover; new `focus` option for styles that should differ from hover; `transition` option for a verbatim CSS transition shared by hover/focus/groupHover.
+- New universal interaction/accessibility options applied after every component's `set()`: `group`, `groupHover`, `aria`, `role`, `tabIndex`, `lang`, `title`, `copy` (+ `copied`), `spy` (with `spy.line`, `spy.center`), `hideOnScroll`.
+- New universal motion options (behaviours module): `reveal` (with `by: "word"|"line"`, `stagger`, `once`, etc.), `count`, `pin` (including media-query variants), `scrub`.
+- `onScroll` now does nothing under `prefers-reduced-motion: reduce` instead of jumping to an end state.
+- `loop` honours `prefers-reduced-motion`: keyframes still run but settle instantly on the end state.
+- Animations driven by `animate()` (sidebar open/close, scroll-triggered, in-view) fall back to writing the final frame instead of throwing when Web Animations or `IntersectionObserver` is unavailable (jsdom, old WebViews).
+- Theme defaults now respect inheritance: a themed default no longer overwrites a value already set by an ancestor (themed component or inline style), instead of stamping every component individually.
+- Composite components now release child components they created when `destroy()` is called (`_adopt`), in addition to `Des.destroy()`.
+- `clipPath` only applies as a CSS value; non-CSS strings (e.g. `img`'s SVG path data) are left for the component's own handler.
+- `animation` option: a bare number is now treated as seconds (`0.3` → `"0.3s"`) instead of being written verbatim.
+
+### Fixed
+- `resprop` registering the same array twice (components that call it from both their own `set()` and `commonMethods`) no longer double-applies/misreads entries, which previously caused e.g. a `{min: 900, position: "sticky"}` wrap to stay sticky at every width once rendered wide.
+- `resprop`/`respad`/`resmar` now re-run on a microtask after `set()` finishes, instead of a `setTimeout(0)`, avoiding a visible layout flash on prerendered pages.
+- `respad`/`resmar` (deduplicated into shared `_responsiveBox`) no longer get stuck on the last matched breakpoint's value once the viewport leaves its range; they fall back correctly to the base option or original inline value.
+- `transformAnim`'s default duration no longer mutates the caller's own transform spec object.
+- Fixed a typo/duration bug where `obj.op.duration` was read instead of `transform.duration`.
+- `loop()` now also works on components (e.g. `RadioGroup`) that keep their root node in `el` rather than `res`.
+- `shadow` design-op handling now reads the op from the active query/design node rather than only `this.options.shadow`, allowing elements to have their own unrelated `shadow` option.
+
+### Breaking
+- Wrapper elements no longer force `display: inline-block` unconditionally; it is now only applied when the element is actually an inline box. Elements that already had `display: block/flex/grid` keep that display instead of being shrunk to `inline-block`, which may change layout for existing pages relying on the old forced behavior (notably scrollers, tabs, and marquees).
+- `resprop`'s `exact`/per-breakpoint descriptor keys `min`, `max`, `container`, and `media` are now reserved and excluded from being written as style properties (previously only `resprop`, `breakpoint`, `value`, `values`, `range` were excluded).
+
 ## 1.5.5 — 2026-11-09
 
 ### Added
