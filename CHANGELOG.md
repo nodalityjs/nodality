@@ -2,6 +2,12 @@
 
 Generated per release from the source diff.
 
+## 1.5.9 — 2026-11-25
+
+### Added
+- New `download` option on the `link` element: setting it saves the linked file instead of opening it. Pass `true` to keep the file's own name, or a string to specify the save-as filename (e.g. `"petr-vabrousek-photos.zip"`). Note: browsers only honour this for same-site files.
+- `download` added to the generated parameter vocabulary (`ELEMENT_PARAM_NAMES`) and to the `a` and `cards` entries in `ELEMENT_PARAMS_BY_TYPE`, so it is recognized for typo-checking on those element types.
+
 ## 1.5.5 — 2026-11-09
 
 ### Added
