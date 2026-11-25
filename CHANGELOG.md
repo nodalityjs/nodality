@@ -2,6 +2,12 @@
 
 Generated per release from the source diff.
 
+## 1.5.10 — 2026-11-25
+
+### Fixed
+- Fixed responsive properties with multiple aliases for the same CSS property (e.g. `exact` and `fontSize`) being tracked as separate keys, which could cause the value from one alias to incorrectly overwrite the other depending on sort order — e.g. a `fontSize` set at wide widths could be wiped out by an `exact` entry targeting a narrower breakpoint. All aliases for a property are now merged to a single canonical key (`exact` → `fontSize`), with the property's own name taking precedence when both are present on the same entry. Aliases that resolve to component methods are left untouched.
+- Element options are now correctly looked up under any alias name for a given responsive property, not just its canonical name.
+
 ## 1.5.5 — 2026-11-09
 
 ### Added
