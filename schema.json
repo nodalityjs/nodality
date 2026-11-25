@@ -7747,6 +7747,11 @@
           "description": "CSS display, written verbatim."
         },
         {
+          "name": "download",
+          "via": "component",
+          "description": "Save the linked file instead of opening it. `true` keeps the file's own name; a string is the name to save it as (e.g. \"petr-vabrousek-photos.zip\"). Browsers honour it only for files on the same site."
+        },
+        {
           "name": "exact",
           "via": "component",
           "unit": "css-length",
@@ -8698,6 +8703,11 @@
           "name": "display",
           "via": "component",
           "description": "CSS display, written verbatim."
+        },
+        {
+          "name": "download",
+          "via": "component",
+          "description": "Save the linked file instead of opening it. `true` keeps the file's own name; a string is the name to save it as (e.g. \"petr-vabrousek-photos.zip\"). Browsers honour it only for files on the same site."
         },
         {
           "name": "em",

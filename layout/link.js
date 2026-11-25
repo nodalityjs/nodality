@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.7
+ * nodality v1.5.8
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -386,7 +386,12 @@ obj.pad && (stra += `\n pad: ${rempad},`);
 			this.res.setAttribute("target", "_blank");
    			this.res.setAttribute("rel", "noopener noreferrer"); // security best practice
 		}
-		
+
+  //@ download: Save the linked file instead of opening it. `true` keeps the file's own name; a string is the name to save it as (e.g. "petr-vabrousek-photos.zip"). Browsers honour it only for files on the same site.
+		if (obj.download !== undefined && obj.download !== false && obj.download !== null){
+			this.res.setAttribute("download", obj.download === true ? "" : String(obj.download));
+		}
+
 	//---
 
 
