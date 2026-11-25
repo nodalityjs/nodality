@@ -1,5 +1,5 @@
 /*!
- * nodality v1.5.8
+ * nodality v1.5.9
  * (c) 2026 Filip Vabrousek
  * License: MIT
  */
@@ -1232,6 +1232,35 @@ resprop(arr, op) {
         return mapped;
     };
 
+    // Two names for one CSS property are one responsive property. `exact` and
+    // `fontSize` were tracked as two keys, and each took its value from the
+    // entries that named it: at a width whose entry said `fontSize: "7rem"`,
+    // the `exact` key matched no entry of its own, fell back to the element's
+    // value ("") and wrote that over the 7rem. Whichever key came later in the
+    // sorted list won, so a heading with `fontSize` at wide widths and `exact`
+    // at `sm` lost its size everywhere above 767px. Aliases that are component
+    // methods (called with the breakpoint's value) keep their own name.
+    const canonicalKey = (key) => key === "exact" ? "fontSize"
+        : (PROP_ALIASES[key] && typeof this[key] !== "function" ? PROP_ALIASES[key] : key);
+    arr.forEach((item) => {
+        if (!item || typeof item !== "object") return;
+        for (const key of Object.keys(item)) {
+            if (excludedKeys.includes(key)) continue;
+            const canon = canonicalKey(key);
+            if (canon === key) continue;
+            if (!(canon in item)) item[canon] = item[key];   // the property's own name wins
+            delete item[key];
+        }
+    });
+    // The element's option under any name for that property (`exact` for fontSize).
+    const optionFor = (key) => {
+        if (this.options[key] != null) return this.options[key];
+        for (const alias of ["exact", ...Object.keys(PROP_ALIASES)]) {
+            if (canonicalKey(alias) === key && alias !== key && this.options[alias] != null) return this.options[alias];
+        }
+        return undefined;
+    };
+
     // A. Normalize ranges: Treat "800px" as [0, 800] (Max-Width logic);
     // `{min, max}` as the inclusive px range it says.
     arr.forEach(item => {
@@ -1296,7 +1325,8 @@ resprop(arr, op) {
     const own = new Map();          // key -> its own value, once read
     responsiveProps.forEach(key => {
         if (defaultItem[key] !== undefined) return;
-        if (this.options[key] != null) { defaultItem[key] = this.options[key]; return; }
+        const opt = optionFor(key);
+        if (opt != null) { defaultItem[key] = opt; return; }
         if (key === "keySet") return;
         own.set(key, undefined);
     });
