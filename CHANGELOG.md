@@ -2,6 +2,27 @@
 
 Generated per release from the source diff.
 
+## 1.6.0 — 2026-11-28
+
+### Added
+- New export `entryRange(entry, bare)`: resolves the viewport `[lo, hi]` range of a `resprop`/`respad`/`resmar` entry (named tier, `[lo, hi]` pair, `{min, max}`, or bare number), returning `null` for container/media entries.
+- New export `declaredWidths(elements)`: collects every viewport width at which the spec declares a change (resprop/respad/resmar range edges, nav `breakpoint`s), for use as extra sample points.
+- `respond()` now samples at these declared widths automatically unless `opts.declared === false`.
+- New `opts.neighbours` (ablation: `false` disables sampling at other groups' switch widths).
+- New `opts.nested` (ablation: `false` disables stacking/overflow accounting between nested groups, treating all groups as one batch).
+- New `opts.affineTries` to control the number of bracket probe attempts for affine-fit certification (previously hardcoded to 3).
+- Per-group measurement reports now include `own` (fit ignoring ancestors) and, when relevant, `ancestors` (overflow inherited from an enclosing row).
+
+### Changed
+- `respond()`'s solving strategy is now a single top-down pass instead of iterating multiple passes (`maxPasses` is no longer used/read from `opts`): groups are ordered so an outer group is solved before its descendants, and groups competing for the same row's width are solved in document order within batches.
+- A nested group is now considered wide only if it fits **and** doesn't cause any enclosing row (shown as a row) to overflow; otherwise it stays narrow.
+- Width sampling around declared/neighbour boundaries now also accounts for the scrollbar offset between `innerWidth` and `visualViewport`, measured from the first sample of each level, adding extra samples on both sides when an offset is detected.
+- `PROBE` measurement now also computes `narrow` per group (whether a nav shows its mobile bar, or a row/grid is laid out as a column), included in each probe result.
+
+### Breaking
+- `respond()`'s result always reports `passes: 1` and `converged: true` now; these fields are kept only for compatibility with callers of earlier versions and no longer reflect actual iteration count/convergence behaviour.
+- `opts.maxPasses` is no longer honored by `respond()`.
+
 ## 1.5.5 — 2026-11-09
 
 ### Added
