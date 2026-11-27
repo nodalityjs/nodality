@@ -70,3 +70,21 @@ test("an affine layout is certified without splitting, and its switch does not m
 	assert.deepEqual(on.synthesized, off.synthesized, "same nodes either way");
 	assert.equal(on.certification.nonAffine.length, 0);
 });
+
+// Baselines for the responsive-breakpoints paper (R3-5): `affineTries: 0`
+// turns the safeguarded interpolation into plain bisection. Same answer on an
+// affine fit, more probes.
+test("affineTries: 0 is bisection: same switch, more probes", async () => {
+	const affine = () => {
+		let width = 0;
+		return {
+			renderAt: async (w) => { width = w; },
+			page: { evaluate: async (_f, arg) => arg.groups.map((g) => ({ id: g.id, need: 0.5 * width + 300, have: width, needNarrow: 100, vv: width, iw: width })) },
+		};
+	};
+	const a = affine(), b = affine();
+	const interp = await respond(a.page, SPEC, a.renderAt, { certify: false });
+	const bisect = await respond(b.page, SPEC, b.renderAt, { certify: false, affineTries: 0 });
+	assert.deepEqual(bisect.synthesized, interp.synthesized);
+	assert.ok(bisect.report[0].probes > interp.report[0].probes, `${bisect.report[0].probes} vs ${interp.report[0].probes}`);
+});
